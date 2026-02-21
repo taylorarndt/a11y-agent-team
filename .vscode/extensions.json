@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "deque-systems.vscode-axe-linter",
+    "webhint.vscode-webhint",
+    "dbaeumer.vscode-eslint",
+    "streetsidesoftware.code-spell-checker",
+    "usernamehw.errorlens"
+  ],
+  "unwantedRecommendations": []
+}

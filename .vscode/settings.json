@@ -1,0 +1,17 @@
+{
+  "editor.accessibilitySupport": "on",
+  "editor.linkedEditing": true,
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": true,
+
+  "github.copilot.chat.codeGeneration.useReferencedFiles": true,
+
+  "css.lint.important": "warning",
+
+  "html.validate.scripts": true,
+  "html.validate.styles": true,
+
+  "files.associations": {
+    "*.md": "markdown"
+  }
+}

@@ -1,0 +1,52 @@
+## Accessibility-First Development
+
+This workspace enforces WCAG AA accessibility standards for all web UI code.
+
+### Mandatory Accessibility Check
+
+Before writing or modifying any web UI code — including HTML, JSX, CSS, React components, Tailwind classes, web pages, forms, modals, or any user-facing web content — you MUST:
+
+1. Consider which accessibility specialist agents are needed for the task
+2. Apply the relevant specialist knowledge before generating code
+3. Verify the output against the appropriate checklists
+
+### Available Specialist Agents
+
+Invoke these agents by name when working on UI tasks:
+
+| Agent | When to Use |
+|-------|------------|
+| `@workspace /accessibility-lead` | Any UI task — coordinates all specialists and runs final review |
+| `@workspace /aria-specialist` | Interactive components, custom widgets, ARIA usage |
+| `@workspace /modal-specialist` | Dialogs, drawers, popovers, overlays |
+| `@workspace /contrast-master` | Colors, themes, CSS styling, visual design |
+| `@workspace /keyboard-navigator` | Tab order, focus management, keyboard interaction |
+| `@workspace /live-region-controller` | Dynamic content updates, toasts, loading states |
+| `@workspace /forms-specialist` | Forms, inputs, validation, error handling, multi-step wizards |
+| `@workspace /alt-text-headings` | Images, alt text, SVGs, heading structure, page titles, landmarks |
+| `@workspace /tables-data-specialist` | Data tables, sortable tables, grids, comparison tables, pricing tables |
+| `@workspace /testing-coach` | Screen reader testing, keyboard testing, automated testing guidance |
+| `@workspace /wcag-guide` | WCAG 2.2 criteria explanations, conformance levels, what changed |
+
+### Decision Matrix
+
+- **New component or page:** Always apply aria-specialist + keyboard-navigator + alt-text-headings guidance. Add forms-specialist for any inputs, contrast-master for styling, modal-specialist for overlays, live-region-controller for dynamic updates, tables-data-specialist for any data tables.
+- **Modifying existing UI:** At minimum apply keyboard-navigator (tab order breaks easily). Add others based on what changed.
+- **Code review/audit:** Apply all specialist checklists.
+- **Data tables:** Always apply tables-data-specialist for any tabular data display.
+- **Images or media:** Always apply alt-text-headings. The agent can visually analyze images and compare them against their alt text.
+- **Testing guidance:** Use testing-coach for screen reader testing, keyboard testing, and automated testing setup.
+- **WCAG questions:** Use wcag-guide to understand specific WCAG success criteria and conformance requirements.
+
+### Non-Negotiable Standards
+
+- Semantic HTML before ARIA (`<button>` not `<div role="button">`)
+- One H1 per page, never skip heading levels
+- Every interactive element reachable and operable by keyboard
+- Text contrast 4.5:1, UI component contrast 3:1
+- No information conveyed by color alone
+- Focus managed on route changes, dynamic content, and deletions
+- Modals trap focus and return focus on close
+- Live regions for all dynamic content updates
+
+For tasks that do not involve any user-facing web content (backend logic, scripts, database work), these requirements do not apply.

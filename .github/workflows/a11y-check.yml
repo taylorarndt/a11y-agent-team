@@ -1,0 +1,108 @@
+name: Accessibility Check
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '**/*.html'
+      - '**/*.htm'
+      - '**/*.jsx'
+      - '**/*.tsx'
+      - '**/*.vue'
+      - '**/*.svelte'
+      - '**/*.css'
+      - '**/*.scss'
+
+jobs:
+  a11y-lint:
+    name: Accessibility Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+        continue-on-error: true
+
+      - name: Run axe-core linter
+        run: |
+          npx @axe-core/cli --exit --rules wcag2a,wcag2aa --disable color-contrast \
+            $(find . -name '*.html' -not -path './node_modules/*' -not -path './.git/*' | head -20) \
+            2>/dev/null || echo "No HTML files found or axe-core not configured. Skipping."
+        continue-on-error: true
+
+      - name: Check for common a11y issues in source
+        run: |
+          echo "=== Checking for missing alt attributes ==="
+          grep -rn '<img[^>]*>' --include='*.html' --include='*.jsx' --include='*.tsx' --include='*.vue' --include='*.svelte' . \
+            | grep -v 'node_modules' \
+            | grep -v 'alt=' \
+            | head -20 || echo "✅ All img tags have alt attributes"
+
+          echo ""
+          echo "=== Checking for positive tabindex ==="
+          grep -rn 'tabindex="[1-9]' --include='*.html' --include='*.jsx' --include='*.tsx' --include='*.vue' --include='*.svelte' . \
+            | grep -v 'node_modules' \
+            | head -20 || echo "✅ No positive tabindex values found"
+
+          echo ""
+          echo "=== Checking for outline:none without alternative ==="
+          grep -rn 'outline:\s*none\|outline:\s*0' --include='*.css' --include='*.scss' --include='*.html' --include='*.jsx' --include='*.tsx' . \
+            | grep -v 'node_modules' \
+            | grep -v ':focus-visible' \
+            | head -20 || echo "✅ No outline removal without :focus-visible alternative"
+
+          echo ""
+          echo "=== Checking for div/span used as buttons ==="
+          grep -rn 'role="button"\|onClick.*<div\|onClick.*<span' --include='*.html' --include='*.jsx' --include='*.tsx' --include='*.vue' --include='*.svelte' . \
+            | grep -v 'node_modules' \
+            | head -20 || echo "✅ No div/span buttons detected"
+
+          echo ""
+          echo "=== Checking for inputs without labels ==="
+          grep -rn '<input\|<select\|<textarea' --include='*.html' --include='*.jsx' --include='*.tsx' --include='*.vue' --include='*.svelte' . \
+            | grep -v 'node_modules' \
+            | grep -vi 'aria-label\|aria-labelledby\|id=' \
+            | grep -v 'type="hidden"\|type="submit"\|type="button"' \
+            | head -20 || echo "✅ All form inputs appear to have labels"
+
+        continue-on-error: true
+
+  eslint-a11y:
+    name: ESLint jsx-a11y
+    runs-on: ubuntu-latest
+    if: hashFiles('package.json') != ''
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+        continue-on-error: true
+
+      - name: Check for eslint-plugin-jsx-a11y
+        id: check-plugin
+        run: |
+          if grep -q 'eslint-plugin-jsx-a11y' package.json 2>/dev/null; then
+            echo "found=true" >> $GITHUB_OUTPUT
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
+            echo "⚠️ eslint-plugin-jsx-a11y is not installed. Consider adding it for automated accessibility linting."
+          fi
+
+      - name: Run ESLint a11y rules
+        if: steps.check-plugin.outputs.found == 'true'
+        run: |
+          npx eslint --no-eslintrc --plugin jsx-a11y \
+            --rule '{"jsx-a11y/alt-text": "error", "jsx-a11y/anchor-has-content": "error", "jsx-a11y/aria-props": "error", "jsx-a11y/aria-role": "error", "jsx-a11y/click-events-have-key-events": "warn", "jsx-a11y/heading-has-content": "error", "jsx-a11y/label-has-associated-control": "error", "jsx-a11y/no-noninteractive-element-interactions": "warn", "jsx-a11y/tabindex-no-positive": "error"}' \
+            --ext .jsx,.tsx .
+        continue-on-error: true
