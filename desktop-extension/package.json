@@ -1,0 +1,11 @@
+{
+  "name": "a11y-agent-team-mcpb",
+  "version": "1.0.0",
+  "description": "Accessibility review tools and prompts for Claude Desktop",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.20.0",
+    "zod": "3.25"
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "manifest_version": "0.3",
+  "name": "a11y-agent-team",
+  "display_name": "A11y Agent Team",
+  "version": "1.0.0",
+  "description": "Accessibility review tools for Claude Desktop. Check contrast ratios, audit ARIA usage, review modals, keyboard navigation, and live regions. Enforces WCAG 2.1 AA compliance.",
+  "long_description": "A team of accessibility specialists that review your web UI code for WCAG 2.1 AA compliance. Includes a contrast ratio calculator, six specialist review prompts (ARIA, modals, keyboard navigation, color contrast, live regions, and a full audit), plus comprehensive accessibility guidelines as reference resources. Built by a screen reader user who got tired of AI tools forgetting accessibility.",
+  "author": {
+    "name": "Taylor Arndt"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/taylorarndt/a11y-agent-team"
+  },
+  "homepage": "https://github.com/taylorarndt/a11y-agent-team",
+  "support": "https://github.com/taylorarndt/a11y-agent-team/issues",
+  "keywords": [
+    "accessibility",
+    "a11y",
+    "wcag",
+    "aria",
+    "screen-reader",
+    "contrast",
+    "keyboard-navigation",
+    "focus-management",
+    "web-accessibility"
+  ],
+  "compatibility": {
+    "claude_desktop": ">=0.10.0",
+    "platforms": ["darwin", "win32", "linux"],
+    "runtimes": {
+      "node": ">=18.0.0"
+    }
+  },
+  "server": {
+    "type": "node",
+    "entry_point": "server/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/server/index.js"]
+    }
+  },
+  "tools": [
+    {
+      "name": "check_contrast",
+      "description": "Calculate WCAG contrast ratio between two colors and check if it passes AA requirements for normal text (4.5:1), large text (3:1), and UI components (3:1)."
+    },
+    {
+      "name": "get_accessibility_guidelines",
+      "description": "Get detailed accessibility guidelines for a specific component type (modal, tabs, accordion, combobox, carousel, form, live-region, navigation, or general). Returns WCAG AA requirements, code examples, and common mistakes to avoid."
+    }
+  ],
+  "tools_generated": false,
+  "prompts": [
+    {
+      "name": "accessibility-audit",
+      "description": "Run a full accessibility audit on code. Checks structure, ARIA, keyboard navigation, contrast, focus management, and live regions.",
+      "text": "Run a comprehensive WCAG 2.1 AA accessibility audit on this code: {{code}}",
+      "arguments": ["code"]
+    },
+    {
+      "name": "aria-review",
+      "description": "Review ARIA roles, states, and properties in code. Enforces the first rule of ARIA: do not use it if native HTML works.",
+      "text": "Review ARIA roles, states, and properties in this code: {{code}}",
+      "arguments": ["code"]
+    },
+    {
+      "name": "modal-review",
+      "description": "Review a modal, dialog, drawer, or overlay for focus trapping, focus return, escape behavior, and heading structure.",
+      "text": "Review this modal or dialog for accessibility: {{code}}",
+      "arguments": ["code"]
+    },
+    {
+      "name": "contrast-review",
+      "description": "Review color choices and CSS for WCAG AA contrast compliance. Checks text, UI components, focus indicators, and color independence.",
+      "text": "Review color contrast and visual accessibility in this code: {{code}}",
+      "arguments": ["code"]
+    },
+    {
+      "name": "keyboard-review",
+      "description": "Review code for keyboard accessibility: tab order, focus management, skip links, arrow key patterns, and keyboard traps.",
+      "text": "Review keyboard navigation and focus management in this code: {{code}}",
+      "arguments": ["code"]
+    },
+    {
+      "name": "live-region-review",
+      "description": "Review dynamic content for screen reader announcements. Checks live regions, toasts, loading states, search results, and form feedback.",
+      "text": "Review live regions and dynamic content announcements in this code: {{code}}",
+      "arguments": ["code"]
+    }
+  ],
+  "prompts_generated": false
+}
