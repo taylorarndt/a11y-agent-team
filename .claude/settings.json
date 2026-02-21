@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/a11y-team-eval.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
