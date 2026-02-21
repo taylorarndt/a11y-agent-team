@@ -9,14 +9,7 @@
 
 set -e
 
-AGENTS=(
-  "accessibility-lead.md"
-  "aria-specialist.md"
-  "modal-specialist.md"
-  "contrast-master.md"
-  "keyboard-navigator.md"
-  "live-region-controller.md"
-)
+# Auto-detect installed agents rather than using a hardcoded list
 
 # Parse flags for non-interactive uninstall
 choice=""
@@ -61,19 +54,46 @@ esac
 
 echo ""
 echo "  Removing agents..."
-for agent in "${AGENTS[@]}"; do
-  if [ -f "$TARGET_DIR/agents/$agent" ]; then
-    rm "$TARGET_DIR/agents/$agent"
-    name="${agent%.md}"
+AGENTS_DIR="$TARGET_DIR/agents"
+if [ -d "$AGENTS_DIR" ]; then
+  for agent in "$AGENTS_DIR"/*.md; do
+    [ -f "$agent" ] || continue
+    name="$(basename "${agent%.md}")"
+    rm "$agent"
     echo "    - $name"
-  fi
-done
+  done
+fi
 
 echo ""
 echo "  Removing hook..."
 if [ -f "$TARGET_DIR/hooks/a11y-team-eval.sh" ]; then
   rm "$TARGET_DIR/hooks/a11y-team-eval.sh"
   echo "    - a11y-team-eval.sh"
+fi
+
+# Remove Copilot agents if installed (project uninstall only)
+if [ "$choice" = "1" ]; then
+  COPILOT_DIR="$(pwd)/.github/agents"
+  if [ -d "$COPILOT_DIR" ]; then
+    echo ""
+    echo "  Removing Copilot agents..."
+    for agent in "$COPILOT_DIR"/*.agent.md; do
+      [ -f "$agent" ] || continue
+      name="$(basename "${agent%.md}")"
+      rm "$agent"
+      echo "    - $name"
+    done
+    rmdir "$COPILOT_DIR" 2>/dev/null || true
+  fi
+
+  # Remove Copilot config files
+  for config in copilot-instructions.md copilot-review-instructions.md copilot-commit-message-instructions.md; do
+    CONFIG_FILE="$(pwd)/.github/$config"
+    if [ -f "$CONFIG_FILE" ]; then
+      rm "$CONFIG_FILE"
+      echo "    - $config"
+    fi
+  done
 fi
 
 # Try to remove hook from settings.json
@@ -110,6 +130,49 @@ except Exception as e:
     echo "  NOTE: The hook entry in settings.json was not removed."
     echo "  Remove the UserPromptSubmit hook referencing a11y-team-eval.sh"
     echo "  from your settings.json manually."
+  fi
+fi
+
+# Remove Copilot agents from VS Code profile folders (global uninstall only)
+if [ "$choice" = "2" ]; then
+  if [ "$(uname)" = "Darwin" ]; then
+    VSCODE_PROFILES=(
+      "$HOME/Library/Application Support/Code/User"
+      "$HOME/Library/Application Support/Code - Insiders/User"
+    )
+  else
+    VSCODE_PROFILES=(
+      "$HOME/.config/Code/User"
+      "$HOME/.config/Code - Insiders/User"
+    )
+  fi
+
+  for PROFILE_DIR in "${VSCODE_PROFILES[@]}"; do
+    if ls "$PROFILE_DIR"/*.agent.md 1>/dev/null 2>&1; then
+      echo ""
+      echo "  Removing Copilot agents from VS Code profile: $PROFILE_DIR"
+      for agent in "$PROFILE_DIR"/*.agent.md; do
+        [ -f "$agent" ] || continue
+        name="$(basename "${agent%.agent.md}")"
+        rm "$agent"
+        echo "    - $name"
+      done
+    fi
+  done
+
+  # Remove central Copilot store
+  COPILOT_CENTRAL="$HOME/.a11y-agent-team"
+  if [ -d "$COPILOT_CENTRAL" ]; then
+    echo ""
+    echo "  Removing Copilot central store..."
+    rm -rf "$COPILOT_CENTRAL"
+    echo "    - $COPILOT_CENTRAL"
+  fi
+
+  # Remove a11y-copilot-init command
+  if [ -f "/usr/local/bin/a11y-copilot-init" ]; then
+    rm -f "/usr/local/bin/a11y-copilot-init"
+    echo "    - a11y-copilot-init command"
   fi
 fi
 

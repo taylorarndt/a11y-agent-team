@@ -17,14 +17,7 @@ CACHE_DIR="$HOME/.claude/.a11y-agent-team-repo"
 VERSION_FILE="$HOME/.claude/.a11y-agent-team-version"
 LOG_FILE="$HOME/.claude/.a11y-agent-team-update.log"
 
-AGENTS=(
-  "accessibility-lead.md"
-  "aria-specialist.md"
-  "modal-specialist.md"
-  "contrast-master.md"
-  "keyboard-navigator.md"
-  "live-region-controller.md"
-)
+# Agents are auto-detected from the cached repo after clone/pull
 
 # Parse flags
 SILENT=false
@@ -86,18 +79,30 @@ if [ ! -d "$INSTALL_DIR/agents" ]; then
   exit 1
 fi
 
-# Copy updated agents
+# Auto-detect and copy updated agents
 UPDATED=0
-for agent in "${AGENTS[@]}"; do
-  SRC="$CACHE_DIR/.claude/agents/$agent"
+for SRC in "$CACHE_DIR"/.claude/agents/*.md; do
+  [ -f "$SRC" ] || continue
+  agent="$(basename "$SRC")"
   DST="$INSTALL_DIR/agents/$agent"
-  if [ -f "$SRC" ]; then
-    if ! cmp -s "$SRC" "$DST" 2>/dev/null; then
-      cp "$SRC" "$DST"
-      name="${agent%.md}"
-      log "Updated: $name"
-      UPDATED=$((UPDATED + 1))
-    fi
+  if ! cmp -s "$SRC" "$DST" 2>/dev/null; then
+    cp "$SRC" "$DST"
+    name="${agent%.md}"
+    log "Updated: $name"
+    UPDATED=$((UPDATED + 1))
+  fi
+done
+
+# Remove agents that no longer exist in the repo
+for DST in "$INSTALL_DIR"/agents/*.md; do
+  [ -f "$DST" ] || continue
+  agent="$(basename "$DST")"
+  SRC="$CACHE_DIR/.claude/agents/$agent"
+  if [ ! -f "$SRC" ]; then
+    rm "$DST"
+    name="${agent%.md}"
+    log "Removed (no longer in repo): $name"
+    UPDATED=$((UPDATED + 1))
   fi
 done
 
@@ -112,6 +117,60 @@ if [ -f "$HOOK_SRC" ] && [ -f "$HOOK_DST" ]; then
     UPDATED=$((UPDATED + 1))
   fi
 fi
+
+# Update Copilot agents if previously installed
+COPILOT_DIRS=()
+if [ "$TARGET" = "project" ]; then
+  [ -d "$(pwd)/.github/agents" ] && COPILOT_DIRS+=("$(pwd)/.github/agents")
+else
+  # Check central store from global install
+  CENTRAL="$HOME/.a11y-agent-team/copilot-agents"
+  [ -d "$CENTRAL" ] && COPILOT_DIRS+=("$CENTRAL")
+
+  # Also update VS Code profile folders if agents were installed there
+  if [ "$(uname)" = "Darwin" ]; then
+    VSCODE_PROFILE="$HOME/Library/Application Support/Code/User"
+    VSCODE_INSIDERS_PROFILE="$HOME/Library/Application Support/Code - Insiders/User"
+  else
+    VSCODE_PROFILE="$HOME/.config/Code/User"
+    VSCODE_INSIDERS_PROFILE="$HOME/.config/Code - Insiders/User"
+  fi
+  # Only add if there are existing .agent.md files (meaning user installed copilot globally)
+  [ -n "$(ls "$VSCODE_PROFILE"/*.agent.md 2>/dev/null)" ] && COPILOT_DIRS+=("$VSCODE_PROFILE")
+  [ -n "$(ls "$VSCODE_INSIDERS_PROFILE"/*.agent.md 2>/dev/null)" ] && COPILOT_DIRS+=("$VSCODE_INSIDERS_PROFILE")
+fi
+
+for COPILOT_DIR in "${COPILOT_DIRS[@]}"; do
+  for SRC in "$CACHE_DIR"/.github/agents/*.agent.md; do
+    [ -f "$SRC" ] || continue
+    agent="$(basename "$SRC")"
+    DST="$COPILOT_DIR/$agent"
+    if ! cmp -s "$SRC" "$DST" 2>/dev/null; then
+      cp "$SRC" "$DST"
+      name="${agent%.agent.md}"
+      log "Updated Copilot agent: $name"
+      UPDATED=$((UPDATED + 1))
+    fi
+  done
+
+  # Update Copilot config files
+  if [ "$COPILOT_DIR" = "$HOME/.a11y-agent-team/copilot-agents" ]; then
+    CONFIG_DIR="$HOME/.a11y-agent-team"
+  else
+    CONFIG_DIR="$(dirname "$COPILOT_DIR")"
+  fi
+  for config in copilot-instructions.md copilot-review-instructions.md copilot-commit-message-instructions.md; do
+    SRC="$CACHE_DIR/.github/$config"
+    DST="$CONFIG_DIR/$config"
+    if [ -f "$SRC" ] && [ -f "$DST" ]; then
+      if ! cmp -s "$SRC" "$DST" 2>/dev/null; then
+        cp "$SRC" "$DST"
+        log "Updated Copilot config: $config"
+        UPDATED=$((UPDATED + 1))
+      fi
+    fi
+  done
+done
 
 # Save version
 echo "$NEW_HASH" > "$VERSION_FILE"

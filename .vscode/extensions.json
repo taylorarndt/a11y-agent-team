@@ -1,5 +1,7 @@
 {
   "recommendations": [
+    "github.copilot",
+    "github.copilot-chat",
     "deque-systems.vscode-axe-linter",
     "webhint.vscode-webhint",
     "dbaeumer.vscode-eslint",
