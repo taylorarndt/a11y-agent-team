@@ -15,8 +15,10 @@ user-facing web content:
 1. Delegate to the accessibility-lead agent
 2. The accessibility-lead will determine which specialist agents are needed
 3. Specialists: aria-specialist, modal-specialist, contrast-master,
-   keyboard-navigator, live-region-controller
-4. Do NOT write UI code without accessibility-lead review
+   keyboard-navigator, live-region-controller, forms-specialist,
+   alt-text-headings, tables-data-specialist
+4. For testing guidance, use testing-coach. For WCAG questions, use wcag-guide.
+5. Do NOT write UI code without accessibility-lead review
 
 If the task does not involve any user-facing web content, proceed normally.
 "@

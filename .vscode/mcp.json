@@ -1,0 +1,11 @@
+{
+  "servers": {
+    "a11y-agent-team": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/desktop-extension/server/index.js"
+      ]
+    }
+  }
+}

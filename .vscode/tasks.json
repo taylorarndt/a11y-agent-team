@@ -1,0 +1,109 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "A11y: Check Contrast",
+      "type": "shell",
+      "command": "node",
+      "args": [
+        "-e",
+        "const fg='${input:foreground}',bg='${input:background}';function s(c){c=c/255;return c<=0.04045?c/12.92:Math.pow((c+0.055)/1.055,2.4)}function l(h){h=h.replace('#','');if(h.length===3)h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];const r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);return 0.2126*s(r)+0.7152*s(g)+0.0722*s(b)}const l1=l(fg),l2=l(bg),ratio=(Math.max(l1,l2)+0.05)/(Math.min(l1,l2)+0.05),r=Math.round(ratio*100)/100;console.log(`\\nContrast: ${r}:1\\nNormal text (4.5:1): ${ratio>=4.5?'PASS':'FAIL'}\\nLarge text (3:1): ${ratio>=3?'PASS':'FAIL'}\\nUI components (3:1): ${ratio>=3?'PASS':'FAIL'}\\n`)"
+      ],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "A11y: Find Missing Alt Text",
+      "type": "shell",
+      "command": "grep",
+      "args": [
+        "-rn",
+        "<img[^>]*>",
+        "--include=*.html",
+        "--include=*.jsx",
+        "--include=*.tsx",
+        "--include=*.vue",
+        "--include=*.svelte",
+        ".",
+        "|",
+        "grep",
+        "-v",
+        "alt="
+      ],
+      "options": {
+        "shell": {
+          "executable": "bash",
+          "args": ["-c"]
+        }
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "A11y: Find Positive Tabindex",
+      "type": "shell",
+      "command": "grep",
+      "args": [
+        "-rn",
+        "tabindex=\"[1-9]",
+        "--include=*.html",
+        "--include=*.jsx",
+        "--include=*.tsx",
+        "--include=*.vue",
+        "--include=*.svelte",
+        "."
+      ],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "A11y: Find Outline Removal",
+      "type": "shell",
+      "command": "grep",
+      "args": [
+        "-rn",
+        "outline:\\s*none\\|outline:\\s*0",
+        "--include=*.css",
+        "--include=*.scss",
+        "--include=*.html",
+        "--include=*.jsx",
+        "--include=*.tsx",
+        "."
+      ],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "foreground",
+      "type": "promptString",
+      "description": "Foreground color (hex, e.g. #1a1a1a or #fff)"
+    },
+    {
+      "id": "background",
+      "type": "promptString",
+      "description": "Background color (hex, e.g. #ffffff or #000)"
+    }
+  ]
+}
