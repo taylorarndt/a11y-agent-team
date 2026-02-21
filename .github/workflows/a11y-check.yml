@@ -76,27 +76,39 @@ jobs:
   eslint-a11y:
     name: ESLint jsx-a11y
     runs-on: ubuntu-latest
-    if: hashFiles('package.json') != ''
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check for package.json
+        id: check-package
+        run: |
+          if [ -f package.json ]; then
+            echo "found=true" >> $GITHUB_OUTPUT
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
+            echo "No package.json found. Skipping ESLint a11y checks."
+          fi
+
       - name: Setup Node.js
+        if: steps.check-package.outputs.found == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Install dependencies
+        if: steps.check-package.outputs.found == 'true'
         run: npm ci
         continue-on-error: true
 
       - name: Check for eslint-plugin-jsx-a11y
         id: check-plugin
+        if: steps.check-package.outputs.found == 'true'
         run: |
           if grep -q 'eslint-plugin-jsx-a11y' package.json 2>/dev/null; then
             echo "found=true" >> $GITHUB_OUTPUT
           else
             echo "found=false" >> $GITHUB_OUTPUT
-            echo "⚠️ eslint-plugin-jsx-a11y is not installed. Consider adding it for automated accessibility linting."
+            echo "eslint-plugin-jsx-a11y is not installed. Consider adding it for automated accessibility linting."
           fi
 
       - name: Run ESLint a11y rules
