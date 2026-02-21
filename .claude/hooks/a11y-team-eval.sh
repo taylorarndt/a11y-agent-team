@@ -1,6 +1,6 @@
 #!/bin/bash
 # A11y Agent Team - Forced evaluation hook
-# https://github.com/techopolis (or wherever this lives)
+# https://github.com/taylorarndt/a11y-agent-team
 #
 # Place in .claude/hooks/ and reference from .claude/settings.json
 # Fires on every UserPromptSubmit to ensure the accessibility-lead

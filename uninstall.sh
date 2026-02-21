@@ -1,6 +1,6 @@
 #!/bin/bash
 # A11y Agent Team Uninstaller
-# Built by Techopolis - https://techopolis.online
+# Built by Taylor Arndt - https://github.com/taylorarndt
 #
 # Usage:
 #   bash uninstall.sh            Interactive mode

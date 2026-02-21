@@ -1,5 +1,5 @@
 # A11y Agent Team Installer (Windows PowerShell)
-# Built by Techopolis - https://techopolis.online
+# Built by Taylor Arndt - https://github.com/taylorarndt
 
 $ErrorActionPreference = "Stop"
 
@@ -18,7 +18,7 @@ $Agents = @(
 
 Write-Host ""
 Write-Host "  A11y Agent Team Installer"
-Write-Host "  Built by Techopolis"
+Write-Host "  Built by Taylor Arndt"
 Write-Host "  ========================="
 Write-Host ""
 Write-Host "  Where would you like to install?"

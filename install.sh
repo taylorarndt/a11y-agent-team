@@ -1,6 +1,6 @@
 #!/bin/bash
 # A11y Agent Team Installer
-# Built by Techopolis - https://techopolis.online
+# Built by Taylor Arndt - https://github.com/taylorarndt
 #
 # Usage:
 #   bash install.sh            Interactive mode (prompts for project or global)
@@ -45,7 +45,7 @@ fi
 if [ -z "$choice" ]; then
   echo ""
   echo "  A11y Agent Team Installer"
-  echo "  Built by Techopolis"
+  echo "  Built by Taylor Arndt"
   echo "  ========================="
   echo ""
   echo "  Where would you like to install?"

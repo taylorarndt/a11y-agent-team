@@ -1,5 +1,5 @@
 # A11y Agent Team Uninstaller (Windows PowerShell)
-# Built by Techopolis - https://techopolis.online
+# Built by Taylor Arndt - https://github.com/taylorarndt
 
 $ErrorActionPreference = "Stop"
 

@@ -2,7 +2,7 @@
 
 **A team of specialized accessibility agents for Claude Code.**
 
-Built by [Techopolis](https://techopolis.online) because LLMs consistently forget accessibility. Skills get ignored. Instructions drift out of context. ARIA gets misused. Focus management gets skipped. Color contrast fails silently. We got tired of fighting it, so we built a team of agents that will not let it slide.
+Built by [Taylor Arndt](https://github.com/taylorarndt) because LLMs consistently forget accessibility. Skills get ignored. Instructions drift out of context. ARIA gets misused. Focus management gets skipped. Color contrast fails silently. I got tired of fighting it, so I built a team of agents that will not let it slide.
 
 ## The Problem
 
@@ -42,7 +42,7 @@ For tasks that don't involve UI code (backend logic, scripts, database work), th
 
 ```bash
 # Clone the repository
-git clone https://github.com/anthropics/a11y-agent-team.git
+git clone https://github.com/taylorarndt/a11y-agent-team.git
 cd a11y-agent-team
 
 # Run the installer
@@ -71,7 +71,7 @@ bash uninstall.sh --project   # Non-interactive project uninstall
 
 ```powershell
 # Clone the repository
-git clone https://github.com/anthropics/a11y-agent-team.git
+git clone https://github.com/taylorarndt/a11y-agent-team.git
 cd a11y-agent-team
 
 # Run the installer
@@ -381,6 +381,6 @@ Found a gap? Open an issue or PR. Common contributions:
 
 MIT
 
-## About Techopolis
+## About the Author
 
-[Techopolis](https://techopolis.online) builds accessible apps for Apple platforms. Our team includes people who use assistive technology daily. We build these tools because accessibility is how we work, not something we bolt on at the end. When we found that AI coding tools consistently failed at accessibility, we built the team we wished existed.
+Built by [Taylor Arndt](https://github.com/taylorarndt), a developer and accessibility specialist who uses assistive technology daily. I built this because accessibility is how I work, not something I bolt on at the end. When I found that AI coding tools consistently failed at accessibility, I built the team I wished existed.

@@ -1,6 +1,6 @@
 # A11y Agent Team - Forced evaluation hook (Windows PowerShell)
-# https://github.com/anthropics/a11y-agent-team
-# Built by Techopolis - https://techopolis.online
+# https://github.com/taylorarndt/a11y-agent-team
+# Built by Taylor Arndt - https://github.com/taylorarndt
 #
 # Place in .claude\hooks\ and reference from .claude\settings.json
 # Fires on every UserPromptSubmit to ensure the accessibility-lead
