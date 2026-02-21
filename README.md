@@ -284,6 +284,30 @@ $env:SLASH_COMMAND_TOOL_CHAR_BUDGET = "30000"
 
 Add this to your PowerShell profile (`$PROFILE`) to make it permanent.
 
+### Auto-Updates
+
+During global installation, the installer asks if you want to enable auto-updates. When enabled, a daily scheduled job checks GitHub for new agent versions and installs them automatically.
+
+- **macOS:** Uses a LaunchAgent (`~/Library/LaunchAgents/com.taylorarndt.a11y-agent-team-update.plist`), runs daily at 9:00 AM
+- **Linux:** Uses a cron job, runs daily at 9:00 AM
+- **Windows:** Uses Task Scheduler (`A11yAgentTeamUpdate`), runs daily at 9:00 AM
+
+Update log is saved to `~/.claude/.a11y-agent-team-update.log`.
+
+You can also run updates manually at any time:
+
+**macOS/Linux:**
+```bash
+bash update.sh
+```
+
+**Windows:**
+```powershell
+powershell -File update.ps1
+```
+
+Auto-updates are fully removed when you run the uninstaller.
+
 ### Disabling the Hook Temporarily
 
 If you need to work without the accessibility check for a session, you can disable the hook in your settings.json temporarily by removing or commenting out the `UserPromptSubmit` entry. The agents will still be available for direct invocation with `@agent-name`.
@@ -363,6 +387,8 @@ a11y-agent-team/
   install.ps1                  # Installer (Windows)
   uninstall.sh                 # Uninstaller (macOS/Linux)
   uninstall.ps1                # Uninstaller (Windows)
+  update.sh                    # Manual/auto update (macOS/Linux)
+  update.ps1                   # Manual/auto update (Windows)
   LICENSE                      # MIT License
   README.md                    # This file
 ```

@@ -59,6 +59,35 @@ if (Test-Path $HookPath) {
     Write-Host "    - a11y-team-eval.ps1"
 }
 
+# Remove auto-update (global uninstall only)
+if ($Choice -eq "2") {
+    Write-Host ""
+    Write-Host "  Removing auto-update..."
+
+    # Remove scheduled task
+    $TaskName = "A11yAgentTeamUpdate"
+    $Task = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
+    if ($Task) {
+        Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue
+        Write-Host "    - Scheduled task removed"
+    }
+
+    # Remove update script, cache, version file, and log
+    $FilesToRemove = @(
+        (Join-Path $TargetDir ".a11y-agent-team-update.ps1"),
+        (Join-Path $TargetDir ".a11y-agent-team-version"),
+        (Join-Path $TargetDir ".a11y-agent-team-update.log")
+    )
+    foreach ($File in $FilesToRemove) {
+        if (Test-Path $File) { Remove-Item -Path $File -Force }
+    }
+    $CacheDir = Join-Path $TargetDir ".a11y-agent-team-repo"
+    if (Test-Path $CacheDir) {
+        Remove-Item -Path $CacheDir -Recurse -Force
+    }
+    Write-Host "    - Update files cleaned up"
+}
+
 Write-Host ""
 Write-Host "  NOTE: The hook entry in settings.json was not removed."
 Write-Host "  If you want to fully clean up, remove the UserPromptSubmit"

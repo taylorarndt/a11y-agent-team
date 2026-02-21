@@ -113,6 +113,33 @@ except Exception as e:
   fi
 fi
 
+# Remove auto-update (global uninstall only)
+if [ "$choice" = "2" ]; then
+  echo ""
+  echo "  Removing auto-update..."
+
+  # Remove LaunchAgent (macOS)
+  PLIST_FILE="$HOME/Library/LaunchAgents/com.taylorarndt.a11y-agent-team-update.plist"
+  if [ -f "$PLIST_FILE" ]; then
+    launchctl bootout "gui/$(id -u)" "$PLIST_FILE" 2>/dev/null || true
+    rm "$PLIST_FILE"
+    echo "    - LaunchAgent removed"
+  fi
+
+  # Remove cron job (Linux)
+  if crontab -l 2>/dev/null | grep -q "a11y-agent-team-update"; then
+    crontab -l 2>/dev/null | grep -v "a11y-agent-team-update" | crontab -
+    echo "    - Cron job removed"
+  fi
+
+  # Remove update script, cache, version file, and log
+  rm -f "$TARGET_DIR/.a11y-agent-team-update.sh"
+  rm -f "$TARGET_DIR/.a11y-agent-team-version"
+  rm -f "$TARGET_DIR/.a11y-agent-team-update.log"
+  rm -rf "$TARGET_DIR/.a11y-agent-team-repo"
+  echo "    - Update files cleaned up"
+fi
+
 # Clean up empty directories
 rmdir "$TARGET_DIR/hooks" 2>/dev/null || true
 rmdir "$TARGET_DIR/agents" 2>/dev/null || true

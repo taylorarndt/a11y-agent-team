@@ -127,6 +127,45 @@ Write-Host "    - modal-specialist"
 Write-Host "    - contrast-master"
 Write-Host "    - keyboard-navigator"
 Write-Host "    - live-region-controller"
+
+# Auto-update setup (global install only)
+if ($Choice -eq "2") {
+    Write-Host ""
+    Write-Host "  Would you like to enable auto-updates?"
+    Write-Host "  This checks GitHub daily for new agents and improvements."
+    Write-Host ""
+    $AutoUpdate = Read-Host "  Enable auto-updates? [y/N]"
+
+    if ($AutoUpdate -eq "y" -or $AutoUpdate -eq "Y") {
+        # Copy the update script
+        $UpdateSrc = Join-Path $ScriptDir "update.ps1"
+        $UpdateDst = Join-Path $TargetDir ".a11y-agent-team-update.ps1"
+        if (Test-Path $UpdateSrc) {
+            Copy-Item -Path $UpdateSrc -Destination $UpdateDst -Force
+        }
+
+        # Create a scheduled task that runs daily at 9:00 AM
+        $TaskName = "A11yAgentTeamUpdate"
+        $Action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-ExecutionPolicy Bypass -WindowStyle Hidden -File `"$UpdateDst`" -Silent"
+        $Trigger = New-ScheduledTaskTrigger -Daily -At "9:00AM"
+        $Settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -DontStopOnIdleEnd
+
+        # Remove existing task if present
+        Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue
+
+        Register-ScheduledTask -TaskName $TaskName -Action $Action -Trigger $Trigger -Settings $Settings -Description "Auto-update A11y Agent Team for Claude Code" -ErrorAction SilentlyContinue | Out-Null
+
+        if ($?) {
+            Write-Host "  Auto-updates enabled (daily at 9:00 AM via Task Scheduler)."
+            Write-Host "  Update log: ~\.claude\.a11y-agent-team-update.log"
+        } else {
+            Write-Host "  Could not create scheduled task. You can run update.ps1 manually."
+        }
+    } else {
+        Write-Host "  Auto-updates skipped. You can run update.ps1 manually anytime."
+    }
+}
+
 Write-Host ""
 Write-Host "  If agents stop loading, increase the character budget:"
 Write-Host "    `$env:SLASH_COMMAND_TOOL_CHAR_BUDGET = '30000'"

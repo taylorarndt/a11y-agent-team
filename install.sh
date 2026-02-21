@@ -219,6 +219,126 @@ if grep -q "a11y-team-eval" "$SETTINGS_FILE" 2>/dev/null; then
 else
   echo "    [ ] Hook NOT configured -- add it manually (see above)"
 fi
+# Save current version hash
+if command -v git &>/dev/null && [ -d "$SCRIPT_DIR/.git" ]; then
+  git -C "$SCRIPT_DIR" rev-parse --short HEAD 2>/dev/null > "$TARGET_DIR/.a11y-agent-team-version"
+fi
+
+# Auto-update setup (global install only, interactive only)
+if [ "$choice" = "2" ] && [ -t 0 ]; then
+  echo ""
+  echo "  Would you like to enable auto-updates?"
+  echo "  This checks GitHub daily for new agents and improvements."
+  echo ""
+  printf "  Enable auto-updates? [y/N]: "
+  read -r auto_update
+
+  if [ "$auto_update" = "y" ] || [ "$auto_update" = "Y" ]; then
+    UPDATE_SCRIPT="$TARGET_DIR/.a11y-agent-team-update.sh"
+
+    # Write a self-contained update script
+    cat > "$UPDATE_SCRIPT" << 'UPDATESCRIPT'
+#!/bin/bash
+set -e
+REPO_URL="https://github.com/taylorarndt/a11y-agent-team.git"
+CACHE_DIR="$HOME/.claude/.a11y-agent-team-repo"
+INSTALL_DIR="$HOME/.claude"
+LOG_FILE="$HOME/.claude/.a11y-agent-team-update.log"
+
+log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOG_FILE"; }
+
+command -v git &>/dev/null || { log "git not found"; exit 1; }
+
+if [ -d "$CACHE_DIR/.git" ]; then
+  cd "$CACHE_DIR"
+  git fetch origin main --quiet 2>/dev/null
+  LOCAL=$(git rev-parse HEAD 2>/dev/null)
+  REMOTE=$(git rev-parse origin/main 2>/dev/null)
+  [ "$LOCAL" = "$REMOTE" ] && { log "Already up to date."; exit 0; }
+  git reset --hard origin/main --quiet 2>/dev/null
+else
+  mkdir -p "$(dirname "$CACHE_DIR")"
+  git clone --quiet "$REPO_URL" "$CACHE_DIR" 2>/dev/null
+fi
+
+cd "$CACHE_DIR"
+HASH=$(git rev-parse --short HEAD 2>/dev/null)
+UPDATED=0
+
+for agent in .claude/agents/*.md; do
+  NAME=$(basename "$agent")
+  SRC="$CACHE_DIR/$agent"
+  DST="$INSTALL_DIR/agents/$NAME"
+  [ -f "$SRC" ] && [ -f "$DST" ] && ! cmp -s "$SRC" "$DST" && {
+    cp "$SRC" "$DST"
+    log "Updated: ${NAME%.md}"
+    UPDATED=$((UPDATED + 1))
+  }
+done
+
+SRC="$CACHE_DIR/.claude/hooks/a11y-team-eval.sh"
+DST="$INSTALL_DIR/hooks/a11y-team-eval.sh"
+[ -f "$SRC" ] && [ -f "$DST" ] && ! cmp -s "$SRC" "$DST" && {
+  cp "$SRC" "$DST"
+  chmod +x "$DST"
+  log "Updated: hook script"
+  UPDATED=$((UPDATED + 1))
+}
+
+echo "$HASH" > "$INSTALL_DIR/.a11y-agent-team-version"
+log "Check complete: $UPDATED files updated (version $HASH)."
+UPDATESCRIPT
+    chmod +x "$UPDATE_SCRIPT"
+
+    # Detect platform and set up scheduler
+    if [ "$(uname)" = "Darwin" ]; then
+      # macOS: LaunchAgent
+      PLIST_DIR="$HOME/Library/LaunchAgents"
+      PLIST_FILE="$PLIST_DIR/com.taylorarndt.a11y-agent-team-update.plist"
+      mkdir -p "$PLIST_DIR"
+      cat > "$PLIST_FILE" << PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.taylorarndt.a11y-agent-team-update</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>${UPDATE_SCRIPT}</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key>
+    <integer>9</integer>
+    <key>Minute</key>
+    <integer>0</integer>
+  </dict>
+  <key>StandardOutPath</key>
+  <string>${HOME}/.claude/.a11y-agent-team-update.log</string>
+  <key>StandardErrorPath</key>
+  <string>${HOME}/.claude/.a11y-agent-team-update.log</string>
+  <key>RunAtLoad</key>
+  <false/>
+</dict>
+</plist>
+PLIST
+      launchctl bootout "gui/$(id -u)" "$PLIST_FILE" 2>/dev/null || true
+      launchctl bootstrap "gui/$(id -u)" "$PLIST_FILE" 2>/dev/null
+      echo "  Auto-updates enabled (daily at 9:00 AM via launchd)."
+    else
+      # Linux: cron job
+      CRON_CMD="0 9 * * * /bin/bash $UPDATE_SCRIPT"
+      (crontab -l 2>/dev/null | grep -v "a11y-agent-team-update"; echo "$CRON_CMD") | crontab -
+      echo "  Auto-updates enabled (daily at 9:00 AM via cron)."
+    fi
+    echo "  Update log: ~/.claude/.a11y-agent-team-update.log"
+  else
+    echo "  Auto-updates skipped. You can run update.sh manually anytime."
+  fi
+fi
+
 echo ""
 echo "  If agents do not load, increase the character budget:"
 echo "    export SLASH_COMMAND_TOOL_CHAR_BUDGET=30000"
