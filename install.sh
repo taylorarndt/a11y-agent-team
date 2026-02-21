@@ -3,28 +3,31 @@
 # Built by Taylor Arndt - https://github.com/taylorarndt
 #
 # Usage:
-#   bash install.sh            Interactive mode (prompts for project or global)
-#   bash install.sh --global   Install globally to ~/.claude/
-#   bash install.sh --project  Install to .claude/ in the current directory
+#   bash install.sh                    Interactive mode (prompts for project or global)
+#   bash install.sh --global           Install globally to ~/.claude/
+#   bash install.sh --global --copilot Also install Copilot agents to VS Code
+#   bash install.sh --project          Install to .claude/ in the current directory
+#   bash install.sh --project --copilot Also install Copilot agents to project
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 AGENTS_SRC="$SCRIPT_DIR/.claude/agents"
 HOOK_SRC="$SCRIPT_DIR/.claude/hooks/a11y-team-eval.sh"
+COPILOT_AGENTS_SRC="$SCRIPT_DIR/.github/agents"
+COPILOT_CONFIG_SRC="$SCRIPT_DIR/.github"
 
-AGENTS=(
-  "accessibility-lead.md"
-  "aria-specialist.md"
-  "modal-specialist.md"
-  "contrast-master.md"
-  "keyboard-navigator.md"
-  "live-region-controller.md"
-)
+# Auto-detect agents from source directory
+AGENTS=()
+if [ -d "$AGENTS_SRC" ]; then
+  for f in "$AGENTS_SRC"/*.md; do
+    [ -f "$f" ] && AGENTS+=("$(basename "$f")")
+  done
+fi
 
 # Validate source files exist
-if [ ! -d "$AGENTS_SRC" ]; then
-  echo "  Error: Agents directory not found at $AGENTS_SRC"
+if [ ${#AGENTS[@]} -eq 0 ]; then
+  echo "  Error: No agents found in $AGENTS_SRC"
   echo "  Make sure you are running this script from the a11y-agent-team directory."
   exit 1
 fi
@@ -36,11 +39,14 @@ fi
 
 # Parse flags for non-interactive install
 choice=""
-if [ "$1" = "--global" ]; then
-  choice="2"
-elif [ "$1" = "--project" ]; then
-  choice="1"
-fi
+COPILOT_FLAG=false
+for arg in "$@"; do
+  case "$arg" in
+    --global) choice="2" ;;
+    --project) choice="1" ;;
+    --copilot) COPILOT_FLAG=true ;;
+  esac
+done
 
 if [ -z "$choice" ]; then
   echo ""
@@ -104,6 +110,160 @@ echo "  Copying hook..."
 cp "$HOOK_SRC" "$TARGET_DIR/hooks/a11y-team-eval.sh"
 chmod +x "$TARGET_DIR/hooks/a11y-team-eval.sh"
 echo "    + a11y-team-eval.sh"
+
+# Copilot agents
+COPILOT_INSTALLED=false
+COPILOT_DESTINATIONS=()
+install_copilot=false
+
+if [ "$COPILOT_FLAG" = true ]; then
+  install_copilot=true
+elif [ -t 0 ]; then
+  echo ""
+  echo "  Would you also like to install GitHub Copilot agents?"
+  echo "  This adds accessibility agents for Copilot Chat in VS Code/GitHub."
+  echo ""
+  printf "  Install Copilot agents? [y/N]: "
+  read -r copilot_choice
+  if [ "$copilot_choice" = "y" ] || [ "$copilot_choice" = "Y" ]; then
+    install_copilot=true
+  fi
+fi
+
+if [ "$install_copilot" = true ]; then
+
+    if [ "$choice" = "1" ]; then
+      # Project install: put agents in .github/agents/
+      PROJECT_DIR="$(pwd)"
+      COPILOT_DST="$PROJECT_DIR/.github/agents"
+      mkdir -p "$COPILOT_DST"
+      COPILOT_DESTINATIONS+=("$COPILOT_DST")
+
+      # Copy Copilot config files to project
+      echo ""
+      echo "  Copying Copilot config..."
+      for config in copilot-instructions.md copilot-review-instructions.md copilot-commit-message-instructions.md; do
+        SRC="$COPILOT_CONFIG_SRC/$config"
+        DST="$PROJECT_DIR/.github/$config"
+        if [ -f "$SRC" ]; then
+          cp "$SRC" "$DST"
+          echo "    + $config"
+        fi
+      done
+
+    else
+      # Global install: copy .agent.md files directly into VS Code user profile folders.
+      # This is the documented way to make agents available across all workspaces.
+      COPILOT_CENTRAL="$HOME/.a11y-agent-team/copilot-agents"
+      mkdir -p "$COPILOT_CENTRAL"
+
+      # Store a central copy for updates and a11y-copilot-init
+      echo ""
+      echo "  Storing Copilot agents centrally..."
+      if [ -d "$COPILOT_AGENTS_SRC" ]; then
+        for f in "$COPILOT_AGENTS_SRC"/*.agent.md; do
+          [ -f "$f" ] || continue
+          agent="$(basename "$f")"
+          cp "$f" "$COPILOT_CENTRAL/$agent"
+          name="${agent%.agent.md}"
+          echo "    + $name"
+        done
+      fi
+
+      # Copy Copilot config files to central store
+      for config in copilot-instructions.md copilot-review-instructions.md copilot-commit-message-instructions.md; do
+        SRC="$COPILOT_CONFIG_SRC/$config"
+        if [ -f "$SRC" ]; then
+          cp "$SRC" "$HOME/.a11y-agent-team/$config"
+        fi
+      done
+
+      # Copy .agent.md files directly into VS Code user profile folders
+      # so they appear globally in the Copilot Chat agent picker.
+      copy_to_vscode_profile() {
+        local profile_dir="$1"
+        local label="$2"
+
+        if [ ! -d "$profile_dir" ]; then
+          return
+        fi
+
+        echo "  [found] $label"
+        for f in "$COPILOT_CENTRAL"/*.agent.md; do
+          [ -f "$f" ] || continue
+          cp "$f" "$profile_dir/"
+        done
+        echo "    Copied $(ls "$COPILOT_CENTRAL"/*.agent.md 2>/dev/null | wc -l | tr -d ' ') agents to profile"
+        COPILOT_DESTINATIONS+=("$profile_dir")
+      }
+
+      echo ""
+      if [ "$(uname)" = "Darwin" ]; then
+        copy_to_vscode_profile "$HOME/Library/Application Support/Code/User" "VS Code"
+        copy_to_vscode_profile "$HOME/Library/Application Support/Code - Insiders/User" "VS Code Insiders"
+      else
+        copy_to_vscode_profile "$HOME/.config/Code/User" "VS Code"
+        copy_to_vscode_profile "$HOME/.config/Code - Insiders/User" "VS Code Insiders"
+      fi
+
+      # Also create a11y-copilot-init for per-project use (repos to check into git)
+      mkdir -p "$HOME/.a11y-agent-team"
+      INIT_SCRIPT="$HOME/.a11y-agent-team/a11y-copilot-init"
+      cat > "$INIT_SCRIPT" << 'INITSCRIPT'
+#!/bin/bash
+# A11y Agent Team - Copy Copilot agents into the current project
+# Usage: a11y-copilot-init
+#
+# Copies .agent.md files into .github/agents/ for this project.
+# Use this when you want to check agents into version control.
+
+CENTRAL="$HOME/.a11y-agent-team/copilot-agents"
+TARGET=".github/agents"
+
+if [ ! -d "$CENTRAL" ] || [ -z "$(ls "$CENTRAL"/*.agent.md 2>/dev/null)" ]; then
+  echo "  Error: No Copilot agents found in $CENTRAL"
+  echo "  Run the a11y-agent-team installer first."
+  exit 1
+fi
+
+mkdir -p "$TARGET"
+cp "$CENTRAL"/*.agent.md "$TARGET/"
+
+# Copy config files
+for config in copilot-instructions.md copilot-review-instructions.md copilot-commit-message-instructions.md; do
+  [ -f "$HOME/.a11y-agent-team/$config" ] && cp "$HOME/.a11y-agent-team/$config" ".github/$config"
+done
+
+echo "  Copied Copilot agents to $TARGET/"
+echo "  Copied Copilot config to .github/"
+echo ""
+echo "  These are now in your project for version control."
+INITSCRIPT
+      chmod +x "$INIT_SCRIPT"
+
+      # Add to PATH if not already present
+      SHELL_RC=""
+      if [ -f "$HOME/.zshrc" ]; then
+        SHELL_RC="$HOME/.zshrc"
+      elif [ -f "$HOME/.bashrc" ]; then
+        SHELL_RC="$HOME/.bashrc"
+      fi
+
+      if [ -n "$SHELL_RC" ]; then
+        if ! grep -q "a11y-copilot-init" "$SHELL_RC" 2>/dev/null; then
+          echo "" >> "$SHELL_RC"
+          echo "# A11y Agent Team - Copilot init command" >> "$SHELL_RC"
+          echo "export PATH=\"\$HOME/.a11y-agent-team:\$PATH\"" >> "$SHELL_RC"
+          echo "  Added 'a11y-copilot-init' command to your PATH via $SHELL_RC"
+        else
+          echo "  'a11y-copilot-init' already in PATH."
+        fi
+      fi
+
+      COPILOT_INSTALLED=true
+      COPILOT_DESTINATIONS+=("$COPILOT_CENTRAL")
+    fi
+fi
 
 # Handle settings.json
 echo ""
@@ -196,7 +356,7 @@ echo ""
 echo "  ========================="
 echo "  Installation complete!"
 echo ""
-echo "  Agents installed:"
+echo "  Claude Code agents installed:"
 for agent in "${AGENTS[@]}"; do
   name="${agent%.md}"
   if [ -f "$TARGET_DIR/agents/$agent" ]; then
@@ -218,6 +378,20 @@ if grep -q "a11y-team-eval" "$SETTINGS_FILE" 2>/dev/null; then
   echo "    [x] Hook configured in settings.json"
 else
   echo "    [ ] Hook NOT configured -- add it manually (see above)"
+fi
+if [ "$COPILOT_INSTALLED" = true ]; then
+  echo ""
+  echo "  Copilot agents installed to:"
+  for dest in "${COPILOT_DESTINATIONS[@]}"; do
+    echo "    -> $dest"
+  done
+  echo ""
+  echo "  Copilot agents:"
+  for f in "${COPILOT_DESTINATIONS[0]}"/*.agent.md; do
+    [ -f "$f" ] || continue
+    name="$(basename "${f%.agent.md}")"
+    echo "    [x] $name"
+  done
 fi
 # Save current version hash
 if command -v git &>/dev/null && [ -d "$SCRIPT_DIR/.git" ]; then
@@ -269,9 +443,21 @@ for agent in .claude/agents/*.md; do
   NAME=$(basename "$agent")
   SRC="$CACHE_DIR/$agent"
   DST="$INSTALL_DIR/agents/$NAME"
-  [ -f "$SRC" ] && [ -f "$DST" ] && ! cmp -s "$SRC" "$DST" && {
+  [ -f "$SRC" ] || continue
+  if ! cmp -s "$SRC" "$DST" 2>/dev/null; then
     cp "$SRC" "$DST"
     log "Updated: ${NAME%.md}"
+    UPDATED=$((UPDATED + 1))
+  fi
+done
+
+# Remove agents no longer in repo
+for DST in "$INSTALL_DIR"/agents/*.md; do
+  [ -f "$DST" ] || continue
+  NAME=$(basename "$DST")
+  [ ! -f "$CACHE_DIR/.claude/agents/$NAME" ] && {
+    rm "$DST"
+    log "Removed: ${NAME%.md}"
     UPDATED=$((UPDATED + 1))
   }
 done
@@ -284,6 +470,37 @@ DST="$INSTALL_DIR/hooks/a11y-team-eval.sh"
   log "Updated: hook script"
   UPDATED=$((UPDATED + 1))
 }
+
+# Update Copilot agents in central store and VS Code profile folders
+CENTRAL="$HOME/.a11y-agent-team/copilot-agents"
+if [ -d "$CENTRAL" ]; then
+  for SRC in "$CACHE_DIR"/.github/agents/*.agent.md; do
+    [ -f "$SRC" ] || continue
+    NAME=$(basename "$SRC")
+    DST="$CENTRAL/$NAME"
+    if ! cmp -s "$SRC" "$DST" 2>/dev/null; then
+      cp "$SRC" "$DST"
+      log "Updated Copilot agent: ${NAME%.agent.md}"
+      UPDATED=$((UPDATED + 1))
+    fi
+  done
+fi
+
+# Push updated Copilot agents to VS Code profile folders
+if [ "$(uname)" = "Darwin" ]; then
+  PROFILES=("$HOME/Library/Application Support/Code/User" "$HOME/Library/Application Support/Code - Insiders/User")
+else
+  PROFILES=("$HOME/.config/Code/User" "$HOME/.config/Code - Insiders/User")
+fi
+for PROFILE in "${PROFILES[@]}"; do
+  # Only update if agents were previously installed there
+  [ -n "$(ls "$PROFILE"/*.agent.md 2>/dev/null)" ] || continue
+  for SRC in "$CENTRAL"/*.agent.md; do
+    [ -f "$SRC" ] || continue
+    cp "$SRC" "$PROFILE/"
+  done
+  log "Updated VS Code profile: $PROFILE"
+done
 
 echo "$HASH" > "$INSTALL_DIR/.a11y-agent-team-version"
 log "Check complete: $UPDATED files updated (version $HASH)."

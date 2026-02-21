@@ -12,21 +12,23 @@ Before writing or modifying any web UI code — including HTML, JSX, CSS, React 
 
 ### Available Specialist Agents
 
-Invoke these agents by name when working on UI tasks:
+Select these agents from the agents dropdown in Copilot Chat, or type `/agents` to browse:
 
 | Agent | When to Use |
 |-------|------------|
-| `@workspace /accessibility-lead` | Any UI task — coordinates all specialists and runs final review |
-| `@workspace /aria-specialist` | Interactive components, custom widgets, ARIA usage |
-| `@workspace /modal-specialist` | Dialogs, drawers, popovers, overlays |
-| `@workspace /contrast-master` | Colors, themes, CSS styling, visual design |
-| `@workspace /keyboard-navigator` | Tab order, focus management, keyboard interaction |
-| `@workspace /live-region-controller` | Dynamic content updates, toasts, loading states |
-| `@workspace /forms-specialist` | Forms, inputs, validation, error handling, multi-step wizards |
-| `@workspace /alt-text-headings` | Images, alt text, SVGs, heading structure, page titles, landmarks |
-| `@workspace /tables-data-specialist` | Data tables, sortable tables, grids, comparison tables, pricing tables |
-| `@workspace /testing-coach` | Screen reader testing, keyboard testing, automated testing guidance |
-| `@workspace /wcag-guide` | WCAG 2.2 criteria explanations, conformance levels, what changed |
+| accessibility-lead | Any UI task — coordinates all specialists and runs final review |
+| aria-specialist | Interactive components, custom widgets, ARIA usage |
+| modal-specialist | Dialogs, drawers, popovers, overlays |
+| contrast-master | Colors, themes, CSS styling, visual design |
+| keyboard-navigator | Tab order, focus management, keyboard interaction |
+| live-region-controller | Dynamic content updates, toasts, loading states |
+| forms-specialist | Forms, inputs, validation, error handling, multi-step wizards |
+| alt-text-headings | Images, alt text, SVGs, heading structure, page titles, landmarks |
+| tables-data-specialist | Data tables, sortable tables, grids, comparison tables, pricing tables |
+| testing-coach | Screen reader testing, keyboard testing, automated testing guidance |
+| wcag-guide | WCAG 2.2 criteria explanations, conformance levels, what changed |
+
+In the CLI, use `/agent` in interactive mode or `copilot --agent <name> --prompt "..."` programmatically.
 
 ### Decision Matrix
 

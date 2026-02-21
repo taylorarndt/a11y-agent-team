@@ -66,15 +66,23 @@ cd a11y-agent-team
 bash install.sh
 ```
 
-The installer will ask whether to install at the **project level** or **globally**. You can also pass a flag to skip the prompt:
+The installer will ask whether to install at the **project level** or **globally**. It will also ask if you want to install **GitHub Copilot agents**. You can pass flags to skip the prompts:
 
 ```bash
 # Install globally (available in all projects)
 bash install.sh --global
 
+# Install globally with Copilot agents in VS Code
+bash install.sh --global --copilot
+
 # Install to the current project only
 bash install.sh --project
+
+# Install to the current project with Copilot agents
+bash install.sh --project --copilot
 ```
+
+The `--copilot` flag installs the accessibility agents for GitHub Copilot Chat. For **global** installs, this copies `.agent.md` files directly into your VS Code user profile so the agents appear in the Copilot Chat agent picker across all workspaces. For **project** installs, it copies them into the project's `.github/agents/` directory.
 
 To remove:
 
@@ -95,7 +103,7 @@ cd a11y-agent-team
 powershell -ExecutionPolicy Bypass -File install.ps1
 ```
 
-The installer prompts for project-level or global installation, just like the bash version.
+The installer prompts for project-level or global installation, and whether to install Copilot agents, just like the bash version.
 
 To remove:
 
@@ -304,6 +312,8 @@ During global installation, the installer asks if you want to enable auto-update
 - **Linux:** Uses a cron job, runs daily at 9:00 AM
 - **Windows:** Uses Task Scheduler (`A11yAgentTeamUpdate`), runs daily at 9:00 AM
 
+Auto-updates keep both Claude Code agents (`~/.claude/agents/`) and Copilot agents in your VS Code user profile folder in sync. If you installed Copilot agents globally, the update process detects the `.agent.md` files in your VS Code profile and refreshes them automatically.
+
 Update log is saved to `~/.claude/.a11y-agent-team-update.log`.
 
 You can also run updates manually at any time:
@@ -328,7 +338,7 @@ This is for **GitHub Copilot Chat** in VS Code (or other editors that support th
 
 ### How It Works
 
-GitHub Copilot supports custom agents via `.github/agents/*.md` files and workspace-level instructions via `.github/copilot-instructions.md`. The A11y Agent Team provides:
+GitHub Copilot supports custom agents via `.github/agents/*.agent.md` files and workspace-level instructions via `.github/copilot-instructions.md`. The A11y Agent Team provides:
 
 - **Eight specialist agents** that you can invoke by name in Copilot Chat
 - **Workspace instructions** that remind Copilot to consider accessibility on every UI task
@@ -348,22 +358,64 @@ Unlike Claude Code's hook system, Copilot does not have a pre-prompt hook. Inste
 
 ### Installation
 
+#### Option 1: Global (via the installer)
+
+The easiest way to get Copilot agents in every workspace. The installer copies `.agent.md` files directly into your VS Code user profile folder. No per-project setup needed.
+
 ```bash
-# Clone the repository
 git clone https://github.com/taylorarndt/a11y-agent-team.git
 cd a11y-agent-team
 
-# Copy the .github directory into your project
+# Install Claude Code agents globally AND Copilot agents globally
+bash install.sh --global --copilot
+```
+
+This installs Copilot agents to:
+- **macOS:** `~/Library/Application Support/Code/User/` and `~/Library/Application Support/Code - Insiders/User/`
+- **Linux:** `~/.config/Code/User/` and `~/.config/Code - Insiders/User/`
+- **Windows:** `%APPDATA%\Code\User\` and `%APPDATA%\Code - Insiders\User\`
+
+After installing, reload VS Code (Cmd+Shift+P > "Developer: Reload Window") and open Copilot Chat. The agents will appear in the agent picker dropdown across all workspaces.
+
+Auto-updates will also keep the VS Code profile agents in sync when new versions are available.
+
+#### Option 2: Per-project
+
+Copy the `.github` directory into your project so the agents travel with the repo.
+
+```bash
+git clone https://github.com/taylorarndt/a11y-agent-team.git
+cd a11y-agent-team
+
+# Copy into your project
 cp -r .github /path/to/your/project/
 ```
 
-Or manually copy the files:
+Or use the installer with the project flag:
+
+```bash
+cd /path/to/your/project
+bash /path/to/a11y-agent-team/install.sh --project --copilot
+```
+
+#### Option 3: Per-project (via a11y-copilot-init)
+
+If you installed globally with `--copilot`, you also get the `a11y-copilot-init` command. Run it inside any project to copy the agents into that project's `.github/agents/` for version control:
+
+```bash
+cd /path/to/your/project
+a11y-copilot-init
+```
+
+#### Manual setup
+
+If you prefer to copy files manually:
 
 **1. Copy agents**
 
 ```bash
 mkdir -p .github/agents
-cp path/to/a11y-agent-team/.github/agents/*.md .github/agents/
+cp path/to/a11y-agent-team/.github/agents/*.agent.md .github/agents/
 ```
 
 **2. Copy workspace instructions and review configs**
@@ -432,7 +484,7 @@ The workspace instructions in `.github/copilot-instructions.md` are loaded into 
 | Invocation | `/agent-name` or `@agent-name` | `@agent-name` |
 | Auto-activation | Hook forces evaluation on every prompt | Workspace instructions provide guidance |
 | Tool access | Explicit tool list per agent | Copilot manages tool access |
-| Global install | `~/.claude/agents/` | Per-project only |
+| Global install | `~/.claude/agents/` | VS Code user profile folder or per-project |
 
 ---
 
@@ -1236,17 +1288,17 @@ a11y-agent-team/
     settings.json              # Example hook configuration
   .github/
     agents/
-      accessibility-lead.md    # Orchestrator agent (GitHub Copilot)
-      alt-text-headings.md     # Alt text, SVGs, headings, landmarks
-      aria-specialist.md       # ARIA roles, states, properties
-      contrast-master.md       # Color contrast and visual a11y
-      forms-specialist.md      # Forms, labels, validation, errors
-      keyboard-navigator.md    # Tab order and focus management
-      live-region-controller.md # Dynamic content announcements
-      modal-specialist.md      # Dialogs, drawers, overlays
-      tables-data-specialist.md # Data tables, grids, sortable columns
-      testing-coach.md         # Screen reader and keyboard testing guide
-      wcag-guide.md            # WCAG 2.2 criteria reference
+      accessibility-lead.agent.md    # Orchestrator agent (GitHub Copilot)
+      alt-text-headings.agent.md     # Alt text, SVGs, headings, landmarks
+      aria-specialist.agent.md       # ARIA roles, states, properties
+      contrast-master.agent.md       # Color contrast and visual a11y
+      forms-specialist.agent.md      # Forms, labels, validation, errors
+      keyboard-navigator.agent.md    # Tab order and focus management
+      live-region-controller.agent.md # Dynamic content announcements
+      modal-specialist.agent.md      # Dialogs, drawers, overlays
+      tables-data-specialist.agent.md # Data tables, grids, sortable columns
+      testing-coach.agent.md         # Screen reader and keyboard testing guide
+      wcag-guide.agent.md            # WCAG 2.2 criteria reference
     copilot-instructions.md    # Workspace-level accessibility instructions
     copilot-review-instructions.md  # PR review enforcement rules
     copilot-commit-message-instructions.md # Commit message a11y guidance
