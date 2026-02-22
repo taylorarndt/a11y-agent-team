@@ -26,7 +26,8 @@ Select these agents from the agents dropdown in Copilot Chat, or type `/agents` 
 | alt-text-headings | Images, alt text, SVGs, heading structure, page titles, landmarks |
 | tables-data-specialist | Data tables, sortable tables, grids, comparison tables, pricing tables |
 | link-checker | Ambiguous link text, "click here"/"read more" detection, link purpose |
-| accessibility-wizard | Full guided accessibility audit with step-by-step walkthrough |
+| accessibility-wizard | Full guided web accessibility audit with step-by-step walkthrough |
+| document-accessibility-wizard | Document accessibility audit for .docx, .xlsx, .pptx, .pdf — single files, folders, recursive scanning |
 | testing-coach | Screen reader testing, keyboard testing, automated testing guidance |
 | wcag-guide | WCAG 2.2 criteria explanations, conformance levels, what changed |
 
@@ -34,7 +35,8 @@ Select these agents from the agents dropdown in Copilot Chat, or type `/agents` 
 
 - **New component or page:** Always apply aria-specialist + keyboard-navigator + alt-text-headings guidance. Add forms-specialist for any inputs, contrast-master for styling, modal-specialist for overlays, live-region-controller for dynamic updates, tables-data-specialist for any data tables.
 - **Modifying existing UI:** At minimum apply keyboard-navigator (tab order breaks easily). Add others based on what changed.
-- **Code review/audit:** Apply all specialist checklists. Use accessibility-wizard for guided audits.
+- **Code review/audit:** Apply all specialist checklists. Use accessibility-wizard for guided web audits.
+- **Document audit:** Use document-accessibility-wizard for Office and PDF accessibility audits. Supports single files, folders, and recursive scanning with mixed document types.
 - **Data tables:** Always apply tables-data-specialist for any tabular data display.
 - **Links:** Always apply link-checker when pages contain hyperlinks.
 - **Images or media:** Always apply alt-text-headings. The agent can visually analyze images and compare them against their alt text.
