@@ -178,33 +178,46 @@ if [ "$install_copilot" = true ]; then
         fi
       done
 
-      # Copy .agent.md files directly into VS Code user profile folders
+      # Copy .agent.md files into VS Code user profile prompts folders
       # so they appear globally in the Copilot Chat agent picker.
+      # VS Code discovers user-level agents from the prompts/ subdirectory.
       copy_to_vscode_profile() {
         local profile_dir="$1"
         local label="$2"
+        local prompts_dir="$profile_dir/prompts"
 
         if [ ! -d "$profile_dir" ]; then
           return
         fi
 
+        mkdir -p "$prompts_dir"
         echo "  [found] $label"
         for f in "$COPILOT_CENTRAL"/*.agent.md; do
           [ -f "$f" ] || continue
-          cp "$f" "$profile_dir/"
+          cp "$f" "$prompts_dir/"
         done
-        echo "    Copied $(ls "$COPILOT_CENTRAL"/*.agent.md 2>/dev/null | wc -l | tr -d ' ') agents to profile"
-        COPILOT_DESTINATIONS+=("$profile_dir")
+        echo "    Copied $(ls "$COPILOT_CENTRAL"/*.agent.md 2>/dev/null | wc -l | tr -d ' ') agents to $prompts_dir"
+        COPILOT_DESTINATIONS+=("$prompts_dir")
       }
 
       echo ""
-      if [ "$(uname)" = "Darwin" ]; then
-        copy_to_vscode_profile "$HOME/Library/Application Support/Code/User" "VS Code"
-        copy_to_vscode_profile "$HOME/Library/Application Support/Code - Insiders/User" "VS Code Insiders"
-      else
-        copy_to_vscode_profile "$HOME/.config/Code/User" "VS Code"
-        copy_to_vscode_profile "$HOME/.config/Code - Insiders/User" "VS Code Insiders"
-      fi
+      case "$(uname -s)" in
+        Darwin)
+          copy_to_vscode_profile "$HOME/Library/Application Support/Code/User" "VS Code"
+          copy_to_vscode_profile "$HOME/Library/Application Support/Code - Insiders/User" "VS Code Insiders"
+          ;;
+        Linux)
+          copy_to_vscode_profile "$HOME/.config/Code/User" "VS Code"
+          copy_to_vscode_profile "$HOME/.config/Code - Insiders/User" "VS Code Insiders"
+          ;;
+        MINGW*|MSYS*|CYGWIN*)
+          # Windows (Git Bash, MSYS2, Cygwin)
+          if [ -n "$APPDATA" ]; then
+            copy_to_vscode_profile "$APPDATA/Code/User" "VS Code"
+            copy_to_vscode_profile "$APPDATA/Code - Insiders/User" "VS Code Insiders"
+          fi
+          ;;
+      esac
 
       # Also create a11y-copilot-init for per-project use (repos to check into git)
       mkdir -p "$HOME/.a11y-agent-team"
@@ -486,20 +499,28 @@ if [ -d "$CENTRAL" ]; then
   done
 fi
 
-# Push updated Copilot agents to VS Code profile folders
-if [ "$(uname)" = "Darwin" ]; then
-  PROFILES=("$HOME/Library/Application Support/Code/User" "$HOME/Library/Application Support/Code - Insiders/User")
-else
-  PROFILES=("$HOME/.config/Code/User" "$HOME/.config/Code - Insiders/User")
-fi
+# Push updated Copilot agents to VS Code profile prompts folders
+PROFILES=()
+case "$(uname -s)" in
+  Darwin)
+    PROFILES=("$HOME/Library/Application Support/Code/User" "$HOME/Library/Application Support/Code - Insiders/User")
+    ;;
+  Linux)
+    PROFILES=("$HOME/.config/Code/User" "$HOME/.config/Code - Insiders/User")
+    ;;
+  MINGW*|MSYS*|CYGWIN*)
+    [ -n "$APPDATA" ] && PROFILES=("$APPDATA/Code/User" "$APPDATA/Code - Insiders/User")
+    ;;
+esac
 for PROFILE in "${PROFILES[@]}"; do
+  PROMPTS_DIR="$PROFILE/prompts"
   # Only update if agents were previously installed there
-  [ -n "$(ls "$PROFILE"/*.agent.md 2>/dev/null)" ] || continue
+  [ -d "$PROMPTS_DIR" ] && [ -n "$(ls "$PROMPTS_DIR"/*.agent.md 2>/dev/null)" ] || continue
   for SRC in "$CENTRAL"/*.agent.md; do
     [ -f "$SRC" ] || continue
-    cp "$SRC" "$PROFILE/"
+    cp "$SRC" "$PROMPTS_DIR/"
   done
-  log "Updated VS Code profile: $PROFILE"
+  log "Updated VS Code profile: $PROMPTS_DIR"
 done
 
 echo "$HASH" > "$INSTALL_DIR/.a11y-agent-team-version"

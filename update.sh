@@ -127,17 +127,24 @@ else
   CENTRAL="$HOME/.a11y-agent-team/copilot-agents"
   [ -d "$CENTRAL" ] && COPILOT_DIRS+=("$CENTRAL")
 
-  # Also update VS Code profile folders if agents were installed there
-  if [ "$(uname)" = "Darwin" ]; then
-    VSCODE_PROFILE="$HOME/Library/Application Support/Code/User"
-    VSCODE_INSIDERS_PROFILE="$HOME/Library/Application Support/Code - Insiders/User"
-  else
-    VSCODE_PROFILE="$HOME/.config/Code/User"
-    VSCODE_INSIDERS_PROFILE="$HOME/.config/Code - Insiders/User"
-  fi
-  # Only add if there are existing .agent.md files (meaning user installed copilot globally)
-  [ -n "$(ls "$VSCODE_PROFILE"/*.agent.md 2>/dev/null)" ] && COPILOT_DIRS+=("$VSCODE_PROFILE")
-  [ -n "$(ls "$VSCODE_INSIDERS_PROFILE"/*.agent.md 2>/dev/null)" ] && COPILOT_DIRS+=("$VSCODE_INSIDERS_PROFILE")
+  # Also update VS Code profile prompts folders if agents were installed there
+  VSCODE_PROFILES=()
+  case "$(uname -s)" in
+    Darwin)
+      VSCODE_PROFILES=("$HOME/Library/Application Support/Code/User" "$HOME/Library/Application Support/Code - Insiders/User")
+      ;;
+    Linux)
+      VSCODE_PROFILES=("$HOME/.config/Code/User" "$HOME/.config/Code - Insiders/User")
+      ;;
+    MINGW*|MSYS*|CYGWIN*)
+      [ -n "$APPDATA" ] && VSCODE_PROFILES=("$APPDATA/Code/User" "$APPDATA/Code - Insiders/User")
+      ;;
+  esac
+  for VSCODE_PROFILE in "${VSCODE_PROFILES[@]}"; do
+    PROMPTS_DIR="$VSCODE_PROFILE/prompts"
+    # Only add if agents were previously installed to prompts/
+    [ -d "$PROMPTS_DIR" ] && [ -n "$(ls "$PROMPTS_DIR"/*.agent.md 2>/dev/null)" ] && COPILOT_DIRS+=("$PROMPTS_DIR")
+  done
 fi
 
 for COPILOT_DIR in "${COPILOT_DIRS[@]}"; do

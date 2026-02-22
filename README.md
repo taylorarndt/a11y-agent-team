@@ -377,9 +377,9 @@ bash install.sh --global --copilot
 ```
 
 This installs Copilot agents to:
-- **macOS:** `~/Library/Application Support/Code/User/` and `~/Library/Application Support/Code - Insiders/User/`
-- **Linux:** `~/.config/Code/User/` and `~/.config/Code - Insiders/User/`
-- **Windows:** `%APPDATA%\Code\User\` and `%APPDATA%\Code - Insiders\User\`
+- **macOS:** `~/Library/Application Support/Code/User/prompts/` and `~/Library/Application Support/Code - Insiders/User/prompts/`
+- **Linux:** `~/.config/Code/User/prompts/` and `~/.config/Code - Insiders/User/prompts/`
+- **Windows:** `%APPDATA%\Code\User\prompts\` and `%APPDATA%\Code - Insiders\User\prompts\`
 
 After installing, reload VS Code (Cmd+Shift+P > "Developer: Reload Window") and open Copilot Chat. The agents will appear in the agent picker dropdown across all workspaces.
 
