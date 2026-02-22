@@ -1,6 +1,12 @@
 # A11y Agent Team
 
-**Accessibility review tools for Claude Code, GitHub Copilot, and Claude Desktop.**
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![GitHub release](https://img.shields.io/github/v/release/taylorarndt/a11y-agent-team?include_prereleases)](https://github.com/taylorarndt/a11y-agent-team/releases)
+[![GitHub stars](https://img.shields.io/github/stars/taylorarndt/a11y-agent-team)](https://github.com/taylorarndt/a11y-agent-team/stargazers)
+[![GitHub contributors](https://img.shields.io/github/contributors/taylorarndt/a11y-agent-team)](https://github.com/taylorarndt/a11y-agent-team/graphs/contributors)
+[![WCAG 2.2 AA](https://img.shields.io/badge/WCAG-2.2_AA-green.svg)](https://www.w3.org/TR/WCAG22/)
+
+**Accessibility review agents for Claude Code, GitHub Copilot, and Claude Desktop.**
 
 Built by [Taylor Arndt](https://github.com/taylorarndt) because LLMs consistently forget accessibility. Skills get ignored. Instructions drift out of context. ARIA gets misused. Focus management gets skipped. Color contrast fails silently. I got tired of fighting it, so I built a team of agents that will not let it slide.
 
