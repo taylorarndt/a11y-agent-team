@@ -73,6 +73,14 @@ When reviewing pull requests, enforce the following WCAG 2.1 AA accessibility st
 - Responsive tables must use `role="region"` with `tabindex="0"` for horizontal scroll
 - Layout tables (if they must exist) must use `role="presentation"`
 
+### Links
+- Flag ambiguous link text: "click here", "read more", "learn more", "here", "more", "link", "details"
+- Flag multiple links with identical text pointing to different destinations
+- Flag links opening in new tabs without warning (`target="_blank"` without "(opens in new tab)")
+- Flag links to non-HTML resources (PDFs, documents) without file type indication
+- Flag adjacent duplicate links (image + text link to same destination — combine them)
+- Flag URLs used as visible link text
+
 ### What to Ignore
 - Backend-only code, scripts, database queries, and API logic
 - Test files (unless testing accessibility behavior)

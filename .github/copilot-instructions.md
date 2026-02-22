@@ -25,17 +25,18 @@ Select these agents from the agents dropdown in Copilot Chat, or type `/agents` 
 | forms-specialist | Forms, inputs, validation, error handling, multi-step wizards |
 | alt-text-headings | Images, alt text, SVGs, heading structure, page titles, landmarks |
 | tables-data-specialist | Data tables, sortable tables, grids, comparison tables, pricing tables |
+| link-checker | Ambiguous link text, "click here"/"read more" detection, link purpose |
+| accessibility-wizard | Full guided accessibility audit with step-by-step walkthrough |
 | testing-coach | Screen reader testing, keyboard testing, automated testing guidance |
 | wcag-guide | WCAG 2.2 criteria explanations, conformance levels, what changed |
-
-In the CLI, use `/agent` in interactive mode or `copilot --agent <name> --prompt "..."` programmatically.
 
 ### Decision Matrix
 
 - **New component or page:** Always apply aria-specialist + keyboard-navigator + alt-text-headings guidance. Add forms-specialist for any inputs, contrast-master for styling, modal-specialist for overlays, live-region-controller for dynamic updates, tables-data-specialist for any data tables.
 - **Modifying existing UI:** At minimum apply keyboard-navigator (tab order breaks easily). Add others based on what changed.
-- **Code review/audit:** Apply all specialist checklists.
+- **Code review/audit:** Apply all specialist checklists. Use accessibility-wizard for guided audits.
 - **Data tables:** Always apply tables-data-specialist for any tabular data display.
+- **Links:** Always apply link-checker when pages contain hyperlinks.
 - **Images or media:** Always apply alt-text-headings. The agent can visually analyze images and compare them against their alt text.
 - **Testing guidance:** Use testing-coach for screen reader testing, keyboard testing, and automated testing setup.
 - **WCAG questions:** Use wcag-guide to understand specific WCAG success criteria and conformance requirements.

@@ -92,6 +92,24 @@
         "panel": "shared"
       },
       "problemMatcher": []
+    },
+    {
+      "label": "A11y: Run axe-core Scan",
+      "type": "shell",
+      "command": "npx",
+      "args": [
+        "@axe-core/cli",
+        "${input:scanUrl}",
+        "--tags",
+        "wcag2a,wcag2aa,wcag21a,wcag21aa"
+      ],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared"
+      },
+      "problemMatcher": []
     }
   ],
   "inputs": [
@@ -104,6 +122,11 @@
       "id": "background",
       "type": "promptString",
       "description": "Background color (hex, e.g. #ffffff or #000)"
+    },
+    {
+      "id": "scanUrl",
+      "type": "promptString",
+      "description": "URL to scan (e.g., http://localhost:3000)"
     }
   ]
 }

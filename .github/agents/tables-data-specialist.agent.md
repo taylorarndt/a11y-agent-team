@@ -155,7 +155,7 @@ Each cell's `headers` attribute lists the IDs of all headers that apply to it. S
       <th scope="col" aria-sort="ascending">
         <button>
           Name
-          <span aria-hidden="true">▲</span>
+          <span aria-hidden="true">^</span>
         </button>
       </th>
       <th scope="col" aria-sort="none">
