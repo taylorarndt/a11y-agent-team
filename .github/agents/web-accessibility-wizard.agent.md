@@ -1,7 +1,7 @@
 ---
 name: web-accessibility-wizard
 description: Interactive web accessibility review wizard. Runs a guided, step-by-step WCAG audit of your web application. Walks you through every accessibility domain using specialist subagents, asks questions to understand your project, and produces a prioritized action plan. For document accessibility (Word, Excel, PowerPoint, PDF), use the document-accessibility-wizard instead.
-tools: ['agent', 'askQuestions', 'read_file', 'search', 'edit', 'run_in_terminal', 'get_terminal_output', 'create_file', 'fetch']
+tools: ['runSubagent', 'askQuestions', 'readFile', 'search', 'editFiles', 'runInTerminal', 'getTerminalOutput', 'createFile', 'fetch', 'textSearch', 'fileSearch', 'listDirectory']
 agents: ['alt-text-headings', 'aria-specialist', 'keyboard-navigator', 'modal-specialist', 'forms-specialist', 'contrast-master', 'live-region-controller', 'tables-data-specialist', 'link-checker', 'testing-coach', 'wcag-guide']
 ---
 
@@ -88,7 +88,7 @@ Based on their answers, customize the audit order and depth. Store the app URL (
 
 ## MANDATORY: Screenshot Capture
 
-**If the user opted for screenshots in Phase 0, you MUST capture them. DO NOT skip this step. DO NOT substitute with descriptions or code review alone. You MUST use the run_in_terminal tool to capture actual screenshot files.**
+**If the user opted for screenshots in Phase 0, you MUST capture them. DO NOT skip this step. DO NOT substitute with descriptions or code review alone. You MUST use the runInTerminal tool to capture actual screenshot files.**
 
 If no URL was provided or the user declined screenshots, skip this section entirely.
 
@@ -145,9 +145,9 @@ npx playwright screenshot --browser chromium --full-page --wait-for-timeout 3000
 
 You MUST take screenshots at these points. DO NOT skip any of them:
 
-1. **Before the audit starts** — Use run_in_terminal to capture each page in the audit scope as a baseline. DO NOT SKIP THIS.
-2. **For each visual issue found** — Use run_in_terminal to capture the relevant page for contrast, focus indicators, and layout issues. Name files: `screenshots/issue-01-contrast.png`, `screenshots/issue-05-new-tab-link.png`, etc.
-3. **For axe-core violations** — Use run_in_terminal to capture the page that was scanned.
+1. **Before the audit starts** — Use runInTerminal to capture each page in the audit scope as a baseline. DO NOT SKIP THIS.
+2. **For each visual issue found** — Use runInTerminal to capture the relevant page for contrast, focus indicators, and layout issues. Name files: `screenshots/issue-01-contrast.png`, `screenshots/issue-05-new-tab-link.png`, etc.
+3. **For axe-core violations** — Use runInTerminal to capture the page that was scanned.
 
 **If you finish the audit without having run any screenshot commands and the user requested screenshots, you have failed. Go back and capture them.**
 
@@ -175,7 +175,7 @@ Before starting Phase 1, apply the choices from Phase 0:
 - **Code review only** — Run Phases 1-8 as normal. Skip the axe-core scan in Phase 9 (but still provide testing recommendations).
 - **Both** — Run Phase 9 (axe-core) FIRST, then run Phases 1-8 for code review. This gives the most complete picture.
 
-**DO NOT silently fall back to code review.** If the user chose runtime scan, use run_in_terminal. Period.
+**DO NOT silently fall back to code review.** If the user chose runtime scan, use runInTerminal. Period.
 
 ### Crawl Depth Rules
 
@@ -360,14 +360,14 @@ Collect findings from the subagent and report before proceeding.
 
 ### MANDATORY: Runtime axe-core Scan
 
-**If a URL was provided in Phase 0 (dev server or production), you MUST run an axe-core scan. DO NOT skip this. DO NOT replace it with code review. You MUST use the run_in_terminal tool to run axe-core against the live URL.**
+**If a URL was provided in Phase 0 (dev server or production), you MUST run an axe-core scan. DO NOT skip this. DO NOT replace it with code review. You MUST use the runInTerminal tool to run axe-core against the live URL.**
 
 A code review alone is NOT sufficient. axe-core tests the actual rendered DOM in a real browser and catches issues that static code analysis misses.
 
 **Steps — you MUST follow all of them:**
 
 1. Use the URL from Phase 0 — do NOT ask for it again
-2. Use run_in_terminal to execute this command NOW:
+2. Use runInTerminal to execute this command NOW:
    ```bash
    npx @axe-core/cli <URL> --tags wcag2a,wcag2aa,wcag21a,wcag21aa --save ACCESSIBILITY-SCAN.json
    ```
@@ -377,11 +377,11 @@ A code review alone is NOT sufficient. axe-core tests the actual rendered DOM in
 5. Mark issues found by both the agent review and the scan as high-confidence findings
 6. Note any new issues the scan found that the agent review missed
 
-**If you complete Phase 9 without having used run_in_terminal for axe-core and a URL was available, you have failed this phase. Go back and run it.**
+**If you complete Phase 9 without having used runInTerminal for axe-core and a URL was available, you have failed this phase. Go back and run it.**
 
 If no URL was provided at all, skip the scan and note in the report: "No runtime scan was performed because no URL was provided."
 
-**MANDATORY: Screenshots for axe violations.** If the user opted for screenshots and a URL is available, you MUST use run_in_terminal to capture a screenshot of each page that has axe violations. DO NOT skip this.
+**MANDATORY: Screenshots for axe violations.** If the user opted for screenshots and a URL is available, you MUST use runInTerminal to capture a screenshot of each page that has axe violations. DO NOT skip this.
 
 ### Testing Setup
 
