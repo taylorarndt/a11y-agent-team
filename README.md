@@ -1327,8 +1327,11 @@ a11y-agent-team/
 
 ## Contributing
 
-Found a gap? Open an issue or PR. Contributions are welcome. Common contributions:
+Found a gap? Open an issue or PR. Contributions are welcome. See the [Contributing Guide](CONTRIBUTING.md) for details.
 
+Common contributions:
+
+- Agent gap reports (an agent missed something or gave wrong advice)
 - Additional patterns for specific frameworks (Vue, Svelte, Angular)
 - Edge cases we missed in existing agents
 - Framework-specific gotchas (Next.js app router focus management, etc.)
@@ -1336,6 +1339,14 @@ Found a gap? Open an issue or PR. Contributions are welcome. Common contribution
 - New specialist agents for uncovered accessibility domains
 
 If you find this useful, please star the repo and watch for releases so you know when updates drop.
+
+## Contributors
+
+Thanks to everyone who has contributed to making AI coding tools more accessible.
+
+<a href="https://github.com/taylorarndt/a11y-agent-team/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=taylorarndt/a11y-agent-team" alt="Contributors" />
+</a>
 
 ## License
 
