@@ -8,10 +8,34 @@
 #   bash install.sh --global --copilot Also install Copilot agents to VS Code
 #   bash install.sh --project          Install to .claude/ in the current directory
 #   bash install.sh --project --copilot Also install Copilot agents to project
+#
+# One-liner:
+#   curl -fsSL https://raw.githubusercontent.com/taylorarndt/a11y-agent-team/main/install.sh | bash
 
 set -e
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# Determine source: running from repo clone or piped from curl?
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd)"
+DOWNLOADED=false
+
+if [ ! -d "$SCRIPT_DIR/.claude/agents" ]; then
+  # Running from curl pipe or without repo — download first
+  DOWNLOADED=true
+  TMPDIR_DL="$(mktemp -d)"
+  echo ""
+  echo "  Downloading A11y Agent Team..."
+
+  if ! command -v git &>/dev/null; then
+    echo "  Error: git is required. Install git and try again."
+    rm -rf "$TMPDIR_DL"
+    exit 1
+  fi
+
+  git clone --quiet https://github.com/taylorarndt/a11y-agent-team.git "$TMPDIR_DL/a11y-agent-team" 2>/dev/null
+  SCRIPT_DIR="$TMPDIR_DL/a11y-agent-team"
+  echo "  Downloaded."
+fi
+
 AGENTS_SRC="$SCRIPT_DIR/.claude/agents"
 HOOK_SRC="$SCRIPT_DIR/.claude/hooks/a11y-team-eval.sh"
 COPILOT_AGENTS_SRC="$SCRIPT_DIR/.github/agents"
@@ -29,11 +53,13 @@ fi
 if [ ${#AGENTS[@]} -eq 0 ]; then
   echo "  Error: No agents found in $AGENTS_SRC"
   echo "  Make sure you are running this script from the a11y-agent-team directory."
+  [ "$DOWNLOADED" = true ] && rm -rf "$TMPDIR_DL"
   exit 1
 fi
 
 if [ ! -f "$HOOK_SRC" ]; then
   echo "  Error: Hook script not found at $HOOK_SRC"
+  [ "$DOWNLOADED" = true ] && rm -rf "$TMPDIR_DL"
   exit 1
 fi
 
@@ -83,6 +109,7 @@ case "$choice" in
     ;;
   *)
     echo "  Invalid choice. Exiting."
+    [ "$DOWNLOADED" = true ] && rm -rf "$TMPDIR_DL"
     exit 1
     ;;
 esac
@@ -648,6 +675,9 @@ PLIST
     echo "  Auto-updates skipped. You can run update.sh manually anytime."
   fi
 fi
+
+# Clean up temp download
+[ "$DOWNLOADED" = true ] && rm -rf "$TMPDIR_DL"
 
 echo ""
 echo "  If agents do not load, increase the character budget:"

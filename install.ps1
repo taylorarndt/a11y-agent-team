@@ -1,9 +1,36 @@
 # A11y Agent Team Installer (Windows PowerShell)
 # Built by Taylor Arndt - https://github.com/taylorarndt
+#
+# One-liner:
+#   irm https://raw.githubusercontent.com/taylorarndt/a11y-agent-team/main/install.ps1 | iex
 
 $ErrorActionPreference = "Stop"
 
-$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+# Determine source: running from repo clone or downloaded?
+$Downloaded = $false
+$ScriptDir = if ($MyInvocation.MyCommand.Path) {
+    Split-Path -Parent $MyInvocation.MyCommand.Path
+} else {
+    $null
+}
+
+if (-not $ScriptDir -or -not (Test-Path (Join-Path $ScriptDir ".claude\agents"))) {
+    # Running from irm pipe or without repo — download first
+    $Downloaded = $true
+    $TmpDir = Join-Path $env:TEMP "a11y-agent-team-install-$(Get-Random)"
+    Write-Host ""
+    Write-Host "  Downloading A11y Agent Team..."
+
+    if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
+        Write-Host "  Error: git is required. Install git and try again."
+        exit 1
+    }
+
+    git clone --quiet https://github.com/taylorarndt/a11y-agent-team.git $TmpDir 2>$null
+    $ScriptDir = $TmpDir
+    Write-Host "  Downloaded."
+}
+
 $AgentsSrc = Join-Path $ScriptDir ".claude\agents"
 $HookSrc = Join-Path $ScriptDir ".claude\hooks\a11y-team-eval.ps1"
 $CopilotAgentsSrc = Join-Path $ScriptDir ".github\agents"
@@ -18,6 +45,7 @@ if (Test-Path $AgentsSrc) {
 if ($Agents.Count -eq 0) {
     Write-Host "  Error: No agents found in $AgentsSrc"
     Write-Host "  Make sure you are running this script from the a11y-agent-team directory."
+    if ($Downloaded) { Remove-Item -Recurse -Force $TmpDir -ErrorAction SilentlyContinue }
     exit 1
 }
 
@@ -310,6 +338,9 @@ if ($Choice -eq "2") {
         Write-Host "  Auto-updates skipped. You can run update.ps1 manually anytime."
     }
 }
+
+# Clean up temp download
+if ($Downloaded) { Remove-Item -Recurse -Force $TmpDir -ErrorAction SilentlyContinue }
 
 Write-Host ""
 Write-Host "  If agents stop loading, increase the character budget:"
