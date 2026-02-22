@@ -58,6 +58,8 @@ Options:
 - **Multiple specific files** — I have a list of files to audit
 - **A folder** — Scan all documents in a folder
 - **A folder (recursive)** — Scan all documents in a folder and all its subfolders
+- **Changed files only (delta scan)** — Scan only files modified since the last audit
+- **Re-scan with comparison** — Scan files and compare results against a previous audit report
 
 ### Step 2: File/Folder Selection
 
@@ -114,6 +116,29 @@ Look for:
 If found, report current settings and ask: **"I found existing scan configuration. Should I use it, or override with the profile you selected?"**
 
 If not found, proceed with the selected profile defaults.
+
+### Step 6: Incremental/Delta Scan Configuration
+
+If the user selected **Changed files only (delta scan)** or **Re-scan with comparison** in Step 1, configure the delta detection method.
+
+Ask: **"How should I detect which files have changed?"**
+Options:
+- **Git diff** — use `git diff --name-only` to find files changed since the last commit/tag
+- **Since last audit** — compare file modification timestamps against the previous audit report's date
+- **Since a specific date** — let me specify a cutoff date
+- **Against a baseline report** — compare against a specific previous audit report file
+
+If the user selects **Git diff**, ask: **"What git reference should I compare against?"**
+Options:
+- **Last commit** — files changed in the most recent commit
+- **Last tag** — files changed since the last git tag
+- **Specific branch/commit** — let me specify a ref
+- **Last N days** — files changed in the last N days
+
+If the user selects **Against a baseline report**, ask: **"What is the path to the previous audit report?"**
+Let the user provide the path to a previous `DOCUMENT-ACCESSIBILITY-AUDIT.md` file.
+
+Store the delta configuration for use in Phase 1 (file filtering) and Phase 3 (comparison analysis).
 
 ## Phase 1: File Discovery and Inventory
 
@@ -260,7 +285,27 @@ findings:
       impact: "Blind users cannot understand this image"
       remediation: "Right-click → Edit Alt Text → describe the chart content"
       wcag: "1.1.1 Non-text Content (Level A)"
+      confidence: "high"  # high | medium | low
 ```
+
+### Sub-Agent Confidence Levels
+
+Each sub-agent MUST report a confidence level for every finding:
+
+| Level | Meaning | When to Use |
+|-------|---------|-------------|
+| **high** | Sub-agent is certain this is a real issue | Structural issues: missing alt text, no headings, no table headers, untagged PDF |
+| **medium** | Likely an issue but requires human judgment | Alt text quality, heading hierarchy edge cases, reading order ambiguity |
+| **low** | Possible issue — flagged for review | Decorative image detection, complex table interpretation, ambiguous link text context |
+
+Confidence levels affect the report:
+- **High-confidence findings** are reported as definitive issues with full remediation.
+- **Medium-confidence findings** are reported with a "Needs Review" flag.
+- **Low-confidence findings** are reported in a separate "For Review" section to avoid false-positive noise.
+
+When aggregating across documents, weight findings by confidence:
+- High = 1.0, Medium = 0.7, Low = 0.3
+- Use these weights in severity scoring (Phase 3).
 
 ### Progress Reporting
 
@@ -307,6 +352,146 @@ Folders Needing Most Attention:
   /docs/templates/ — 2 errors across 2 files (best folder)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
+
+### Severity Scoring
+
+Assign each document a weighted **accessibility risk score** (0–100) based on its findings.
+
+**Scoring Formula:**
+
+```
+Document Score = 100 - (sum of weighted findings)
+
+Weights:
+  Error (high confidence):   -10 points each
+  Error (medium confidence):  -7 points each
+  Error (low confidence):     -3 points each
+  Warning (high confidence):  -3 points each
+  Warning (medium confidence):-2 points each
+  Warning (low confidence):   -1 point each
+  Tips:                        0 points (informational only)
+
+Floor: 0 (scores cannot go below 0)
+```
+
+**Score Grades:**
+
+| Score | Grade | Meaning |
+|-------|-------|---------|
+| 90–100 | A | Excellent — minor or no issues |
+| 75–89 | B | Good — some warnings, few errors |
+| 50–74 | C | Needs Work — multiple errors |
+| 25–49 | D | Poor — significant accessibility barriers |
+| 0–24 | F | Failing — critical barriers, likely unusable with AT |
+
+Present a scorecard in the cross-document summary:
+
+```
+🏆 Accessibility Scorecard
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  annual-report.docx     72/100 (C) — Needs Work
+  Q3-data.xlsx           91/100 (A) — Excellent
+  presentation.pptx      45/100 (D) — Poor
+  policy.pdf             38/100 (D) — Poor
+
+  Overall Average:       61.5/100 (C) — Needs Work
+  Best:  Q3-data.xlsx (91)
+  Worst: policy.pdf (38)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+### Template Analysis
+
+Detect whether documents are based on templates and audit template-level issues:
+
+1. **Template Detection:** Check document metadata for template references (e.g., Word's `Template` property, PowerPoint's slide master names).
+2. **Template Grouping:** Group documents that share the same template.
+3. **Template-Level Issues:** If multiple documents from the same template share the same issue, flag it as a **template-level issue** rather than a per-file issue.
+4. **Template Recommendations:** If a template is causing widespread issues, recommend fixing the template to prevent future documents from inheriting the problem.
+
+```
+📋 Template Analysis
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Detected Templates:
+  1. "Corporate Report Template" — used by 4 files
+     Template-level issues:
+       - Logo placeholder has decorative alt text (should be empty)
+       - Footer lacks document title reference
+     Fix the template to remediate 4 files at once.
+
+  2. "Quarterly Presentation" — used by 2 files
+     Template-level issues:
+       - Slide master missing title placeholder on layout 3
+     Fix the template to remediate 2 files at once.
+
+  3. No template detected — 6 files
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+### Remediation Tracking
+
+When this is a **re-scan** (the user selected "Re-scan with comparison" or "Changed files only" in Phase 0), compare current findings against the baseline audit:
+
+1. **Parse the Previous Report:** Read the baseline `DOCUMENT-ACCESSIBILITY-AUDIT.md` and extract findings by file and rule ID.
+2. **Classify Changes:**
+   - **Fixed** — issue was in the previous report but is no longer present
+   - **New** — issue was not in the previous report but appears now
+   - **Persistent** — issue was in the previous report and is still present
+   - **Regressed** — issue was previously fixed and has returned
+3. **Track Progress Over Time:** If multiple previous reports are available, show trend data.
+
+```
+📈 Remediation Progress
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Comparing against: DOCUMENT-ACCESSIBILITY-AUDIT-2025-01.md
+
+  ✅ Fixed:      8 issues resolved since last audit
+  🆕 New:        3 new issues found (in new/modified files)
+  ⏳ Persistent: 12 issues remain from last audit
+  ⚠️ Regressed:  1 issue returned after previous fix
+
+  Progress: 8 of 20 previous issues fixed (40% reduction)
+  Score Change: 54/100 → 67/100 (+13 points)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+### Metadata Dashboard
+
+Collect and summarize document metadata across all scanned files:
+
+```
+📊 Document Metadata Dashboard
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Authors:        5 unique authors across 12 documents
+  Most active:  Jane Smith (4 docs), John Doe (3 docs)
+
+Language Settings:
+  en-US:        8 documents
+  Not set:      3 documents ⚠️ (accessibility issue)
+  fr-FR:        1 document
+
+Document Titles:
+  Set:          7 documents
+  Missing:      5 documents ⚠️ (accessibility issue)
+
+Creation Dates:
+  Oldest:       2019-03-15 (policy.pdf)
+  Newest:       2025-01-10 (Q4-report.docx)
+  Avg age:      2.3 years
+
+Document Properties Health:
+  Title set:    7/12 (58%)
+  Author set:   10/12 (83%)
+  Language set:  9/12 (75%)
+  Subject set:   3/12 (25%)
+  Keywords set:  2/12 (17%)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+Metadata flags that affect accessibility:
+- **Missing language** → Screen readers may mispronounce content
+- **Missing title** → Users can't identify the document in AT
+- **Very old documents** → Likely created before accessibility awareness; flag for priority review
 
 ## Phase 4: Report Generation
 
@@ -408,6 +593,67 @@ Write the full audit report to the path specified in Phase 0 (default: `DOCUMENT
 ## Configuration Recommendations
 
 [Based on findings, suggest appropriate scan profiles and rule configurations]
+
+## Accessibility Scorecard
+
+| Document | Score | Grade | Errors | Warnings | Tips |
+|----------|-------|-------|--------|----------|------|
+| [filename] | [0-100] | [A-F] | [count] | [count] | [count] |
+| ... | | | | | |
+| **Overall Average** | **[avg]** | **[grade]** | **[total]** | **[total]** | **[total]** |
+
+## Metadata Dashboard
+
+| Property | Set | Missing | Percentage |
+|----------|-----|---------|------------|
+| Document Title | [n] | [n] | [%] |
+| Author | [n] | [n] | [%] |
+| Language | [n] | [n] | [%] |
+| Subject | [n] | [n] | [%] |
+| Keywords | [n] | [n] | [%] |
+
+### Authors
+[List of unique authors with document counts]
+
+### Document Age Distribution
+[Oldest, newest, average age, documents needing review due to age]
+
+## Template Analysis
+
+[If templates were detected, list template-level issues and recommendations]
+
+| Template | Documents Using | Template-Level Issues | Impact |
+|----------|----------------|----------------------|--------|
+| [name] | [count] | [issues] | Fix template to remediate [N] files |
+
+## Comparison Report
+
+[If this is a re-scan, include the comparison against the previous audit]
+
+### Summary of Changes
+| Metric | Previous | Current | Change |
+|--------|----------|---------|--------|
+| Total Errors | [n] | [n] | [+/-n] |
+| Total Warnings | [n] | [n] | [+/-n] |
+| Overall Score | [n]/100 | [n]/100 | [+/-n] |
+| Documents Passing | [n] | [n] | [+/-n] |
+
+### Fixed Issues
+[List of issues that were present in the previous audit but are now resolved]
+
+### New Issues
+[List of issues that are new since the previous audit]
+
+### Persistent Issues
+[List of issues that remain from the previous audit]
+
+## Confidence Summary
+
+| Confidence | Count | Percentage |
+|------------|-------|------------|
+| High | [n] | [%] — definitive issues |
+| Medium | [n] | [%] — needs human review |
+| Low | [n] | [%] — flagged for review |
 ```
 
 ### Organization Modes
@@ -430,6 +676,9 @@ Options:
 - **Set up scan configuration** — delegates to `office-scan-config` or `pdf-scan-config`
 - **Re-scan a subset** — scan specific files again after fixes
 - **Export findings as CSV/JSON** — alternative report format for tracking systems
+- **Export in compliance format (VPAT/ACR)** — generate a Voluntary Product Accessibility Template or Accessibility Conformance Report
+- **Generate batch remediation scripts** — create PowerShell/Bash scripts for automatable fixes
+- **Compare with a previous audit** — diff this audit against a baseline report
 - **Nothing — I'll review the report** — end the wizard
 
 ### Sub-Agent Handoff for Remediation
@@ -447,6 +696,60 @@ When the user wants to fix a specific file, hand off with full context:
 - **Scan Profile Used:** strict
 ```
 
+### Batch Remediation Scripts
+
+If the user selects **Generate batch remediation scripts**, ask which format:
+- **PowerShell** — `.ps1` script for Windows environments
+- **Bash** — `.sh` script for macOS/Linux environments
+- **Both** — generate both versions
+
+Generate scripts that automate fixable issues:
+
+**Automatable fixes** (safe to script):
+- Setting document title from filename
+- Setting document language property
+- Removing `~$` lock files
+- Renaming generic sheet names (Sheet1, Sheet2) with user-provided names
+- Adding bookmark structure to PDFs from heading tags
+
+**Non-automatable fixes** (require human judgment):
+- Writing meaningful alt text
+- Fixing heading hierarchy
+- Correcting reading order
+- Rewriting ambiguous link text
+
+The script MUST include:
+1. A dry-run mode (`-WhatIf` / `--dry-run`) that previews changes without modifying files
+2. Backup creation before any modification
+3. A summary log of all changes made
+4. Clear comments explaining each fix
+
+### Compliance Format Export
+
+If the user selects **Export in compliance format (VPAT/ACR)**, ask which format:
+- **VPAT 2.5 (WCAG)** — Voluntary Product Accessibility Template, WCAG edition
+- **VPAT 2.5 (508)** — Voluntary Product Accessibility Template, Section 508 edition
+- **VPAT 2.5 (EN 301 549)** — Voluntary Product Accessibility Template, EU edition
+- **VPAT 2.5 (INT)** — Voluntary Product Accessibility Template, International edition (all three)
+- **Custom ACR** — Accessibility Conformance Report in a custom format
+
+Generate the compliance report by mapping findings to the appropriate standard's criteria:
+
+| WCAG Criterion | Conformance Level | Remarks |
+|---------------|-------------------|----------|
+| 1.1.1 Non-text Content | Does Not Support / Partially Supports / Supports | [Based on findings] |
+| 1.3.1 Info and Relationships | ... | ... |
+
+Conformance levels:
+- **Supports** — No findings for this criterion across any document
+- **Partially Supports** — Some documents pass, some fail
+- **Does Not Support** — All or most documents fail
+- **Not Applicable** — Criterion does not apply to the document types scanned
+
+### Comparison with Previous Audit
+
+If the user selects **Compare with a previous audit**, ask for the path to the previous report. Then run the comparison analysis from Phase 3's Remediation Tracking section and present the diff report.
+
 ## Behavioral Rules
 
 1. **Use AskUserQuestion at every phase transition.** Present structured choices. Never dump open-ended questions.
@@ -461,6 +764,160 @@ When the user wants to fix a specific file, hand off with full context:
 10. **Be encouraging.** Report what passed, not just what failed. If a folder has 80% clean files, say so.
 11. **Recommend configuration for repeat scanning.** If the user doesn't have config files, suggest creating them for CI/CD integration.
 12. **Never modify documents directly.** Report issues and provide remediation guidance. The user decides what to fix.
+13. **Include confidence levels in all findings.** Every finding must have a high/medium/low confidence rating from the sub-agent.
+14. **Always compute severity scores.** Every document in the report must have a 0–100 accessibility score and letter grade.
+15. **Detect and report templates.** When scanning batches, check for shared templates and flag template-level issues.
+16. **Track remediation on re-scans.** When comparing against a baseline, classify every finding as fixed, new, persistent, or regressed.
+17. **Offer CI/CD guidance proactively.** After any audit, offer the Phase 6 CI/CD integration guide if no config files exist.
+
+## Phase 6: CI/CD Integration Guide
+
+When the user requests CI/CD integration or when no scan configuration files exist, offer to generate a CI/CD integration guide.
+
+Ask: **"Would you like a CI/CD integration guide for automated document accessibility scanning?"**
+Options:
+- **Yes — GitHub Actions** — generate a GitHub Actions workflow
+- **Yes — Azure DevOps** — generate an Azure Pipelines YAML
+- **Yes — Generic CI** — generate a generic script-based approach
+- **No thanks** — skip CI/CD setup
+
+### GitHub Actions Integration
+
+Generate a `.github/workflows/document-accessibility.yml` workflow:
+
+```yaml
+name: Document Accessibility Audit
+
+on:
+  push:
+    paths:
+      - '**/*.docx'
+      - '**/*.xlsx'
+      - '**/*.pptx'
+      - '**/*.pdf'
+  pull_request:
+    paths:
+      - '**/*.docx'
+      - '**/*.xlsx'
+      - '**/*.pptx'
+      - '**/*.pdf'
+  schedule:
+    - cron: '0 6 * * 1'  # Weekly on Monday at 6 AM
+
+jobs:
+  accessibility-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Find changed documents
+        id: changed
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            CHANGED=$(git diff --name-only ${{ github.event.pull_request.base.sha }} HEAD -- '*.docx' '*.xlsx' '*.pptx' '*.pdf')
+          else
+            CHANGED=$(git diff --name-only HEAD~1 HEAD -- '*.docx' '*.xlsx' '*.pptx' '*.pdf')
+          fi
+          echo "files=$CHANGED" >> $GITHUB_OUTPUT
+
+      - name: Run accessibility audit
+        if: steps.changed.outputs.files != ''
+        run: |
+          echo "Scanning: ${{ steps.changed.outputs.files }}"
+
+      - name: Upload audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: accessibility-audit-report
+          path: DOCUMENT-ACCESSIBILITY-AUDIT.md
+```
+
+### Azure DevOps Integration
+
+Generate an `azure-pipelines-a11y.yml`:
+
+```yaml
+trigger:
+  paths:
+    include:
+      - '**/*.docx'
+      - '**/*.xlsx'
+      - '**/*.pptx'
+      - '**/*.pdf'
+
+schedules:
+  - cron: '0 6 * * 1'
+    displayName: Weekly Accessibility Audit
+    branches:
+      include:
+        - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  - checkout: self
+    fetchDepth: 0
+
+  - script: |
+      CHANGED=$(git diff --name-only HEAD~1 HEAD -- '*.docx' '*.xlsx' '*.pptx' '*.pdf')
+      echo "##vso[task.setvariable variable=changedFiles]$CHANGED"
+    displayName: Find Changed Documents
+
+  - script: |
+      echo "Scanning: $(changedFiles)"
+    displayName: Run Accessibility Audit
+    condition: ne(variables['changedFiles'], '')
+
+  - publish: DOCUMENT-ACCESSIBILITY-AUDIT.md
+    artifact: accessibility-audit-report
+    displayName: Publish Audit Report
+```
+
+### Generic CI Integration
+
+Provide a shell script `scripts/audit-documents.sh`:
+
+```bash
+#!/bin/bash
+set -euo pipefail
+
+# Document Accessibility Audit CI Script
+# Usage: ./scripts/audit-documents.sh [folder] [profile]
+
+FOLDER="${1:-.}"
+PROFILE="${2:-moderate}"
+OUTPUT="DOCUMENT-ACCESSIBILITY-AUDIT.md"
+
+echo "Document Accessibility Audit"
+echo "Folder: $FOLDER"
+echo "Profile: $PROFILE"
+
+FILES=$(find "$FOLDER" -type f \( -name '*.docx' -o -name '*.xlsx' -o -name '*.pptx' -o -name '*.pdf' \) \
+  ! -name '~\$*' ! -name '*.tmp' ! -name '*.bak' \
+  ! -path '*/.git/*' ! -path '*/node_modules/*')
+
+COUNT=$(echo "$FILES" | grep -c . || true)
+echo "Found $COUNT documents to scan"
+
+if [ "$COUNT" -eq 0 ]; then
+  echo "No documents found. Exiting."
+  exit 0
+fi
+
+echo "$FILES" | while read -r file; do
+  echo "Scanning: $file"
+done
+
+echo "Audit complete. Report: $OUTPUT"
+```
+
+### Configuration File Templates
+
+Offer to create starter configuration files for the selected CI pipeline and scan profile.
 
 ## Edge Cases
 
