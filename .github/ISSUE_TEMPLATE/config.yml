@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Discussions
+    url: https://github.com/taylorarndt/a11y-agent-team/discussions
+    about: Ask questions, share how you use the agents, or chat with the community.

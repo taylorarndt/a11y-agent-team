@@ -1,0 +1,73 @@
+name: Bug Report
+description: Something is not working correctly
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. Please fill out as much detail as you can so we can reproduce and fix it.
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      description: Which tool are you using?
+      options:
+        - Claude Code (terminal)
+        - GitHub Copilot (VS Code)
+        - Claude Desktop (extension)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: install-type
+    attributes:
+      label: Install type
+      description: How did you install?
+      options:
+        - Global (installer)
+        - Project (installer)
+        - Manual
+        - Claude Desktop (.mcpb)
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - macOS
+        - Linux
+        - Windows
+
+  - type: input
+    id: agent
+    attributes:
+      label: Which agent?
+      description: If the issue is with a specific agent, which one?
+      placeholder: e.g. aria-specialist, contrast-master, accessibility-lead
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe the bug. What did you expect to happen vs what actually happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: How can we reproduce the issue?
+      placeholder: |
+        1. Opened Claude Code
+        2. Typed '/aria-specialist review this combobox'
+        3. Agent responded but missed the aria-controls attribute
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Anything else that might help — screenshots, error messages, relevant code snippets.

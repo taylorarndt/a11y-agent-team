@@ -1,0 +1,64 @@
+name: Agent Gap
+description: An agent missed something or gave incorrect guidance
+labels: ["agent-gap"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        If an agent missed an accessibility issue, gave wrong advice, or failed to catch a pattern it should have caught, let us know here. These reports directly improve agent instructions.
+
+  - type: dropdown
+    id: agent
+    attributes:
+      label: Which agent?
+      options:
+        - accessibility-lead
+        - aria-specialist
+        - modal-specialist
+        - contrast-master
+        - keyboard-navigator
+        - live-region-controller
+        - forms-specialist
+        - alt-text-headings
+        - tables-data-specialist
+        - testing-coach
+        - wcag-guide
+    validations:
+      required: true
+
+  - type: dropdown
+    id: gap-type
+    attributes:
+      label: What kind of gap?
+      options:
+        - Missed an issue it should have caught
+        - Gave incorrect advice
+        - Suggested unnecessary or wrong ARIA
+        - Did not invoke the right specialist (accessibility-lead)
+        - False positive (flagged something that is actually fine)
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe what the agent did or did not do, and what the correct behavior should have been.
+    validations:
+      required: true
+
+  - type: textarea
+    id: code
+    attributes:
+      label: Code or prompt
+      description: Share the code the agent reviewed or the prompt you used, if possible.
+      render: html
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - Claude Code (terminal)
+        - GitHub Copilot (VS Code)
+        - Claude Desktop (extension)

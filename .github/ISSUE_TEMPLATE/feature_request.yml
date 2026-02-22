@@ -1,0 +1,43 @@
+name: Feature Request
+description: Suggest an improvement or new capability
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have an idea for improving the agents, adding a new specialist, or supporting a new framework? We would love to hear it.
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - New agent
+        - Improve existing agent
+        - Framework support (React, Vue, Svelte, Angular, etc.)
+        - Installer or update system
+        - Documentation
+        - Claude Desktop extension
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What would you like?
+      description: Describe the feature or improvement. Be as specific as you can.
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use case
+      description: Why do you need this? What problem does it solve?
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: Examples
+      description: If you have examples of the pattern, code, or behavior you are describing, share them here.
