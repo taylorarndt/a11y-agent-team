@@ -89,7 +89,7 @@ if [ -z "$choice" ]; then
   echo "                  (available in all your projects)"
   echo ""
   printf "  Choose [1/2]: "
-  read -r choice
+  read -r choice < /dev/tty
 fi
 
 case "$choice" in
@@ -151,7 +151,7 @@ elif [ -t 0 ]; then
   echo "  This adds accessibility agents for Copilot Chat in VS Code/GitHub."
   echo ""
   printf "  Install Copilot agents? [y/N]: "
-  read -r copilot_choice
+  read -r copilot_choice < /dev/tty
   if [ "$copilot_choice" = "y" ] || [ "$copilot_choice" = "Y" ]; then
     install_copilot=true
   fi
@@ -299,7 +299,7 @@ with open('$settings_file', 'w') as f:
           echo "  3) Both"
           echo ""
           printf "  Choose [1/2/3]: "
-          read -r vscode_choice
+          read -r vscode_choice < /dev/tty
           case "$vscode_choice" in
             1) VSCODE_INSIDERS="" ;;
             2) VSCODE_STABLE="" ;;
@@ -516,7 +516,7 @@ if [ "$choice" = "2" ] && [ -t 0 ]; then
   echo "  This checks GitHub daily for new agents and improvements."
   echo ""
   printf "  Enable auto-updates? [y/N]: "
-  read -r auto_update
+  read -r auto_update < /dev/tty
 
   if [ "$auto_update" = "y" ] || [ "$auto_update" = "Y" ]; then
     UPDATE_SCRIPT="$TARGET_DIR/.a11y-agent-team-update.sh"
