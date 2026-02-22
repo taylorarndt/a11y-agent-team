@@ -178,13 +178,16 @@ if [ "$install_copilot" = true ]; then
         fi
       done
 
-      # Copy .agent.md files into VS Code user profile prompts folders
-      # so they appear globally in the Copilot Chat agent picker.
-      # VS Code discovers user-level agents from the prompts/ subdirectory.
+      # Copy .agent.md files into VS Code user profile folders.
+      # VS Code 1.110+ discovers agents from User/prompts/.
+      # VS Code 1.109 and older need agents in User/ root plus
+      # the chat.agentFilesLocations setting pointing there.
+      # We install to both locations for full compatibility.
       copy_to_vscode_profile() {
         local profile_dir="$1"
         local label="$2"
         local prompts_dir="$profile_dir/prompts"
+        local settings_file="$profile_dir/settings.json"
 
         if [ ! -d "$profile_dir" ]; then
           return
@@ -192,11 +195,48 @@ if [ "$install_copilot" = true ]; then
 
         mkdir -p "$prompts_dir"
         echo "  [found] $label"
+
+        # Copy to prompts/ (VS Code 1.110+)
         for f in "$COPILOT_CENTRAL"/*.agent.md; do
           [ -f "$f" ] || continue
           cp "$f" "$prompts_dir/"
         done
-        echo "    Copied $(ls "$COPILOT_CENTRAL"/*.agent.md 2>/dev/null | wc -l | tr -d ' ') agents to $prompts_dir"
+
+        # Copy to root User/ (VS Code 1.109 and older)
+        for f in "$COPILOT_CENTRAL"/*.agent.md; do
+          [ -f "$f" ] || continue
+          cp "$f" "$profile_dir/"
+        done
+
+        echo "    Copied $(ls "$COPILOT_CENTRAL"/*.agent.md 2>/dev/null | wc -l | tr -d ' ') agents"
+
+        # Add chat.agentFilesLocations to VS Code settings for older versions
+        if command -v python3 &>/dev/null; then
+          if [ -f "$settings_file" ]; then
+            python3 -c "
+import json, sys
+try:
+    with open('$settings_file', 'r') as f:
+        s = json.load(f)
+    loc = s.get('chat.agentFilesLocations', {})
+    loc['$profile_dir'] = True
+    loc['$prompts_dir'] = True
+    s['chat.agentFilesLocations'] = loc
+    with open('$settings_file', 'w') as f:
+        json.dump(s, f, indent=4)
+except:
+    pass
+" 2>/dev/null && echo "    Updated VS Code settings for agent discovery"
+          else
+            python3 -c "
+import json
+s = {'chat.agentFilesLocations': {'$profile_dir': True, '$prompts_dir': True}}
+with open('$settings_file', 'w') as f:
+    json.dump(s, f, indent=4)
+" 2>/dev/null && echo "    Created VS Code settings for agent discovery"
+          fi
+        fi
+
         COPILOT_DESTINATIONS+=("$prompts_dir")
       }
 
@@ -550,8 +590,9 @@ for PROFILE in "${PROFILES[@]}"; do
   for SRC in "$CENTRAL"/*.agent.md; do
     [ -f "$SRC" ] || continue
     cp "$SRC" "$PROMPTS_DIR/"
+    cp "$SRC" "$PROFILE/"
   done
-  log "Updated VS Code profile: $PROMPTS_DIR"
+  log "Updated VS Code profile: $PROFILE"
 done
 
 echo "$HASH" > "$INSTALL_DIR/.a11y-agent-team-version"

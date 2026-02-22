@@ -142,8 +142,11 @@ else
   esac
   for VSCODE_PROFILE in "${VSCODE_PROFILES[@]}"; do
     PROMPTS_DIR="$VSCODE_PROFILE/prompts"
-    # Only add if agents were previously installed to prompts/
-    [ -d "$PROMPTS_DIR" ] && [ -n "$(ls "$PROMPTS_DIR"/*.agent.md 2>/dev/null)" ] && COPILOT_DIRS+=("$PROMPTS_DIR")
+    # Add both prompts/ (1.110+) and root User/ (1.109) if agents were installed
+    if [ -d "$PROMPTS_DIR" ] && [ -n "$(ls "$PROMPTS_DIR"/*.agent.md 2>/dev/null)" ]; then
+      COPILOT_DIRS+=("$PROMPTS_DIR")
+      COPILOT_DIRS+=("$VSCODE_PROFILE")
+    fi
   done
 fi
 
