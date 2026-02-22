@@ -146,31 +146,55 @@ For tasks that don't involve UI code (backend logic, scripts, database work), th
 
 ### Installation
 
-#### macOS and Linux
+#### One-Liner (Recommended)
+
+**macOS / Linux:**
 
 ```bash
-# Clone the repository
+curl -fsSL https://raw.githubusercontent.com/taylorarndt/a11y-agent-team/main/install.sh | bash
+```
+
+**Windows (PowerShell):**
+
+```powershell
+irm https://raw.githubusercontent.com/taylorarndt/a11y-agent-team/main/install.ps1 | iex
+```
+
+The installer downloads the repo, copies agents and hooks, configures `settings.json`, and optionally sets up daily auto-updates and GitHub Copilot agents. It will prompt you to choose project-level or global install.
+
+**Non-interactive one-liners:**
+
+```bash
+# macOS/Linux — install globally, no prompts
+curl -fsSL https://raw.githubusercontent.com/taylorarndt/a11y-agent-team/main/install.sh | bash -s -- --global
+
+# macOS/Linux — install to current project, no prompts
+curl -fsSL https://raw.githubusercontent.com/taylorarndt/a11y-agent-team/main/install.sh | bash -s -- --project
+
+# macOS/Linux — install globally with Copilot agents
+curl -fsSL https://raw.githubusercontent.com/taylorarndt/a11y-agent-team/main/install.sh | bash -s -- --global --copilot
+```
+
+#### From Cloned Repo
+
+If you prefer to clone first:
+
+**macOS / Linux:**
+
+```bash
 git clone https://github.com/taylorarndt/a11y-agent-team.git
 cd a11y-agent-team
-
-# Run the installer
 bash install.sh
 ```
 
-The installer will ask whether to install at the **project level** or **globally**. It will also ask if you want to install **GitHub Copilot agents**. You can pass flags to skip the prompts:
+Pass flags to skip prompts: `--global`, `--project`, `--copilot`.
 
-```bash
-# Install globally (available in all projects)
-bash install.sh --global
+**Windows (PowerShell):**
 
-# Install globally with Copilot agents in VS Code
-bash install.sh --global --copilot
-
-# Install to the current project only
-bash install.sh --project
-
-# Install to the current project with Copilot agents
-bash install.sh --project --copilot
+```powershell
+git clone https://github.com/taylorarndt/a11y-agent-team.git
+cd a11y-agent-team
+powershell -ExecutionPolicy Bypass -File install.ps1
 ```
 
 The `--copilot` flag installs the accessibility agents for GitHub Copilot Chat. For **global** installs, this copies `.agent.md` files directly into your VS Code user profile so the agents appear in the Copilot Chat agent picker across all workspaces. For **project** installs, it copies them into the project's `.github/agents/` directory.
@@ -182,21 +206,6 @@ bash uninstall.sh
 bash uninstall.sh --global    # Non-interactive global uninstall
 bash uninstall.sh --project   # Non-interactive project uninstall
 ```
-
-#### Windows (PowerShell)
-
-```powershell
-# Clone the repository
-git clone https://github.com/taylorarndt/a11y-agent-team.git
-cd a11y-agent-team
-
-# Run the installer
-powershell -ExecutionPolicy Bypass -File install.ps1
-```
-
-The installer prompts for project-level or global installation, and whether to install Copilot agents, just like the bash version.
-
-To remove:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File uninstall.ps1
