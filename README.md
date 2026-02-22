@@ -104,10 +104,10 @@ A11y Agent Team works in three ways:
 | Agent | Role |
 |-------|------|
 | **accessibility-lead** | Orchestrator. Decides which specialists to invoke and runs the final review before anything ships. |
-| **aria-specialist** | ARIA roles, states, properties, widget patterns. Enforces the first rule of ARIA: don't use it if native HTML works. |
+| **aria-specialist** | ARIA roles, states, properties, widget patterns. Enforces the first rule of ARIA: do not use it if native HTML works. |
 | **modal-specialist** | Dialogs, drawers, popovers, alerts. Owns focus trapping, focus return, escape behavior, and heading structure in overlays. |
 | **contrast-master** | Color contrast ratios, dark mode, focus indicators, color independence. Includes a contrast calculation script for verification. |
-| **keyboard-navigator** | Tab order, focus management, skip links, arrow key patterns, SPA route changes. If it can't be reached by keyboard, it doesn't ship. |
+| **keyboard-navigator** | Tab order, focus management, skip links, arrow key patterns, SPA route changes. If it cannot be reached by keyboard, it does not ship. |
 | **live-region-controller** | Dynamic content announcements, toasts, loading states, search results, debouncing. Bridges visual updates to screen reader awareness. |
 | **forms-specialist** | Labels, errors, validation, fieldsets, autocomplete, multi-step wizards, search forms, file uploads, custom controls. If users input data, this agent owns it. |
 | **alt-text-headings** | Alt text, SVGs, icons, heading hierarchy, landmarks, page titles, language attributes. Can visually analyze images and compare them against their existing alt text. |
@@ -135,7 +135,7 @@ A `UserPromptSubmit` hook fires on every prompt you send to Claude Code. If the 
 
 The team includes nineteen agents: nine web code specialists that write and review code, six document accessibility specialists that scan Office and PDF files, one orchestrator that coordinates them, one interactive wizard that runs guided audits, one testing coach that teaches you how to verify accessibility, and one WCAG guide that explains the standards themselves.
 
-For tasks that don't involve UI code (backend logic, scripts, database work), the hook is ignored and Claude proceeds normally.
+For tasks that do not involve UI code (backend logic, scripts, database work), the hook is ignored and Claude proceeds normally.
 
 ### Prerequisites
 
@@ -363,7 +363,7 @@ Claude: [Hook fires, accessibility-lead activates]
         ...
 ```
 
-For tasks that don't involve UI code, Claude proceeds normally:
+For tasks that do not involve UI code, Claude proceeds normally:
 
 ```
 You: Write a database migration to add a users table
@@ -703,7 +703,7 @@ Copilot does not have a hook system like Claude Code. Instead, the `.github/copi
 ```
 @accessibility-lead review this component for accessibility
 @accessibility-lead full audit of the settings page
-@accessibility-lead I'm building a dashboard with charts and tables, what do I need?
+@accessibility-lead I am building a dashboard with charts and tables, what do I need?
 ```
 
 **Behavioral constraints:**
@@ -716,7 +716,7 @@ Copilot does not have a hook system like Claude Code. Instead, the `.github/copi
 
 #### aria-specialist — ARIA Roles, States, and Properties
 
-**What it does:** Reviews and writes correct ARIA markup. Enforces the First Rule of ARIA: don't use ARIA if native HTML works. Knows every WAI-ARIA role, state, and property. Implements complex widget patterns (combobox, tabs, treegrid, menu).
+**What it does:** Reviews and writes correct ARIA markup. Enforces the First Rule of ARIA: do not use ARIA if native HTML works. Knows every WAI-ARIA role, state, and property. Implements complex widget patterns (combobox, tabs, treegrid, menu).
 
 **When to use it:**
 - Custom interactive components (dropdowns, tabs, accordions, carousels, comboboxes)
@@ -876,7 +876,7 @@ Copilot does not have a hook system like Claude Code. Instead, the `.github/copi
 - Interactive elements not in the tab order
 - Positive `tabindex` values (breaks natural tab order)
 - Focus lost after dynamic content changes
-- Keyboard traps (can't Tab out of a section)
+- Keyboard traps (cannot Tab out of a section)
 - Missing skip link
 - `outline: none` without a replacement focus style
 - Click handlers without keyboard equivalents
@@ -1159,10 +1159,10 @@ Copilot does not have a hook system like Claude Code. Instead, the `.github/copi
 
 #### accessibility-wizard — Guided Accessibility Audit
 
-**What it does:** Runs a full, interactive accessibility audit of your project by coordinating all specialist agents in sequence. Instead of dumping a wall of issues at you, it walks you through eleven phases — one accessibility domain at a time — and asks you questions at each step to focus the review on what matters for your specific project.
+**What it does:** Runs a full, interactive accessibility audit of your project by coordinating all specialist agents in sequence. Instead of dumping a wall of issues at you, it walks you through eleven phases, one accessibility domain at a time, and asks you questions at each step to focus the review on what matters for your specific project.
 
 **When to use it:**
-- You want a comprehensive audit but don't know where to start
+- You want a comprehensive audit but do not know where to start
 - You are new to accessibility and want guided, educational reviews
 - You need to prepare for a third-party accessibility assessment
 - You want a structured VPAT or conformance report
@@ -1200,11 +1200,11 @@ At the end, it generates a prioritized report with issues grouped by severity (C
 @accessibility-wizard audit this project for accessibility
 @accessibility-wizard guide me through a review of the signup flow
 @accessibility-wizard run a full accessibility audit
-@accessibility-wizard I'm new to accessibility — walk me through everything
+@accessibility-wizard I am new to accessibility, walk me through everything
 ```
 
 **Behavioral constraints:**
-- Always asks the user before moving to the next phase — never skips ahead silently
+- Always asks the user before moving to the next phase. Never skips ahead silently
 - Presents findings from each phase before proceeding, so the user can fix issues iteratively
 - Generates a final report only after all phases complete (or the user chooses to stop early)
 - Does not write code itself — delegates to the appropriate specialist agent and reports what it found
@@ -1270,12 +1270,12 @@ At the end, it generates a prioritized report with issues grouped by severity (C
 
 #### wcag-guide — Understanding the Standard
 
-**What it does:** Explains WCAG 2.0, 2.1, and 2.2 success criteria in plain language with practical examples. Covers conformance levels, what changed between versions, when criteria apply and don't apply, common misconceptions, and the intent behind the rules. This is your reference for "why does this rule exist?" and "does this criterion apply to my situation?"
+**What it does:** Explains WCAG 2.0, 2.1, and 2.2 success criteria in plain language with practical examples. Covers conformance levels, what changed between versions, when criteria apply and do not apply, common misconceptions, and the intent behind the rules. This is your reference for "why does this rule exist?" and "does this criterion apply to my situation?"
 
 **When to use it:**
 - Understanding a specific WCAG success criterion
 - Learning what changed between WCAG 2.1 and 2.2
-- Clarifying when a criterion applies vs doesn't apply
+- Clarifying when a criterion applies vs does not apply
 - Settling debates about what WCAG actually requires
 - Understanding conformance levels (A, AA, AAA)
 - Getting plain-language explanations of technical spec language
@@ -1532,30 +1532,30 @@ The `.mcpb` file (MCP Bundle) is Claude Desktop's extension format. It is a pack
 The A11y Agent Team extension adds:
 
 **Tools** (Claude can call these automatically while working):
-- **check_contrast** -- Calculate WCAG contrast ratios between two hex colors. Returns the ratio and whether it passes AA for normal text (4.5:1), large text (3:1), and UI components (3:1).
-- **get_accessibility_guidelines** -- Get detailed WCAG AA guidelines for specific component types: modal, tabs, accordion, combobox, carousel, form, live-region, navigation, or general. Returns requirements, code examples, and common mistakes.
-- **check_heading_structure** -- Analyze HTML for heading hierarchy issues: skipped levels, multiple H1 tags, empty headings, and heading order problems.
-- **check_link_text** -- Scan HTML for ambiguous link text ("click here", "read more"), URLs used as text, missing new-tab warnings, non-HTML resources without file type, and repeated identical text linking to different destinations.
-- **check_form_labels** -- Validate form inputs have proper label associations (for/id, aria-label, aria-labelledby), check for autocomplete on identity fields, and flag radio/checkbox groups without fieldset/legend.
-- **generate_vpat** -- Generate a VPAT 2.5 / Accessibility Conformance Report (ACR) template pre-populated with all WCAG 2.2 Level A and AA criteria. Merge in findings from agent reviews to produce a publishable conformance document.
-- **run_axe_scan** -- Run axe-core against a live URL and return violations grouped by severity with WCAG criteria references and fix suggestions.
-- **scan_office_document** -- Scan a Microsoft Office document (DOCX, XLSX, PPTX) for accessibility issues. Parses the ZIP/XML structure and checks for alt text, headings, tables, language, reading order, and more. Returns findings as SARIF or markdown.
-- **scan_pdf_document** -- Scan a PDF document for accessibility conformance against PDF/UA and the Matterhorn Protocol. Checks tagged structure, metadata, bookmarks, form fields, fonts, and encryption. Returns findings as SARIF or markdown.
+- **check_contrast**: Calculate WCAG contrast ratios between two hex colors. Returns the ratio and whether it passes AA for normal text (4.5:1), large text (3:1), and UI components (3:1).
+- **get_accessibility_guidelines**: Get detailed WCAG AA guidelines for specific component types: modal, tabs, accordion, combobox, carousel, form, live-region, navigation, or general. Returns requirements, code examples, and common mistakes.
+- **check_heading_structure**: Analyze HTML for heading hierarchy issues: skipped levels, multiple H1 tags, empty headings, and heading order problems.
+- **check_link_text**: Scan HTML for ambiguous link text ("click here", "read more"), URLs used as text, missing new-tab warnings, non-HTML resources without file type, and repeated identical text linking to different destinations.
+- **check_form_labels**: Validate form inputs have proper label associations (for/id, aria-label, aria-labelledby), check for autocomplete on identity fields, and flag radio/checkbox groups without fieldset/legend.
+- **generate_vpat**: Generate a VPAT 2.5 / Accessibility Conformance Report (ACR) template pre-populated with all WCAG 2.2 Level A and AA criteria. Merge in findings from agent reviews to produce a publishable conformance document.
+- **run_axe_scan**: Run axe-core against a live URL and return violations grouped by severity with WCAG criteria references and fix suggestions.
+- **scan_office_document**: Scan a Microsoft Office document (DOCX, XLSX, PPTX) for accessibility issues. Parses the ZIP/XML structure and checks for alt text, headings, tables, language, reading order, and more. Returns findings as SARIF or markdown.
+- **scan_pdf_document**: Scan a PDF document for accessibility conformance against PDF/UA and the Matterhorn Protocol. Checks tagged structure, metadata, bookmarks, form fields, fonts, and encryption. Returns findings as SARIF or markdown.
 
 **Prompts** (you select these from the prompt menu):
-- **Full Accessibility Audit** -- Comprehensive WCAG 2.1 AA review covering structure, ARIA, keyboard, contrast, focus, and live regions.
-- **ARIA Review** -- Focused review of ARIA roles, states, and properties. Enforces the first rule of ARIA.
-- **Modal/Dialog Review** -- Focus trapping, focus return, escape behavior, heading structure in overlays.
-- **Color Contrast Review** -- Color choices, CSS, Tailwind classes checked against AA requirements.
-- **Keyboard Navigation Review** -- Tab order, focus management, skip links, keyboard traps.
-- **Live Region Review** -- Dynamic content announcements, toasts, loading states, screen reader compatibility.
+- **Full Accessibility Audit**: Comprehensive WCAG 2.1 AA review covering structure, ARIA, keyboard, contrast, focus, and live regions.
+- **ARIA Review**: Focused review of ARIA roles, states, and properties. Enforces the first rule of ARIA.
+- **Modal/Dialog Review**: Focus trapping, focus return, escape behavior, heading structure in overlays.
+- **Color Contrast Review**: Color choices, CSS, Tailwind classes checked against AA requirements.
+- **Keyboard Navigation Review**: Tab order, focus management, skip links, keyboard traps.
+- **Live Region Review**: Dynamic content announcements, toasts, loading states, screen reader compatibility.
 
 ### How to Install
 
 1. Go to the [Releases page](https://github.com/taylorarndt/a11y-agent-team/releases)
 2. Download the latest `a11y-agent-team.mcpb` file
 3. Double-click the file (or drag it into Claude Desktop)
-4. Claude Desktop will open an install dialog -- click Install
+4. Claude Desktop will open an install dialog. Click Install
 5. Done. The tools and prompts are now available in every conversation
 
 ### How to Use in Claude Desktop
@@ -1572,11 +1572,11 @@ Once installed, the extension works in two ways:
 
 1. Go to the [Releases page](https://github.com/taylorarndt/a11y-agent-team/releases)
 2. Download the latest `a11y-agent-team.mcpb` file
-3. Double-click it to install -- Claude Desktop will recognize the version bump and update in place
+3. Double-click it to install. Claude Desktop will recognize the version bump and update in place
 
 To get notified when new versions are released, click **Watch** on the [GitHub repository](https://github.com/taylorarndt/a11y-agent-team) and select "Releases only." GitHub will email you when a new version drops.
 
-**We have submitted this extension to the Anthropic Connectors Directory.** If accepted, the extension will appear in Claude Desktop's built-in directory (Settings > Connectors) and updates will be fully automatic. You will not need to manually download anything -- Claude Desktop will handle it. We will update this README when that happens.
+**We have submitted this extension to the Anthropic Connectors Directory.** If accepted, the extension will appear in Claude Desktop's built-in directory (Settings > Connectors) and updates will be fully automatic. You will not need to manually download anything. Claude Desktop will handle it. We will update this README when that happens.
 
 ### Building from Source
 
@@ -2078,17 +2078,17 @@ If you need to work without the accessibility check for a session, you can disab
 
 **Skills** rely on Claude deciding to check them. In practice, activation rates are roughly 20% without intervention. Even with hooks, skills are a single block of instructions that can be deprioritized as context grows.
 
-**MCP servers** add external tool calls but don't change how Claude reasons about the code it writes. They're better suited for runtime checks than code-generation-time enforcement.
+**MCP servers** add external tool calls but do not change how Claude reasons about the code it writes. They are better suited for runtime checks than code-generation-time enforcement.
 
-**Agents** run in their own context window with a dedicated system prompt. The accessibility rules aren't suggestions -- they're the agent's entire identity. An ARIA specialist cannot forget about ARIA. A contrast master cannot skip contrast checks. The rules are who they are.
+**Agents** run in their own context window with a dedicated system prompt. The accessibility rules are not suggestions. They are the agent's entire identity. An ARIA specialist cannot forget about ARIA. A contrast master cannot skip contrast checks. The rules are who they are.
 
-The Desktop Extension uses MCP because that is what Claude Desktop supports -- it does not have an agent system like Claude Code. The MCP server packs the same specialist knowledge into tools and prompts that work within Desktop's architecture. The document scanning tools (`scan_office_document`, `scan_pdf_document`) are also available across all three platforms.
+The Desktop Extension uses MCP because that is what Claude Desktop supports. It does not have an agent system like Claude Code. The MCP server packs the same specialist knowledge into tools and prompts that work within Desktop's architecture. The document scanning tools (`scan_office_document`, `scan_pdf_document`) are also available across all three platforms.
 
 ## Troubleshooting
 
 ### Agents not appearing (Claude Code)
 
-Type `/agents` in Claude Code to see what is loaded. If the agents don't appear:
+Type `/agents` in Claude Code to see what is loaded. If the agents do not appear:
 
 1. **Check file location:** Agents must be `.md` files in `.claude/agents/` (project) or `~/.claude/agents/` (global).
 2. **Check file format:** Each agent file must start with a YAML front matter block (`---` delimiters) containing `name`, `description`, and `tools`.
@@ -2109,7 +2109,7 @@ Type `/agents` in Claude Code to see what is loaded. If the agents don't appear:
 
 ### Agents activate on non-UI tasks (Claude Code)
 
-The hook outputs instructions that tell Claude to check if the task involves UI code. If it still activates on backend tasks, the model is being overly cautious. This is harmless -- the agent will determine no UI work is needed and let Claude proceed. If it becomes disruptive, you can remove the hook and invoke agents manually with `/agent-name`.
+The hook outputs instructions that tell Claude to check if the task involves UI code. If it still activates on backend tasks, the model is being overly cautious. This is harmless. The agent will determine no UI work is needed and let Claude proceed. If it becomes disruptive, you can remove the hook and invoke agents manually with `/agent-name`.
 
 ### Agents seem to miss things
 
@@ -2228,7 +2228,7 @@ Thanks to everyone who has contributed to making AI coding tools more accessible
 
 ## Also by the Author
 
-**[Swift Agent Team](https://github.com/taylorarndt/swift-agent-team)** — 9 specialized Swift agents for Claude Code. Swift 6.2 concurrency, Apple Foundation Models, on-device AI, SwiftUI, accessibility, security, testing, and App Store compliance -- enforced on every prompt. Both projects can coexist: install A11y agents in your web projects and Swift agents in your Swift projects.
+**[Swift Agent Team](https://github.com/taylorarndt/swift-agent-team)** — 9 specialized Swift agents for Claude Code. Swift 6.2 concurrency, Apple Foundation Models, on-device AI, SwiftUI, accessibility, security, testing, and App Store compliance. Enforced on every prompt. Both projects can coexist: install A11y agents in your web projects and Swift agents in your Swift projects.
 
 ## License
 
@@ -2236,4 +2236,4 @@ MIT
 
 ## About the Author
 
-Built by [Taylor Arndt](https://github.com/taylorarndt), a developer and accessibility specialist who uses assistive technology daily. I built this because accessibility is how I work, not something I bolt on at the end. When I found that AI coding tools consistently failed at accessibility, I built the team I wished existed.
+Built by [Taylor Arndt](https://github.com/taylorarndt), COO at [Techopolis](https://github.com/techopolis-group). Developer and accessibility specialist. I built this because accessibility is how I work, not something I bolt on at the end. When I found that AI coding tools consistently failed at accessibility, I built the team I wished existed.
