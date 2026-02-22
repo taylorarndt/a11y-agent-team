@@ -33,7 +33,6 @@ Nothing yet. Next up: high-priority items below.
 | Feature | Description | Issue |
 |---------|-------------|-------|
 | WCAG AAA agent | Dedicated agent for AAA-level conformance checking beyond the current AA target | [#12](https://github.com/taylorarndt/a11y-agent-team/issues/12) |
-| Accessibility dashboard | Web UI for viewing scan results, trends, and compliance status across projects | [#13](https://github.com/taylorarndt/a11y-agent-team/issues/13) |
 | Multi-language support | Agent instructions and documentation in languages beyond English | [#14](https://github.com/taylorarndt/a11y-agent-team/issues/14) |
 
 ---

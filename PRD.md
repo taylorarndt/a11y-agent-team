@@ -972,7 +972,6 @@ mcpb pack . ../a11y-agent-team.mcpb
 | Medium | veraPDF integration | Full PDF/UA validation via veraPDF CLI for comprehensive PDF checking |
 | Medium | Document remediation tools | MCP tools that fix issues, not just detect them |
 | Low | WCAG AAA agent | Dedicated AAA-level conformance checking |
-| Low | Accessibility dashboard | Web UI for viewing scan results across projects |
 | Low | Multi-language support | Non-English documentation and agent instructions |
 
 ---
