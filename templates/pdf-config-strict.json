@@ -1,0 +1,7 @@
+{
+  "description": "Strict PDF profile — all rules, all severities. Full PDF/UA conformance plus best practices.",
+  "enabled": true,
+  "disabledRules": [],
+  "severityFilter": ["error", "warning", "tip"],
+  "maxFileSize": 104857600
+}

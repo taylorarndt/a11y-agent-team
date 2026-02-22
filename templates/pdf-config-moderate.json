@@ -1,0 +1,7 @@
+{
+  "description": "Moderate PDF profile — errors and warnings only. Good default for most organizations.",
+  "enabled": true,
+  "disabledRules": [],
+  "severityFilter": ["error", "warning"],
+  "maxFileSize": 104857600
+}

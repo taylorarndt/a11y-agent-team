@@ -43,6 +43,32 @@ Select these agents from the agents dropdown in Copilot Chat, or type `/agents` 
 - **Testing guidance:** Use testing-coach for screen reader testing, keyboard testing, and automated testing setup.
 - **WCAG questions:** Use wcag-guide to understand specific WCAG success criteria and conformance requirements.
 
+### Custom Prompts for Document Accessibility
+
+The following prompt files in `.github/prompts/` provide one-click workflows for common document accessibility tasks. Select them from the prompt picker in Copilot Chat:
+
+| Prompt | What It Does |
+|--------|-------------|
+| audit-single-document | Scan a single .docx, .xlsx, .pptx, or .pdf with severity scoring |
+| audit-document-folder | Recursively scan an entire folder of documents |
+| audit-changed-documents | Delta scan — only audit documents changed since last commit |
+| generate-vpat | Generate a VPAT 2.5 / ACR compliance report from audit results |
+| generate-remediation-scripts | Create PowerShell/Bash scripts to batch-fix common issues |
+| compare-audits | Compare two audit reports to track remediation progress |
+| setup-document-cicd | Set up CI/CD pipelines for automated document scanning |
+| quick-document-check | Fast triage — errors only, pass/fail verdict |
+| create-accessible-template | Guidance for creating accessible document templates |
+
+### Scan Configuration Templates
+
+The `templates/` directory contains pre-built scan configuration profiles:
+
+- **strict** — All rules enabled, all severities reported
+- **moderate** — All rules enabled, errors and warnings only
+- **minimal** — Errors only, for quick triage
+
+Use the VS Code tasks `A11y: Init Office Scan Config` and `A11y: Init PDF Scan Config` to copy a moderate profile into your project root.
+
 ### Non-Negotiable Standards
 
 - Semantic HTML before ARIA (`<button>` not `<div role="button">`)

@@ -58,6 +58,7 @@ Built by [Taylor Arndt](https://github.com/taylorarndt) because LLMs consistentl
     - [office-scan-config](#office-scan-config--office-scan-configuration)
     - [pdf-accessibility](#pdf-accessibility--pdf-document-accessibility)
     - [pdf-scan-config](#pdf-scan-config--pdf-scan-configuration)
+    - [document-accessibility-wizard](#document-accessibility-wizard--guided-document-accessibility-audit)
   - [Tips for Getting the Best Results](#tips-for-getting-the-best-results)
 - [Integrating axe-core into the Agent Workflow](#integrating-axe-core-into-the-agent-workflow)
   - [Automated Scanning During Agent Reviews](#automated-scanning-during-agent-reviews)
@@ -95,8 +96,8 @@ AI coding tools generate inaccessible code by default. They forget ARIA rules, s
 
 A11y Agent Team works in three ways:
 
-- **Claude Code** (terminal): Nineteen specialized agents plus a hook that forces evaluation on every prompt. Each agent has a single focused job it cannot ignore. The Accessibility Lead orchestrator coordinates the team and ensures the right specialists are invoked for every task.
-- **GitHub Copilot** (VS Code): The same nineteen agents converted to Copilot's custom agent format, plus workspace-level instructions, PR review instructions, commit message guidance, a PR template with an accessibility checklist, a CI workflow, VS Code tasks, recommended extensions, and MCP server configuration. Works with GitHub Copilot Chat in VS Code and other editors that support the `.github/agents/` format.
+- **Claude Code** (terminal): Twenty specialized agents plus a hook that forces evaluation on every prompt. Each agent has a single focused job it cannot ignore. The Accessibility Lead orchestrator coordinates the team and ensures the right specialists are invoked for every task.
+- **GitHub Copilot** (VS Code): The same twenty agents converted to Copilot's custom agent format, plus workspace-level instructions, PR review instructions, commit message guidance, a PR template with an accessibility checklist, a CI workflow, VS Code tasks, recommended extensions, and MCP server configuration. Works with GitHub Copilot Chat in VS Code and other editors that support the `.github/agents/` format.
 - **Claude Desktop** (app): An MCP extension (.mcpb) that adds accessibility tools and review prompts directly into the Claude Desktop interface. Check contrast ratios, get component guidelines, scan Office documents and PDFs for accessibility, and run specialist reviews without leaving the app.
 
 ## The Team
@@ -122,6 +123,7 @@ A11y Agent Team works in three ways:
 | **office-scan-config** | Configuration manager for Office document accessibility scans. Manages rule enabling/disabling, severity filters, and preset profiles. |
 | **pdf-accessibility** | PDF document accessibility per PDF/UA and the Matterhorn Protocol. Checks tagged structure, metadata, bookmarks, form fields, figure alt text, table structure, and fonts. |
 | **pdf-scan-config** | Configuration manager for PDF accessibility scans. Manages rule enabling/disabling, severity filters, file size limits, and preset profiles. |
+| **document-accessibility-wizard** | Interactive guided document accessibility audit. Walks you through scanning files or folders, performs cross-document analysis, generates severity-scored reports, tracks remediation across re-scans, exports VPAT/ACR compliance reports, generates batch remediation scripts, and provides CI/CD integration guides. |
 
 ---
 
@@ -133,7 +135,7 @@ This is for the **Claude Code CLI** (the terminal tool). If you want the Claude 
 
 A `UserPromptSubmit` hook fires on every prompt you send to Claude Code. If the task involves web UI code, the hook instructs Claude to delegate to the **accessibility-lead** first. The lead evaluates the task and invokes the relevant specialists. The specialists apply their focused expertise and report findings. Code does not proceed without passing review.
 
-The team includes nineteen agents: nine web code specialists that write and review code, six document accessibility specialists that scan Office and PDF files, one orchestrator that coordinates them, one interactive wizard that runs guided audits, one testing coach that teaches you how to verify accessibility, and one WCAG guide that explains the standards themselves.
+The team includes twenty agents: nine web code specialists that write and review code, six document accessibility specialists that scan Office and PDF files, one document accessibility wizard that runs guided document audits, one orchestrator that coordinates them, one interactive wizard that runs guided web audits, one testing coach that teaches you how to verify accessibility, and one WCAG guide that explains the standards themselves.
 
 For tasks that do not involve UI code (backend logic, scripts, database work), the hook is ignored and Claude proceeds normally.
 
@@ -324,6 +326,7 @@ Start Claude Code and type `/agents`. You should see all thirteen agents listed:
   alt-text-headings
   aria-specialist
   contrast-master
+  document-accessibility-wizard
   excel-accessibility
   forms-specialist
   keyboard-navigator
@@ -394,6 +397,7 @@ You can invoke any agent by name using the slash command:
 /excel-accessibility check the budget spreadsheet
 /powerpoint-accessibility scan the quarterly deck
 /pdf-accessibility scan contract.pdf for PDF/UA conformance
+/document-accessibility-wizard audit all documents in the docs/ folder
 ```
 
 Or use the `@` mention syntax:
@@ -410,6 +414,7 @@ Or use the `@` mention syntax:
 @wcag-guide what does WCAG 2.5.8 target size require?
 @word-accessibility check this Word document for accessibility
 @pdf-accessibility scan this PDF for tagged structure and metadata
+@document-accessibility-wizard audit all documents in this project
 ```
 
 To see all installed agents at any time, type `/agents` in Claude Code.
@@ -458,7 +463,7 @@ This is for **GitHub Copilot Chat** in VS Code (or other editors that support th
 
 GitHub Copilot supports custom agents via `.github/agents/*.agent.md` files and workspace-level instructions via `.github/copilot-instructions.md`. The A11y Agent Team provides:
 
-- **Nineteen specialist agents** that you can invoke by name in Copilot Chat
+- **Twenty specialist agents** that you can invoke by name in Copilot Chat
 - **Workspace instructions** that remind Copilot to consider accessibility on every UI task
 - **PR review instructions** (`.github/copilot-review-instructions.md`) that enforce accessibility standards during Copilot Code Review on pull requests
 - **Commit message instructions** (`.github/copilot-commit-message-instructions.md`) that guide Copilot to include accessibility context in commit messages
@@ -586,6 +591,7 @@ In Copilot Chat, mention an agent to invoke it:
 @wcag-guide what changed between WCAG 2.1 and 2.2?
 @word-accessibility scan this Word document for accessibility
 @pdf-accessibility check this PDF for PDF/UA conformance
+@document-accessibility-wizard scan all documents in the docs/ folder
 ```
 
 #### Automatic guidance
@@ -1491,6 +1497,67 @@ At the end, it generates a prioritized report with issues grouped by severity (C
 
 ---
 
+#### document-accessibility-wizard — Guided Document Accessibility Audit
+
+**What it does:** Runs an interactive, multi-phase accessibility audit of Office documents (DOCX, XLSX, PPTX) and PDFs. Coordinates the document scanning agents, performs cross-document analysis, scores findings by severity and confidence, tracks remediation across re-scans, generates VPAT/ACR compliance reports, creates batch remediation scripts, and provides CI/CD integration guidance.
+
+**When to use it:**
+- You have a folder of documents that need accessibility review
+- You want a comprehensive audit with cross-document pattern analysis
+- You need to generate a VPAT/ACR compliance report from document findings
+- You want to track remediation progress across multiple scan iterations
+- You need to set up automated document scanning in CI/CD
+- You want batch remediation scripts for common fixable issues
+
+**The seven phases:**
+
+| Phase | Domain | What Happens |
+|-------|--------|-------------|
+| 0 | Discovery | Asks about scope, format preferences, scan profile |
+| 1 | File Discovery | Finds documents recursively, shows inventory by type |
+| 2 | Scanning | Runs per-file scans with severity scoring and confidence levels |
+| 3 | Cross-Document Analysis | Identifies patterns, systemic issues, template problems |
+| 4 | Report Generation | Produces prioritized report with metadata dashboard |
+| 5 | Follow-Up | Offers remediation scripts, VPAT export, template guidance |
+| 6 | CI/CD Integration | Generates pipeline configs for automated scanning |
+
+**Key capabilities:**
+- **Delta scanning** — Only scans files changed since last commit
+- **Severity scoring** — Each finding scored Critical/Major/Minor with confidence level
+- **Template analysis** — Detects when issues originate from shared templates
+- **Remediation tracking** — Compares current scan against baseline, shows progress
+- **Batch remediation** — Generates PowerShell/Bash scripts for automatable fixes
+- **VPAT/ACR export** — Maps findings to WCAG criteria for compliance reporting
+- **Metadata dashboard** — Summary statistics at top of every report
+
+**Example prompts — Claude Code:**
+```
+/document-accessibility-wizard scan all documents in the docs/ folder
+/document-accessibility-wizard audit only files changed since last commit
+/document-accessibility-wizard generate a VPAT from the last audit
+/document-accessibility-wizard compare these two audit reports for progress
+```
+
+**Example prompts — Copilot:**
+```
+@document-accessibility-wizard audit all documents in this project
+@document-accessibility-wizard quick check on report.docx
+@document-accessibility-wizard set up CI/CD for document scanning
+@document-accessibility-wizard generate remediation scripts for the last scan
+```
+
+**Custom prompts available:** Nine pre-built prompts in `.github/prompts/` provide one-click workflows for common tasks: single document audit, folder audit, delta scan, VPAT generation, remediation scripts, audit comparison, CI/CD setup, quick check, and accessible template guidance. Select them from the prompt picker in Copilot Chat.
+
+**Behavioral constraints:**
+- Always asks the user before moving between phases — never skips ahead silently
+- Presents findings after each phase before proceeding
+- Asks for scan profile preference (strict/moderate/minimal) at startup
+- Groups findings by severity with confidence levels
+- Identifies cross-document patterns and template-originated issues
+- Generates scripts with dry-run mode and automatic backups
+
+---
+
 ### Tips for Getting the Best Results
 
 **Be specific about context.** Instead of "review this file," say "review the modal in this file for focus trapping and escape behavior." Specific prompts activate the right specialist knowledge.
@@ -1920,6 +1987,7 @@ Six agents specialize in document accessibility:
 | **office-scan-config** | Office scan rule configuration |
 | **pdf-accessibility** | PDF scanning per PDF/UA and Matterhorn Protocol |
 | **pdf-scan-config** | PDF scan rule configuration |
+| **document-accessibility-wizard** | Guided document audit with cross-document analysis, remediation tracking, VPAT export |
 
 These agents coordinate with the MCP tools to scan files, interpret results, and provide actionable remediation guidance. The accessibility-wizard includes document scanning as Phase 10 in its guided audit.
 
@@ -1983,6 +2051,45 @@ Both tools support project-level configuration files that control which rules ar
 ```
 
 Both config files are searched upward from the scanned file's directory. Use the `office-scan-config` and `pdf-scan-config` agents to generate configurations interactively.
+
+### Custom Prompts for Document Accessibility
+
+Nine pre-built prompt files in `.github/prompts/` provide one-click workflows for common document accessibility tasks. Select them from the prompt picker in Copilot Chat (or type `/` to browse):
+
+| Prompt | What It Does |
+|--------|-------------|
+| `audit-single-document` | Scan a single .docx, .xlsx, .pptx, or .pdf with severity scoring and metadata dashboard |
+| `audit-document-folder` | Recursively scan an entire folder of documents with cross-document analysis |
+| `audit-changed-documents` | Delta scan — only audit documents changed since last commit |
+| `generate-vpat` | Generate a VPAT 2.5 / ACR compliance report from existing audit results |
+| `generate-remediation-scripts` | Create PowerShell/Bash scripts to batch-fix common document issues |
+| `compare-audits` | Compare two audit reports side-by-side to track remediation progress |
+| `setup-document-cicd` | Set up CI/CD pipelines (GitHub Actions / Azure DevOps) for automated document scanning |
+| `quick-document-check` | Fast triage — errors only, high confidence, pass/fail verdict |
+| `create-accessible-template` | Guidance for creating accessible Word, Excel, or PowerPoint templates from scratch |
+
+### Scan Configuration Templates
+
+The `templates/` directory contains pre-built scan configuration profiles for both Office and PDF scanning:
+
+| Profile | Office Config | PDF Config | What It Does |
+|---------|--------------|-----------|-------------|
+| **strict** | `office-config-strict.json` | `pdf-config-strict.json` | All rules enabled, all severities reported |
+| **moderate** | `office-config-moderate.json` | `pdf-config-moderate.json` | All rules enabled, errors and warnings only |
+| **minimal** | `office-config-minimal.json` | `pdf-config-minimal.json` | Errors only, for quick triage |
+
+**Quick setup:**
+
+Use the VS Code tasks `A11y: Init Office Scan Config` and `A11y: Init PDF Scan Config` to copy a moderate profile into your project root as `.a11y-office-config.json` or `.a11y-pdf-config.json`.
+
+Or copy manually:
+
+```bash
+cp templates/office-config-moderate.json .a11y-office-config.json
+cp templates/pdf-config-moderate.json .a11y-pdf-config.json
+```
+
+See [templates/README.md](templates/README.md) for customization guidance and profile comparison.
 
 ---
 
@@ -2130,6 +2237,7 @@ a11y-agent-team/
       alt-text-headings.md     # Alt text, SVGs, headings, landmarks
       aria-specialist.md       # ARIA roles, states, properties
       contrast-master.md       # Color contrast and visual a11y
+      document-accessibility-wizard.md # Guided document accessibility audit
       excel-accessibility.md   # Excel spreadsheet accessibility
       forms-specialist.md      # Forms, labels, validation, errors
       keyboard-navigator.md    # Tab order and focus management
@@ -2155,6 +2263,7 @@ a11y-agent-team/
       alt-text-headings.agent.md     # Alt text, SVGs, headings, landmarks
       aria-specialist.agent.md       # ARIA roles, states, properties
       contrast-master.agent.md       # Color contrast and visual a11y
+      document-accessibility-wizard.agent.md # Guided document accessibility audit
       excel-accessibility.agent.md   # Excel spreadsheet accessibility
       forms-specialist.agent.md      # Forms, labels, validation, errors
       keyboard-navigator.agent.md    # Tab order and focus management
@@ -2173,6 +2282,16 @@ a11y-agent-team/
     copilot-review-instructions.md  # PR review enforcement rules
     copilot-commit-message-instructions.md # Commit message a11y guidance
     PULL_REQUEST_TEMPLATE.md   # Accessibility checklist for PRs
+    prompts/
+      audit-single-document.prompt.md    # One-click single document audit
+      audit-document-folder.prompt.md    # Recursive folder audit
+      audit-changed-documents.prompt.md  # Delta scan (changed files only)
+      generate-vpat.prompt.md            # VPAT 2.5 / ACR compliance report
+      generate-remediation-scripts.prompt.md # Batch remediation scripts
+      compare-audits.prompt.md           # Compare two audit reports
+      setup-document-cicd.prompt.md      # CI/CD pipeline setup
+      quick-document-check.prompt.md     # Fast triage scan
+      create-accessible-template.prompt.md # Accessible template guidance
     workflows/
       a11y-check.yml           # CI workflow for a11y checks on PRs
     scripts/
@@ -2191,8 +2310,17 @@ a11y-agent-team/
       index.js                 # MCP server (tools: check_contrast, get_accessibility_guidelines, check_heading_structure, check_link_text, check_form_labels, generate_vpat, run_axe_scan, scan_office_document, scan_pdf_document + prompts)
   example/
     README.md                  # Example project documentation
+    document-testing-guide.md  # Guide for creating test documents with intentional a11y issues
     index.html                 # Deliberately broken page (20+ a11y issues)
     styles.css                 # CSS with contrast failures and missing prefers-*
+  templates/
+    README.md                  # Template usage guide and profile comparison
+    office-config-strict.json  # Office scan config — all rules, all severities
+    office-config-moderate.json # Office scan config — errors and warnings
+    office-config-minimal.json # Office scan config — errors only
+    pdf-config-strict.json     # PDF scan config — all 56 rules, all severities
+    pdf-config-moderate.json   # PDF scan config — PDFUA + PDFBP, errors and warnings
+    pdf-config-minimal.json    # PDF scan config — PDFUA errors only
   install.sh                   # Installer (macOS/Linux)
   install.ps1                  # Installer (Windows)
   uninstall.sh                 # Uninstaller (macOS/Linux)

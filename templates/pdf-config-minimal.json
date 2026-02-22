@@ -1,0 +1,7 @@
+{
+  "description": "Minimal PDF profile — errors only. Best for triaging large PDF libraries.",
+  "enabled": true,
+  "disabledRules": [],
+  "severityFilter": ["error"],
+  "maxFileSize": 104857600
+}

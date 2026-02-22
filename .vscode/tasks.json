@@ -110,6 +110,80 @@
         "panel": "shared"
       },
       "problemMatcher": []
+    },
+    {
+      "label": "A11y: Find Documents (Recursive)",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-Command",
+        "$folder='${input:docFolder}'; $files=Get-ChildItem -Path $folder -Recurse -File -Include *.docx,*.xlsx,*.pptx,*.pdf | Where-Object { $_.Name -notlike '~$*' -and $_.Name -notlike '*.tmp' -and $_.Name -notlike '*.bak' -and $_.FullName -notmatch '[\\\\/](\\.git|node_modules|__pycache__|\\.vscode)[\\\\/]' }; $docx=($files | Where-Object Extension -eq '.docx').Count; $xlsx=($files | Where-Object Extension -eq '.xlsx').Count; $pptx=($files | Where-Object Extension -eq '.pptx').Count; $pdf=($files | Where-Object Extension -eq '.pdf').Count; Write-Host \"`nDocument Inventory: $folder`n$('=' * 50)\"; Write-Host \"  Word (.docx):        $docx files\"; Write-Host \"  Excel (.xlsx):       $xlsx files\"; Write-Host \"  PowerPoint (.pptx):  $pptx files\"; Write-Host \"  PDF (.pdf):          $pdf files\"; Write-Host \"  $('-' * 30)\"; Write-Host \"  Total:               $($files.Count) files`n\"; if($files.Count -gt 0){Write-Host 'Files:'; $files | ForEach-Object { Write-Host \"  $($_.FullName)\" }}"
+      ],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "A11y: Find Changed Documents (Git)",
+      "type": "shell",
+      "command": "git",
+      "args": [
+        "diff",
+        "--name-only",
+        "HEAD~1",
+        "HEAD",
+        "--",
+        "*.docx",
+        "*.xlsx",
+        "*.pptx",
+        "*.pdf"
+      ],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "A11y: Init Office Scan Config (Moderate)",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-Command",
+        "Copy-Item -Path '${workspaceFolder}/templates/office-config-moderate.json' -Destination '${workspaceFolder}/.a11y-office-config.json'; Write-Host 'Created .a11y-office-config.json (moderate profile)'"
+      ],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "A11y: Init PDF Scan Config (Moderate)",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-Command",
+        "Copy-Item -Path '${workspaceFolder}/templates/pdf-config-moderate.json' -Destination '${workspaceFolder}/.a11y-pdf-config.json'; Write-Host 'Created .a11y-pdf-config.json (moderate profile)'"
+      ],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared"
+      },
+      "problemMatcher": []
     }
   ],
   "inputs": [
@@ -127,6 +201,21 @@
       "id": "scanUrl",
       "type": "promptString",
       "description": "URL to scan (e.g., http://localhost:3000)"
+    },
+    {
+      "id": "docFolder",
+      "type": "promptString",
+      "description": "Folder path to scan for documents (e.g., ./docs or C:\\Documents)"
+    },
+    {
+      "id": "documentPath",
+      "type": "promptString",
+      "description": "Path to the document file (.docx, .xlsx, .pptx, or .pdf)"
+    },
+    {
+      "id": "auditReportPath",
+      "type": "promptString",
+      "description": "Path to an existing audit report (e.g., DOCUMENT-ACCESSIBILITY-AUDIT.md)"
     }
   ]
 }
