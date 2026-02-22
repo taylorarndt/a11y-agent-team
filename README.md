@@ -110,10 +110,14 @@ See the [Agent Reference Guide](docs/agents/README.md) for deep dives on every a
 - SARIF 2.1.0 output for CI/CD integration
 - Common framework pitfalls (React conditional rendering, Tailwind contrast failures)
 
+## Roadmap
+
+See [ROADMAP.md](ROADMAP.md) for what is planned, in progress, and shipped. Track individual items on the [roadmap issues board](https://github.com/taylorarndt/a11y-agent-team/issues?q=label%3Aroadmap).
+
 ## What This Does Not Cover
 
-- Mobile native accessibility (iOS/Android). A separate agent team for that is in development.
-- WCAG AAA compliance (agents target AA as the standard)
+- Mobile native accessibility (iOS/Android). A separate agent team for that is [planned](https://github.com/taylorarndt/a11y-agent-team/issues/8).
+- WCAG AAA compliance (agents target AA as the standard). An AAA agent is [planned](https://github.com/taylorarndt/a11y-agent-team/issues/12).
 
 ## Example Project
 
