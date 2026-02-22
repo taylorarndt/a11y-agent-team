@@ -1,0 +1,106 @@
+name: Sync Docs to Wiki
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+
+jobs:
+  sync-wiki:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Checkout wiki
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}.wiki
+          path: wiki
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Sync docs to wiki
+        run: |
+          cd wiki
+
+          # Map docs/ files to wiki page names
+          declare -A FILE_MAP
+          FILE_MAP["docs/getting-started.md"]="Getting-Started.md"
+          FILE_MAP["docs/architecture.md"]="Architecture.md"
+          FILE_MAP["docs/configuration.md"]="Configuration.md"
+          FILE_MAP["docs/agents/README.md"]="Agents-Overview.md"
+          FILE_MAP["docs/agents/accessibility-lead.md"]="Agent:-Accessibility-Lead.md"
+          FILE_MAP["docs/agents/web-accessibility-wizard.md"]="Agent:-Web-Accessibility-Wizard.md"
+          FILE_MAP["docs/agents/document-accessibility-wizard.md"]="Agent:-Document-Accessibility-Wizard.md"
+          FILE_MAP["docs/agents/alt-text-headings.md"]="Agent:-Alt-Text-and-Headings.md"
+          FILE_MAP["docs/agents/aria-specialist.md"]="Agent:-ARIA-Specialist.md"
+          FILE_MAP["docs/agents/contrast-master.md"]="Agent:-Contrast-Master.md"
+          FILE_MAP["docs/agents/forms-specialist.md"]="Agent:-Forms-Specialist.md"
+          FILE_MAP["docs/agents/keyboard-navigator.md"]="Agent:-Keyboard-Navigator.md"
+          FILE_MAP["docs/agents/link-checker.md"]="Agent:-Link-Checker.md"
+          FILE_MAP["docs/agents/live-region-controller.md"]="Agent:-Live-Region-Controller.md"
+          FILE_MAP["docs/agents/modal-specialist.md"]="Agent:-Modal-Specialist.md"
+          FILE_MAP["docs/agents/tables-data-specialist.md"]="Agent:-Tables-Data-Specialist.md"
+          FILE_MAP["docs/agents/testing-coach.md"]="Agent:-Testing-Coach.md"
+          FILE_MAP["docs/agents/wcag-guide.md"]="Agent:-WCAG-Guide.md"
+          FILE_MAP["docs/agents/word-accessibility.md"]="Agent:-Word-Accessibility.md"
+          FILE_MAP["docs/agents/excel-accessibility.md"]="Agent:-Excel-Accessibility.md"
+          FILE_MAP["docs/agents/powerpoint-accessibility.md"]="Agent:-PowerPoint-Accessibility.md"
+          FILE_MAP["docs/agents/pdf-accessibility.md"]="Agent:-PDF-Accessibility.md"
+          FILE_MAP["docs/agents/office-scan-config.md"]="Agent:-Office-Scan-Config.md"
+          FILE_MAP["docs/agents/pdf-scan-config.md"]="Agent:-PDF-Scan-Config.md"
+          FILE_MAP["docs/scanning/office-scanning.md"]="Office-Scanning.md"
+          FILE_MAP["docs/scanning/pdf-scanning.md"]="PDF-Scanning.md"
+          FILE_MAP["docs/scanning/scan-configuration.md"]="Scan-Configuration.md"
+          FILE_MAP["docs/scanning/custom-prompts.md"]="Custom-Prompts.md"
+          FILE_MAP["docs/tools/mcp-tools.md"]="MCP-Tools.md"
+          FILE_MAP["docs/tools/axe-core-integration.md"]="Axe-Core-Integration.md"
+          FILE_MAP["docs/tools/vpat-generation.md"]="VPAT-Generation.md"
+          FILE_MAP["docs/advanced/advanced-scanning-patterns.md"]="Advanced-Scanning-Patterns.md"
+          FILE_MAP["docs/advanced/cross-platform-handoff.md"]="Cross-Platform-Handoff.md"
+          FILE_MAP["docs/advanced/platform-references.md"]="Platform-References.md"
+          FILE_MAP["docs/advanced/plugin-packaging.md"]="Plugin-Packaging.md"
+
+          CHANGED=false
+
+          for src in "${!FILE_MAP[@]}"; do
+            dest="${FILE_MAP[$src]}"
+            src_path="../$src"
+            if [ -f "$src_path" ]; then
+              if [ ! -f "$dest" ] || ! diff -q "$src_path" "$dest" > /dev/null 2>&1; then
+                cp "$src_path" "$dest"
+                echo "Updated: $dest"
+                CHANGED=true
+              fi
+            fi
+          done
+
+          # Also pick up any new docs not in the map
+          for f in $(find ../docs -name "*.md" -type f); do
+            rel="${f#../}"
+            if [[ -z "${FILE_MAP[$rel]}" ]]; then
+              basename=$(basename "$f" .md)
+              wiki_name=$(echo "$basename" | sed 's/ /-/g; s/^./\U&/; s/-./\U&/g')
+              wiki_name="${wiki_name}.md"
+              if [ ! -f "$wiki_name" ]; then
+                cp "$f" "$wiki_name"
+                echo "Added new page: $wiki_name"
+                CHANGED=true
+              fi
+            fi
+          done
+
+          if [ "$CHANGED" = true ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add -A
+            git commit -m "Sync docs from repo (automated)"
+            git push
+            echo "Wiki updated."
+          else
+            echo "Wiki already up to date."
+          fi
