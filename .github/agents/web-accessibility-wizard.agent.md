@@ -75,9 +75,11 @@ Ask using askQuestions:
 
 Based on their answers, customize the audit order and depth. Store the app URL (dev or production) and page list for use throughout the audit.
 
-## Screenshot Capture
+## MANDATORY: Screenshot Capture
 
-If the user opted for screenshots, set up a screenshot tool before starting the audit phases. This requires a URL (dev server or production) from Phase 0.
+**If the user opted for screenshots in Phase 0, you MUST capture them. DO NOT skip this step. DO NOT substitute with descriptions or code review alone. You MUST run terminal commands to capture actual screenshot files.**
+
+If no URL was provided or the user declined screenshots, skip this section entirely.
 
 ### Tool Selection
 
@@ -128,13 +130,15 @@ npx capture-website-cli "<URL>" --output="screenshots/<name>.png" --full-page --
 npx playwright screenshot --browser chromium --full-page --wait-for-timeout 3000 "<URL>" "screenshots/<page-name>.png"
 ```
 
-### When to Capture
+### When to Capture — MANDATORY if screenshots were requested
 
-Take screenshots at these points during the audit:
+You MUST take screenshots at these points. DO NOT skip any of them:
 
-1. **Before the audit starts** — capture each page in the audit scope as a baseline
-2. **For each issue found** — if the issue is visual (contrast, focus indicators, layout), capture the relevant page. Name the file to match the issue number: `screenshots/issue-01-contrast.png`, `screenshots/issue-05-new-tab-link.png`, etc.
-3. **For axe-core violations** — capture the page that was scanned
+1. **Before the audit starts** — Run the terminal command to capture each page in the audit scope as a baseline. DO NOT SKIP THIS.
+2. **For each visual issue found** — Run the terminal command to capture the relevant page for contrast, focus indicators, and layout issues. Name files: `screenshots/issue-01-contrast.png`, `screenshots/issue-05-new-tab-link.png`, etc.
+3. **For axe-core violations** — Run the terminal command to capture the page that was scanned.
+
+**If you finish the audit without having run any screenshot commands and the user requested screenshots, you have failed. Go back and capture them.**
 
 ### Include in Report
 
@@ -331,19 +335,30 @@ Collect findings from the subagent and report before proceeding.
 
 ## Phase 9: Testing Recommendations
 
-### Runtime Scan
+### MANDATORY: Runtime axe-core Scan
 
-If a URL was provided in Phase 0 (dev server or production URL), **run an automated axe-core scan** using the `run_axe_scan` MCP tool:
+**If a URL was provided in Phase 0 (dev server or production), you MUST run an axe-core scan. DO NOT skip this. DO NOT replace it with code review. You MUST execute terminal commands to run axe-core against the live URL.**
+
+A code review alone is NOT sufficient. axe-core tests the actual rendered DOM in a real browser and catches issues that static code analysis misses.
+
+**Steps — you MUST follow all of them:**
 
 1. Use the URL from Phase 0 — do NOT ask for it again
-2. Use the `run_axe_scan` tool with `reportPath` set to `ACCESSIBILITY-SCAN.md`
-3. Cross-reference scan results with findings from previous phases
-4. Mark issues found by both the agent review and the scan as high-confidence findings
-5. Note any new issues the scan found that the agent review missed
+2. Run this terminal command NOW:
+   ```bash
+   npx @axe-core/cli <URL> --tags wcag2a,wcag2aa,wcag21a,wcag21aa --save ACCESSIBILITY-SCAN.json
+   ```
+   If `@axe-core/cli` is not available, try: `npx axe-cli <URL> --save ACCESSIBILITY-SCAN.json`
+3. Convert the JSON results to a markdown report and write it to `ACCESSIBILITY-SCAN.md`
+4. Cross-reference scan results with findings from previous phases
+5. Mark issues found by both the agent review and the scan as high-confidence findings
+6. Note any new issues the scan found that the agent review missed
 
-If no URL was provided or axe-core is unavailable, skip the scan and proceed with testing recommendations.
+**If you complete Phase 9 without having run an axe-core terminal command and a URL was available, you have failed this phase. Go back and run it.**
 
-If the user opted for screenshots and a URL is available, capture a screenshot of each page that has axe violations using the screenshot tool selected during setup (capture-website-cli or Playwright).
+If no URL was provided at all, skip the scan and note in the report: "No runtime scan was performed because no URL was provided."
+
+**MANDATORY: Screenshots for axe violations.** If the user opted for screenshots and a URL is available, you MUST run terminal commands to capture a screenshot of each page that has axe violations. DO NOT skip this.
 
 ### Testing Setup
 
