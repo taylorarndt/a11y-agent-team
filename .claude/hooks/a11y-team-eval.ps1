@@ -16,8 +16,9 @@ user-facing web content:
 2. The accessibility-lead will determine which specialist agents are needed
 3. Specialists: aria-specialist, modal-specialist, contrast-master,
    keyboard-navigator, live-region-controller, forms-specialist,
-   alt-text-headings, tables-data-specialist
-4. For testing guidance, use testing-coach. For WCAG questions, use wcag-guide.
+   alt-text-headings, tables-data-specialist, link-checker
+4. For a full guided audit, use accessibility-wizard
+5. For testing guidance, use testing-coach. For WCAG questions, use wcag-guide.
 5. Do NOT write UI code without accessibility-lead review
 
 If the task does not involve any user-facing web content, proceed normally.

@@ -4,14 +4,14 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - '**/*.html'
-      - '**/*.htm'
-      - '**/*.jsx'
-      - '**/*.tsx'
-      - '**/*.vue'
-      - '**/*.svelte'
-      - '**/*.css'
-      - '**/*.scss'
+      - "**/*.html"
+      - "**/*.htm"
+      - "**/*.jsx"
+      - "**/*.tsx"
+      - "**/*.vue"
+      - "**/*.svelte"
+      - "**/*.css"
+      - "**/*.scss"
 
 jobs:
   a11y-lint:
@@ -23,54 +23,23 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: Install dependencies
         run: npm ci
         continue-on-error: true
 
+      - name: Run accessibility lint (Node.js)
+        run: node .github/scripts/a11y-lint.mjs .
+
       - name: Run axe-core linter
         run: |
-          npx @axe-core/cli --exit --rules wcag2a,wcag2aa --disable color-contrast \
-            $(find . -name '*.html' -not -path './node_modules/*' -not -path './.git/*' | head -20) \
-            2>/dev/null || echo "No HTML files found or axe-core not configured. Skipping."
-        continue-on-error: true
-
-      - name: Check for common a11y issues in source
-        run: |
-          echo "=== Checking for missing alt attributes ==="
-          grep -rn '<img[^>]*>' --include='*.html' --include='*.jsx' --include='*.tsx' --include='*.vue' --include='*.svelte' . \
-            | grep -v 'node_modules' \
-            | grep -v 'alt=' \
-            | head -20 || echo "✅ All img tags have alt attributes"
-
-          echo ""
-          echo "=== Checking for positive tabindex ==="
-          grep -rn 'tabindex="[1-9]' --include='*.html' --include='*.jsx' --include='*.tsx' --include='*.vue' --include='*.svelte' . \
-            | grep -v 'node_modules' \
-            | head -20 || echo "✅ No positive tabindex values found"
-
-          echo ""
-          echo "=== Checking for outline:none without alternative ==="
-          grep -rn 'outline:\s*none\|outline:\s*0' --include='*.css' --include='*.scss' --include='*.html' --include='*.jsx' --include='*.tsx' . \
-            | grep -v 'node_modules' \
-            | grep -v ':focus-visible' \
-            | head -20 || echo "✅ No outline removal without :focus-visible alternative"
-
-          echo ""
-          echo "=== Checking for div/span used as buttons ==="
-          grep -rn 'role="button"\|onClick.*<div\|onClick.*<span' --include='*.html' --include='*.jsx' --include='*.tsx' --include='*.vue' --include='*.svelte' . \
-            | grep -v 'node_modules' \
-            | head -20 || echo "✅ No div/span buttons detected"
-
-          echo ""
-          echo "=== Checking for inputs without labels ==="
-          grep -rn '<input\|<select\|<textarea' --include='*.html' --include='*.jsx' --include='*.tsx' --include='*.vue' --include='*.svelte' . \
-            | grep -v 'node_modules' \
-            | grep -vi 'aria-label\|aria-labelledby\|id=' \
-            | grep -v 'type="hidden"\|type="submit"\|type="button"' \
-            | head -20 || echo "✅ All form inputs appear to have labels"
-
+          HTML_FILES=$(find . -name '*.html' -not -path './node_modules/*' -not -path './.git/*' -not -path './dist/*' -not -path './build/*' | head -20)
+          if [ -n "$HTML_FILES" ]; then
+            npx @axe-core/cli --exit --rules wcag2a,wcag2aa --disable color-contrast $HTML_FILES 2>/dev/null || true
+          else
+            echo "No HTML files found for axe-core scan. Skipping."
+          fi
         continue-on-error: true
 
   eslint-a11y:
@@ -83,7 +52,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: Install dependencies
         run: npm ci

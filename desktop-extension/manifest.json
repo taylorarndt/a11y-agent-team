@@ -3,8 +3,8 @@
   "name": "a11y-agent-team",
   "display_name": "A11y Agent Team",
   "version": "1.0.0",
-  "description": "Accessibility review tools for Claude Desktop. Check contrast ratios, audit ARIA usage, review modals, keyboard navigation, and live regions. Enforces WCAG 2.1 AA compliance.",
-  "long_description": "A team of accessibility specialists that review your web UI code for WCAG 2.1 AA compliance. Includes a contrast ratio calculator, six specialist review prompts (ARIA, modals, keyboard navigation, color contrast, live regions, and a full audit), plus comprehensive accessibility guidelines as reference resources. Built by a screen reader user who got tired of AI tools forgetting accessibility.",
+  "description": "Accessibility review tools for Claude Desktop. Check contrast ratios, audit ARIA usage, review modals, keyboard navigation, live regions, scan Office documents and PDFs. Enforces WCAG 2.1 AA and PDF/UA compliance.",
+  "long_description": "A team of accessibility specialists that review your web UI code and documents for WCAG 2.1 AA compliance. Includes a contrast ratio calculator, static analysis tools, Office document scanner (.docx/.xlsx/.pptx), PDF scanner (PDF/UA / Matterhorn Protocol), VPAT generator, and specialist review prompts. Built by a screen reader user who got tired of AI tools forgetting accessibility.",
   "author": {
     "name": "Taylor Arndt"
   },
@@ -24,7 +24,11 @@
     "contrast",
     "keyboard-navigation",
     "focus-management",
-    "web-accessibility"
+    "web-accessibility",
+    "pdf-ua",
+    "office-accessibility",
+    "document-accessibility",
+    "matterhorn-protocol"
   ],
   "compatibility": {
     "claude_desktop": ">=0.10.0",
@@ -49,6 +53,34 @@
     {
       "name": "get_accessibility_guidelines",
       "description": "Get detailed accessibility guidelines for a specific component type (modal, tabs, accordion, combobox, carousel, form, live-region, navigation, or general). Returns WCAG AA requirements, code examples, and common mistakes to avoid."
+    },
+    {
+      "name": "run_axe_scan",
+      "description": "Run an automated axe-core accessibility scan against a live URL. Returns WCAG 2.1 AA violations grouped by severity with affected elements and fix suggestions. Requires @axe-core/cli installed and the target URL to be reachable."
+    },
+    {
+      "name": "check_heading_structure",
+      "description": "Analyze HTML for heading hierarchy issues. Checks for single H1, skipped heading levels, empty headings, and correct document outline."
+    },
+    {
+      "name": "check_link_text",
+      "description": "Scan HTML for ambiguous or problematic link text. Detects 'click here', 'read more', URLs as text, repeated identical text, missing new-tab warnings, and non-HTML resources without file type indication."
+    },
+    {
+      "name": "check_form_labels",
+      "description": "Analyze HTML for form input accessibility. Checks that every input has an associated label, validates aria-labelledby references, flags missing autocomplete attributes, and checks for fieldset/legend on grouped inputs."
+    },
+    {
+      "name": "generate_vpat",
+      "description": "Generate a VPAT 2.5 Accessibility Conformance Report in markdown format from audit findings. Covers all WCAG 2.2 Level A and AA criteria."
+    },
+    {
+      "name": "scan_office_document",
+      "description": "Scan a .docx, .xlsx, or .pptx file for accessibility issues using Microsoft Accessibility Checker rule sets. Returns findings grouped by severity. Supports configurable rule sets via .a11y-office-config.json."
+    },
+    {
+      "name": "scan_pdf_document",
+      "description": "Scan a PDF file for accessibility issues using PDF/UA (Matterhorn Protocol) conformance checks and best-practice rules. Checks tagging, structure tree, language, alt text, bookmarks, forms, and more."
     }
   ],
   "tools_generated": false,

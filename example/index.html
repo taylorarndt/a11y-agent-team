@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<!-- ISSUE: Missing lang attribute on <html> -->
+<head>
+  <meta charset="UTF-8">
+  <title>ShopEasy - Online Store</title>
+  <!-- ISSUE: No viewport meta tag for responsive design -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- ISSUE: No skip navigation link -->
+
+  <!-- ISSUE: No <main> landmark, no <nav> landmark, no semantic structure -->
+  <div class="header">
+    <!-- ISSUE: Multiple H1 tags on one page -->
+    <h1>ShopEasy</h1>
+    <div class="nav">
+      <!-- ISSUE: Ambiguous link text -->
+      <a href="/products">Click here</a>
+      <a href="/about">Read more</a>
+      <a href="/contact">Link</a>
+      <!-- ISSUE: URL as link text -->
+      <a href="https://support.example.com">https://support.example.com</a>
+    </div>
+  </div>
+
+  <h1>Welcome to Our Store</h1>
+  <!-- ISSUE: Skipped heading level (H1 -> H3) -->
+  <h3>Featured Products</h3>
+
+  <div class="products">
+    <div class="product-card">
+      <!-- ISSUE: Image missing alt attribute -->
+      <img src="headphones.jpg">
+      <h4>Wireless Headphones</h4>
+      <!-- ISSUE: Color-only price indicator (sale price is just red, no text indicator) -->
+      <p class="price old-price">$99.99</p>
+      <p class="price sale-price">$49.99</p>
+      <!-- ISSUE: Div used as button without role, keyboard handler, or focus -->
+      <div class="buy-btn" onclick="addToCart('headphones')">Add to Cart</div>
+    </div>
+
+    <div class="product-card">
+      <!-- ISSUE: Decorative image with non-empty alt (should be alt="" or role="presentation") -->
+      <img src="decorative-border.png" alt="decorative swirl pattern border design element">
+      <!-- ISSUE: Empty heading -->
+      <h4></h4>
+      <p class="price">$29.99</p>
+      <a href="/products/keyboard">More details</a>
+    </div>
+
+    <div class="product-card">
+      <img src="mouse.jpg" alt="Ergonomic mouse">
+      <h4>Ergonomic Mouse</h4>
+      <p class="price">$39.99</p>
+      <!-- ISSUE: Link opens in new tab without warning -->
+      <a href="/products/mouse-reviews" target="_blank">Reviews</a>
+    </div>
+  </div>
+
+  <!-- ISSUE: Heading level skip (H3 -> H6) -->
+  <h6>Customer Reviews</h6>
+
+  <div class="reviews">
+    <!-- ISSUE: Star rating conveyed only through color (yellow vs gray stars) -->
+    <div class="review">
+      <span class="star filled">★</span>
+      <span class="star filled">★</span>
+      <span class="star filled">★</span>
+      <span class="star empty">★</span>
+      <span class="star empty">★</span>
+      <p>"Great product!" - User123</p>
+    </div>
+  </div>
+
+  <h3>Newsletter Signup</h3>
+
+  <div class="form-section">
+    <!-- ISSUE: Form with multiple label/input problems -->
+    <form action="/subscribe" method="POST">
+      <!-- ISSUE: Input has no associated label, no aria-label, no id -->
+      <input type="text" placeholder="Your name" name="given-name">
+
+      <!-- ISSUE: Input missing autocomplete on identity field -->
+      <input type="email" id="email" name="email" placeholder="Email address">
+      <label>Email</label>
+      <!-- ISSUE: label not associated via for= attribute -->
+
+      <!-- ISSUE: Positive tabindex -->
+      <input type="tel" name="phone" placeholder="Phone number" tabindex="5">
+
+      <!-- ISSUE: Radio group without fieldset/legend -->
+      <p>Preferred contact method:</p>
+      <input type="radio" name="contact" value="email" id="c-email">
+      <label for="c-email">Email</label>
+      <input type="radio" name="contact" value="phone" id="c-phone">
+      <label for="c-phone">Phone</label>
+      <input type="radio" name="contact" value="mail" id="c-mail">
+      <label for="c-mail">Mail</label>
+
+      <!-- ISSUE: Submit button is a styled div, not a <button> or <input type="submit"> -->
+      <div class="submit-btn" onclick="document.forms[0].submit()" tabindex="10">
+        Subscribe
+      </div>
+    </form>
+  </div>
+
+  <h3>Contact Us</h3>
+  <p>
+    For support, <a href="/support">click here</a>.
+    To see our FAQ, <a href="/faq">click here</a>.
+    <!-- ISSUE: Two identical "click here" links pointing to different destinations -->
+  </p>
+  <!-- ISSUE: Link to PDF without file type indication -->
+  <p>Download our <a href="/files/catalog.pdf">catalog</a>.</p>
+
+  <!-- ISSUE: Modal without focus trap, no ESC close, no role="dialog" -->
+  <div class="modal" id="cart-modal" style="display:none;">
+    <div class="modal-content">
+      <h2>Shopping Cart</h2>
+      <p>Item added!</p>
+      <!-- ISSUE: Close button is a span, not a button -->
+      <span class="close-btn" onclick="closeModal()">X</span>
+    </div>
+  </div>
+
+  <!-- ISSUE: Status message area without aria-live -->
+  <div id="status-message"></div>
+
+  <!-- ISSUE: Auto-playing animation without pause control and no prefers-reduced-motion handling -->
+  <div class="banner-animation">
+    <p class="scrolling-text">Free shipping on orders over $50! Limited time offer!</p>
+  </div>
+
+  <div class="footer">
+    <p class="copyright">© 2025 ShopEasy</p>
+  </div>
+
+  <script>
+    function addToCart(product) {
+      // ISSUE: Dynamic content update without live region announcement
+      document.getElementById('status-message').textContent = product + ' added to cart!';
+
+      // ISSUE: Modal opens without moving focus into it
+      document.getElementById('cart-modal').style.display = 'block';
+    }
+
+    function closeModal() {
+      document.getElementById('cart-modal').style.display = 'none';
+      // ISSUE: Focus not returned to trigger element after modal close
+    }
+  </script>
+</body>
+</html>
