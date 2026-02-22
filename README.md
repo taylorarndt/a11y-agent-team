@@ -2217,6 +2217,10 @@ Thanks to everyone who has contributed to making AI coding tools more accessible
   <img src="https://contrib.rocks/image?repo=taylorarndt/a11y-agent-team" alt="Contributors" />
 </a>
 
+## Also by the Author
+
+**[Swift Agent Team](https://github.com/taylorarndt/swift-agent-team)** — 9 specialized Swift agents for Claude Code. Swift 6.2 concurrency, Apple Foundation Models, on-device AI, SwiftUI, accessibility, security, testing, and App Store compliance -- enforced on every prompt. Both projects can coexist: install A11y agents in your web projects and Swift agents in your Swift projects.
+
 ## License
 
 MIT
