@@ -1,9 +1,9 @@
 # Product Requirements Document: A11y Agent Team
 
-**Version:** 1.0  
+**Version:** 2.0  
 **Author:** Taylor Arndt  
-**Last Updated:** 2025-06-22  
-**Status:** In Development (feature/copilot-agents branch, PR #1)
+**Last Updated:** 2026-02-22  
+**Status:** Active Development (main branch)
 
 ---
 
@@ -21,9 +21,15 @@
 - [Agent Specifications](#agent-specifications)
   - [Web Accessibility Agents (13)](#web-accessibility-agents-13)
   - [Document Accessibility Agents (6)](#document-accessibility-agents-6)
+  - [Hidden Helper Sub-Agents (5)](#hidden-helper-sub-agents-5)
+- [Prompts and Skills](#prompts-and-skills)
+  - [Custom Prompts (14)](#custom-prompts-14)
+  - [Reusable Skills (6)](#reusable-skills-6)
+  - [Lifecycle Hooks (2)](#lifecycle-hooks-2)
+  - [Agent Teams (AGENTS.md)](#agent-teams-agentsmd)
 - [MCP Tool Specifications](#mcp-tool-specifications)
   - [Web Accessibility Tools (7)](#web-accessibility-tools-7)
-  - [Document Accessibility Tools (2)](#document-accessibility-tools-2)
+  - [Document Accessibility Tools (4)](#document-accessibility-tools-4)
 - [Rule Systems](#rule-systems)
   - [Office Document Rules](#office-document-rules)
   - [PDF Document Rules](#pdf-document-rules)
@@ -42,9 +48,11 @@
 
 ## Executive Summary
 
-A11y Agent Team is an accessibility enforcement system for AI-powered coding and authoring tools. It deploys nineteen specialized agents across three platforms — Claude Code (terminal), GitHub Copilot (VS Code), and Claude Desktop (app) — to ensure that web code, Office documents, and PDF files meet accessibility standards. The system intercepts the developer workflow at code-generation time, applying WCAG 2.2 AA standards for web content, format-specific rules for Office documents (DOCX/XLSX/PPTX), and PDF/UA conformance with Matterhorn Protocol alignment for PDF files.
+A11y Agent Team is an accessibility enforcement system for AI-powered coding and authoring tools. It deploys twenty-four specialized agents across three platforms — Claude Code (terminal), GitHub Copilot (VS Code), and Claude Desktop (app) — to ensure that web code, Office documents, and PDF files meet accessibility standards. The system intercepts the developer workflow at code-generation time, applying WCAG 2.2 AA standards for web content, format-specific rules for Office documents (DOCX/XLSX/PPTX), and PDF/UA conformance with Matterhorn Protocol alignment for PDF files.
 
-The project includes nine MCP tools (zero external dependencies for document scanning), three CI scripts, automated installer/uninstaller scripts for all platforms, auto-update capability, an example project with 20+ intentional violations, and SARIF 2.1.0 output for GitHub Code Scanning integration.
+The project includes eleven MCP tools (zero external dependencies for document scanning), fourteen custom prompts, six reusable skills, lifecycle hooks, agent team coordination (AGENTS.md), three CI scripts, automated installer/uninstaller scripts for all platforms, auto-update capability, an example project with 20+ intentional violations, and SARIF 2.1.0 output for GitHub Code Scanning integration.
+
+Key capabilities added since v1.0: document accessibility wizard with delta scanning, severity scoring (0-100 with A-F grades), template analysis, remediation tracking, VPAT/ACR export, batch remediation scripts, CI/CD integration guides; web accessibility wizard with sub-agent delegation, page metadata dashboard, component/template analysis, framework intelligence (React, Vue, Angular, Svelte, Tailwind), large crawl handling, interactive fix mode, and web scan configuration files; hidden helper sub-agents for parallel workload distribution; and comprehensive documentation in `docs/`.
 
 ---
 
@@ -153,7 +161,12 @@ A11y Agent Team makes accessibility enforcement automatic, comprehensive, and un
 │ tables │ link-   │ word-  │ excel- │ pptx-  │  pdf-  │ office/  │
 │  data  │ checker │ a11y   │ a11y   │ a11y   │ a11y   │ pdf cfg  │
 ├────────┴─────────┴────────┴────────┴────────┴────────┴──────────┤
-│  accessibility-wizard (multi-phase guided audit, 11 phases)      │
+│  web-accessibility-wizard (12-phase guided audit)                 │
+│  document-accessibility-wizard (multi-phase document audit)       │
+├─────────────────────────────────────────────────────────────────┤
+│  Hidden Helper Sub-Agents (launched by wizards, not by users)     │
+│  cross-page-analyzer │ web-issue-fixer │ cross-document-analyzer  │
+│  document-inventory                                              │
 ├─────────────────────────────────────────────────────────────────┤
 │  testing-coach (testing guidance) │ wcag-guide (standard ref)    │
 └─────────────────────────────────────────────────────────────────┘
@@ -163,7 +176,7 @@ A11y Agent Team makes accessibility enforcement automatic, comprehensive, and un
 
 The MCP server (`desktop-extension/server/index.js`) is a single Node.js ESM module that:
 
-1. Registers 9 tools and 6 prompts with the `@modelcontextprotocol/sdk` `McpServer`
+1. Registers 11 tools and 6 prompts with the `@modelcontextprotocol/sdk` `McpServer`
 2. Communicates via `StdioServerTransport` (stdin/stdout JSON-RPC)
 3. Performs all document scanning with zero external dependencies:
    - **Office scanning:** Pure Node.js ZIP Central Directory parsing using `inflateRawSync` from `node:zlib`
@@ -180,13 +193,13 @@ The MCP server (`desktop-extension/server/index.js`) is a single Node.js ESM mod
 ├──────────────────┬───────────────────────────────────────────┤
 │    Web Tools     │           Document Tools                   │
 │  ─────────────── │  ──────────────────────────────────────── │
-│  check_contrast  │  scan_office_document                     │
-│  get_a11y_guide  │    ├─ readZipEntries() → Central Dir      │
-│  heading_struct  │    ├─ extractZipEntry() → inflateRawSync  │
+│  check_contrast  │  extract_document_metadata                    │
+│  get_a11y_guide  │  batch_scan_documents                         │
+│  heading_struct  │  scan_office_document                     │
 │  check_links     │    ├─ getZipXml() → UTF-8 XML strings     │
-│  check_forms     │    ├─ scanDocx() → 16 rules               │
-│  generate_vpat   │    ├─ scanXlsx() → 14 rules               │
-│  run_axe_scan    │    ├─ scanPptx() → 16 rules               │
+│  check_forms     │    ├─ scanPptx() → 16 rules               │
+│  generate_vpat   │    └─ loadOfficeConfig()                   │
+│  run_axe_scan    │  scan_pdf_document                         │
 │                  │    └─ loadOfficeConfig()                   │
 │                  │  scan_pdf_document                         │
 │                  │    ├─ parsePdfBasics() → structure tree,   │
@@ -240,7 +253,7 @@ The MCP server (`desktop-extension/server/index.js`) is a single Node.js ESM mod
 | 8 | **alt-text-headings** | Alt text, SVGs, headings, landmarks, page titles | WCAG 1.1.1, 1.3.1, 2.4.1, 2.4.2, 2.4.6 | Yes |
 | 9 | **tables-data-specialist** | Data tables, grids, sortable columns | WCAG 1.3.1 | Yes |
 | 10 | **link-checker** | Ambiguous link text, new-tab warnings, file types | WCAG 2.4.4, 2.4.9 | Yes |
-| 11 | **accessibility-wizard** | Multi-phase guided audit (11 phases) | All (via delegation) | No (delegates) |
+| 11 | **web-accessibility-wizard** | Multi-phase guided web audit (12 phases) with sub-agent delegation, severity scoring, framework intelligence, VPAT/ACR export, batch scripts, CI/CD guides, delta scanning, fix mode | All (via delegation) | No (delegates) |
 | 12 | **testing-coach** | Screen reader testing, keyboard testing, CI testing | Teaching only | No (test code only) |
 | 13 | **wcag-guide** | WCAG 2.0/2.1/2.2 criteria explanation | All WCAG criteria | No (reference only) |
 
@@ -254,6 +267,81 @@ The MCP server (`desktop-extension/server/index.js`) is a single Node.js ESM mod
 | 17 | **office-scan-config** | Office scan configuration management | 3 presets | N/A (config only) |
 | 18 | **pdf-accessibility** | PDF/UA conformance, Matterhorn Protocol, structure, metadata | 56 rules (3 layers) | scan_pdf_document |
 | 19 | **pdf-scan-config** | PDF scan configuration management | 3 presets | N/A (config only) |
+
+### Hidden Helper Sub-Agents (5)
+
+These agents are not user-invokable. They are used internally by the document-accessibility-wizard and web-accessibility-wizard to parallelize scanning and analysis.
+
+| # | Agent | Parent Wizard | Purpose | Platforms |
+|---|-------|--------------|---------|----------|
+| 20 | **cross-page-analyzer** | web-accessibility-wizard | Cross-page web pattern detection, severity scoring, remediation tracking | Claude + Copilot |
+| 21 | **web-issue-fixer** | web-accessibility-wizard | Automated and guided web accessibility fix application | Claude + Copilot |
+| 22 | **cross-document-analyzer** | document-accessibility-wizard | Cross-document pattern detection, severity scoring, template analysis | Claude + Copilot |
+| 23 | **document-inventory** | document-accessibility-wizard | File discovery, inventory building, delta detection across folders | Claude + Copilot |
+
+> **Note:** The accessibility-lead agent (#1) also serves as the 24th agent per platform. The document-accessibility-wizard is listed as a distinct agent but shares the same count slot as #14 in the document agents section above — the hidden sub-agents bring the total to 24 unique agents per platform.
+
+---
+
+## Prompts and Skills
+
+### Custom Prompts (14)
+
+One-click workflows available from the Copilot prompt picker:
+
+#### Document Accessibility Prompts (9)
+
+| Prompt | What It Does |
+|--------|-------------|
+| audit-single-document | Scan a single .docx, .xlsx, .pptx, or .pdf with severity scoring |
+| audit-document-folder | Recursively scan an entire folder of documents |
+| audit-changed-documents | Delta scan — only audit documents changed since last commit |
+| generate-vpat | Generate a VPAT 2.5 / ACR compliance report from audit results |
+| generate-remediation-scripts | Create PowerShell/Bash scripts to batch-fix common issues |
+| compare-audits | Compare two audit reports to track remediation progress |
+| setup-document-cicd | Set up CI/CD pipelines for automated document scanning |
+| quick-document-check | Fast triage — errors only, pass/fail verdict |
+| create-accessible-template | Guidance for creating accessible document templates |
+
+#### Web Accessibility Prompts (5)
+
+| Prompt | What It Does |
+|--------|-------------|
+| audit-web-page | Full single-page audit with axe-core scan and code review |
+| quick-web-check | Fast axe-core triage — runtime scan only, pass/fail verdict |
+| audit-web-multi-page | Multi-page comparison audit with cross-page pattern detection |
+| compare-web-audits | Compare two web audit reports to track remediation progress |
+| fix-web-issues | Interactive fix mode — auto-fixable and human-judgment items from audit report |
+
+### Reusable Skills (6)
+
+Domain-specific knowledge modules in `.github/skills/` that agents reference automatically:
+
+| Skill | Domain |
+|-------|--------|
+| accessibility-rules | Cross-format document accessibility rule reference with WCAG 2.2 mapping |
+| document-scanning | File discovery commands, delta detection, scan configuration profiles |
+| report-generation | Audit report formatting, severity scoring formulas, VPAT/ACR compliance export |
+| web-scanning | Web content discovery, URL crawling, axe-core CLI commands, framework detection |
+| web-severity-scoring | Web severity scoring formulas (0-100, A-F grades), confidence levels, remediation tracking |
+| framework-accessibility | Framework-specific accessibility patterns and fix templates (React, Vue, Angular, Svelte, Tailwind) |
+
+### Lifecycle Hooks (2)
+
+| Hook | When | Purpose |
+|------|------|--------|
+| SessionStart | Beginning of session | Auto-detects scan config files and previous audit reports; injects relevant context |
+| SessionEnd | End of session | Quality gate — validates audit report completeness and prompts for missing sections |
+
+### Agent Teams (AGENTS.md)
+
+Team coordination is defined in `.github/agents/AGENTS.md`. Three defined teams:
+
+| Team | Led By | Members |
+|------|--------|--------|
+| Document Accessibility Audit | document-accessibility-wizard | word-accessibility, excel-accessibility, powerpoint-accessibility, pdf-accessibility, document-inventory, cross-document-analyzer |
+| Web Accessibility Audit | accessibility-lead | All 13 web agents + cross-page-analyzer, web-issue-fixer |
+| Full Audit | accessibility-lead | All agents (combined web + document workflow) |
 
 ---
 
@@ -323,7 +411,25 @@ The MCP server (`desktop-extension/server/index.js`) is a single Node.js ESM mod
 | **Format** | Markdown report when reportPath provided |
 | **Dependencies** | `@axe-core/cli` (external, must be installed separately) |
 
-### Document Accessibility Tools (2)
+### Document Accessibility Tools (4)
+
+#### extract_document_metadata
+
+| Property | Value |
+|----------|-------|
+| **Input** | `filePath` (string) |
+| **Supported Formats** | DOCX, XLSX, PPTX, PDF |
+| **Output** | Title, author, language, creation date, page/slide/sheet count, word count, tagged status (PDF) |
+| **Dependencies** | None (pure Node.js) |
+
+#### batch_scan_documents
+
+| Property | Value |
+|----------|-------|
+| **Input** | `directoryPath` (string), optional `recursive` (boolean), optional `formats` (string[]), optional `outputFormat` (sarif\|markdown) |
+| **Behavior** | Scans all matching documents in a directory, aggregates results |
+| **Output** | Combined SARIF or markdown report with per-file results |
+| **Dependencies** | None (pure Node.js) |
 
 #### scan_office_document
 
@@ -732,29 +838,34 @@ mcpb pack . ../a11y-agent-team.mcpb
 
 ## File Inventory
 
-### Agent Files (38 total: 19 Claude + 19 Copilot)
+### Agent Files (48 total: 24 Claude + 24 Copilot)
 
 | Agent | Claude Path | Copilot Path |
 |-------|------------|--------------|
-| accessibility-lead | `.claude/agents/accessibility-lead.md` | `.github/agents/accessibility-lead.md` |
-| accessibility-wizard | `.claude/agents/accessibility-wizard.md` | `.github/agents/accessibility-wizard.md` |
-| alt-text-headings | `.claude/agents/alt-text-headings.md` | `.github/agents/alt-text-headings.md` |
-| aria-specialist | `.claude/agents/aria-specialist.md` | `.github/agents/aria-specialist.md` |
-| contrast-master | `.claude/agents/contrast-master.md` | `.github/agents/contrast-master.md` |
-| excel-accessibility | `.claude/agents/excel-accessibility.md` | `.github/agents/excel-accessibility.md` |
-| forms-specialist | `.claude/agents/forms-specialist.md` | `.github/agents/forms-specialist.md` |
-| keyboard-navigator | `.claude/agents/keyboard-navigator.md` | `.github/agents/keyboard-navigator.md` |
-| link-checker | `.claude/agents/link-checker.md` | `.github/agents/link-checker.md` |
-| live-region-controller | `.claude/agents/live-region-controller.md` | `.github/agents/live-region-controller.md` |
-| modal-specialist | `.claude/agents/modal-specialist.md` | `.github/agents/modal-specialist.md` |
-| office-scan-config | `.claude/agents/office-scan-config.md` | `.github/agents/office-scan-config.md` |
-| pdf-accessibility | `.claude/agents/pdf-accessibility.md` | `.github/agents/pdf-accessibility.md` |
-| pdf-scan-config | `.claude/agents/pdf-scan-config.md` | `.github/agents/pdf-scan-config.md` |
-| powerpoint-accessibility | `.claude/agents/powerpoint-accessibility.md` | `.github/agents/powerpoint-accessibility.md` |
-| tables-data-specialist | `.claude/agents/tables-data-specialist.md` | `.github/agents/tables-data-specialist.md` |
-| testing-coach | `.claude/agents/testing-coach.md` | `.github/agents/testing-coach.md` |
-| wcag-guide | `.claude/agents/wcag-guide.md` | `.github/agents/wcag-guide.md` |
-| word-accessibility | `.claude/agents/word-accessibility.md` | `.github/agents/word-accessibility.md` |
+| accessibility-lead | `.claude/agents/accessibility-lead.md` | `.github/agents/accessibility-lead.agent.md` |
+| alt-text-headings | `.claude/agents/alt-text-headings.md` | `.github/agents/alt-text-headings.agent.md` |
+| aria-specialist | `.claude/agents/aria-specialist.md` | `.github/agents/aria-specialist.agent.md` |
+| contrast-master | `.claude/agents/contrast-master.md` | `.github/agents/contrast-master.agent.md` |
+| cross-document-analyzer | `.claude/agents/cross-document-analyzer.md` | `.github/agents/cross-document-analyzer.agent.md` |
+| cross-page-analyzer | `.claude/agents/cross-page-analyzer.md` | `.github/agents/cross-page-analyzer.agent.md` |
+| document-accessibility-wizard | `.claude/agents/document-accessibility-wizard.md` | `.github/agents/document-accessibility-wizard.agent.md` |
+| document-inventory | `.claude/agents/document-inventory.md` | `.github/agents/document-inventory.agent.md` |
+| excel-accessibility | `.claude/agents/excel-accessibility.md` | `.github/agents/excel-accessibility.agent.md` |
+| forms-specialist | `.claude/agents/forms-specialist.md` | `.github/agents/forms-specialist.agent.md` |
+| keyboard-navigator | `.claude/agents/keyboard-navigator.md` | `.github/agents/keyboard-navigator.agent.md` |
+| link-checker | `.claude/agents/link-checker.md` | `.github/agents/link-checker.agent.md` |
+| live-region-controller | `.claude/agents/live-region-controller.md` | `.github/agents/live-region-controller.agent.md` |
+| modal-specialist | `.claude/agents/modal-specialist.md` | `.github/agents/modal-specialist.agent.md` |
+| office-scan-config | `.claude/agents/office-scan-config.md` | `.github/agents/office-scan-config.agent.md` |
+| pdf-accessibility | `.claude/agents/pdf-accessibility.md` | `.github/agents/pdf-accessibility.agent.md` |
+| pdf-scan-config | `.claude/agents/pdf-scan-config.md` | `.github/agents/pdf-scan-config.agent.md` |
+| powerpoint-accessibility | `.claude/agents/powerpoint-accessibility.md` | `.github/agents/powerpoint-accessibility.agent.md` |
+| tables-data-specialist | `.claude/agents/tables-data-specialist.md` | `.github/agents/tables-data-specialist.agent.md` |
+| testing-coach | `.claude/agents/testing-coach.md` | `.github/agents/testing-coach.agent.md` |
+| wcag-guide | `.claude/agents/wcag-guide.md` | `.github/agents/wcag-guide.agent.md` |
+| web-accessibility-wizard | `.claude/agents/web-accessibility-wizard.md` | `.github/agents/web-accessibility-wizard.agent.md` |
+| web-issue-fixer | `.claude/agents/web-issue-fixer.md` | `.github/agents/web-issue-fixer.agent.md` |
+| word-accessibility | `.claude/agents/word-accessibility.md` | `.github/agents/word-accessibility.agent.md` |
 
 ### Infrastructure Files
 
@@ -767,6 +878,7 @@ mcpb pack . ../a11y-agent-team.mcpb
 | `.github/copilot-review-instructions.md` | PR review accessibility rules |
 | `.github/copilot-commit-message-instructions.md` | Commit message accessibility guidance |
 | `.github/PULL_REQUEST_TEMPLATE.md` | PR template with accessibility checklist |
+| `.github/agents/AGENTS.md` | Agent Teams coordination config |
 | `.github/workflows/a11y-check.yml` | CI workflow for a11y checks |
 | `.github/scripts/a11y-lint.mjs` | HTML/JSX accessibility linter |
 | `.github/scripts/office-a11y-scan.mjs` | Office document scanner for CI |
@@ -777,7 +889,7 @@ mcpb pack . ../a11y-agent-team.mcpb
 | `.vscode/mcp.json` | MCP server configuration for Copilot |
 | `desktop-extension/manifest.json` | Claude Desktop extension manifest |
 | `desktop-extension/package.json` | Node.js package configuration |
-| `desktop-extension/server/index.js` | MCP server (9 tools, 6 prompts) |
+| `desktop-extension/server/index.js` | MCP server (11 tools, 6 prompts) |
 
 ### Distribution Files
 
@@ -789,6 +901,57 @@ mcpb pack . ../a11y-agent-team.mcpb
 | `uninstall.ps1` | Windows uninstaller |
 | `update.sh` | macOS/Linux updater |
 | `update.ps1` | Windows updater |
+
+### Prompts and Skills Files
+
+| File | Purpose |
+|------|--------|
+| `.github/prompts/audit-single-document.prompt.md` | Single document scan |
+| `.github/prompts/audit-document-folder.prompt.md` | Folder recursive scan |
+| `.github/prompts/audit-changed-documents.prompt.md` | Delta scan (changed files) |
+| `.github/prompts/generate-vpat.prompt.md` | VPAT 2.5 / ACR export |
+| `.github/prompts/generate-remediation-scripts.prompt.md` | Batch fix scripts |
+| `.github/prompts/compare-audits.prompt.md` | Compare audit reports |
+| `.github/prompts/setup-document-cicd.prompt.md` | CI/CD pipeline setup |
+| `.github/prompts/quick-document-check.prompt.md` | Quick triage |
+| `.github/prompts/create-accessible-template.prompt.md` | Template guidance |
+| `.github/prompts/audit-web-page.prompt.md` | Full web page audit |
+| `.github/prompts/quick-web-check.prompt.md` | Quick web triage |
+| `.github/prompts/audit-web-multi-page.prompt.md` | Multi-page web audit |
+| `.github/prompts/compare-web-audits.prompt.md` | Compare web audit reports |
+| `.github/prompts/fix-web-issues.prompt.md` | Interactive web fix mode |
+| `.github/skills/accessibility-rules/SKILL.md` | Document accessibility rules |
+| `.github/skills/document-scanning/SKILL.md` | File discovery and delta detection |
+| `.github/skills/report-generation/SKILL.md` | Report formatting and scoring |
+| `.github/skills/web-scanning/SKILL.md` | Web crawling and axe-core commands |
+| `.github/skills/web-severity-scoring/SKILL.md` | Web severity scoring |
+| `.github/skills/framework-accessibility/SKILL.md` | Framework-specific patterns |
+
+### Hooks and Config Templates
+
+| File | Purpose |
+|------|--------|
+| `.github/hooks/session-start.md` | SessionStart lifecycle hook |
+| `.github/hooks/session-end.md` | SessionEnd quality gate hook |
+| `templates/a11y-office-config-strict.json` | Office strict profile |
+| `templates/a11y-office-config-moderate.json` | Office moderate profile |
+| `templates/a11y-office-config-minimal.json` | Office minimal profile |
+| `templates/a11y-pdf-config-strict.json` | PDF strict profile |
+| `templates/a11y-pdf-config-moderate.json` | PDF moderate profile |
+| `templates/a11y-pdf-config-minimal.json` | PDF minimal profile |
+| `templates/a11y-web-config-moderate.json` | Web moderate profile |
+
+### Documentation Files
+
+| Directory | Contents |
+|-----------|----------|
+| `docs/agents/` | 21 agent deep-dive pages + hub README |
+| `docs/tools/` | MCP tools reference, axe-core guide, VPAT guide |
+| `docs/scanning/` | Office scanning, PDF scanning, config, custom prompts |
+| `docs/advanced/` | Cross-platform handoff, advanced scanning, plugin packaging, platform references |
+| `docs/getting-started.md` | Installation guide for all 3 platforms |
+| `docs/configuration.md` | Character budget, hook management, troubleshooting |
+| `docs/architecture.md` | Project structure, design philosophy |
 
 ### Example Project
 
@@ -808,7 +971,6 @@ mcpb pack . ../a11y-agent-team.mcpb
 | High | Anthropic Connectors Directory listing | Automatic updates for Claude Desktop users |
 | Medium | veraPDF integration | Full PDF/UA validation via veraPDF CLI for comprehensive PDF checking |
 | Medium | Document remediation tools | MCP tools that fix issues, not just detect them |
-| Medium | Framework-specific agents | Vue, Svelte, Angular specialist knowledge |
 | Low | WCAG AAA agent | Dedicated AAA-level conformance checking |
 | Low | Accessibility dashboard | Web UI for viewing scan results across projects |
 | Low | Multi-language support | Non-English documentation and agent instructions |
@@ -832,17 +994,25 @@ mcpb pack . ../a11y-agent-team.mcpb
 
 | Metric | Count |
 |--------|-------|
-| Total agents | 19 (× 2 platforms = 38 files) |
+| Total agents | 24 (× 2 platforms = 48 files) |
 | Web accessibility agents | 13 |
 | Document accessibility agents | 6 |
-| MCP tools | 9 |
+| Hidden helper sub-agents | 4 |
+| Document/web wizards | 2 (1 web + 1 document, × 2 platforms each) |
+| Custom prompts | 14 (9 document + 5 web) |
+| Reusable skills | 6 |
+| Lifecycle hooks | 2 (SessionStart + SessionEnd) |
+| Agent teams | 3 (Document, Web, Full) |
+| MCP tools | 11 (7 web + 4 document) |
 | MCP prompts | 6 |
 | Office document rules | 46 (16 DOCX + 14 XLSX + 16 PPTX) |
 | PDF document rules | 56 (30 PDFUA + 22 PDFBP + 4 PDFQ) |
 | CI scripts | 3 |
+| Config template profiles | 7 (3 office + 3 PDF + 1 web) |
 | Supported platforms | 3 (Claude Code, GitHub Copilot, Claude Desktop) |
 | External runtime dependencies | 2 (`@modelcontextprotocol/sdk`, `zod`) |
 | Optional external dependencies | 1 (`@axe-core/cli`) |
 | WCAG criteria covered (VPAT) | 50 (30 Level A + 20 Level AA) |
 | Installer scripts | 6 (install, uninstall, update × 2 platforms) |
-| Total project files (excluding .history) | ~65 |
+| Documentation pages | 38 (in `docs/` directory) |
+| Total project files | ~160 |
