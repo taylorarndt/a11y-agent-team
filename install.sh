@@ -200,24 +200,55 @@ if [ "$install_copilot" = true ]; then
         COPILOT_DESTINATIONS+=("$prompts_dir")
       }
 
+      # Detect installed VS Code editions
       echo ""
+      VSCODE_STABLE=""
+      VSCODE_INSIDERS=""
       case "$(uname -s)" in
         Darwin)
-          copy_to_vscode_profile "$HOME/Library/Application Support/Code/User" "VS Code"
-          copy_to_vscode_profile "$HOME/Library/Application Support/Code - Insiders/User" "VS Code Insiders"
+          [ -d "$HOME/Library/Application Support/Code/User" ] && VSCODE_STABLE="$HOME/Library/Application Support/Code/User"
+          [ -d "$HOME/Library/Application Support/Code - Insiders/User" ] && VSCODE_INSIDERS="$HOME/Library/Application Support/Code - Insiders/User"
           ;;
         Linux)
-          copy_to_vscode_profile "$HOME/.config/Code/User" "VS Code"
-          copy_to_vscode_profile "$HOME/.config/Code - Insiders/User" "VS Code Insiders"
+          [ -d "$HOME/.config/Code/User" ] && VSCODE_STABLE="$HOME/.config/Code/User"
+          [ -d "$HOME/.config/Code - Insiders/User" ] && VSCODE_INSIDERS="$HOME/.config/Code - Insiders/User"
           ;;
         MINGW*|MSYS*|CYGWIN*)
-          # Windows (Git Bash, MSYS2, Cygwin)
           if [ -n "$APPDATA" ]; then
-            copy_to_vscode_profile "$APPDATA/Code/User" "VS Code"
-            copy_to_vscode_profile "$APPDATA/Code - Insiders/User" "VS Code Insiders"
+            [ -d "$APPDATA/Code/User" ] && VSCODE_STABLE="$APPDATA/Code/User"
+            [ -d "$APPDATA/Code - Insiders/User" ] && VSCODE_INSIDERS="$APPDATA/Code - Insiders/User"
           fi
           ;;
       esac
+
+      # If both editions are found, ask which ones to install to
+      if [ -n "$VSCODE_STABLE" ] && [ -n "$VSCODE_INSIDERS" ]; then
+        if [ -t 0 ]; then
+          echo "  Found both VS Code and VS Code Insiders."
+          echo ""
+          echo "  Install Copilot agents to:"
+          echo "  1) VS Code only"
+          echo "  2) VS Code Insiders only"
+          echo "  3) Both"
+          echo ""
+          printf "  Choose [1/2/3]: "
+          read -r vscode_choice
+          case "$vscode_choice" in
+            1) VSCODE_INSIDERS="" ;;
+            2) VSCODE_STABLE="" ;;
+            3) ;; # keep both
+            *) ;; # default to both
+          esac
+        fi
+      fi
+
+      [ -n "$VSCODE_STABLE" ] && copy_to_vscode_profile "$VSCODE_STABLE" "VS Code"
+      [ -n "$VSCODE_INSIDERS" ] && copy_to_vscode_profile "$VSCODE_INSIDERS" "VS Code Insiders"
+
+      if [ -z "$VSCODE_STABLE" ] && [ -z "$VSCODE_INSIDERS" ]; then
+        echo "  No VS Code installation found. Copilot agents stored centrally only."
+        echo "  Use 'a11y-copilot-init' to copy agents into individual projects."
+      fi
 
       # Also create a11y-copilot-init for per-project use (repos to check into git)
       mkdir -p "$HOME/.a11y-agent-team"
