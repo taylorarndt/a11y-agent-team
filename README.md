@@ -96,9 +96,9 @@ AI coding tools generate inaccessible code by default. They forget ARIA rules, s
 
 A11y Agent Team works in three ways:
 
-- **Claude Code** (terminal): Twenty specialized agents plus a hook that forces evaluation on every prompt. Each agent has a single focused job it cannot ignore. The Accessibility Lead orchestrator coordinates the team and ensures the right specialists are invoked for every task.
-- **GitHub Copilot** (VS Code): The same twenty agents converted to Copilot's custom agent format, plus workspace-level instructions, PR review instructions, commit message guidance, a PR template with an accessibility checklist, a CI workflow, VS Code tasks, recommended extensions, and MCP server configuration. Works with GitHub Copilot Chat in VS Code and other editors that support the `.github/agents/` format.
-- **Claude Desktop** (app): An MCP extension (.mcpb) that adds accessibility tools and review prompts directly into the Claude Desktop interface. Check contrast ratios, get component guidelines, scan Office documents and PDFs for accessibility, and run specialist reviews without leaving the app.
+- **Claude Code** (terminal): Twenty-two specialized agents plus a hook that forces evaluation on every prompt. Each agent has a single focused job it cannot ignore. The Accessibility Lead orchestrator coordinates the team and ensures the right specialists are invoked for every task. Includes hidden helper sub-agents for parallel scanning, reusable agent skills for domain knowledge, and lifecycle hooks for session quality gates.
+- **GitHub Copilot** (VS Code): The same twenty-two agents converted to Copilot's custom agent format, plus workspace-level instructions, PR review instructions, commit message guidance, a PR template with an accessibility checklist, a CI workflow, VS Code tasks, recommended extensions, MCP server configuration, agent skills, lifecycle hooks, agent team coordination, and hidden helper sub-agents. Works with GitHub Copilot Chat in VS Code and other editors that support the `.github/agents/` format.
+- **Claude Desktop** (app): An MCP extension (.mcpb) that adds accessibility tools and review prompts directly into the Claude Desktop interface. Check contrast ratios, get component guidelines, scan Office documents and PDFs for accessibility, extract document metadata, batch-scan multiple documents, and run specialist reviews without leaving the app.
 
 ## The Team
 
@@ -125,6 +125,44 @@ A11y Agent Team works in three ways:
 | **pdf-scan-config** | Configuration manager for PDF accessibility scans. Manages rule enabling/disabling, severity filters, file size limits, and preset profiles. |
 | **document-accessibility-wizard** | Interactive guided document accessibility audit. Walks you through scanning files or folders, performs cross-document analysis, generates severity-scored reports, tracks remediation across re-scans, exports VPAT/ACR compliance reports, generates batch remediation scripts, and provides CI/CD integration guides. |
 
+### Hidden Helper Sub-Agents
+
+These agents are not user-invokable. They are used internally by the document-accessibility-wizard to parallelize scanning and analysis:
+
+| Agent | Purpose |
+|-------|---------|
+| **document-inventory** | File discovery, inventory building, delta detection across folders |
+| **cross-document-analyzer** | Cross-document pattern detection, severity scoring, template analysis |
+
+### Agent Skills
+
+Reusable knowledge modules in `.github/skills/` that agents reference automatically:
+
+| Skill | Domain |
+|-------|--------|
+| **document-scanning** | File discovery commands, delta detection, scan configuration profiles |
+| **accessibility-rules** | Cross-format accessibility rule reference with WCAG 2.2 mapping (DOCX, XLSX, PPTX, PDF) |
+| **report-generation** | Audit report formatting, severity scoring formulas, VPAT/ACR compliance export |
+
+### Lifecycle Hooks
+
+Session hooks in `.github/hooks/` that inject context automatically:
+
+| Hook | When | Purpose |
+|------|------|---------|
+| **SessionStart** | Beginning of session | Auto-detects scan config files and previous audit reports; injects relevant context |
+| **SessionEnd** | End of session | Quality gate — validates audit report completeness and prompts for missing sections |
+
+### Agent Teams
+
+Coordinated multi-agent workflows defined in `.github/agents/AGENTS.md`:
+
+| Team | Led By | Agents |
+|------|--------|--------|
+| **Document Accessibility Audit** | document-accessibility-wizard | document-inventory, cross-document-analyzer, word/excel/powerpoint/pdf-accessibility, office/pdf-scan-config |
+| **Web Accessibility Audit** | accessibility-lead | All web specialist agents |
+| **Full Audit** | accessibility-lead | Combined web + document audit |
+
 ---
 
 ## Claude Code Setup
@@ -135,7 +173,7 @@ This is for the **Claude Code CLI** (the terminal tool). If you want the Claude 
 
 A `UserPromptSubmit` hook fires on every prompt you send to Claude Code. If the task involves web UI code, the hook instructs Claude to delegate to the **accessibility-lead** first. The lead evaluates the task and invokes the relevant specialists. The specialists apply their focused expertise and report findings. Code does not proceed without passing review.
 
-The team includes twenty agents: nine web code specialists that write and review code, six document accessibility specialists that scan Office and PDF files, one document accessibility wizard that runs guided document audits, one orchestrator that coordinates them, one interactive wizard that runs guided web audits, one testing coach that teaches you how to verify accessibility, and one WCAG guide that explains the standards themselves.
+The team includes twenty-two agents: nine web code specialists that write and review code, six document accessibility specialists that scan Office and PDF files, one document accessibility wizard that runs guided document audits (with two hidden helper sub-agents for parallel scanning), one orchestrator that coordinates them, one interactive wizard that runs guided web audits, one testing coach that teaches you how to verify accessibility, and one WCAG guide that explains the standards themselves. Three reusable agent skills provide domain knowledge, and lifecycle hooks enforce quality gates at the start and end of each session.
 
 For tasks that do not involve UI code (backend logic, scripts, database work), the hook is ignored and Claude proceeds normally.
 
@@ -2263,7 +2301,9 @@ a11y-agent-team/
       alt-text-headings.agent.md     # Alt text, SVGs, headings, landmarks
       aria-specialist.agent.md       # ARIA roles, states, properties
       contrast-master.agent.md       # Color contrast and visual a11y
+      cross-document-analyzer.agent.md # Hidden helper: cross-document pattern detection
       document-accessibility-wizard.agent.md # Guided document accessibility audit
+      document-inventory.agent.md    # Hidden helper: file discovery and inventory
       excel-accessibility.agent.md   # Excel spreadsheet accessibility
       forms-specialist.agent.md      # Forms, labels, validation, errors
       keyboard-navigator.agent.md    # Tab order and focus management
@@ -2278,6 +2318,7 @@ a11y-agent-team/
       testing-coach.agent.md         # Screen reader and keyboard testing guide
       wcag-guide.agent.md            # WCAG 2.2 criteria reference
       word-accessibility.agent.md    # Word document accessibility
+      AGENTS.md                      # Agent Teams configuration (multi-agent coordination)
     copilot-instructions.md    # Workspace-level accessibility instructions
     copilot-review-instructions.md  # PR review enforcement rules
     copilot-commit-message-instructions.md # Commit message a11y guidance
@@ -2292,6 +2333,23 @@ a11y-agent-team/
       setup-document-cicd.prompt.md      # CI/CD pipeline setup
       quick-document-check.prompt.md     # Fast triage scan
       create-accessible-template.prompt.md # Accessible template guidance
+    hooks/
+      document-a11y.json       # Lifecycle hooks configuration (SessionStart, SessionEnd)
+      scripts/
+        session-start.js       # SessionStart hook: auto-detect configs and prior reports
+        session-stop.js        # SessionEnd hook: quality gate for report completeness
+    skills/
+      accessibility-rules/
+        SKILL.md               # Cross-format a11y rule reference with WCAG 2.2 mapping
+      document-scanning/
+        SKILL.md               # File discovery, delta detection, scan config profiles
+      report-generation/
+        SKILL.md               # Report formatting, severity scoring, VPAT/ACR export
+    docs/
+      cross-platform-handoff.md  # Seamless handoff between Claude Code and Copilot
+      advanced-scanning-patterns.md # Background scanning, worktree isolation, large libraries
+      plugin-packaging.md        # Packaging and distributing agents for different environments
+      platform-references.md     # External documentation sources with feature-to-source mapping
     workflows/
       a11y-check.yml           # CI workflow for a11y checks on PRs
     scripts/
@@ -2307,7 +2365,7 @@ a11y-agent-team/
     manifest.json              # Claude Desktop extension manifest
     package.json               # Node.js package config
     server/
-      index.js                 # MCP server (tools: check_contrast, get_accessibility_guidelines, check_heading_structure, check_link_text, check_form_labels, generate_vpat, run_axe_scan, scan_office_document, scan_pdf_document + prompts)
+      index.js                 # MCP server (tools: check_contrast, get_accessibility_guidelines, check_heading_structure, check_link_text, check_form_labels, generate_vpat, run_axe_scan, scan_office_document, scan_pdf_document, extract_document_metadata, batch_scan_documents + prompts)
   example/
     README.md                  # Example project documentation
     document-testing-guide.md  # Guide for creating test documents with intentional a11y issues

@@ -2504,6 +2504,366 @@ server.registerTool(
   }
 );
 
+// --- Document Metadata Extraction ---
+
+server.registerTool(
+  "extract_document_metadata",
+  {
+    title: "Extract Document Metadata",
+    description:
+      "Extract accessibility-relevant metadata from an Office document (.docx, .xlsx, .pptx) or PDF. Returns title, author, language, creation date, modification date, template info, page/slide/sheet count, and accessibility property health. Useful for building metadata dashboards and identifying systemic metadata gaps across document libraries.",
+    inputSchema: z.object({
+      filePath: z
+        .string()
+        .describe("Absolute path to the document file (.docx, .xlsx, .pptx, or .pdf)"),
+    }),
+  },
+  async ({ filePath }) => {
+    const ext = extname(filePath).toLowerCase();
+    const validExts = [".docx", ".xlsx", ".pptx", ".pdf"];
+    if (!validExts.includes(ext)) {
+      return { content: [{ type: "text", text: `Unsupported file type: ${ext}. Supported: .docx, .xlsx, .pptx, .pdf` }] };
+    }
+
+    let buf;
+    try {
+      buf = await fsReadFile(filePath);
+    } catch (err) {
+      return { content: [{ type: "text", text: `Cannot read file: ${err.message}` }] };
+    }
+
+    const fileStat = await stat(filePath).catch(() => null);
+    const fileSize = fileStat ? fileStat.size : buf.length;
+
+    if (ext === ".pdf") {
+      const info = parsePdfBasics(buf);
+      const meta = {
+        file: basename(filePath),
+        type: "pdf",
+        fileSize,
+        title: info.title || null,
+        titleSet: info.hasTitle,
+        language: info.lang || null,
+        languageSet: info.hasLang,
+        tagged: info.isTagged,
+        hasStructureTree: info.hasStructureTree,
+        hasBookmarks: info.hasBookmarks,
+        hasForms: info.hasForms,
+        hasText: info.hasText,
+        pageCount: info.pageCount,
+        encrypted: info.isEncrypted,
+        hasEmbeddedFonts: info.hasEmbeddedFonts,
+        hasUnicodeMap: info.hasUnicodeMap,
+      };
+
+      const lines = [
+        `Document Metadata: ${meta.file}`,
+        `Type: PDF`,
+        `File Size: ${(fileSize / 1024).toFixed(1)} KB`,
+        `Pages: ${meta.pageCount}`,
+        `Title: ${meta.title || "NOT SET"}`,
+        `Language: ${meta.language || "NOT SET"}`,
+        `Tagged: ${meta.tagged ? "Yes" : "No"}`,
+        `Structure Tree: ${meta.hasStructureTree ? "Yes" : "No"}`,
+        `Bookmarks: ${meta.hasBookmarks ? "Yes" : "No"}`,
+        `Has Text: ${meta.hasText ? "Yes" : "No (may be scanned image)"}`,
+        `Encrypted: ${meta.encrypted ? "Yes" : "No"}`,
+        `Embedded Fonts: ${meta.hasEmbeddedFonts ? "Yes" : "No"}`,
+        ``,
+        `Accessibility Property Health:`,
+        `  Title: ${meta.titleSet ? "PASS" : "FAIL"}`,
+        `  Language: ${meta.languageSet ? "PASS" : "FAIL"}`,
+        `  Tagged: ${meta.tagged ? "PASS" : "FAIL"}`,
+        `  Structure: ${meta.hasStructureTree ? "PASS" : "FAIL"}`,
+        `  Text extractable: ${meta.hasText ? "PASS" : "FAIL"}`,
+      ];
+
+      return { content: [{ type: "text", text: lines.join("\n") }] };
+    }
+
+    // Office documents (ZIP-based)
+    let entries;
+    try {
+      entries = readZipEntries(buf);
+    } catch (err) {
+      return { content: [{ type: "text", text: `Cannot parse as ZIP/Office file: ${err.message}` }] };
+    }
+
+    const core = getZipXml(buf, entries, "docProps/core.xml");
+    const app = getZipXml(buf, entries, "docProps/app.xml");
+
+    const title = (xmlText(core, "dc:title")[0] || "").trim();
+    const creator = (xmlText(core, "dc:creator")[0] || "").trim();
+    const lastModifiedBy = (xmlText(core, "cp:lastModifiedBy")[0] || "").trim();
+    const created = (xmlText(core, "dcterms:created")[0] || "").trim();
+    const modified = (xmlText(core, "dcterms:modified")[0] || "").trim();
+    const subject = (xmlText(core, "dc:subject")[0] || "").trim();
+    const keywords = (xmlText(core, "cp:keywords")[0] || "").trim();
+    const language = (xmlText(core, "dc:language")[0] || "").trim();
+    const description = (xmlText(core, "dc:description")[0] || "").trim();
+    const template = (xmlText(app, "Template")[0] || "").trim();
+    const appName = (xmlText(app, "Application")[0] || "").trim();
+    const pages = (xmlText(app, "Pages")[0] || "").trim();
+    const slides = (xmlText(app, "Slides")[0] || "").trim();
+
+    let itemCount = "";
+    if (ext === ".docx") {
+      itemCount = pages ? `Pages: ${pages}` : "Pages: unknown";
+    } else if (ext === ".pptx") {
+      const slideFiles = [...entries.keys()].filter(k => /^ppt\/slides\/slide\d+\.xml$/.test(k));
+      itemCount = `Slides: ${slides || slideFiles.length}`;
+    } else if (ext === ".xlsx") {
+      const workbook = getZipXml(buf, entries, "xl/workbook.xml");
+      const sheetNames = xmlAttr(workbook, "sheet", "name");
+      itemCount = `Sheets: ${sheetNames.length} (${sheetNames.join(", ")})`;
+    }
+
+    const lines = [
+      `Document Metadata: ${basename(filePath)}`,
+      `Type: ${ext.slice(1).toUpperCase()}`,
+      `File Size: ${(fileSize / 1024).toFixed(1)} KB`,
+      itemCount,
+      `Title: ${title || "NOT SET"}`,
+      `Author: ${creator || "NOT SET"}`,
+      `Last Modified By: ${lastModifiedBy || "unknown"}`,
+      `Created: ${created || "unknown"}`,
+      `Modified: ${modified || "unknown"}`,
+      `Language: ${language || "NOT SET"}`,
+      `Subject: ${subject || "NOT SET"}`,
+      `Keywords: ${keywords || "NOT SET"}`,
+      `Template: ${template || "none detected"}`,
+      `Application: ${appName || "unknown"}`,
+      ``,
+      `Accessibility Property Health:`,
+      `  Title: ${title ? "PASS" : "FAIL"}`,
+      `  Author: ${creator ? "PASS" : "FAIL"}`,
+      `  Language: ${language ? "FAIL — not set" : (() => { const doc = ext === ".docx" ? getZipXml(buf, entries, "word/document.xml") : ""; return xmlHas(doc, "w:lang") ? "PASS" : "FAIL — not set"; })()}`,
+      `  Subject: ${subject ? "PASS" : "MISSING"}`,
+      `  Keywords: ${keywords ? "PASS" : "MISSING"}`,
+    ];
+
+    return { content: [{ type: "text", text: lines.join("\n") }] };
+  }
+);
+
+server.registerTool(
+  "batch_scan_documents",
+  {
+    title: "Batch Scan Documents for Accessibility",
+    description:
+      "Scan multiple Office documents (.docx, .xlsx, .pptx) and/or PDFs for accessibility issues in a single call. Returns an aggregated summary with per-file results, cross-document patterns, and an overall accessibility scorecard. More efficient than scanning files individually.",
+    inputSchema: z.object({
+      filePaths: z
+        .array(z.string())
+        .describe("Array of absolute file paths to scan"),
+      reportPath: z
+        .string()
+        .optional()
+        .describe("File path to write an aggregated markdown report"),
+      severityFilter: z
+        .array(z.enum(["error", "warning", "tip"]))
+        .optional()
+        .describe('Severity levels to include. Default: ["error","warning","tip"]'),
+    }),
+  },
+  async ({ filePaths, reportPath, severityFilter }) => {
+    const results = [];
+    const errors = [];
+
+    for (const fp of filePaths) {
+      const ext = extname(fp).toLowerCase();
+      const validExts = [".docx", ".xlsx", ".pptx", ".pdf"];
+      if (!validExts.includes(ext)) {
+        errors.push(`${basename(fp)}: unsupported type ${ext}`);
+        continue;
+      }
+
+      let buf;
+      try {
+        buf = await fsReadFile(fp);
+      } catch (err) {
+        errors.push(`${basename(fp)}: ${err.message}`);
+        continue;
+      }
+
+      const defaultSev = severityFilter || ["error", "warning", "tip"];
+      let findings = [];
+
+      if (ext === ".pdf") {
+        const header = buf.toString("latin1", 0, 8);
+        if (!header.startsWith("%PDF-")) {
+          errors.push(`${basename(fp)}: not a valid PDF`);
+          continue;
+        }
+        const config = await loadPdfConfig(fp);
+        if (severityFilter) config.severityFilter = severityFilter;
+        const result = scanPdf(buf, config);
+        findings = result.findings;
+      } else {
+        let entries;
+        try {
+          entries = readZipEntries(buf);
+        } catch {
+          errors.push(`${basename(fp)}: not a valid Office file`);
+          continue;
+        }
+        const config = await loadOfficeConfig(fp);
+        const fileType = ext.slice(1);
+        const typeConfig = { ...(config[fileType] || { enabled: true, disabledRules: [], severityFilter: defaultSev }) };
+        if (severityFilter) typeConfig.severityFilter = severityFilter;
+        if (!typeConfig.enabled) {
+          errors.push(`${basename(fp)}: scanning disabled in config`);
+          continue;
+        }
+        if (fileType === "docx") findings = scanDocx(buf, entries, typeConfig);
+        else if (fileType === "xlsx") findings = scanXlsx(buf, entries, typeConfig);
+        else findings = scanPptx(buf, entries, typeConfig);
+      }
+
+      const errs = findings.filter(f => f.severity === "error").length;
+      const warns = findings.filter(f => f.severity === "warning").length;
+      const tips = findings.filter(f => f.severity === "tip").length;
+
+      // Compute score
+      let score = 100;
+      for (const f of findings) {
+        const conf = f.confidence || "high";
+        if (f.severity === "error") {
+          score -= conf === "high" ? 10 : conf === "medium" ? 7 : 3;
+        } else if (f.severity === "warning") {
+          score -= conf === "high" ? 3 : conf === "medium" ? 2 : 1;
+        }
+      }
+      score = Math.max(0, score);
+      const grade = score >= 90 ? "A" : score >= 75 ? "B" : score >= 50 ? "C" : score >= 25 ? "D" : "F";
+
+      results.push({
+        file: basename(fp),
+        path: fp,
+        type: ext.slice(1),
+        errors: errs,
+        warnings: warns,
+        tips: tips,
+        score,
+        grade,
+        findings,
+      });
+    }
+
+    // Cross-document patterns
+    const ruleCounts = {};
+    for (const r of results) {
+      const seenRules = new Set();
+      for (const f of r.findings) {
+        if (!seenRules.has(f.ruleId)) {
+          ruleCounts[f.ruleId] = (ruleCounts[f.ruleId] || 0) + 1;
+          seenRules.add(f.ruleId);
+        }
+      }
+    }
+    const commonIssues = Object.entries(ruleCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5);
+
+    const totalErrors = results.reduce((s, r) => s + r.errors, 0);
+    const totalWarnings = results.reduce((s, r) => s + r.warnings, 0);
+    const totalTips = results.reduce((s, r) => s + r.tips, 0);
+    const avgScore = results.length > 0 ? Math.round(results.reduce((s, r) => s + r.score, 0) / results.length) : 0;
+    const avgGrade = avgScore >= 90 ? "A" : avgScore >= 75 ? "B" : avgScore >= 50 ? "C" : avgScore >= 25 ? "D" : "F";
+
+    const lines = [
+      `Batch Scan Complete: ${results.length} documents scanned`,
+      errors.length > 0 ? `Skipped: ${errors.length} files (${errors.join("; ")})` : "",
+      ``,
+      `Overall: ${totalErrors} errors | ${totalWarnings} warnings | ${totalTips} tips`,
+      `Average Score: ${avgScore}/100 (${avgGrade})`,
+      ``,
+      `Scorecard:`,
+    ];
+
+    for (const r of results.sort((a, b) => a.score - b.score)) {
+      lines.push(`  ${r.file.padEnd(40)} ${r.score}/100 (${r.grade})  ${r.errors}E ${r.warnings}W ${r.tips}T`);
+    }
+
+    if (commonIssues.length > 0) {
+      lines.push(``);
+      lines.push(`Most Common Issues:`);
+      for (const [rule, count] of commonIssues) {
+        lines.push(`  ${rule} — found in ${count}/${results.length} documents`);
+      }
+    }
+
+    // Write report if requested
+    let reportNote = "";
+    if (reportPath) {
+      const now = new Date();
+      const reportLines = [
+        `# Batch Document Accessibility Report`,
+        ``,
+        `| Field | Value |`,
+        `|-------|-------|`,
+        `| Date | ${now.toISOString().split("T")[0]} |`,
+        `| Documents Scanned | ${results.length} |`,
+        `| Documents Skipped | ${errors.length} |`,
+        `| Total Errors | ${totalErrors} |`,
+        `| Total Warnings | ${totalWarnings} |`,
+        `| Average Score | ${avgScore}/100 (${avgGrade}) |`,
+        ``,
+        `## Scorecard`,
+        ``,
+        `| Document | Type | Score | Grade | Errors | Warnings | Tips |`,
+        `|----------|------|-------|-------|--------|----------|------|`,
+      ];
+      for (const r of results.sort((a, b) => a.score - b.score)) {
+        reportLines.push(`| ${r.file} | ${r.type.toUpperCase()} | ${r.score} | ${r.grade} | ${r.errors} | ${r.warnings} | ${r.tips} |`);
+      }
+      reportLines.push(``);
+      if (commonIssues.length > 0) {
+        reportLines.push(`## Cross-Document Patterns`);
+        reportLines.push(``);
+        reportLines.push(`| Rule | Files Affected | Percentage |`);
+        reportLines.push(`|------|---------------|------------|`);
+        for (const [rule, count] of commonIssues) {
+          reportLines.push(`| ${rule} | ${count}/${results.length} | ${Math.round(count / results.length * 100)}% |`);
+        }
+        reportLines.push(``);
+      }
+      if (errors.length > 0) {
+        reportLines.push(`## Skipped Files`);
+        reportLines.push(``);
+        for (const e of errors) reportLines.push(`- ${e}`);
+        reportLines.push(``);
+      }
+      reportLines.push(`## Per-File Details`);
+      reportLines.push(``);
+      for (const r of results) {
+        reportLines.push(`### ${r.file}`);
+        reportLines.push(``);
+        reportLines.push(`**Score:** ${r.score}/100 (${r.grade}) | **Errors:** ${r.errors} | **Warnings:** ${r.warnings} | **Tips:** ${r.tips}`);
+        reportLines.push(``);
+        if (r.findings.length > 0) {
+          for (const f of r.findings) {
+            reportLines.push(`- **${f.ruleId}** (${f.severity}): ${f.message}`);
+          }
+        } else {
+          reportLines.push(`No issues found.`);
+        }
+        reportLines.push(``);
+      }
+      try {
+        await fsWriteFile(reportPath, reportLines.join("\n"), "utf-8");
+        reportNote = `\nReport written to: ${reportPath}`;
+      } catch (err) {
+        reportNote = `\nFailed to write report: ${err.message}`;
+      }
+    }
+
+    if (reportNote) lines.push(reportNote);
+
+    return { content: [{ type: "text", text: lines.filter(Boolean).join("\n") }] };
+  }
+);
+
 // --- Prompts ---
 
 const AUDIT_PREAMBLE = `You are an accessibility specialist conducting a WCAG 2.1 AA compliance review. Be thorough and specific. For each issue found, report:

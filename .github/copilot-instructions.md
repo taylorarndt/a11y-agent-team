@@ -31,6 +31,42 @@ Select these agents from the agents dropdown in Copilot Chat, or type `/agents` 
 | testing-coach | Screen reader testing, keyboard testing, automated testing guidance |
 | wcag-guide | WCAG 2.2 criteria explanations, conformance levels, what changed |
 
+### Hidden Helper Sub-Agents
+
+These agents are not user-invokable. They are used internally by the document-accessibility-wizard to parallelize scanning and analysis:
+
+| Agent | Purpose |
+|-------|---------|
+| document-inventory | File discovery, inventory building, delta detection across folders |
+| cross-document-analyzer | Cross-document pattern detection, severity scoring, template analysis |
+
+### Agent Skills
+
+Reusable knowledge modules in `.github/skills/` that agents reference automatically:
+
+| Skill | Domain |
+|-------|--------|
+| document-scanning | File discovery commands, delta detection, scan configuration profiles |
+| accessibility-rules | Cross-format accessibility rule reference with WCAG 2.2 mapping (DOCX, XLSX, PPTX, PDF) |
+| report-generation | Audit report formatting, severity scoring formulas, VPAT/ACR compliance export |
+
+### Lifecycle Hooks
+
+Session hooks in `.github/hooks/` that inject context automatically:
+
+| Hook | When | Purpose |
+|------|------|---------|
+| SessionStart | Beginning of session | Auto-detects scan config files and previous audit reports; injects relevant context |
+| SessionEnd | End of session | Quality gate — validates audit report completeness and prompts for missing sections |
+
+### Agent Teams
+
+Team coordination is defined in `.github/agents/AGENTS.md`. Three defined teams:
+
+- **Document Accessibility Audit** — led by document-accessibility-wizard with format-specific sub-agents
+- **Web Accessibility Audit** — led by accessibility-lead with all web specialist agents
+- **Full Audit** — combined web + document audit workflow
+
 ### Decision Matrix
 
 - **New component or page:** Always apply aria-specialist + keyboard-navigator + alt-text-headings guidance. Add forms-specialist for any inputs, contrast-master for styling, modal-specialist for overlays, live-region-controller for dynamic updates, tables-data-specialist for any data tables.
@@ -79,5 +115,14 @@ Use the VS Code tasks `A11y: Init Office Scan Config` and `A11y: Init PDF Scan C
 - Focus managed on route changes, dynamic content, and deletions
 - Modals trap focus and return focus on close
 - Live regions for all dynamic content updates
+
+### Advanced Documentation
+
+Additional guides in `.github/docs/`:
+
+- **cross-platform-handoff.md** — Seamless handoff between Claude Code and Copilot agent environments
+- **advanced-scanning-patterns.md** — Background scanning, worktree isolation, and large library strategies
+- **plugin-packaging.md** — Packaging and distributing agents for different environments
+- **platform-references.md** — All external documentation sources used to build this project, with feature-to-source mapping
 
 For tasks that do not involve any user-facing web content (backend logic, scripts, database work), these requirements do not apply.

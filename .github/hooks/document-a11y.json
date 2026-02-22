@@ -6,6 +6,13 @@
         "command": "node .github/hooks/scripts/session-start.js",
         "timeout": 10
       }
+    ],
+    "SessionEnd": [
+      {
+        "type": "command",
+        "command": "node .github/hooks/scripts/session-stop.js",
+        "timeout": 10
+      }
     ]
   }
 }
