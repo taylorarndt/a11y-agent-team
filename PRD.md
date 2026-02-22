@@ -145,31 +145,36 @@ A11y Agent Team makes accessibility enforcement automatic, comprehensive, and un
 
 ### Agent Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                      User Prompt                                 │
-├─────────────────────────────────────────────────────────────────┤
-│  UserPromptSubmit Hook (Claude Code) / Workspace Instructions    │
-│  (Copilot) / Direct Invocation (all platforms)                   │
-├─────────────────────────────────────────────────────────────────┤
-│                  accessibility-lead (orchestrator)                │
-│  Evaluates task → selects specialists → compiles findings        │
-├────────┬────────┬────────┬────────┬────────┬────────┬───────────┤
-│  aria-  │ modal- │contrast│keyboard│  live- │ forms- │  alt-text │
-│  spec.  │ spec.  │ master │  nav.  │ region │ spec.  │ headings  │
-├────────┼────────┴────────┴────────┴────────┴────────┴───────────┤
-│ tables │ link-   │ word-  │ excel- │ pptx-  │  pdf-  │ office/  │
-│  data  │ checker │ a11y   │ a11y   │ a11y   │ a11y   │ pdf cfg  │
-├────────┴─────────┴────────┴────────┴────────┴────────┴──────────┤
-│  web-accessibility-wizard (12-phase guided audit)                 │
-│  document-accessibility-wizard (multi-phase document audit)       │
-├─────────────────────────────────────────────────────────────────┤
-│  Hidden Helper Sub-Agents (launched by wizards, not by users)     │
-│  cross-page-analyzer │ web-issue-fixer │ cross-document-analyzer  │
-│  document-inventory                                              │
-├─────────────────────────────────────────────────────────────────┤
-│  testing-coach (testing guidance) │ wcag-guide (standard ref)    │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    A["User Prompt"] --> B["Activation Layer:<br>UserPromptSubmit Hook (Claude Code)<br>Workspace Instructions (Copilot)<br>Direct Invocation (all platforms)"]
+    B --> C["accessibility-lead (orchestrator)<br>Evaluates task, selects specialists, compiles findings"]
+
+    C --> S1["aria-specialist"]
+    C --> S2["modal-specialist"]
+    C --> S3["contrast-master"]
+    C --> S4["keyboard-navigator"]
+    C --> S5["live-region-controller"]
+    C --> S6["forms-specialist"]
+    C --> S7["alt-text-headings"]
+    C --> S8["tables-data-specialist"]
+    C --> S9["link-checker"]
+    C --> S10["word-accessibility"]
+    C --> S11["excel-accessibility"]
+    C --> S12["powerpoint-accessibility"]
+    C --> S13["pdf-accessibility"]
+    C --> S14["office-scan-config / pdf-scan-config"]
+
+    C --> W1["web-accessibility-wizard<br>(12-phase guided audit)"]
+    C --> W2["document-accessibility-wizard<br>(multi-phase document audit)"]
+
+    W1 --> H1["cross-page-analyzer<br>(hidden sub-agent)"]
+    W1 --> H2["web-issue-fixer<br>(hidden sub-agent)"]
+    W2 --> H3["cross-document-analyzer<br>(hidden sub-agent)"]
+    W2 --> H4["document-inventory<br>(hidden sub-agent)"]
+
+    C --> R1["testing-coach<br>(testing guidance)"]
+    C --> R2["wcag-guide<br>(standard reference)"]
 ```
 
 ### MCP Server Architecture
@@ -183,56 +188,51 @@ The MCP server (`desktop-extension/server/index.js`) is a single Node.js ESM mod
    - **PDF scanning:** Direct buffer parsing using `latin1` encoding with regex-based structure detection
 4. Shells out to `@axe-core/cli` only for the `run_axe_scan` tool (optional external dependency)
 
-```
-┌──────────────────────────────────────────────────────────────┐
-│                     MCP Server (index.js)                     │
-├──────────────────────────────────────────────────────────────┤
-│  Imports: node:child_process, node:fs, node:os, node:path,   │
-│           node:crypto, node:util, node:zlib                   │
-│  External: @modelcontextprotocol/sdk, zod                     │
-├──────────────────┬───────────────────────────────────────────┤
-│    Web Tools     │           Document Tools                   │
-│  ─────────────── │  ──────────────────────────────────────── │
-│  check_contrast  │  extract_document_metadata                    │
-│  get_a11y_guide  │  batch_scan_documents                         │
-│  heading_struct  │  scan_office_document                     │
-│  check_links     │    ├─ getZipXml() → UTF-8 XML strings     │
-│  check_forms     │    ├─ scanPptx() → 16 rules               │
-│  generate_vpat   │    └─ loadOfficeConfig()                   │
-│  run_axe_scan    │  scan_pdf_document                         │
-│                  │    └─ loadOfficeConfig()                   │
-│                  │  scan_pdf_document                         │
-│                  │    ├─ parsePdfBasics() → structure tree,   │
-│                  │    │   MarkInfo, title, lang, bookmarks,   │
-│                  │    │   forms, links, figures, tables,      │
-│                  │    │   fonts, encryption                   │
-│                  │    ├─ scanPdf() → 56 rules (3 layers)     │
-│                  │    └─ loadPdfConfig()                      │
-├──────────────────┴───────────────────────────────────────────┤
-│  Output Builders                                              │
-│  buildOfficeSarif() │ buildOfficeMarkdownReport()             │
-│  buildPdfSarif()    │ buildPdfMarkdownReport()                │
-├──────────────────────────────────────────────────────────────┤
-│  Prompts: Full Audit, ARIA Review, Modal Review,              │
-│           Contrast Review, Keyboard Review, Live Region Review│
-└──────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph MCP["MCP Server — desktop-extension/server/index.js"]
+        direction TB
+        DEPS["Imports: node:child_process, node:fs, node:os, node:path,<br>node:crypto, node:util, node:zlib<br>External: @modelcontextprotocol/sdk, zod"]
+
+        subgraph WEB["Web Tools (7)"]
+            W1["check_contrast"]
+            W2["get_accessibility_guidelines"]
+            W3["check_heading_structure"]
+            W4["check_link_text"]
+            W5["check_form_labels"]
+            W6["generate_vpat"]
+            W7["run_axe_scan"]
+        end
+
+        subgraph DOC["Document Tools (4)"]
+            D1["extract_document_metadata"]
+            D2["batch_scan_documents"]
+            D3["scan_office_document<br>scanDocx (16 rules), scanXlsx (14 rules), scanPptx (16 rules)"]
+            D4["scan_pdf_document<br>parsePdfBasics, scanPdf (56 rules across 3 layers)"]
+        end
+
+        subgraph OUT["Output Builders"]
+            O1["buildOfficeSarif / buildOfficeMarkdownReport"]
+            O2["buildPdfSarif / buildPdfMarkdownReport"]
+        end
+
+        subgraph PROMPTS["MCP Prompts (6)"]
+            P1["Full Audit, ARIA Review, Modal Review,<br>Contrast Review, Keyboard Review, Live Region Review"]
+        end
+    end
 ```
 
 ### CI/CD Architecture
 
-```
-┌──────────────────────────────────────────────────┐
-│        .github/workflows/a11y-check.yml          │
-│  Triggers: pull_request (opened, synchronize)    │
-├──────────────────────────────────────────────────┤
-│  Step 1: a11y-lint.mjs        (HTML/JSX/TSX)     │
-│  Step 2: office-a11y-scan.mjs (DOCX/XLSX/PPTX)  │
-│  Step 3: pdf-a11y-scan.mjs    (PDF)              │
-├──────────────────────────────────────────────────┤
-│  Output: SARIF 2.1.0 → GitHub Code Scanning     │
-│          ::error:: / ::warning:: annotations     │
-│          Exit code 1 if error-severity findings  │
-└──────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    TRIGGER["pull_request event<br>(opened, synchronize)"] --> WORKFLOW[".github/workflows/a11y-check.yml"]
+    WORKFLOW --> STEP1["Step 1: a11y-lint.mjs<br>Scans HTML, JSX, TSX"]
+    WORKFLOW --> STEP2["Step 2: office-a11y-scan.mjs<br>Scans DOCX, XLSX, PPTX"]
+    WORKFLOW --> STEP3["Step 3: pdf-a11y-scan.mjs<br>Scans PDF"]
+    STEP1 --> OUTPUT["Output:<br>SARIF 2.1.0 uploaded to GitHub Code Scanning<br>::error:: and ::warning:: annotations<br>Exit code 1 if error-severity findings"]
+    STEP2 --> OUTPUT
+    STEP3 --> OUTPUT
 ```
 
 ---
