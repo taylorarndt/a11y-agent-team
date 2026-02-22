@@ -66,14 +66,25 @@ Ask using askQuestions:
 If the user chose **Key pages**, follow up with:
 - **"Which pages should I audit? List the URLs or route names."** — Let the user type their page list
 
-### Step 4: Audit Preferences
+### Step 4: Audit Method
+
+Ask using askQuestions:
+
+1. **"What type of audit do you want?"** — Options:
+   - **Runtime scan only (Recommended if URL available)** — Run axe-core against the live site. No source code review.
+   - **Code review only** — Review the source code statically. No runtime scan.
+   - **Both** — Run axe-core AND review the source code.
+
+**CRITICAL: DO NOT default to code review.** If the user has a URL and chose "Runtime scan only", you MUST run axe-core and MUST NOT read or review source code files. Only review source code if the user explicitly chose "Code review only" or "Both".
+
+### Step 5: Audit Preferences
 
 Ask using askQuestions:
 
 1. **"Do you want screenshots captured for each issue found?"** — Options: Yes, No
 2. **"Do you have any known accessibility issues already?"** — Options: Yes (let me describe them), No, Not sure
 
-Based on their answers, customize the audit order and depth. Store the app URL (dev or production) and page list for use throughout the audit.
+Based on their answers, customize the audit order and depth. Store the app URL (dev or production), page list, and audit method for use throughout the audit.
 
 ## MANDATORY: Screenshot Capture
 
@@ -156,13 +167,25 @@ If no URL was provided or no screenshot tool is available, skip screenshots and 
 
 ## Audit Scope Rules
 
-Before starting Phase 1, apply the crawl depth chosen in Phase 0:
+Before starting Phase 1, apply the choices from Phase 0:
 
-- **Current page only** — Run every phase against only the single URL provided. Scan only the source files that render that page.
-- **Key pages** — Run every phase against each page the user listed. At each phase, iterate through the page list and report findings per page.
-- **Full site crawl** — Use the starting URL to discover linked pages. Crawl internal links (same domain) up to a reasonable limit (50 pages max). Run every phase against each discovered page.
+### Audit Method Rules — CRITICAL
 
-For **Quick scan** depth, run only Phases 1, 3, 4, and 9. For **Standard review**, run all phases. For **Deep dive**, run all phases plus additional checks noted in each phase.
+- **Runtime scan only** — Skip Phases 1-8 entirely. Go straight to Phase 9 and run axe-core. DO NOT open, read, or review any source code files. The entire audit is the axe-core scan output.
+- **Code review only** — Run Phases 1-8 as normal. Skip the axe-core scan in Phase 9 (but still provide testing recommendations).
+- **Both** — Run Phase 9 (axe-core) FIRST, then run Phases 1-8 for code review. This gives the most complete picture.
+
+**DO NOT silently fall back to code review.** If the user chose runtime scan, run the terminal command. Period.
+
+### Crawl Depth Rules
+
+- **Current page only** — Scan only the single URL provided.
+- **Key pages** — Scan each page the user listed. Report findings per page.
+- **Full site crawl** — Crawl internal links (same domain) up to 50 pages. Scan each discovered page.
+
+### Thoroughness Rules
+
+For **Quick scan**, run only Phases 1, 3, 4, and 9 (adjusted by audit method). For **Standard review**, run all phases. For **Deep dive**, run all phases plus additional checks noted in each phase.
 
 When reporting findings, always note which page the issue was found on if auditing multiple pages.
 
