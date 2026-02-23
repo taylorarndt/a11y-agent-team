@@ -58,6 +58,7 @@ process.stdin.on('end', () => {
   }
 
   process.stdout.write(JSON.stringify({
+    continue: true,
     hookSpecificOutput: {
       hookEventName: 'SessionStart',
       additionalContext: `[Document A11y] ${context.join(' | ')}`

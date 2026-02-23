@@ -52,6 +52,7 @@ explicit confirmation — a safety hook will pause them automatically.
 "@
 
 @{
+    continue          = $true
     hookSpecificOutput = @{
         hookEventName    = "SessionStart"
         additionalContext = $context

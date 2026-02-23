@@ -67,6 +67,7 @@ process.stdin.on('end', () => {
   ].join('\n');
 
   process.stdout.write(JSON.stringify({
+    continue: true,
     hookSpecificOutput: {
       hookEventName: 'SessionEnd',
       additionalContext: guidance

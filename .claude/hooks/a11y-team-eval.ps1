@@ -6,7 +6,7 @@
 # Fires on every UserPromptSubmit to ensure the accessibility-lead
 # agent is considered for any UI-related work.
 
-@"
+$message = @"
 INSTRUCTION: MANDATORY ACCESSIBILITY CHECK
 Before proceeding with any task involving web UI code, HTML, JSX, CSS,
 React components, Tailwind classes, web pages, forms, modals, or any
@@ -23,3 +23,5 @@ user-facing web content:
 
 If the task does not involve any user-facing web content, proceed normally.
 "@
+
+@{ continue = $true; additionalContext = $message } | ConvertTo-Json -Compress

@@ -34,6 +34,7 @@ Safety hooks are still active — destructive operations require confirmation.
 "@
 
 @{
+    continue          = $true
     hookSpecificOutput = @{
         hookEventName     = "SubagentStart"
         additionalContext = $context
