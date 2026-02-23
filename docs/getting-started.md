@@ -12,7 +12,7 @@ This is for the **Claude Code CLI** (the terminal tool). If you want the Claude 
 
 A `UserPromptSubmit` hook fires on every prompt you send to Claude Code. If the task involves web UI code, the hook instructs Claude to delegate to the **accessibility-lead** first. The lead evaluates the task and invokes the relevant specialists. The specialists apply their focused expertise and report findings. Code does not proceed without passing review.
 
-The team includes twenty-two agents: nine web code specialists that write and review code, six document accessibility specialists that scan Office and PDF files, one document accessibility wizard that runs guided document audits (with two hidden helper sub-agents for parallel scanning), one orchestrator that coordinates them, one interactive wizard that runs guided web audits (with two hidden helper sub-agents for page crawling and parallel scanning), one testing coach that teaches you how to verify accessibility, and one WCAG guide that explains the standards themselves. Three reusable agent skills provide domain knowledge, and lifecycle hooks enforce quality gates at the start and end of each session.
+The team includes twenty-five agents: nine web code specialists that write and review code, six document accessibility specialists that scan Office and PDF files, one document accessibility wizard that runs guided document audits (with two hidden helper sub-agents for parallel scanning), one markdown documentation accessibility orchestrator (markdown-a11y-assistant) that audits .md files across nine accessibility domains (with two hidden helper sub-agents for parallel scanning and fix application), one orchestrator that coordinates them, one interactive wizard that runs guided web audits (with two hidden helper sub-agents for page crawling and parallel scanning), one testing coach that teaches you how to verify accessibility, and one WCAG guide that explains the standards themselves. Three reusable agent skills provide domain knowledge, and lifecycle hooks enforce quality gates at the start and end of each session.
 
 For tasks that do not involve UI code (backend logic, scripts, database work), the hook is ignored and Claude proceeds normally.
 
@@ -287,7 +287,7 @@ This is for **GitHub Copilot Chat** in VS Code (or other editors that support th
 
 GitHub Copilot supports custom agents via `.github/agents/*.agent.md` files and workspace-level instructions via `.github/copilot-instructions.md`. The A11y Agent Team provides:
 
-- **Twenty-two specialist agents** that you can invoke by name in Copilot Chat
+- **Twenty-five specialist agents** that you can invoke by name in Copilot Chat
 - **Workspace instructions** that remind Copilot to consider accessibility on every UI task
 - **PR review instructions** (`.github/copilot-review-instructions.md`) that enforce accessibility standards during Copilot Code Review on pull requests
 - **Commit message instructions** (`.github/copilot-commit-message-instructions.md`) that guide Copilot to include accessibility context in commit messages
