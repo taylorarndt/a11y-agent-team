@@ -127,8 +127,8 @@ sync_github_dir() {
   local label="$3"
   [ -d "$src_dir" ] || return 0
   [ -d "$dst_dir" ] || return 0  # only sync if previously installed
-  # Update / add
-  find "$src_dir" -type f | while read -r src_file; do
+  # Update / add (use process substitution to avoid subshell variable loss)
+  while read -r src_file; do
     rel="${src_file#$src_dir/}"
     dst_file="$dst_dir/$rel"
     mkdir -p "$(dirname "$dst_file")"
@@ -137,9 +137,9 @@ sync_github_dir() {
       log "Updated $label/$rel"
       UPDATED=$((UPDATED + 1))
     fi
-  done
+  done < <(find "$src_dir" -type f)
   # Remove obsolete
-  find "$dst_dir" -type f | while read -r dst_file; do
+  while read -r dst_file; do
     rel="${dst_file#$dst_dir/}"
     src_check="$src_dir/$rel"
     if [ ! -f "$src_check" ]; then
@@ -147,7 +147,7 @@ sync_github_dir() {
       log "Removed $label/$rel"
       UPDATED=$((UPDATED + 1))
     fi
-  done
+  done < <(find "$dst_dir" -type f)
 }
 
 GITHUB_SRC="$CACHE_DIR/.github"
@@ -247,7 +247,7 @@ if [ "$TARGET" = "global" ]; then
     HAS_AGENTS=false
     [ -n "$(ls "$PROFILE"/*.agent.md 2>/dev/null)" ]    && HAS_AGENTS=true
     [ -d "$PROMPTS_DIR" ] && [ -n "$(ls "$PROMPTS_DIR"/*.agent.md 2>/dev/null)" ] && HAS_AGENTS=true
-    $HAS_AGENTS || continue
+    [ "$HAS_AGENTS" = true ] || continue
     mkdir -p "$PROMPTS_DIR"
     # Update agents in both locations
     [ -d "$CENTRAL" ] && for f in "$CENTRAL"/*.agent.md; do
