@@ -49,6 +49,19 @@ irm https://raw.githubusercontent.com/taylorarndt/a11y-agent-team/main/install.p
 
 See the full [Getting Started Guide](docs/getting-started.md) for all installation options, manual setup, global vs project install, auto-updates, and platform-specific details.
 
+### Safe installation — your files are never overwritten
+
+The installer is designed to be additive and non-destructive:
+
+- **Agent files** (`~/.claude/agents/`, `.github/agents/`) - existing files are skipped, not replaced. A message tells you which agents were skipped so you know what you already have.
+- **Config files** (`copilot-instructions.md`, `copilot-review-instructions.md`, `copilot-commit-message-instructions.md`) - our content is wrapped in `<!-- a11y-agent-team: start/end -->` markers and merged into your existing file. Your content above and below the markers is always preserved. If the file does not exist, it is created.
+- **Asset directories** (`skills/`, `instructions/`, `prompts/`, `hooks/`) - copied file-by-file; files that already exist are skipped.
+- **Manifest file** (`.a11y-agent-manifest`) - tracks every file we installed. The update script uses this list to ensure it only touches files we own, never user-created agents. When contributors add new agents to the repo, those files are automatically installed on next update and added to the manifest.
+
+**Updates are equally safe** - the update script never deletes agent files. If a file is not in the manifest (meaning you created it yourself), it will not be modified or removed.
+
+To reinstall a specific agent from scratch, delete it first and rerun the installer (or update script).
+
 ## The Team
 
 The following agents make up the accessibility enforcement team, each owning one domain.
