@@ -74,6 +74,47 @@ This file defines coordinated multi-agent workflows for enterprise document acce
 3. `accessibility-lead` compiles a unified report covering both web and document findings
 4. Cross-cutting patterns (e.g., shared templates, design system issues) are highlighted across both audits
 
+## Team: GitHub Workflow Management
+
+**Lead:** `github-hub` or `nexus` (alternative entry points — same team, both orchestrate all GitHub workflow agents)
+
+**Members:**
+- `daily-briefing` — Morning overview of issues, PRs, CI, and security alerts
+- `pr-review` — Pull request review, diff analysis, inline commenting
+- `issue-tracker` — Issue triage, priority scoring, response drafting, project board management
+- `analytics` — Repository health scoring, velocity metrics, bottleneck detection
+- `insiders-a11y-tracker` — Accessibility change tracking and WCAG regression detection
+- `repo-admin` — Collaborator management, branch protection, label sync, access audits
+- `team-manager` — Team onboarding, offboarding, permissions, org membership
+- `contributions-hub` — Discussions, community health, contributor insights
+- `template-builder` — Guided wizard for issue, PR, and discussion templates
+
+**Skills:**
+- `github-workflow-standards` — Core standards: auth, dual output, progress announcements, parallel execution, safety rules
+- `github-scanning` — Search patterns by intent, parallel stream collection, auto-recovery
+- `github-analytics-scoring` — Health scoring, priority scoring, confidence levels, delta tracking
+
+**Workflow:**
+1. `github-hub` or `nexus` receives the user request, loads hook-injected context, and discovers repos/orgs
+2. The orchestrator classifies intent and routes to the appropriate specialist agent with full context
+3. Specialist agents run their workflows (data collection, analysis, reporting)
+4. Results are returned to the user; the orchestrator offers contextual follow-on actions
+5. Any state-changing operation (comment, merge, add collaborator) requires explicit user confirmation before execution
+
+**Handoffs:**
+- `github-hub`/`nexus` → `daily-briefing` for overview and morning briefings
+- `github-hub`/`nexus` → `pr-review` for code review work
+- `github-hub`/`nexus` → `issue-tracker` for issue triage and response
+- `github-hub`/`nexus` → `analytics` for metrics and health reports
+- `github-hub`/`nexus` → `repo-admin` for access and settings management
+- `github-hub`/`nexus` → `team-manager` for people and team management
+- `github-hub`/`nexus` → `contributions-hub` for community and discussions
+- `github-hub`/`nexus` → `insiders-a11y-tracker` for accessibility tracking
+- `github-hub`/`nexus` → `template-builder` for creating GitHub templates
+- Any agent → `github-hub` or `nexus` when the user wants to switch tasks or repos
+
+---
+
 ## Enterprise Scanning Patterns
 
 ### Large Repository Scanning

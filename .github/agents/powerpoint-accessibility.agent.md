@@ -170,12 +170,35 @@ Rule sets can be customized using `.a11y-office-config.json`. See the `office-sc
 - Tables for layout — use text boxes instead
 - Auto-advancing animations
 
-## How to Report Issues
+## Structured Output for Sub-Agent Use
 
-For each finding:
-- Rule ID and severity (Error/Warning/Tip)
-- Slide number and element name
-- What was found
-- Why it matters
-- How to fix it in PowerPoint's UI
-- WCAG success criterion if applicable
+When invoked as a sub-agent by the document-accessibility-wizard, return each finding in this format:
+
+```
+### [Rule ID] — [severity]: [Brief description]
+- **Rule:** [PPTX-E###] | **Severity:** [Error | Warning | Tip]
+- **Confidence:** [high | medium | low]
+- **Location:** [Slide number and element name, e.g. Slide 3 — Content Placeholder 1]
+- **Impact:** [What an assistive technology user experiences]
+- **Fix:** [Step-by-step instructions in PowerPoint's UI]
+- **WCAG:** [criterion number] [criterion name] (Level [A/AA/AAA])
+```
+
+**Confidence rules:**
+- **high** — definitively wrong: missing slide title, empty title placeholder, no alt text on non-decorative image, auto-advancing slide detected
+- **medium** — likely wrong: reading order probably wrong, alt text present but vague, captions likely missing on embedded video
+- **low** — possibly wrong: decorative vs content image ambiguous, animation purpose may be intentional, requires author confirmation
+
+### Output Summary
+
+End your invocation with this summary block (used by the wizard for ⚙️/✅ progress announcements):
+
+```
+## PowerPoint Accessibility Findings Summary
+- **Files scanned:** [count]
+- **Total issues:** [count]
+- **Errors:** [count] | **Warnings:** [count] | **Tips:** [count]
+- **High confidence:** [count] | **Medium:** [count] | **Low:** [count]
+```
+
+Always explain your reasoning. Remediators need to understand why, not just what.

@@ -102,6 +102,33 @@ When running Phases 1-8 with code review, you SHOULD run independent specialists
 
 This parallel execution can reduce a full audit from 10 sequential phases to 3 parallel batches.
 
+### Progress Announcements
+
+**Before starting each group**, tell the user which specialists are running and what they cover:
+
+```
+⚙️ Starting Group A — structure, semantics, and visual design:
+  · alt-text-headings — images, headings, landmarks, page structure
+  · aria-specialist — semantic HTML, ARIA roles and attributes
+  · contrast-master — color contrast, focus indicators, visual design
+```
+
+**After each group completes**, briefly report the finding count before starting the next:
+
+```
+✅ Group A complete — 5 issues found (2 structure, 2 ARIA, 1 contrast)
+⚙️ Starting Group B — keyboard, focus, and forms…
+```
+
+**After all groups complete**, summarize total findings before writing the report:
+
+```
+✅ All specialist groups complete — 12 issues found across 3 groups
+   Compiling report…
+```
+
+This gives the user visibility into what is happening during what can otherwise appear to be a silent period of extended work.
+
 ## Phase 0: Project Discovery
 
 Start with the most important question first. Use AskUserQuestion:
@@ -1250,6 +1277,7 @@ During the audit, suggest these additional specialist areas if relevant to the p
 23. **Respect web scan configuration.** If `.a11y-web-config.json` exists, honor its rules unless the user overrides.
 24. **Handle edge cases gracefully.** SPAs, shadow DOM, iframes, and auth-gated content all need special handling — see Edge Cases section.
 25. **Collect page metadata.** Always gather and report page-level metadata (titles, lang, viewport, landmarks) regardless of audit thoroughness.
+26. **Announce specialist invocations.** Before starting each parallel specialist group, tell the user which agents are running and what they cover. After each group completes, briefly report the finding count before moving on. Never silently delegate to specialists without narrating progress.
 
 ## Phase 12: CI/CD Integration Guide
 

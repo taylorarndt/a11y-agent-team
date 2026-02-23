@@ -13,6 +13,9 @@
 
 ## The Seven Phases
 
+<details>
+<summary>Expand phase details</summary>
+
 | Phase | Domain | What Happens |
 |-------|--------|-------------|
 | 0 | Discovery | Asks about scope, format preferences, scan profile |
@@ -23,7 +26,12 @@
 | 5 | Follow-Up | Offers remediation scripts, VPAT export, template guidance |
 | 6 | CI/CD Integration | Generates pipeline configs for automated scanning |
 
+</details>
+
 ## Key Capabilities
+
+<details>
+<summary>Expand capabilities</summary>
 
 - **Delta scanning** — Only scans files changed since last commit
 - **Severity scoring** — Each finding scored Critical/Major/Minor with confidence level
@@ -33,7 +41,12 @@
 - **VPAT/ACR export** — Maps findings to WCAG criteria for compliance reporting
 - **Metadata dashboard** — Summary statistics at top of every report
 
+</details>
+
 ## Example Prompts
+
+<details>
+<summary>Show example prompts</summary>
 
 ### Claude Code
 
@@ -53,11 +66,16 @@
 @document-accessibility-wizard generate remediation scripts for the last scan
 ```
 
+</details>
+
 ## Custom Prompts
 
 Nine pre-built prompts in `.github/prompts/` provide one-click workflows: single document audit, folder audit, delta scan, VPAT generation, remediation scripts, audit comparison, CI/CD setup, quick check, and accessible template guidance.
 
 ## Behavioral Constraints
+
+<details>
+<summary>Expand constraints</summary>
 
 - Always asks the user before moving between phases — never skips ahead silently
 - Presents findings after each phase before proceeding
@@ -65,3 +83,5 @@ Nine pre-built prompts in `.github/prompts/` provide one-click workflows: single
 - Groups findings by severity with confidence levels
 - Identifies cross-document patterns and template-originated issues
 - Generates scripts with dry-run mode and automatic backups
+
+</details>

@@ -13,8 +13,11 @@
 
 ## The Eleven Phases
 
+<details>
+<summary>Expand phase details</summary>
+
 | Phase | Domain | Specialist Used |
-|-------|--------|----------------|
+|-------|--------|-----------------|
 | 1 | Project discovery and scope | — |
 | 2 | Document structure and semantics | alt-text-headings |
 | 3 | Keyboard navigation and focus | keyboard-navigator |
@@ -27,9 +30,14 @@
 | 10 | Document accessibility (optional) | word/excel/powerpoint/pdf-accessibility |
 | 11 | Testing strategy and tools | testing-coach |
 
+</details>
+
 At the end, it generates a prioritized report with issues grouped by severity (Critical > Serious > Moderate > Minor), WCAG criterion references, and a suggested fix order.
 
 ## Example Prompts
+
+<details>
+<summary>Show example prompts</summary>
 
 ### Claude Code
 
@@ -49,10 +57,17 @@ At the end, it generates a prioritized report with issues grouped by severity (C
 @accessibility-wizard I am new to accessibility, walk me through everything
 ```
 
+</details>
+
 ## Behavioral Constraints
+
+<details>
+<summary>Expand constraints</summary>
 
 - Always asks the user before moving to the next phase — never skips ahead silently
 - Presents findings from each phase before proceeding, so the user can fix issues iteratively
 - Generates a final report only after all phases complete (or the user chooses to stop early)
 - Does not write code itself — delegates to the appropriate specialist agent and reports what it found
 - Groups issues by WCAG conformance level and severity, not by file or line number
+
+</details>

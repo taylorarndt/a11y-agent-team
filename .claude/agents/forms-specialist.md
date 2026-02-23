@@ -485,6 +485,48 @@ Use native radio buttons, style them visually as stars. Do not build from clicka
 - `disabled` used when `aria-disabled` would be more appropriate
 - Tab order broken by CSS positioning that differs from DOM order
 
+## Structured Output for Sub-Agent Use
+
+When invoked as a sub-agent by the web-accessibility-wizard, consume the `## Web Scan Context` block provided at the start of your invocation — it specifies the page URL, framework, audit method, thoroughness level, and disabled rules. Honor every setting in it.
+
+Provide framework-specific code fixes. For React, use `htmlFor` (not `for`). For Angular, use `[attr.aria-describedby]`. For Vue, use standard HTML attributes. For controlled inputs, show the state management pattern.
+
+Return each issue in this exact structure so the wizard can aggregate, deduplicate, and score results:
+
+```
+### [N]. [Brief one-line description]
+
+- **Severity:** [critical | serious | moderate | minor]
+- **WCAG:** [criterion number] [criterion name] (Level [A/AA/AAA])
+- **Confidence:** [high | medium | low]
+- **Impact:** [What a real user with a disability would experience — one sentence]
+- **Location:** [file path:line or component name]
+
+**Current code:**
+[code block showing the problem]
+
+**Recommended fix:**
+[code block showing the corrected code in the detected framework syntax]
+```
+
+**Confidence rules:**
+- **high** — definitively wrong: input with no label association, error message with no `aria-describedby`, required field with no `required` attribute
+- **medium** — likely wrong: label and input appear visually associated but lack programmatic link, placeholder-only label suspected
+- **low** — possibly wrong: custom form control pattern may have accessible equivalent not visible in static analysis
+
+### Output Summary
+
+End your invocation with this summary block (used by the wizard for ⚙️/✅ progress announcements):
+
+```
+## Forms Specialist Findings Summary
+- **Issues found:** [count]
+- **Critical:** [count] | **Serious:** [count] | **Moderate:** [count] | **Minor:** [count]
+- **High confidence:** [count] | **Medium:** [count] | **Low:** [count]
+```
+
+---
+
 ## How to Report Issues
 
 For each finding:

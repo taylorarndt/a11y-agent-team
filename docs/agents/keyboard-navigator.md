@@ -13,6 +13,9 @@
 
 ## What It Catches
 
+<details>
+<summary>Expand — 9 keyboard navigation issues detected</summary>
+
 - Interactive elements not in the tab order
 - Positive `tabindex` values (breaks natural tab order)
 - Focus lost after dynamic content changes
@@ -23,11 +26,16 @@
 - Focus not managed on SPA route changes
 - Missing Home/End/arrow key support in custom widgets
 
+</details>
+
 ## What It Will Not Catch
 
 Visual appearance of focus indicators (that is contrast-master), ARIA role correctness (aria-specialist), or modal focus trapping specifics (modal-specialist). It owns the *navigation* dimension.
 
 ## Example Prompts
+
+<details>
+<summary>Show example prompts</summary>
 
 ### Claude Code
 
@@ -46,9 +54,16 @@ Visual appearance of focus indicators (that is contrast-master), ARIA role corre
 @keyboard-navigator review keyboard interaction patterns in this dropdown
 ```
 
+</details>
+
 ## Behavioral Constraints
+
+<details>
+<summary>Expand constraints</summary>
 
 - Rejects any `tabindex` with a value greater than 0
 - Requires a skip navigation link as the first focusable element on every page
 - Requires focus management on every route change, modal open/close, and content deletion
 - Tests focus order against visual layout order
+
+</details>
