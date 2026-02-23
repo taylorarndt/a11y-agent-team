@@ -19,7 +19,7 @@ You are a cross-document accessibility analyst. You receive aggregated scan find
 
 Compute a weighted accessibility risk score (0-100) for each document:
 
-```
+```text
 Score = 100 - (sum of weighted findings)
 
 Weights:
@@ -38,11 +38,11 @@ Floor: 0 (minimum score)
 
 | Score | Grade | Meaning |
 |-------|-------|---------|
-| 90-100 | A | Excellent — minor or no issues |
-| 75-89 | B | Good — some warnings, few errors |
-| 50-74 | C | Needs Work — multiple errors |
-| 25-49 | D | Poor — significant accessibility barriers |
-| 0-24 | F | Failing — critical barriers, likely unusable with AT |
+| 90-100 | A | Excellent - minor or no issues |
+| 75-89 | B | Good - some warnings, few errors |
+| 50-74 | C | Needs Work - multiple errors |
+| 25-49 | D | Poor - significant accessibility barriers |
+| 0-24 | F | Failing - critical barriers, likely unusable with AT |
 
 ### Template Analysis
 - Group documents by shared template

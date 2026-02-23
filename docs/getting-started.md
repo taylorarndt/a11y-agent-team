@@ -44,13 +44,13 @@ The installer downloads the repo, copies agents and hooks, configures `settings.
 **Non-interactive one-liners:**
 
 ```bash
-# macOS/Linux — install globally, no prompts
+# macOS/Linux - install globally, no prompts
 curl -fsSL https://raw.githubusercontent.com/taylorarndt/a11y-agent-team/main/install.sh | bash -s -- --global
 
-# macOS/Linux — install to current project, no prompts
+# macOS/Linux - install to current project, no prompts
 curl -fsSL https://raw.githubusercontent.com/taylorarndt/a11y-agent-team/main/install.sh | bash -s -- --project
 
-# macOS/Linux — install globally with Copilot agents
+# macOS/Linux - install globally with Copilot agents
 curl -fsSL https://raw.githubusercontent.com/taylorarndt/a11y-agent-team/main/install.sh | bash -s -- --global --copilot
 ```
 
@@ -94,7 +94,7 @@ powershell -ExecutionPolicy Bypass -File uninstall.ps1
 
 If you prefer to install manually or need to integrate into an existing configuration:
 
-**1. Copy agents**
+##### 1. Copy agents
 
 ```bash
 # For project install
@@ -106,9 +106,10 @@ mkdir -p ~/.claude/agents
 cp -r path/to/a11y-agent-team/.claude/agents/*.md ~/.claude/agents/
 ```
 
-**2. Copy the hook**
+##### 2. Copy the hook
 
 macOS/Linux:
+
 ```bash
 # For project install
 mkdir -p .claude/hooks
@@ -122,6 +123,7 @@ chmod +x ~/.claude/hooks/a11y-team-eval.sh
 ```
 
 Windows:
+
 ```powershell
 # For project install
 New-Item -ItemType Directory -Force -Path .claude\hooks
@@ -132,11 +134,12 @@ New-Item -ItemType Directory -Force -Path $env:USERPROFILE\.claude\hooks
 Copy-Item path\to\a11y-agent-team\.claude\hooks\a11y-team-eval.ps1 $env:USERPROFILE\.claude\hooks\
 ```
 
-**3. Add the hook to settings.json**
+##### 3. Add the hook to settings.json
 
 Merge the hook configuration into your `.claude/settings.json` (project) or `~/.claude/settings.json` (global):
 
 macOS/Linux:
+
 ```json
 {
   "hooks": {
@@ -155,6 +158,7 @@ macOS/Linux:
 ```
 
 For global install, use the absolute path:
+
 ```json
 {
   "hooks": {
@@ -173,6 +177,7 @@ For global install, use the absolute path:
 ```
 
 Windows:
+
 ```json
 {
   "hooks": {
@@ -192,7 +197,7 @@ Windows:
 
 If you already have hooks configured, add the `UserPromptSubmit` entry alongside your existing hooks.
 
-**4. Verify**
+##### 4. Verify
 
 Start Claude Code and type `/agents`. You should see all agents listed. If they all show up, you are good to go.
 
@@ -202,7 +207,7 @@ Start Claude Code and type `/agents`. You should see all agents listed. If they 
 
 Just write code like you normally would. The hook fires on every prompt. If your task involves web UI code, the accessibility-lead activates automatically and brings in the right specialists.
 
-```
+```text
 You: Build a login form with email and password fields
 
 Claude: [Hook fires, accessibility-lead activates]
@@ -223,7 +228,7 @@ For tasks that do not involve UI code, Claude proceeds normally.
 
 You can invoke any agent by name using the slash command or `@` mention:
 
-```
+```text
 /accessibility-lead full audit of the checkout flow
 /aria-specialist review the ARIA in components/modal.tsx
 /contrast-master check all color combinations in globals.css
@@ -259,11 +264,13 @@ Update log is saved to `~/.claude/.a11y-agent-team-update.log`.
 You can also run updates manually at any time:
 
 macOS/Linux:
+
 ```bash
 bash update.sh
 ```
 
 Windows:
+
 ```powershell
 powershell -File update.ps1
 ```
@@ -340,7 +347,7 @@ a11y-copilot-init
 
 In Copilot Chat, mention an agent to invoke it:
 
-```
+```text
 @accessibility-lead full audit of the checkout flow
 @aria-specialist review the ARIA in components/modal.tsx
 @contrast-master check all color combinations in globals.css
@@ -380,6 +387,7 @@ The `.mcpb` file (MCP Bundle) is Claude Desktop's extension format. It is a pack
 The A11y Agent Team extension adds:
 
 **Tools** (Claude can call these automatically while working):
+
 - **check_contrast**: Calculate WCAG contrast ratios between two hex colors
 - **get_accessibility_guidelines**: Get detailed WCAG AA guidelines for specific component types
 - **check_heading_structure**: Analyze HTML for heading hierarchy issues
@@ -393,6 +401,7 @@ The A11y Agent Team extension adds:
 - **batch_scan_documents**: Scan multiple documents in one operation
 
 **Prompts** (you select these from the prompt menu):
+
 - **Full Accessibility Audit**: Comprehensive WCAG 2.1 AA review
 - **ARIA Review**: Focused review of ARIA roles, states, and properties
 - **Modal/Dialog Review**: Focus trapping, focus return, escape behavior

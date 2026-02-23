@@ -1,6 +1,6 @@
 # build-template
 
-Build a GitHub issue template interactively. The agent guides you through field selection — markdown sections, text inputs, dropdowns, and checkboxes — then outputs valid YAML and confirms before saving.
+Build a GitHub issue template interactively. The agent guides you through field selection - markdown sections, text inputs, dropdowns, and checkboxes - then outputs valid YAML and confirms before saving.
 
 ## When to Use It
 
@@ -12,23 +12,25 @@ Build a GitHub issue template interactively. The agent guides you through field 
 ## How to Launch It
 
 **In GitHub Copilot Chat:**
-```
+
+```text
 /build-template
 ```
 
 With a starting description:
-```
+
+```text
 /build-template bug report for a web app
 /build-template feature request with priority dropdown
 ```
 
 ## What to Expect
 
-1. **Determine template type** — Bug / Feature / Task / Question or custom
-2. **Guide field selection** — Interactive builder for each field type
-3. **Assemble YAML** — Produces the complete `.github/ISSUE_TEMPLATE/*.yml` output
-4. **Preview** — Shows rendered form and raw YAML side by side
-5. **Confirm** — Saves only after you confirm the structure
+1. **Determine template type** - Bug / Feature / Task / Question or custom
+2. **Guide field selection** - Interactive builder for each field type
+3. **Assemble YAML** - Produces the complete `.github/ISSUE_TEMPLATE/*.yml` output
+4. **Preview** - Shows rendered form and raw YAML side by side
+5. **Confirm** - Saves only after you confirm the structure
 
 ### Supported Field Types
 
@@ -42,7 +44,7 @@ With a starting description:
 
 ### Interactive Builder Flow
 
-```
+```text
 Agent: What type of template are you building?
   (bug / feature / task / question / custom)
 
@@ -50,12 +52,12 @@ You: bug report
 
 Agent: Let's build your fields.
   
-  Field 1 of ? — What's the first field?
+  Field 1 of ? - What's the first field?
   e.g. "OS dropdown", "steps to reproduce textarea", "version input"
 
 You: OS dropdown with options: Windows, macOS, Linux, iOS, Android, Other
 
-Agent: ✅ Field added: OS (dropdown)
+Agent:  Field added: OS (dropdown)
   Options: Windows | macOS | Linux | iOS | Android | Other
 
   Next field? (or "done" to finish)
@@ -97,7 +99,7 @@ body:
 
 ## Example Variations
 
-```
+```text
 /build-template                              # Start from scratch, interactive
 /build-template bug report                  # Pre-fill type, then guided
 /build-template feature request with priority dropdown
@@ -112,5 +114,5 @@ body:
 
 ## Related Prompts
 
-- [build-a11y-template](build-a11y-template.md) — pre-built accessibility bug template
-- [create-issue](create-issue.md) — use the template to file an issue
+- [build-a11y-template](build-a11y-template.md) - pre-built accessibility bug template
+- [create-issue](create-issue.md) - use the template to file an issue

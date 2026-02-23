@@ -12,12 +12,14 @@ Generate release notes from merged PRs since the last release. The agent auto-ca
 ## How to Launch It
 
 **In GitHub Copilot Chat:**
-```
+
+```text
 /draft-release owner/repo
 ```
 
 With an explicit version or base:
-```
+
+```text
 /draft-release owner/repo v2.1.0
 /draft-release owner/repo since v2.0.0
 /draft-release owner/repo since 2026-02-01
@@ -25,11 +27,11 @@ With an explicit version or base:
 
 ## What to Expect
 
-1. **Find previous release** — Determines the last published release or tag to use as the baseline
-2. **Collect merged PRs** — Fetches all PRs merged since that baseline with titles, authors, and labels
-3. **Auto-categorize** — Sorts PRs into 7 categories based on labels and title patterns
-4. **Write summary** — Produces a human-readable release description
-5. **Save** — Written to `.github/reviews/releases/release-notes-{version}-{date}.md` and `.html`
+1. **Find previous release** - Determines the last published release or tag to use as the baseline
+2. **Collect merged PRs** - Fetches all PRs merged since that baseline with titles, authors, and labels
+3. **Auto-categorize** - Sorts PRs into 7 categories based on labels and title patterns
+4. **Write summary** - Produces a human-readable release description
+5. **Save** - Written to `.github/reviews/releases/release-notes-{version}-{date}.md` and `.html`
 
 ### Auto-Category Rules
 
@@ -51,18 +53,18 @@ With an explicit version or base:
 ## What's New
 
 ### New Features
-- Add dark mode support (#112) — @alice
-- CSV export for data tables (#98) — @bob
+- Add dark mode support (#112) - @alice
+- CSV export for data tables (#98) - @bob
 
 ### Bug Fixes
-- Fix login form double-submit on mobile (#108) — @charlie
-- Correct broken pagination on page 2+ (#95) — @alice
+- Fix login form double-submit on mobile (#108) - @charlie
+- Correct broken pagination on page 2+ (#95) - @alice
 
 ### Security
-- Bump lodash from 4.17.20 to 4.17.21 (#103) — Dependabot
+- Bump lodash from 4.17.20 to 4.17.21 (#103) - Dependabot
 
 ### Documentation
-- Update accessibility guide with WCAG 2.2 changes (#101) — @alice
+- Update accessibility guide with WCAG 2.2 changes (#101) - @alice
 
 **Full changelog:** v2.0.0...v2.1.0
 ```
@@ -71,12 +73,12 @@ With an explicit version or base:
 
 The agent also produces a pre-publish checklist:
 
-```
+```text
 Release readiness:
-  ✅ 14 PRs included since v2.0.0
-  ✅ No critical Dependabot alerts unpatched
-  ⚠️  2 PRs labeled "needs-test" — verify coverage
-  ✅ CHANGELOG.md updated
+   14 PRs included since v2.0.0
+   No critical Dependabot alerts unpatched
+    2 PRs labeled "needs-test" - verify coverage
+   CHANGELOG.md updated
 ```
 
 ## Output Files
@@ -88,7 +90,7 @@ Release readiness:
 
 ## Example Variations
 
-```
+```text
 /draft-release owner/repo                    # Auto-detect version
 /draft-release owner/repo v2.1.0             # Specify version
 /draft-release owner/repo since v2.0.0       # Explicit base tag
@@ -102,5 +104,5 @@ Release readiness:
 
 ## Related Prompts
 
-- [release-prep](release-prep.md) — guided 8-step release readiness workflow
-- [my-prs](my-prs.md) — verify which PRs are included
+- [release-prep](release-prep.md) - guided 8-step release readiness workflow
+- [my-prs](my-prs.md) - verify which PRs are included

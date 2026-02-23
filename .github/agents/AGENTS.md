@@ -7,14 +7,16 @@ This file defines coordinated multi-agent workflows for enterprise document acce
 **Lead:** `document-accessibility-wizard`
 
 **Members:**
-- `document-inventory` — File discovery, inventory building, delta detection
-- `cross-document-analyzer` — Pattern detection, severity scoring, template analysis
-- `word-accessibility` — DOCX scanning and remediation (DOCX-* rules)
-- `excel-accessibility` — XLSX scanning and remediation (XLSX-* rules)
-- `powerpoint-accessibility` — PPTX scanning and remediation (PPTX-* rules)
-- `pdf-accessibility` — PDF scanning and remediation (PDFUA.*, PDFBP.*, PDFQ.* rules)
-- `office-scan-config` — Office scan configuration management
-- `pdf-scan-config` — PDF scan configuration management
+- `document-inventory` - File discovery, inventory building, delta detection
+- `cross-document-analyzer` - Pattern detection, severity scoring, template analysis
+- `word-accessibility` - DOCX scanning and remediation (DOCX-* rules)
+- `excel-accessibility` - XLSX scanning and remediation (XLSX-* rules)
+- `powerpoint-accessibility` - PPTX scanning and remediation (PPTX-* rules)
+- `pdf-accessibility` - PDF scanning and remediation (PDFUA.*, PDFBP.*, PDFQ.* rules)
+
+**Internal Helpers (not user-invokable):**
+- `office-scan-config` - Office scan config management (invoked via document-accessibility-wizard Phase 0)
+- `pdf-scan-config` - PDF scan config management (invoked via document-accessibility-wizard Phase 0)
 
 **Workflow:**
 1. `document-accessibility-wizard` receives the user request and runs Phase 0 (discovery)
@@ -32,21 +34,22 @@ This file defines coordinated multi-agent workflows for enterprise document acce
 **Lead:** `web-accessibility-wizard`
 
 **Members:**
-- `accessibility-lead` — Coordinates specialists, runs final review
-- `aria-specialist` — ARIA roles, states, properties
-- `modal-specialist` — Dialogs, drawers, overlays
-- `contrast-master` — Color contrast, visual design
-- `keyboard-navigator` — Tab order, focus management
-- `live-region-controller` — Dynamic content, toasts, loading
-- `forms-specialist` — Forms, inputs, validation
-- `alt-text-headings` — Images, alt text, headings, landmarks
-- `tables-data-specialist` — Data tables, grids
-- `link-checker` — Link text quality
-- `testing-coach` — Testing guidance
+- `accessibility-lead` - Coordinates specialists, runs final review
+- `aria-specialist` - ARIA roles, states, properties
+- `modal-specialist` - Dialogs, drawers, overlays
+- `contrast-master` - Color contrast, visual design
+- `keyboard-navigator` - Tab order, focus management
+- `live-region-controller` - Dynamic content, toasts, loading
+- `forms-specialist` - Forms, inputs, validation
+- `alt-text-headings` - Images, alt text, headings, landmarks
+- `tables-data-specialist` - Data tables, grids
+- `link-checker` - Link text quality
+- `testing-coach` - Testing guidance
+- `cognitive-accessibility` - WCAG 2.2 cognitive SC, COGA guidance, plain language analysis
 
 **Hidden Helpers:**
-- `cross-page-analyzer` — Cross-page pattern detection, severity scoring, remediation tracking
-- `web-issue-fixer` — Automated and guided accessibility fix application
+- `cross-page-analyzer` - Cross-page pattern detection, severity scoring, remediation tracking
+- `web-issue-fixer` - Automated and guided accessibility fix application
 
 **Workflow:**
 1. `web-accessibility-wizard` receives the user request and runs Phase 0 (discovery)
@@ -64,6 +67,31 @@ This file defines coordinated multi-agent workflows for enterprise document acce
 - `compare-web-audits` prompt enables remediation tracking between audits
 - `audit-web-multi-page` prompt enables cross-page comparison audits
 
+## Team: Mobile Accessibility
+
+**Lead:** `mobile-accessibility`
+
+**Scope:** React Native, Expo, iOS (SwiftUI/UIKit), Android (Jetpack Compose/Views). Invoked standalone for any mobile code review or as a handoff from `accessibility-lead`.
+
+**Workflow:**
+1. `mobile-accessibility` identifies platform (React Native / iOS / Android)
+2. Audits accessibility props, touch target sizes, screen reader compatibility, focus order
+3. Produces a findings report with platform-specific rule IDs and fix code
+4. Handoffs: `design-system-auditor` for token-level issues; `accessibility-lead` for web companion audits
+
+## Team: Design System Accessibility
+
+**Lead:** `design-system-auditor`
+
+**Scope:** Tailwind config, CSS custom properties, Style Dictionary token files, MUI/Chakra/Radix themes. Invoked standalone or as a Phase 0 step before web or mobile audits.
+
+**Workflow:**
+1. `design-system-auditor` locates token files and identifies design system type
+2. Audits color token pairs for WCAG contrast compliance
+3. Audits focus ring tokens (WCAG 2.4.11), spacing/touch-target tokens, motion tokens
+4. Produces a token-level findings report with compliant replacement values
+5. Handoffs: `contrast-master` for runtime verification; `mobile-accessibility` for spacing tokens
+
 ## Team: Full Audit (Web + Documents)
 
 **Lead:** `accessibility-lead`
@@ -76,23 +104,23 @@ This file defines coordinated multi-agent workflows for enterprise document acce
 
 ## Team: GitHub Workflow Management
 
-**Lead:** `github-hub` or `nexus` (alternative entry points — same team, both orchestrate all GitHub workflow agents)
+**Lead:** `github-hub` (primary entry point; `nexus` is an alias that routes to the same team)
 
 **Members:**
-- `daily-briefing` — Morning overview of issues, PRs, CI, and security alerts
-- `pr-review` — Pull request review, diff analysis, inline commenting
-- `issue-tracker` — Issue triage, priority scoring, response drafting, project board management
-- `analytics` — Repository health scoring, velocity metrics, bottleneck detection
-- `insiders-a11y-tracker` — Accessibility change tracking and WCAG regression detection
-- `repo-admin` — Collaborator management, branch protection, label sync, access audits
-- `team-manager` — Team onboarding, offboarding, permissions, org membership
-- `contributions-hub` — Discussions, community health, contributor insights
-- `template-builder` — Guided wizard for issue, PR, and discussion templates
+- `daily-briefing` - Morning overview of issues, PRs, CI, and security alerts
+- `pr-review` - Pull request review, diff analysis, inline commenting
+- `issue-tracker` - Issue triage, priority scoring, response drafting, project board management
+- `analytics` - Repository health scoring, velocity metrics, bottleneck detection
+- `insiders-a11y-tracker` - Accessibility change tracking and WCAG regression detection
+- `repo-admin` - Collaborator management, branch protection, label sync, access audits
+- `team-manager` - Team onboarding, offboarding, permissions, org membership
+- `contributions-hub` - Discussions, community health, contributor insights
+- `template-builder` - Guided wizard for issue, PR, and discussion templates
 
 **Skills:**
-- `github-workflow-standards` — Core standards: auth, dual output, progress announcements, parallel execution, safety rules
-- `github-scanning` — Search patterns by intent, parallel stream collection, auto-recovery
-- `github-analytics-scoring` — Health scoring, priority scoring, confidence levels, delta tracking
+- `github-workflow-standards` - Core standards: auth, dual output, progress announcements, parallel execution, safety rules
+- `github-scanning` - Search patterns by intent, parallel stream collection, auto-recovery
+- `github-analytics-scoring` - Health scoring, priority scoring, confidence levels, delta tracking
 
 **Workflow:**
 1. `github-hub` or `nexus` receives the user request, loads hook-injected context, and discovers repos/orgs
@@ -102,16 +130,16 @@ This file defines coordinated multi-agent workflows for enterprise document acce
 5. Any state-changing operation (comment, merge, add collaborator) requires explicit user confirmation before execution
 
 **Handoffs:**
-- `github-hub`/`nexus` → `daily-briefing` for overview and morning briefings
-- `github-hub`/`nexus` → `pr-review` for code review work
-- `github-hub`/`nexus` → `issue-tracker` for issue triage and response
-- `github-hub`/`nexus` → `analytics` for metrics and health reports
-- `github-hub`/`nexus` → `repo-admin` for access and settings management
-- `github-hub`/`nexus` → `team-manager` for people and team management
-- `github-hub`/`nexus` → `contributions-hub` for community and discussions
-- `github-hub`/`nexus` → `insiders-a11y-tracker` for accessibility tracking
-- `github-hub`/`nexus` → `template-builder` for creating GitHub templates
-- Any agent → `github-hub` or `nexus` when the user wants to switch tasks or repos
+- `github-hub`/`nexus` -> `daily-briefing` for overview and morning briefings
+- `github-hub`/`nexus` -> `pr-review` for code review work
+- `github-hub`/`nexus` -> `issue-tracker` for issue triage and response
+- `github-hub`/`nexus` -> `analytics` for metrics and health reports
+- `github-hub`/`nexus` -> `repo-admin` for access and settings management
+- `github-hub`/`nexus` -> `team-manager` for people and team management
+- `github-hub`/`nexus` -> `contributions-hub` for community and discussions
+- `github-hub`/`nexus` -> `insiders-a11y-tracker` for accessibility tracking
+- `github-hub`/`nexus` -> `template-builder` for creating GitHub templates
+- Any agent -> `github-hub` or `nexus` when the user wants to switch tasks or repos
 
 ---
 

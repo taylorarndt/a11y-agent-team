@@ -1,6 +1,6 @@
 # pr-author-checklist
 
-Run a pre-submit readiness checklist against any pull request. The agent scores the PR on 15 dimensions — description quality, CI status, diff size, test coverage, reviewer readiness, and more — before you request review.
+Run a pre-submit readiness checklist against any pull request. The agent scores the PR on 15 dimensions - description quality, CI status, diff size, test coverage, reviewer readiness, and more - before you request review.
 
 ## When to Use It
 
@@ -12,22 +12,24 @@ Run a pre-submit readiness checklist against any pull request. The agent scores 
 ## How to Launch It
 
 **In GitHub Copilot Chat:**
-```
+
+```text
 /pr-author-checklist owner/repo#123
 ```
 
 Or for the current branch:
-```
+
+```text
 /pr-author-checklist
 ```
 
 ## What to Expect
 
-1. **Fetch PR** — Reads description, diff, CI status, linked issues, and existing comments
-2. **Score 15 dimensions** — Each area is graded pass / warning / fail
-3. **Compute overall score** — 0-100 with an A-F grade
-4. **Highlight blockers** — Any fails that should be resolved before requesting review
-5. **Provide specific fixes** — For failing dimensions, the agent explains what to add or change
+1. **Fetch PR** - Reads description, diff, CI status, linked issues, and existing comments
+2. **Score 15 dimensions** - Each area is graded pass / warning / fail
+3. **Compute overall score** - 0-100 with an A-F grade
+4. **Highlight blockers** - Any fails that should be resolved before requesting review
+5. **Provide specific fixes** - For failing dimensions, the agent explains what to add or change
 
 ### Checklist Dimensions
 
@@ -51,15 +53,15 @@ Or for the current branch:
 
 ### Sample Output
 
-```
-PR Readiness: owner/repo#123 — 78/100 (C+)
+```text
+PR Readiness: owner/repo#123 - 78/100 (C+)
 
-✅ Description — Clear purpose and context
-✅ Linked issue — Closes #89
-❌ CI — 1 check failing: unit-tests
-⚠️  Diff size — 320 lines (approaching limit)
-✅ No debug code
-✅ Reviewer assigned
+ Description - Clear purpose and context
+ Linked issue - Closes #89
+ CI - 1 check failing: unit-tests
+  Diff size - 320 lines (approaching limit)
+ No debug code
+ Reviewer assigned
 
 Action needed before requesting review:
   1. Fix unit-test failure in src/auth.test.ts:line 44
@@ -67,7 +69,7 @@ Action needed before requesting review:
 
 ## Example Variations
 
-```
+```text
 /pr-author-checklist                     # Current branch PR
 /pr-author-checklist owner/repo#123     # Specific PR
 /pr-author-checklist strict             # Treat warnings as failures
@@ -81,6 +83,6 @@ Action needed before requesting review:
 
 ## Related Prompts
 
-- [review-pr](review-pr.md) — full reviewer-perspective review
-- [pr-comment](pr-comment.md) — add a specific comment to the PR
-- [manage-pr](merge-pr.md) — merge when everything is ready
+- [review-pr](review-pr.md) - full reviewer-perspective review
+- [pr-comment](pr-comment.md) - add a specific comment to the PR
+- [manage-pr](merge-pr.md) - merge when everything is ready

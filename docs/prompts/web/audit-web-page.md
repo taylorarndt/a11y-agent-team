@@ -11,19 +11,23 @@ Run a comprehensive accessibility audit on a single web page. Combines axe-core 
 
 ## How to Launch It
 
-**In GitHub Copilot Chat** — select from the prompt picker:
-```
+**In GitHub Copilot Chat** - select from the prompt picker:
+
+```text
 /audit-web-page
 ```
+
 Then provide the URL when prompted.
 
 **Direct invocation:**
-```
+
+```text
 /audit-web-page https://example.com/login
 ```
 
 **In Claude Code:**
-```
+
+```text
 @audit-web-page https://example.com/dashboard
 ```
 
@@ -32,15 +36,17 @@ Then provide the URL when prompted.
 ### Step 1: axe-core Runtime Scan
 
 The agent runs axe-core against the live URL:
+
 ```bash
 npx @axe-core/cli <pageUrl> --tags wcag2a,wcag2aa,wcag21a,wcag21aa --save ACCESSIBILITY-SCAN.json
 ```
 
-This catches violations that appear at runtime — dynamic content, rendered ARIA states, and JavaScript-driven components that static analysis misses.
+This catches violations that appear at runtime - dynamic content, rendered ARIA states, and JavaScript-driven components that static analysis misses.
 
 ### Step 2: Code Review Phases
 
 The web-accessibility-wizard runs 8 code review phases using specialist sub-agents:
+
 1. DOM structure and landmark regions
 2. Heading hierarchy
 3. Images and alt text
@@ -52,7 +58,7 @@ The web-accessibility-wizard runs 8 code review phases using specialist sub-agen
 
 ### Step 3: Scoring
 
-Issues are weighted by severity and confidence. The page receives a 0–100 score and an A–F grade. See [web-severity-scoring](../../../.github/skills/web-severity-scoring/SKILL.md) for the full formula.
+Issues are weighted by severity and confidence. The page receives a 0-100 score and an A-F grade. See [web-severity-scoring](../../../.github/skills/web-severity-scoring/SKILL.md) for the full formula.
 
 ### Step 4: Report Generation
 
@@ -66,11 +72,11 @@ The full audit is written to `ACCESSIBILITY-AUDIT.md` in your workspace. The rep
 
 ### Step 5: Interactive Fix Mode
 
-After the report is generated, the agent offers: "Want me to apply auto-fixable issues?" — triggering the [web-issue-fixer](../../agents/web-issue-fixer.md) for safe, deterministic fixes.
+After the report is generated, the agent offers: "Want me to apply auto-fixable issues?" - triggering the [web-issue-fixer](../../agents/web-issue-fixer.md) for safe, deterministic fixes.
 
 ## Example Variations
 
-```
+```text
 /audit-web-page https://myapp.com                        # Home page
 /audit-web-page https://myapp.com/checkout              # Checkout flow
 /audit-web-page https://myapp.com/admin/users           # Admin page
@@ -94,7 +100,7 @@ After the report is generated, the agent offers: "Want me to apply auto-fixable 
 
 ## Related Prompts
 
-- [quick-web-check](quick-web-check.md) — faster, no code review, no saved file
-- [audit-web-multi-page](audit-web-multi-page.md) — audit multiple pages at once
-- [fix-web-issues](fix-web-issues.md) — apply fixes from an existing audit report
-- [compare-web-audits](compare-web-audits.md) — track progress after remediation
+- [quick-web-check](quick-web-check.md) - faster, no code review, no saved file
+- [audit-web-multi-page](audit-web-multi-page.md) - audit multiple pages at once
+- [fix-web-issues](fix-web-issues.md) - apply fixes from an existing audit report
+- [compare-web-audits](compare-web-audits.md) - track progress after remediation

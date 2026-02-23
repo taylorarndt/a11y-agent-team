@@ -1,6 +1,6 @@
-# link-checker — Ambiguous Link Text Detection
+# link-checker - Ambiguous Link Text Detection
 
-> Scans your code for link text that would confuse a screen reader user. Screen reader users often navigate by pulling up a list of all links on the page — when every link says "click here" or "read more," that list is useless. This agent finds those patterns and rewrites them so every link makes sense out of context.
+> Scans your code for link text that would confuse a screen reader user. Screen reader users often navigate by pulling up a list of all links on the page - when every link says "click here" or "read more," that list is useless. This agent finds those patterns and rewrites them so every link makes sense out of context.
 
 ## When to Use It
 
@@ -13,7 +13,7 @@
 ## What It Catches
 
 <details>
-<summary>Expand — 7 link text patterns detected</summary>
+<summary>Expand - 7 link text patterns detected</summary>
 
 | Pattern | Example | Why It Fails |
 |---------|---------|-------------|
@@ -34,7 +34,7 @@
 
 ### Claude Code
 
-```
+```text
 /link-checker scan this page for ambiguous link text
 /link-checker review the footer component for link accessibility
 /link-checker audit all links in the marketing pages directory
@@ -43,7 +43,7 @@
 
 ### GitHub Copilot
 
-```
+```text
 @link-checker review the navigation links in this component
 @link-checker find all ambiguous link text in the project
 @link-checker fix the "click here" links in this file
@@ -57,9 +57,9 @@
 <details>
 <summary>Expand constraints</summary>
 
-- Never suggests `aria-label` as a first fix — always rewrites the visible text first
+- Never suggests `aria-label` as a first fix - always rewrites the visible text first
 - Does not flag links with 4+ descriptive words (e.g., "View quarterly earnings report" is fine)
-- Catches bare URLs as link text — requires human-readable text instead
+- Catches bare URLs as link text - requires human-readable text instead
 - Flags adjacent image + text links to the same destination as requiring combination into a single `<a>`
 - Adds `(opens in new tab)` visually and via `aria-label` for `target="_blank"` links
 - Adds file type and size for non-HTML resources (e.g., "Annual report (PDF, 2.4 MB)")

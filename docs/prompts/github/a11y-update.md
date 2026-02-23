@@ -12,12 +12,14 @@ Fetch the latest accessibility-related GitHub issues and discussions across trac
 ## How to Launch It
 
 **In GitHub Copilot Chat:**
-```
+
+```text
 /a11y-update
 ```
 
 With scope:
-```
+
+```text
 /a11y-update owner/repo
 /a11y-update org:myorg
 /a11y-update last 14 days
@@ -25,11 +27,11 @@ With scope:
 
 ## What to Expect
 
-1. **Scope parsing** — Determines repos to search from parameters or configured preferences
-2. **Collect issues** — Finds issues with accessibility-related labels or keywords (`a11y`, `accessibility`, `screen-reader`, `keyboard`, `wcag`, `aria`)
-3. **Classify by access need** — Groups findings into 6 categories
-4. **Enrich** — Adds the relevant WCAG success criterion and ARIA pattern for each item
-5. **Display with impact level** — High / Medium / Low priority based on user impact
+1. **Scope parsing** - Determines repos to search from parameters or configured preferences
+2. **Collect issues** - Finds issues with accessibility-related labels or keywords (`a11y`, `accessibility`, `screen-reader`, `keyboard`, `wcag`, `aria`)
+3. **Classify by access need** - Groups findings into 6 categories
+4. **Enrich** - Adds the relevant WCAG success criterion and ARIA pattern for each item
+5. **Display with impact level** - High / Medium / Low priority based on user impact
 
 ### Access Need Categories
 
@@ -45,6 +47,7 @@ With scope:
 ### Per-Issue Information
 
 Each issue includes:
+
 - Issue number and title with link
 - Repo context
 - Relevant WCAG success criterion (e.g., WCAG 1.4.3 Contrast)
@@ -54,25 +57,25 @@ Each issue includes:
 
 ### Sample Output
 
-```
-Accessibility Update — last 7 days (owner/repo)
+```text
+Accessibility Update - last 7 days (owner/repo)
 
 Screen Reader (2 issues)
-  #112 Modal close button not announced — 3 days old [High]
+  #112 Modal close button not announced - 3 days old [High]
        WCAG 4.1.2 | ARIA: dialog pattern
 
 Keyboard (1 issue)
-  #108 Dropdown loses focus on Escape — 5 days old [High]
+  #108 Dropdown loses focus on Escape - 5 days old [High]
        WCAG 2.1.2 | ARIA: combobox pattern
 
 Visual (1 issue)
-  #99  Chart legend contrast 2.8:1 — 10 days old [Medium]
+  #99  Chart legend contrast 2.8:1 - 10 days old [Medium]
        WCAG 1.4.3 | No ARIA pattern
 ```
 
 ## Example Variations
 
-```
+```text
 /a11y-update                              # All configured repos
 /a11y-update owner/repo                   # One repo
 /a11y-update screen reader only          # One category
@@ -87,5 +90,5 @@ Visual (1 issue)
 
 ## Related Prompts
 
-- [triage](triage.md) — prioritize all issues including accessibility
-- [daily-briefing](daily-briefing.md) — full briefing including accessibility updates
+- [triage](triage.md) - prioritize all issues including accessibility
+- [daily-briefing](daily-briefing.md) - full briefing including accessibility updates

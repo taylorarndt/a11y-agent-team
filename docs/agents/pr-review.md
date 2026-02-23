@@ -1,6 +1,6 @@
-# pr-review — Code Review Command Center
+# pr-review - Code Review Command Center
 
-> Pulls the complete picture of any pull request — full diff with dual line numbers, before/after file snapshots, developer comments, CI status, linked issues, reactions — and generates comprehensive review documents saved to your workspace. Fully operates from inside the editor: comment, suggest, approve, merge.
+> Pulls the complete picture of any pull request - full diff with dual line numbers, before/after file snapshots, developer comments, CI status, linked issues, reactions - and generates comprehensive review documents saved to your workspace. Fully operates from inside the editor: comment, suggest, approve, merge.
 
 ---
 
@@ -9,13 +9,15 @@
 The pr-review agent replaces the browser-based PR review workflow entirely. Instead of navigating GitHub.com, switching between the diff view and the files view, copying line numbers into comments, and tracking review threads in your head, this agent pulls everything into your editor, lets you interact with it conversationally, and saves a structured review document you can annotate and reference later.
 
 What sets it apart from a basic "show me the diff" request:
-- **Dual line numbers** — every diff line shows both old and new line numbers so you can reference `L42` precisely
-- **Before/after snapshots** — full side-by-side file comparison for significantly changed files
-- **Confidence levels** — findings marked High / Medium / Low confidence so you know what to fix vs. investigate
-- **Delta tracking** — run the same review after changes and immediately see what was Fixed, what is New, and what Persists
-- **Intent annotations** — the agent reads commit messages and comments to explain *why* the developer made changes, not just what changed
+
+- **Dual line numbers** - every diff line shows both old and new line numbers so you can reference `L42` precisely
+- **Before/after snapshots** - full side-by-side file comparison for significantly changed files
+- **Confidence levels** - findings marked High / Medium / Low confidence so you know what to fix vs. investigate
+- **Delta tracking** - run the same review after changes and immediately see what was Fixed, what is New, and what Persists
+- **Intent annotations** - the agent reads commit messages and comments to explain *why* the developer made changes, not just what changed
 
 Use pr-review when:
+
 - You want a thorough code review without leaving VS Code
 - You want to leave inline comments, range comments, or code suggestions on a PR
 - You want to approve, request changes on, or merge a PR
@@ -28,7 +30,7 @@ Use pr-review when:
 
 ### GitHub Copilot (VS Code)
 
-```
+```text
 @pr-review owner/repo#42
 @pr-review show PRs waiting for my review
 @pr-review review the PR I need to merge today
@@ -44,7 +46,7 @@ Use pr-review when:
 
 ### Via GitHub Hub
 
-```
+```text
 @github-hub review PRs
 @github-hub what PRs are waiting on me?
 ```
@@ -67,16 +69,16 @@ Use pr-review when:
 | `suggest a fix for line 42` | Code suggestion block (GitHub-native suggestion format) |
 | `explain line 42` | What does this code do and why? |
 | `approve PR #42` | Submit an approving review |
-| `request changes — missing null check on line 87` | Submit a changes-requested review with feedback |
+| `request changes - missing null check on line 87` | Submit a changes-requested review with feedback |
 | `merge PR #42` | Merge the pull request |
 | `list CI checks for PR #42` | Show all check runs and pass/fail status |
-| `react with 👍 to PR #42` | Add a rocket/heart/thumbs-up reaction |
+| `react with  to PR #42` | Add a rocket/heart/thumbs-up reaction |
 
 </details>
 
 ---
 
-## What to Expect — Step by Step
+## What to Expect - Step by Step
 
 ### Full Review Mode
 
@@ -95,6 +97,7 @@ Use pr-review when:
 ### Queue Mode
 
 For "show my PR queue," you get:
+
 - A table of all PRs assigned for your review, sorted by urgency (oldest first, then by labels like `urgent`)
 - Draft PRs you own and their review status
 - PRs where you are awaiting a re-review after requesting changes
@@ -106,7 +109,7 @@ For "show my PR queue," you get:
 
 Every diff the agent displays shows dual line numbers:
 
-```
+```text
   L42 | L38 |   function authenticate(user, password) {
   L43 | L39 |     const hash = sha256(password)   // intent: migrate from md5
   L44 |     | -   return hash === user.passwordHash
@@ -115,9 +118,10 @@ Every diff the agent displays shows dual line numbers:
 ```
 
 You can reference any line by number in follow-up messages:
-- `"explain line 40"` — describes the change and its purpose
-- `"comment on line 40 — this should use bcrypt instead"` — adds the comment to GitHub
-- `"suggest a fix at line 40"` — generates a GitHub-native code suggestion block
+
+- `"explain line 40"` - describes the change and its purpose
+- `"comment on line 40 - this should use bcrypt instead"` - adds the comment to GitHub
+- `"suggest a fix at line 40"` - generates a GitHub-native code suggestion block
 
 ---
 
@@ -130,9 +134,9 @@ Every finding in a review document is tagged with a confidence level:
 
 | Level | Meaning |
 |-------|---------|
-| **High** | Definite issue — fix before merging |
-| **Medium** | Likely issue — investigate and confirm |
-| **Low** | Possible concern — review at discretion |
+| **High** | Definite issue - fix before merging |
+| **Medium** | Likely issue - investigate and confirm |
+| **Low** | Possible concern - review at discretion |
 
 Confidence drops when: the issue depends on runtime behavior the agent cannot see, the pattern could be intentional, or there is insufficient context in the diff.
 
@@ -147,12 +151,12 @@ Run the same review command after the developer pushes updates to see:
 <details>
 <summary>Expand delta tracking example</summary>
 
-```
+```text
 ## Changes Since Last Review
 
-✅ Fixed (2): Null check on line 87, missing error boundary
-⚠️ Persistent (1): No test coverage for the new auth path
-🆕 New (1): Unused import added in utils.ts
+ Fixed (2): Null check on line 87, missing error boundary
+ Persistent (1): No test coverage for the new auth path
+ New (1): Unused import added in utils.ts
 ```
 
 Delta tracking compares the current scan against the previous review document saved in your workspace.
@@ -168,7 +172,7 @@ Delta tracking compares the current scan against the previous review document sa
 
 ### Review Flows
 
-```
+```text
 @pr-review review taylorarndt/a11y-agent-team#143
 @pr-review show me the diff for PR #143
 @pr-review full review with action items for PR #143
@@ -177,25 +181,25 @@ Delta tracking compares the current scan against the previous review document sa
 
 ### Comment and Suggest
 
-```
-@pr-review comment on line 42 in auth.ts — add input validation here
-@pr-review comment on lines 15-22 in utils.ts — this logic duplicates what's in helpers.ts
+```text
+@pr-review comment on line 42 in auth.ts - add input validation here
+@pr-review comment on lines 15-22 in utils.ts - this logic duplicates what's in helpers.ts
 @pr-review suggest a fix for the null check on line 87
 @pr-review reply to the comment about the missing error handling
 ```
 
 ### Review Submission
 
-```
+```text
 @pr-review approve PR #143
-@pr-review request changes on PR #143 — missing unit tests for the auth module
+@pr-review request changes on PR #143 - missing unit tests for the auth module
 @pr-review submit my pending review on PR #143
 @pr-review merge PR #143 with squash
 ```
 
 ### Queue and Discovery
 
-```
+```text
 @pr-review show PRs waiting for my review
 @pr-review my open PRs
 @pr-review PRs I need to update based on feedback
@@ -240,9 +244,9 @@ Delta tracking compares the current scan against the previous review document sa
 <summary>Expand constraints</summary>
 
 - Never posts a review comment to GitHub without showing you a preview first
-- Never merges without an explicit "merge PR #X" command — will not infer merge intent from "looks good"
-- Dual line numbers are always present in diffs — never omits them
-- Confidence levels are always present on findings — never omits them
+- Never merges without an explicit "merge PR #X" command - will not infer merge intent from "looks good"
+- Dual line numbers are always present in diffs - never omits them
+- Confidence levels are always present on findings - never omits them
 - HTML output meets WCAG AA: proper heading structure, table headers, skip navigation, landmark regions
 - Will not approve a PR with unresolved High-confidence findings without explicitly flagging the conflict
 

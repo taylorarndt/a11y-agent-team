@@ -6,13 +6,13 @@
 
 **MCP servers** add external tool calls but do not change how the model reasons about code. They are better suited for runtime checks than code-generation-time enforcement.
 
-**Agents** run in their own context window with a dedicated system prompt. The accessibility rules are not suggestions — they are the agent's entire identity. An ARIA specialist cannot forget about ARIA. A contrast master cannot skip contrast checks.
+**Agents** run in their own context window with a dedicated system prompt. The accessibility rules are not suggestions - they are the agent's entire identity. An ARIA specialist cannot forget about ARIA. A contrast master cannot skip contrast checks.
 
 The Desktop Extension uses MCP because Claude Desktop does not have an agent system. The MCP server packs the same specialist knowledge into tools and prompts.
 
 ## Project Structure
 
-```
+```text
 a11y-agent-team/
   .claude/
     agents/              # Claude Code agents (22 .md files)

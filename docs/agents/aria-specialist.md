@@ -1,4 +1,4 @@
-# aria-specialist — ARIA Roles, States, and Properties
+# aria-specialist - ARIA Roles, States, and Properties
 
 > Reviews and writes correct ARIA markup. Enforces the First Rule of ARIA: do not use ARIA if native HTML works. Knows every WAI-ARIA role, state, and property. Implements complex widget patterns (combobox, tabs, treegrid, menu).
 
@@ -12,7 +12,7 @@
 ## What It Catches
 
 <details>
-<summary>Expand — 6 ARIA issues detected</summary>
+<summary>Expand - 6 ARIA issues detected</summary>
 
 - Redundant ARIA on semantic elements (`role="button"` on `<button>`)
 - Missing required ARIA attributes (e.g., `role="tabpanel"` without `aria-labelledby`)
@@ -30,14 +30,16 @@ Visual issues (contrast), focus management (that is keyboard-navigator), or form
 ## How to Launch It
 
 **In Claude Code:**
-```
+
+```text
 /aria-specialist review the ARIA on this combobox component
 /aria-specialist build an accessible tab interface for these 4 sections
 /aria-specialist is role="menu" correct for this navigation dropdown?
 ```
 
 **In GitHub Copilot Chat:**
-```
+
+```text
 @aria-specialist review the ARIA in this dropdown component
 @aria-specialist what role should I use for this custom widget?
 @aria-specialist audit all ARIA usage in this file
@@ -46,7 +48,8 @@ Visual issues (contrast), focus management (that is keyboard-navigator), or form
 ## Step-by-Step: Reviewing ARIA on a Component
 
 **You say:**
-```
+
+```text
 /aria-specialist review the ARIA on this combobox
 ```
 
@@ -64,12 +67,12 @@ Visual issues (contrast), focus management (that is keyboard-navigator), or form
 1. **Identifies the widget pattern.** Combobox = the ARIA 1.2 combobox pattern. The agent loads the specific requirements from the WAI-ARIA Authoring Practices Guide.
 
 2. **Validates against the pattern checklist:**
-   - `role="combobox"` on the wrapper — ✓ Valid
-   - The `<input>` must be the combobox element, not the wrapper — ✗ Wrong. In ARIA 1.2, `role="combobox"` belongs on the `<input>` itself.
-   - `aria-expanded` must be on the `role="combobox"` element — ✗ Wrong placement (it is on the wrapper, not the input)
-   - `aria-controls` pointing to the listbox — ✗ Missing
-   - `aria-activedescendant` for current selection — ✗ Missing
-   - `aria-autocomplete` — ✗ Missing (required when filtering)
+   - `role="combobox"` on the wrapper -  Valid
+   - The `<input>` must be the combobox element, not the wrapper -  Wrong. In ARIA 1.2, `role="combobox"` belongs on the `<input>` itself.
+   - `aria-expanded` must be on the `role="combobox"` element -  Wrong placement (it is on the wrapper, not the input)
+   - `aria-controls` pointing to the listbox -  Missing
+   - `aria-activedescendant` for current selection -  Missing
+   - `aria-autocomplete` -  Missing (required when filtering)
 
 3. **Returns findings with the corrected code:**
 
@@ -105,11 +108,11 @@ The agent enforces this before anything else: **Do not use ARIA if native HTML w
 | `<div role="main">` | `<main>` |
 | `<span role="heading" aria-level="2">` | `<h2>` |
 
-When native HTML is available, ARIA is not only unnecessary — it is often harmful because it does not automatically inherit the keyboard behavior that native elements have. You must implement all interaction patterns manually.
+When native HTML is available, ARIA is not only unnecessary - it is often harmful because it does not automatically inherit the keyboard behavior that native elements have. You must implement all interaction patterns manually.
 
 ## Common ARIA Mistakes the Agent Catches
 
-- **Redundant roles:** `<button role="button">` — the role is already implicit
+- **Redundant roles:** `<button role="button">` - the role is already implicit
 - **Broken references:** `aria-labelledby="header-title"` where `id="header-title"` does not exist in the DOM
 - **Wrong role for the widget:** `role="menu"` used for navigation (menu is for application-style menus, not nav links)
 - **States not updating:** `aria-expanded="false"` that is never changed to `true` when the element opens
@@ -120,7 +123,7 @@ When native HTML is available, ARIA is not only unnecessary — it is often harm
 
 | Connect to | When |
 |------------|------|
-| [keyboard-navigator](keyboard-navigator.md) | ARIA widgets require matching keyboard behavior — the navigator ensures it is implemented |
+| [keyboard-navigator](keyboard-navigator.md) | ARIA widgets require matching keyboard behavior - the navigator ensures it is implemented |
 | [forms-specialist](forms-specialist.md) | Form-related ARIA (`aria-invalid`, `aria-describedby` on error messages) |
 | [modal-specialist](modal-specialist.md) | Dialog ARIA (`aria-modal`, `aria-labelledby` on `<dialog>`) |
 | [accessibility-lead](accessibility-lead.md) | For full component audits that combine ARIA with other specialist domains |
@@ -131,7 +134,7 @@ When native HTML is available, ARIA is not only unnecessary — it is often harm
 
 ### Claude Code
 
-```
+```text
 /aria-specialist review the ARIA on this combobox component
 /aria-specialist build an accessible tab interface for these 4 sections
 /aria-specialist is role="menu" correct for this navigation dropdown?
@@ -140,7 +143,7 @@ When native HTML is available, ARIA is not only unnecessary — it is often harm
 
 ### GitHub Copilot
 
-```
+```text
 @aria-specialist review the ARIA in this dropdown component
 @aria-specialist what role should I use for this custom widget?
 @aria-specialist audit all ARIA usage in this file

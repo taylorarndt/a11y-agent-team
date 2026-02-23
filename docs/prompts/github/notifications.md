@@ -1,6 +1,6 @@
 # notifications
 
-View and manage your GitHub notifications from chat — filter by reason, repo, or priority level, then mark as read, done, or unsubscribe in bulk.
+View and manage your GitHub notifications from chat - filter by reason, repo, or priority level, then mark as read, done, or unsubscribe in bulk.
 
 ## When to Use It
 
@@ -12,12 +12,14 @@ View and manage your GitHub notifications from chat — filter by reason, repo, 
 ## How to Launch It
 
 **In GitHub Copilot Chat:**
-```
+
+```text
 /notifications
 ```
 
 With filters:
-```
+
+```text
 /notifications unread
 /notifications owner/repo
 /notifications @mentions only
@@ -26,10 +28,10 @@ With filters:
 
 ## What to Expect
 
-1. **Fetch notifications** — Retrieves your GitHub notifications with reason, repo, and timestamp
-2. **Apply filters** — Filters by unread, repo, reason, or priority preferences from `preferences.md`
-3. **Display in chat** — Grouped by reason with recommended actions
-4. **Execute actions** — Mark as read, done, or unsubscribe on command
+1. **Fetch notifications** - Retrieves your GitHub notifications with reason, repo, and timestamp
+2. **Apply filters** - Filters by unread, repo, reason, or priority preferences from `preferences.md`
+3. **Display in chat** - Grouped by reason with recommended actions
+4. **Execute actions** - Mark as read, done, or unsubscribe on command
 
 ### Filter Views
 
@@ -69,7 +71,7 @@ If `.github/agents/preferences.md` defines muted repos or priority keywords, the
 
 ## Example Variations
 
-```
+```text
 /notifications                             # All unread
 /notifications @mentions only             # Only direct mentions
 /notifications owner/repo                 # One repo
@@ -85,6 +87,6 @@ If `.github/agents/preferences.md` defines muted repos or priority keywords, the
 
 ## Related Prompts
 
-- [daily-briefing](daily-briefing.md) — full briefing that includes notification highlights
-- [my-issues](my-issues.md) — issues assigned to or @mentioning you
-- [my-prs](my-prs.md) — PR review requests
+- [daily-briefing](daily-briefing.md) - full briefing that includes notification highlights
+- [my-issues](my-issues.md) - issues assigned to or @mentioning you
+- [my-prs](my-prs.md) - PR review requests

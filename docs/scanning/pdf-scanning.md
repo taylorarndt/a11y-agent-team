@@ -6,9 +6,9 @@ The `scan_pdf_document` MCP tool scans PDF files by parsing their binary structu
 
 | Layer | Rules | Purpose |
 |-------|-------|---------|
-| **PDFUA.*** | 30 rules | PDF/UA conformance — tagged structure, metadata, navigation, forms, tables, fonts |
+| **PDFUA.*** | 30 rules | PDF/UA conformance - tagged structure, metadata, navigation, forms, tables, fonts |
 | **PDFBP.*** | 22 rules | Best practices beyond PDF/UA requirements |
-| **PDFQ.*** | 4 rules | Pipeline quality — file size limits, scan detection, encryption checks |
+| **PDFQ.*** | 4 rules | Pipeline quality - file size limits, scan detection, encryption checks |
 
 ## Key Detections
 
@@ -24,7 +24,7 @@ The `scan_pdf_document` MCP tool scans PDF files by parsing their binary structu
 
 ## Usage
 
-```
+```text
 # Claude Code
 /pdf-accessibility scan legal/contract.pdf
 /pdf-accessibility check all PDFs in the docs/ directory
@@ -37,6 +37,7 @@ The `scan_pdf_document` MCP tool scans PDF files by parsing their binary structu
 ## CI/CD Script
 
 The CI scanner at `.github/scripts/pdf-a11y-scan.mjs`:
+
 - Discovers PDFs recursively (skipping `node_modules`, `.git`, `vendor`)
 - Applies `.a11y-pdf-config.json` if present
 - Outputs SARIF 2.1.0 reports

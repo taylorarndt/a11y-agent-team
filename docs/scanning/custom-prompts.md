@@ -20,8 +20,8 @@ These prompts invoke the `document-accessibility-wizard` agent. They work with `
 |--------|-------------|---------------|
 | `audit-single-document` | Scan a single document with severity scoring and metadata dashboard | [Details](../prompts/documents/audit-single-document.md) |
 | `audit-document-folder` | Recursively scan an entire folder with cross-document analysis | [Details](../prompts/documents/audit-document-folder.md) |
-| `audit-changed-documents` | Delta scan — only audit documents changed since last commit | [Details](../prompts/documents/audit-changed-documents.md) |
-| `quick-document-check` | Fast triage — errors only, high confidence, pass/fail verdict | [Details](../prompts/documents/quick-document-check.md) |
+| `audit-changed-documents` | Delta scan - only audit documents changed since last commit | [Details](../prompts/documents/audit-changed-documents.md) |
+| `quick-document-check` | Fast triage - errors only, high confidence, pass/fail verdict | [Details](../prompts/documents/quick-document-check.md) |
 | `generate-vpat` | Generate a VPAT 2.5 / ACR compliance report from existing audit results | [Details](../prompts/documents/generate-vpat.md) |
 | `generate-remediation-scripts` | Create PowerShell/Bash scripts to batch-fix common document issues | [Details](../prompts/documents/generate-remediation-scripts.md) |
 | `compare-audits` | Compare two audit reports side-by-side to track remediation progress | [Details](../prompts/documents/compare-audits.md) |
@@ -40,7 +40,7 @@ These prompts invoke the `accessibility-lead` and specialist agents. They work w
 | `quick-web-check` | Fast axe-core-only triage with pass/fail verdict | [Details](../prompts/web/quick-web-check.md) |
 | `audit-web-multi-page` | Multi-page comparison audit with cross-page pattern detection | [Details](../prompts/web/audit-web-multi-page.md) |
 | `compare-web-audits` | Compare two web audit reports to track remediation progress | [Details](../prompts/web/compare-web-audits.md) |
-| `fix-web-issues` | Interactive fix mode — apply fixes from an audit report | [Details](../prompts/web/fix-web-issues.md) |
+| `fix-web-issues` | Interactive fix mode - apply fixes from an audit report | [Details](../prompts/web/fix-web-issues.md) |
 
 ---
 

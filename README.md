@@ -1,4 +1,4 @@
-# A11y Agent Team
+# Accessibility Agents
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![GitHub release](https://img.shields.io/github/v/release/taylorarndt/a11y-agent-team?include_prereleases)](https://github.com/taylorarndt/a11y-agent-team/releases)
@@ -6,9 +6,11 @@
 [![GitHub contributors](https://img.shields.io/github/contributors/taylorarndt/a11y-agent-team)](https://github.com/taylorarndt/a11y-agent-team/graphs/contributors)
 [![WCAG 2.2 AA](https://img.shields.io/badge/WCAG-2.2_AA-green.svg)](https://www.w3.org/TR/WCAG22/)
 
-**Accessibility review agents for Claude Code, GitHub Copilot, and Claude Desktop.**
+**A community-driven open-source project automating accessibility, efficiency, and productivity through AI-based agents, skills, custom instructions, and prompts.**
 
-Built by [Taylor Arndt](https://github.com/taylorarndt) because LLMs consistently forget accessibility. Skills get ignored. Instructions drift out of context. ARIA gets misused. Focus management gets skipped. Color contrast fails silently. I got tired of fighting it, so I built a team of agents that will not let it slide.
+A sincere thanks goes out to [Taylor Arndt](https://github.com/taylorarndt) and [Jeff Bishop](https://github.com/jeffreybishop) for leading the charge in building this community project. It started because LLMs consistently forget accessibility - skills get ignored, instructions drift out of context, ARIA gets misused, focus management gets skipped, color contrast fails silently. They got tired of fighting it and built an agent team that will not let it slide. Now we want to make more magic together.
+
+> **We want more contributors!** If you care about making software accessible to blind and low vision users, please consider [submitting a PR](CONTRIBUTING.md). Every improvement to these agents helps developers ship more inclusive software for the people who need it most.
 
 ---
 
@@ -18,27 +20,29 @@ AI coding tools generate inaccessible code by default. They forget ARIA rules, s
 
 ## The Solution
 
-A11y Agent Team provides thirty-four specialized agents across two teams and three platforms:
+**Accessibility Agents** provides thirty-four specialized agents across two teams and three platforms:
 
-- **Accessibility team** — twenty-four agents that enforce WCAG AA standards for web code and Office/PDF documents
-- **GitHub Workflow team** — ten agents that manage repositories, triage issues, review PRs, and keep your team informed
+- **Accessibility team** - twenty-four agents that enforce WCAG AA standards for web code and Office/PDF documents
+- **GitHub Workflow team** - ten agents that manage repositories, triage issues, review PRs, and keep your team informed
 
 All agents run on:
 
-- **Claude Code** — Agents + a hook that forces accessibility evaluation on every prompt
-- **GitHub Copilot** — Agents + workspace instructions that ensure accessibility guidance in every conversation
-- **Claude Desktop** — An MCP extension (.mcpb) with tools and prompts for accessibility review
+- **Claude Code** - Agents + a hook that forces accessibility evaluation on every prompt
+- **GitHub Copilot** - Agents + workspace instructions that ensure accessibility guidance in every conversation
+- **Claude Desktop** - An MCP extension (.mcpb) with tools and prompts for accessibility review
 
 ## Quick Start
 
 ### One-liner install
 
 **macOS / Linux:**
+
 ```bash
 curl -fsSL https://raw.githubusercontent.com/taylorarndt/a11y-agent-team/main/install.sh | bash
 ```
 
 **Windows (PowerShell):**
+
 ```powershell
 irm https://raw.githubusercontent.com/taylorarndt/a11y-agent-team/main/install.ps1 | iex
 ```
@@ -46,6 +50,8 @@ irm https://raw.githubusercontent.com/taylorarndt/a11y-agent-team/main/install.p
 See the full [Getting Started Guide](docs/getting-started.md) for all installation options, manual setup, global vs project install, auto-updates, and platform-specific details.
 
 ## The Team
+
+The following agents make up the accessibility enforcement team, each owning one domain.
 
 | Agent | Role |
 |-------|------|
@@ -72,25 +78,29 @@ See the full [Getting Started Guide](docs/getting-started.md) for all installati
 
 ### GitHub Workflow Agents
 
+The following agents handle GitHub repository management, triage, and workflow automation.
+
 | Agent | Role |
 |-------|------|
 | **github-hub** | Orchestrator. Routes GitHub management tasks to the right specialist from plain English. |
-| **daily-briefing** | Morning overview — open issues, PR queue, CI status, security alerts in one report. |
+| **daily-briefing** | Morning overview - open issues, PR queue, CI status, security alerts in one report. |
 | **pr-review** | PR diff analysis with confidence per finding, delta tracking, and inline comments. |
-| **issue-tracker** | Issue triage — priority scoring, duplicate detection, action inference, project board sync. |
+| **issue-tracker** | Issue triage - priority scoring, duplicate detection, action inference, project board sync. |
 | **analytics** | Repository health scoring (0-100/A-F), velocity metrics, bottleneck detection. |
 | **insiders-a11y-tracker** | Track accessibility changes in VS Code Insiders and custom repos with WCAG mapping. |
 | **repo-admin** | Collaborator management, branch protection rules, access audits. |
 | **team-manager** | Onboarding, offboarding, org team membership, permission management. |
 | **contributions-hub** | Discussions, community health metrics, first-time contributor insights. |
-| **template-builder** | Guided wizard for issue/PR/discussion templates — no YAML knowledge required. |
-| **repo-manager** | Repository scaffolding — labels, CI, CONTRIBUTING, SECURITY, issue templates. |
+| **template-builder** | Guided wizard for issue/PR/discussion templates - no YAML knowledge required. |
+| **repo-manager** | Repository scaffolding - labels, CI, CONTRIBUTING, SECURITY, issue templates. |
 
 See the [Agent Reference Guide](docs/agents/README.md) for deep dives on every agent, example prompts, behavioral constraints, and instructor-led walkthroughs.
 
 ## Documentation
 
 ### Accessibility Docs
+
+The following guides cover web and document accessibility features.
 
 | Guide | What It Covers |
 |-------|---------------|
@@ -108,11 +118,15 @@ See the [Agent Reference Guide](docs/agents/README.md) for deep dives on every a
 
 ### GitHub Workflow Docs
 
+The following guide covers all GitHub workflow agents and their invocation syntax.
+
 | Guide | What It Covers |
 |-------|---------------|
 | [GitHub Workflow Agents](docs/agents/README.md#github-workflow-agents) | All 10 workflow agents with invocation syntax, examples, and instructor-led walkthroughs |
 
 ### Advanced Guides
+
+The following guides cover advanced configuration, cross-platform handoff, and distribution.
 
 | Guide | What It Covers |
 |-------|---------------|
@@ -154,16 +168,22 @@ The `example/` directory contains a deliberately broken web page with 20+ intent
 
 ## Contributing
 
-Found a gap? Open an issue or PR. Contributions are welcome. See the [Contributing Guide](CONTRIBUTING.md) for details.
+This project thrives on community participation. Whether you are a developer, accessibility specialist, screen reader user, or just someone who cares about inclusive software - there is a place for you here.
 
-If you find this useful, please star the repo and watch for releases so you know when updates drop.
+- **Found an agent gap?** [Open an issue](https://github.com/taylorarndt/a11y-agent-team/issues/new?template=agent_gap.yml) describing what the agent missed or got wrong.
+- **Know a pattern we should catch?** Open a PR. Agent files are plain Markdown - no special tooling required.
+- **Building for the blind and low vision community?** Your lived experience and domain knowledge are exactly what makes these agents better. We would love your involvement.
+
+See the [Contributing Guide](CONTRIBUTING.md) for full details, guidelines, and how to get started.
+
+If you find this project useful, please [star the repo](https://github.com/taylorarndt/a11y-agent-team) and watch for releases so you know when updates drop.
 
 ## Contributors
 
-Thanks to everyone who has contributed to making AI coding tools more accessible.
+A sincere thanks to [Taylor Arndt](https://github.com/taylorarndt) and [Jeff Bishop](https://github.com/jeffreybishop) for leading the charge, and to every community member who has contributed to making AI coding tools more accessible.
 
 <a href="https://github.com/taylorarndt/a11y-agent-team/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=taylorarndt/a11y-agent-team" alt="Contributors" />
+  <img src="https://contrib.rocks/image?repo=taylorarndt/a11y-agent-team" alt="Contributors to Accessibility Agents" />
 </a>
 
 ## Resources
@@ -180,14 +200,16 @@ Thanks to everyone who has contributed to making AI coding tools more accessible
 - [A11y Project Checklist](https://www.a11yproject.com/checklist/)
 - [Inclusive Components](https://inclusive-components.design/)
 
-## Also by the Author
+## Related Projects
 
-**[Swift Agent Team](https://github.com/taylorarndt/swift-agent-team)** — 9 specialized Swift agents for Claude Code. Swift 6.2 concurrency, Apple Foundation Models, on-device AI, SwiftUI, accessibility, security, testing, and App Store compliance.
+**[Swift Agent Team](https://github.com/taylorarndt/swift-agent-team)** - 9 specialized Swift agents for Claude Code. Swift 6.2 concurrency, Apple Foundation Models, on-device AI, SwiftUI, accessibility, security, testing, and App Store compliance.
 
 ## License
 
 MIT
 
-## About the Author
+## About This Project
 
-Built by [Taylor Arndt](https://github.com/taylorarndt), COO at [Techopolis](https://github.com/techopolis-group). Developer and accessibility specialist. I built this because accessibility is how I work, not something I bolt on at the end. When I found that AI coding tools consistently failed at accessibility, I built the team I wished existed.
+**Accessibility Agents** was founded by [Taylor Arndt](https://github.com/taylorarndt) (COO at [Techopolis](https://github.com/techopolis-group)) and [Jeff Bishop](https://github.com/jeffreybishop) because accessibility is how they work, not something bolted on at the end. When AI coding tools consistently failed at accessibility, they built the team they wished existed - and opened it to the world.
+
+This is a community project. The more perspectives, lived experiences, and domain knowledge that go into it, the better it serves the blind and low vision community. If you have ideas, open a discussion. If you have fixes, open a PR. Every contribution matters.

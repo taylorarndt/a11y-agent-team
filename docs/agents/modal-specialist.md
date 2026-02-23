@@ -1,4 +1,4 @@
-# modal-specialist — Dialogs, Drawers, and Overlays
+# modal-specialist - Dialogs, Drawers, and Overlays
 
 > Handles everything about overlays that appear above page content. Focus trapping, focus return, escape behavior, heading structure, background inertia, and scrolling behavior.
 
@@ -15,7 +15,7 @@
 ## What It Catches
 
 <details>
-<summary>Expand — 8 modal issues detected</summary>
+<summary>Expand - 8 modal issues detected</summary>
 
 - Focus not trapped inside the modal
 - Focus not returning to the trigger on close
@@ -35,14 +35,16 @@ Content issues inside the modal (form accessibility is forms-specialist, contras
 ## How to Launch It
 
 **In Claude Code:**
-```
+
+```text
 /modal-specialist review the confirmation dialog in CheckoutModal.tsx
 /modal-specialist build an accessible drawer component
 /modal-specialist is focus trapping correct in this modal?
 ```
 
 **In GitHub Copilot Chat:**
-```
+
+```text
 @modal-specialist review this dialog for focus management
 @modal-specialist build a cookie consent banner that meets WCAG
 @modal-specialist check the drawer component in this file
@@ -55,7 +57,7 @@ When you ask the modal-specialist to review a dialog, here is the exact checklis
 **The five behaviors every modal must have:**
 
 **1. Focus moves into the modal on open.**
-When the modal opens, focus must move inside it — either to the first focusable element, the close button, or the dialog heading, depending on the context. Focus staying behind on the trigger is a critical failure.
+When the modal opens, focus must move inside it - either to the first focusable element, the close button, or the dialog heading, depending on the context. Focus staying behind on the trigger is a critical failure.
 
 **2. Focus is trapped inside the modal.**
 While the modal is open, pressing Tab must cycle through only the modal's interactive elements. Focus must never reach the content behind the overlay. The correct, modern implementation uses the `inert` attribute on everything outside the modal, rather than manual focus trap event listeners.
@@ -70,15 +72,16 @@ When the modal closes, focus returns to the element that opened it. Without this
 While the modal is open, links, buttons, and form elements behind the overlay must not be reachable. Use `inert` on the background container; do not rely only on `pointer-events: none` (that only affects mouse, not keyboard).
 
 **Additional checks:**
+
 - `<dialog>` element with `showModal()` is preferred over custom `<div role="dialog">`
 - `aria-modal="true"` when using the `<dialog>` element
 - Heading level: The first heading inside a modal should be H2 (the page H1 still exists in the background)
 - Auto-focus: The correct element should receive initial focus based on the modal's purpose
 
-**Example: Before and After**
+### Example: Before and After
 
 ```jsx
-// Before — common broken pattern
+// Before - common broken pattern
 function Modal({ onClose }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -94,7 +97,7 @@ function Modal({ onClose }) {
   );
 }
 
-// After — correct implementation
+// After - correct implementation
 function Modal({ onClose, triggerRef }) {
   const dialogRef = useRef(null);
 
@@ -113,7 +116,7 @@ function Modal({ onClose, triggerRef }) {
       <p>Are you sure?</p>
       <button onClick={onClose}>Cancel</button>
       <button>Delete</button>
-      <button onClick={onClose} aria-label="Close dialog">✕</button>
+      <button onClick={onClose} aria-label="Close dialog"></button>
     </dialog>
   );
 }
@@ -123,7 +126,7 @@ function Modal({ onClose, triggerRef }) {
 
 | Connect to | When |
 |------------|------|
-| [forms-specialist](forms-specialist.md) | When the modal contains a form — the specialist reviews the form content separately |
+| [forms-specialist](forms-specialist.md) | When the modal contains a form - the specialist reviews the form content separately |
 | [keyboard-navigator](keyboard-navigator.md) | For complex focus management scenarios and tab order within the modal |
 | [aria-specialist](aria-specialist.md) | For ARIA attributes on the dialog element itself (`aria-labelledby`, `aria-describedby`) |
 | [live-region-controller](live-region-controller.md) | For modals that display dynamic status messages after submission |
@@ -134,7 +137,7 @@ function Modal({ onClose, triggerRef }) {
 
 ### Claude Code
 
-```
+```text
 /modal-specialist review the confirmation dialog in CheckoutModal.tsx
 /modal-specialist build an accessible drawer component
 /modal-specialist is focus trapping correct in this modal?
@@ -143,7 +146,7 @@ function Modal({ onClose, triggerRef }) {
 
 ### GitHub Copilot
 
-```
+```text
 @modal-specialist review this dialog for focus management
 @modal-specialist build a cookie consent banner that meets WCAG
 @modal-specialist check the drawer component in this file
@@ -157,7 +160,7 @@ function Modal({ onClose, triggerRef }) {
 <summary>Expand constraints</summary>
 
 - Requires `<dialog>` with `showModal()` as the preferred implementation. Accepts custom implementations only when `<dialog>` is genuinely insufficient
-- Requires focus to return to the trigger element on close — no exceptions
+- Requires focus to return to the trigger element on close - no exceptions
 - Will reject modals that can only be closed by clicking outside (must have Escape support)
 - Validates both the opening and closing flows
 

@@ -12,7 +12,8 @@ Configure an automated CI/CD pipeline that scans documents for accessibility iss
 ## How to Launch It
 
 **In GitHub Copilot Chat:**
-```
+
+```text
 /setup-document-cicd
 ```
 
@@ -23,9 +24,10 @@ The agent collects your preferences interactively.
 ### Step 1: Platform Selection
 
 The agent asks which CI/CD platform to target:
-- **GitHub Actions** — generates `.github/workflows/document-a11y.yml`
-- **Azure DevOps Pipelines** — generates `azure-pipelines.yml`
-- **Generic CI** — generates shell scripts compatible with any platform
+
+- **GitHub Actions** - generates `.github/workflows/document-a11y.yml`
+- **Azure DevOps Pipelines** - generates `azure-pipelines.yml`
+- **Generic CI** - generates shell scripts compatible with any platform
 
 ### Step 2: Scan Profile
 
@@ -37,10 +39,10 @@ The agent asks which CI/CD platform to target:
 
 ### Step 3: Notification Preferences
 
-- **PR comment** — post a summary as a PR comment so reviewers see it inline
-- **Build artifact** — upload the full report as a downloadable artifact
-- **Fail the build** — block merges when errors are found
-- **Slack/Teams notification** — post to a channel when issues are found
+- **PR comment** - post a summary as a PR comment so reviewers see it inline
+- **Build artifact** - upload the full report as a downloadable artifact
+- **Fail the build** - block merges when errors are found
+- **Slack/Teams notification** - post to a channel when issues are found
 
 ### Step 4: Pipeline Generation
 
@@ -84,14 +86,15 @@ jobs:
 
 The agent generates starter scan configuration files:
 
-- `.a11y-office-config.json` — Office document scan configuration
-- `.a11y-pdf-config.json` — PDF scan configuration
+- `.a11y-office-config.json` - Office document scan configuration
+- `.a11y-pdf-config.json` - PDF scan configuration
 
 Both use the selected profile.
 
 ### Step 6: Team Setup Instructions
 
 The agent provides:
+
 - How to trigger the first scan
 - How to configure the fail threshold
 - How to handle pre-existing issues (suppress baseline, only fail on new)
@@ -99,12 +102,12 @@ The agent provides:
 
 ## Example Variations
 
-```
+```text
 /setup-document-cicd
-→ Platform: GitHub Actions
-→ Profile: Moderate
-→ Notify: PR comment + fail on critical errors
-→ Schedule: Weekly full scan on Mondays
+-> Platform: GitHub Actions
+-> Profile: Moderate
+-> Notify: PR comment + fail on critical errors
+-> Schedule: Weekly full scan on Mondays
 ```
 
 ## Output Files
@@ -124,5 +127,5 @@ The agent provides:
 
 ## Related Prompts
 
-- [audit-changed-documents](audit-changed-documents.md) — the prompt this pipeline runs on each commit
-- [audit-document-folder](audit-document-folder.md) — the first full scan to establish your baseline
+- [audit-changed-documents](audit-changed-documents.md) - the prompt this pipeline runs on each commit
+- [audit-document-folder](audit-document-folder.md) - the first full scan to establish your baseline

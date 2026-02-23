@@ -1,4 +1,4 @@
-# keyboard-navigator — Tab Order and Focus Management
+# keyboard-navigator - Tab Order and Focus Management
 
 > Ensures every interactive element is reachable and operable by keyboard alone. Manages tab order, focus movement on dynamic content changes, skip links, SPA route changes, and arrow key patterns for custom widgets.
 
@@ -14,7 +14,7 @@
 ## What It Catches
 
 <details>
-<summary>Expand — 9 keyboard navigation issues detected</summary>
+<summary>Expand - 9 keyboard navigation issues detected</summary>
 
 - Interactive elements not in the tab order
 - Positive `tabindex` values (breaks natural tab order)
@@ -39,7 +39,7 @@ Visual appearance of focus indicators (that is contrast-master), ARIA role corre
 
 ### Claude Code
 
-```
+```text
 /keyboard-navigator audit tab order on the settings page
 /keyboard-navigator check focus management in this SPA router
 /keyboard-navigator where should focus go after deleting a list item?
@@ -48,7 +48,7 @@ Visual appearance of focus indicators (that is contrast-master), ARIA role corre
 
 ### GitHub Copilot
 
-```
+```text
 @keyboard-navigator check tab order for this component
 @keyboard-navigator build focus management for this route change
 @keyboard-navigator review keyboard interaction patterns in this dropdown

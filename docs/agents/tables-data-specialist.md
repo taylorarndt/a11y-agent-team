@@ -1,4 +1,4 @@
-# tables-data-specialist — Data Tables, Grids, and Sortable Columns
+# tables-data-specialist - Data Tables, Grids, and Sortable Columns
 
 > Ensures data tables are properly structured for screen reader navigation. Covers table markup, header scope, captions, complex multi-level headers, sortable columns, interactive data grids, responsive table patterns, select-all checkboxes, pagination, and empty states.
 
@@ -15,7 +15,7 @@
 ## What It Catches
 
 <details>
-<summary>Expand — 11 table and grid issues detected</summary>
+<summary>Expand - 11 table and grid issues detected</summary>
 
 - `<div>` grids styled to look like tables (screen readers cannot navigate these)
 - `<td>` elements styled as headers instead of `<th>` with `scope`
@@ -24,7 +24,7 @@
 - `aria-sort` not updating when sort changes
 - Sortable column buttons outside the `<th>` element
 - `role="grid"` on non-interactive tables (adds unnecessary complexity)
-- Interactive elements in cells without descriptive `aria-label` (50 "Edit" buttons — edit what?)
+- Interactive elements in cells without descriptive `aria-label` (50 "Edit" buttons - edit what?)
 - Pagination without `aria-current="page"`
 - Layout tables without `role="presentation"`
 - Responsive tables that hide columns incorrectly
@@ -42,7 +42,7 @@ Content within table cells (form inputs are forms-specialist, links are aria-spe
 
 ### Claude Code
 
-```
+```text
 /tables-data-specialist review the pricing comparison table
 /tables-data-specialist build an accessible sortable data grid
 /tables-data-specialist check the admin user table for screen reader nav
@@ -51,7 +51,7 @@ Content within table cells (form inputs are forms-specialist, links are aria-spe
 
 ### GitHub Copilot
 
-```
+```text
 @tables-data-specialist review the data table in this component
 @tables-data-specialist add proper headers and scope to this table
 @tables-data-specialist make this sortable table accessible
@@ -64,9 +64,9 @@ Content within table cells (form inputs are forms-specialist, links are aria-spe
 <details>
 <summary>Expand constraints</summary>
 
-- Requires `<table>` for tabular data — will never accept `<div>` grid patterns as accessible
+- Requires `<table>` for tabular data - will never accept `<div>` grid patterns as accessible
 - Requires `<caption>` or `aria-label` on every data table
-- Requires `scope` on every `<th>` — does not trust screen reader guessing
+- Requires `scope` on every `<th>` - does not trust screen reader guessing
 - Only allows `role="grid"` when cells contain interactive elements
 
 </details>

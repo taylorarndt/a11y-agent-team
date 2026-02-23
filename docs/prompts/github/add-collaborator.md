@@ -1,6 +1,6 @@
 # add-collaborator
 
-Add a collaborator to a GitHub repository with the appropriate permission level. The agent checks if they are already a collaborator and suggests the right role — with a confirmation step before any action.
+Add a collaborator to a GitHub repository with the appropriate permission level. The agent checks if they are already a collaborator and suggests the right role - with a confirmation step before any action.
 
 ## When to Use It
 
@@ -12,12 +12,14 @@ Add a collaborator to a GitHub repository with the appropriate permission level.
 ## How to Launch It
 
 **In GitHub Copilot Chat:**
-```
+
+```text
 /add-collaborator owner/repo username role
 ```
 
 Examples:
-```
+
+```text
 /add-collaborator owner/repo alice write
 /add-collaborator owner/repo bob read
 /add-collaborator owner/repo charlie admin
@@ -25,11 +27,11 @@ Examples:
 
 ## What to Expect
 
-1. **Parse request** — Extracts repo, username, and requested role
-2. **Check existing access** — Verifies if the user is already a collaborator
-3. **Role guidance** — Confirms the role matches the intent with the role guide table
-4. **Preview** — Shows what will be sent before acting
-5. **Send invitation** — After confirmation, sends the GitHub collaboration invite
+1. **Parse request** - Extracts repo, username, and requested role
+2. **Check existing access** - Verifies if the user is already a collaborator
+3. **Role guidance** - Confirms the role matches the intent with the role guide table
+4. **Preview** - Shows what will be sent before acting
+5. **Send invitation** - After confirmation, sends the GitHub collaboration invite
 
 ### Role Guide
 
@@ -43,31 +45,31 @@ Examples:
 
 ### Existing Collaborator Check
 
-```
+```text
 Agent: alice is already a collaborator with "triage" access.
   You are requesting to upgrade to "write".
   
-  Change alice's role from triage → write? (yes/no)
+  Change alice's role from triage -> write? (yes/no)
 ```
 
 ### Org Team Suggestion
 
 If the repo belongs to an organization with teams configured, the agent may suggest:
 
-```
+```text
 Note: The "@myorg/contributors" team already has write access to this repo.
   Consider adding alice to that team instead of granting individual access.
 ```
 
 ### Sample Flow
 
-```
+```text
 You: /add-collaborator owner/repo bob write
 
 Agent: Checking bob's current access to owner/repo...
   bob is not a current collaborator.
 
-  Role: write — push to non-protected branches, manage releases
+  Role: write - push to non-protected branches, manage releases
 
   Send invitation to bob (write)? (yes/no)
 
@@ -78,7 +80,7 @@ Agent: Invitation sent to bob. They will need to accept before access is granted
 
 ## Example Variations
 
-```
+```text
 /add-collaborator owner/repo alice read
 /add-collaborator owner/repo alice write
 /add-collaborator owner/repo alice admin
@@ -93,5 +95,5 @@ Agent: Invitation sent to bob. They will need to accept before access is granted
 
 ## Related Prompts
 
-- [onboard-repo](onboard-repo.md) — check repo health before adding contributors
-- [manage-branches](manage-branches.md) — set branch protections after adding collaborators
+- [onboard-repo](onboard-repo.md) - check repo health before adding contributors
+- [manage-branches](manage-branches.md) - set branch protections after adding collaborators

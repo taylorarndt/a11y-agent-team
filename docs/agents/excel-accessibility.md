@@ -1,4 +1,4 @@
-# excel-accessibility — Microsoft Excel (XLSX) Accessibility
+# excel-accessibility - Microsoft Excel (XLSX) Accessibility
 
 > Scans Microsoft Excel spreadsheets for accessibility issues. Uses the `scan_office_document` MCP tool to parse XLSX files and check for sheet naming, table structure, merged cells, chart alt text, input messages on data-entry cells, and defined names.
 
@@ -12,7 +12,7 @@
 ## What It Catches
 
 <details>
-<summary>Expand — 10 Excel accessibility rules (XLSX-E001 – XLSX-W004)</summary>
+<summary>Expand - 10 Excel accessibility rules (XLSX-E001 - XLSX-W004)</summary>
 
 | Rule | Severity | Description |
 |------|----------|--------------|
@@ -34,7 +34,7 @@
 <details>
 <summary>Show example prompts</summary>
 
-```
+```text
 /excel-accessibility scan budget.xlsx for accessibility
 @excel-accessibility review the quarterly data spreadsheet
 @excel-accessibility check all spreadsheets in the finance/ directory
@@ -45,14 +45,16 @@
 ## How to Launch It
 
 **In Claude Code (terminal):**
-```
+
+```text
 /excel-accessibility scan budget.xlsx
 /excel-accessibility review the data dashboard template
 /excel-accessibility check all .xlsx files in /finance
 ```
 
 **In GitHub Copilot Chat:**
-```
+
+```text
 @excel-accessibility scan budget.xlsx for accessibility issues
 @excel-accessibility check the procurement tracker
 ```
@@ -64,7 +66,8 @@
 ## Step-by-Step: What a Scan Session Looks Like
 
 **You say:**
-```
+
+```text
 /excel-accessibility scan quarterly-data.xlsx
 ```
 
@@ -82,11 +85,11 @@
 
 4. **Returns a finding report.** Here is a real example:
 
-```
-XLSX-E001 [Error] — High Confidence
+```text
+XLSX-E001 [Error] - High Confidence
 Default sheet name used
 Location: Sheet tab "Sheet3" (3rd worksheet)
-Remediation: Right-click the tab in Excel → Rename → use a descriptive name
+Remediation: Right-click the tab in Excel -> Rename -> use a descriptive name
 that communicates the sheet's content (e.g., "Q3 Revenue by Region").
 Screen readers announce the tab name when a user navigates between sheets.
 ```
@@ -99,19 +102,19 @@ Screen readers announce the tab name when a user navigates between sheets.
 
 | Score | Grade | What it means |
 |-------|-------|---------------|
-| 90–100 | A | Excellent — safe to distribute externally |
-| 75–89 | B | Good — minor improvements recommended |
-| 50–74 | C | Needs work — multiple errors affecting screen reader users |
-| 25–49 | D | Poor — significant barriers to access |
-| 0–24 | F | Failing — largely inaccessible with screen readers |
+| 90-100 | A | Excellent - safe to distribute externally |
+| 75-89 | B | Good - minor improvements recommended |
+| 50-74 | C | Needs work - multiple errors affecting screen reader users |
+| 25-49 | D | Poor - significant barriers to access |
+| 0-24 | F | Failing - largely inaccessible with screen readers |
 
 ### What to Fix First
 
-1. **XLSX-E001** (Default sheet names) — Every tab named "Sheet1" is navigation deadweight. Screen reader users cycle through tabs by name.
-2. **XLSX-E003** (Merged cells in data regions) — Merged cells destroy the column/row header mapping that screen readers depend on. This is the single most damaging Excel anti-pattern.
-3. **XLSX-E005** (No table header row) — Without a defined header row, assistive technology cannot announce column context as it moves through data cells.
-4. **XLSX-E006** (Charts without alt text) — Charts are opaque to screen readers when alt text is absent. A brief description of the trend or key takeaway is sufficient.
-5. **XLSX-W001** (Blank cells in data ranges) — Blank cells can interrupt screen reader table navigation, making it unclear whether the data region continues.
+1. **XLSX-E001** (Default sheet names) - Every tab named "Sheet1" is navigation deadweight. Screen reader users cycle through tabs by name.
+2. **XLSX-E003** (Merged cells in data regions) - Merged cells destroy the column/row header mapping that screen readers depend on. This is the single most damaging Excel anti-pattern.
+3. **XLSX-E005** (No table header row) - Without a defined header row, assistive technology cannot announce column context as it moves through data cells.
+4. **XLSX-E006** (Charts without alt text) - Charts are opaque to screen readers when alt text is absent. A brief description of the trend or key takeaway is sufficient.
+5. **XLSX-W001** (Blank cells in data ranges) - Blank cells can interrupt screen reader table navigation, making it unclear whether the data region continues.
 
 ### A Note on Merged Cells
 
@@ -124,4 +127,4 @@ Merged cells (XLSX-E003) are the hardest Excel accessibility issue to fix becaus
 | [document-accessibility-wizard](document-accessibility-wizard.md) | For folder-wide Excel audits, cross-document analysis, and VPAT generation |
 | [office-scan-config](office-scan-config.md) | To suppress XLSX-W003 (hidden sheets) or other rules that do not apply to your workbooks |
 | [word-accessibility](word-accessibility.md) | When auditing mixed Office document collections |
-| [pdf-accessibility](pdf-accessibility.md) | Spreadsheets exported to PDF need a separate PDF/UA audit — the Excel scan does not cover exported PDFs |
+| [pdf-accessibility](pdf-accessibility.md) | Spreadsheets exported to PDF need a separate PDF/UA audit - the Excel scan does not cover exported PDFs |

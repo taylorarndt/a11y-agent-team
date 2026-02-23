@@ -17,7 +17,7 @@ These are safe, deterministic fixes with no risk of breaking behavior:
 |-------|-----|------------|
 | Missing `lang` on `<html>` | Add `lang="en"` (or detected language) | High |
 | Missing viewport meta | Add `<meta name="viewport" content="width=device-width, initial-scale=1">` | High |
-| `<img>` without `alt` attribute | Add `alt=""` (decorative) — prompt for content images | High for decorative |
+| `<img>` without `alt` attribute | Add `alt=""` (decorative) - prompt for content images | High for decorative |
 | Positive `tabindex` (1, 2, etc.) | Replace with `tabindex="0"` or remove | High |
 | `outline: none` without alternative | Add `outline: 2px solid` with `:focus-visible` | High |
 | Missing `<label>` for input | Add `<label>` with matching `for`/`id` | High |
@@ -63,7 +63,7 @@ Apply fixes using the correct syntax for the detected framework:
 ## Output Format
 
 For each fix applied, return:
-```
+```text
 Fix #[n]: [issue description]
   File: [path]:[line]
   Before: [original code snippet]

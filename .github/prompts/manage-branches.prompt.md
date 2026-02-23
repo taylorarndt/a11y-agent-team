@@ -43,7 +43,7 @@ ${input:action:Optional: 'list', 'stale', 'compare branch-a branch-b', 'cleanup'
 
 ### Display Format
 
-```
+```text
 Branches in owner/repo (15 total)
 
 Active (8):

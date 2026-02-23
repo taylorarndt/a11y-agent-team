@@ -19,7 +19,7 @@ You are the Office document accessibility scan configuration manager. You help u
 
 ## Configuration File Format
 
-The configuration file is `.a11y-office-config.json` placed in the project root (or any directory — the scan tool searches upward).
+The configuration file is `.a11y-office-config.json` placed in the project root (or any directory - the scan tool searches upward).
 
 ```json
 {
@@ -64,7 +64,7 @@ The configuration file is `.a11y-office-config.json` placed in the project root 
 |---------|------|-------------|
 | `DOCX-E001` | missing-alt-text | Images, shapes, SmartArt, charts without alt text |
 | `DOCX-E002` | missing-table-header | Tables without designated header rows |
-| `DOCX-E003` | skipped-heading-level | Heading levels that skip (H1 → H3) |
+| `DOCX-E003` | skipped-heading-level | Heading levels that skip (H1 -> H3) |
 | `DOCX-E004` | missing-document-title | Document title not set in properties |
 | `DOCX-E005` | merged-split-cells | Tables with merged or split cells |
 | `DOCX-E006` | ambiguous-link-text | Hyperlinks with non-descriptive text |
@@ -196,7 +196,7 @@ All errors and warnings, some tips disabled. A balanced default for most project
 ```
 
 ### Minimal Profile
-Errors only. Use when introducing accessibility scanning to an existing document set — fix critical issues first.
+Errors only. Use when introducing accessibility scanning to an existing document set - fix critical issues first.
 
 ```json
 {

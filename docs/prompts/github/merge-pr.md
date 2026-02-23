@@ -12,22 +12,24 @@ Merge a pull request after verifying it is ready. The agent checks approvals, CI
 ## How to Launch It
 
 **In GitHub Copilot Chat:**
-```
+
+```text
 /merge-pr owner/repo#123
 ```
 
 Or for the current branch PR:
-```
+
+```text
 /merge-pr
 ```
 
 ## What to Expect
 
-1. **Readiness check** — Verifies approvals, CI status, and merge conflict state
-2. **Strategy recommendation** — Suggests squash, merge commit, or rebase based on PR size and history
-3. **Confirmation prompt** — Shows the proposed merge and asks for your explicit `yes` before proceeding
-4. **Execute merge** — Merges the PR via the GitHub API
-5. **Post-merge cleanup** — Optionally deletes the source branch
+1. **Readiness check** - Verifies approvals, CI status, and merge conflict state
+2. **Strategy recommendation** - Suggests squash, merge commit, or rebase based on PR size and history
+3. **Confirmation prompt** - Shows the proposed merge and asks for your explicit `yes` before proceeding
+4. **Execute merge** - Merges the PR via the GitHub API
+5. **Post-merge cleanup** - Optionally deletes the source branch
 
 ### Readiness Criteria
 
@@ -51,16 +53,16 @@ If any required criterion fails, the agent explains the blocker and does **not**
 
 ### Sample Flow
 
-```
-Merge readiness — owner/repo#123 "Add authentication":
+```text
+Merge readiness - owner/repo#123 "Add authentication":
 
-  ✅ Approved by: alice (2 days ago)
-  ✅ CI: all 3 checks passing
-  ✅ No merge conflicts
-  ✅ Not a draft
+   Approved by: alice (2 days ago)
+   CI: all 3 checks passing
+   No merge conflicts
+   Not a draft
 
   Suggested strategy: Squash and merge
-  (14 commits → 1 clean commit)
+  (14 commits -> 1 clean commit)
 
   Proceed with squash merge? (yes/no/change-strategy)
 ```
@@ -68,13 +70,14 @@ Merge readiness — owner/repo#123 "Add authentication":
 ### Post-merge Cleanup
 
 After a successful merge, the agent offers:
+
 - Delete the source branch
 - Close any linked issues with the merge
 - Update the linked project board column
 
 ## Example Variations
 
-```
+```text
 /merge-pr                              # Detect from current branch
 /merge-pr owner/repo#123              # Specific PR
 /merge-pr owner/repo#123 squash       # Force squash strategy
@@ -89,7 +92,7 @@ After a successful merge, the agent offers:
 
 ## Related Prompts
 
-- [review-pr](review-pr.md) — do a final review before merging
-- [address-comments](address-comments.md) — resolve blocking comments first
-- [manage-branches](manage-branches.md) — clean up branches after merge
-- [pr-author-checklist](pr-author-checklist.md) — check readiness before requesting merge
+- [review-pr](review-pr.md) - do a final review before merging
+- [address-comments](address-comments.md) - resolve blocking comments first
+- [manage-branches](manage-branches.md) - clean up branches after merge
+- [pr-author-checklist](pr-author-checklist.md) - check readiness before requesting merge

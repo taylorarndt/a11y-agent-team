@@ -8,19 +8,19 @@
 
 Its responsibilities:
 
-1. **File discovery** — recursively scans folders for `.docx`, `.xlsx`, `.pptx`, and `.pdf` files, filtering out temporary and system files
-2. **Delta detection** — uses `git diff` to identify only the files changed since the last commit, tag, or audit
-3. **Metadata extraction** — reads document properties (title, author, language, template references) to populate the inventory
-4. **Inventory report** — returns a structured file list with counts, paths, and metadata flags that the wizard uses to plan the scan
+1. **File discovery** - recursively scans folders for `.docx`, `.xlsx`, `.pptx`, and `.pdf` files, filtering out temporary and system files
+2. **Delta detection** - uses `git diff` to identify only the files changed since the last commit, tag, or audit
+3. **Metadata extraction** - reads document properties (title, author, language, template references) to populate the inventory
+4. **Inventory report** - returns a structured file list with counts, paths, and metadata flags that the wizard uses to plan the scan
 
 ## When It Runs
 
 This agent is called at the start of every multi-document audit mode:
 
-- `audit-document-folder` prompt — discovers all documents in the specified folder
-- `audit-changed-documents` prompt — finds only the git-diff'd files to scan
-- `generate-vpat` prompt — builds the file inventory for a library-wide compliance report
-- `setup-document-cicd` prompt — discovers the document structure to infer the CI configuration
+- `audit-document-folder` prompt - discovers all documents in the specified folder
+- `audit-changed-documents` prompt - finds only the git-diff'd files to scan
+- `generate-vpat` prompt - builds the file inventory for a library-wide compliance report
+- `setup-document-cicd` prompt - discovers the document structure to infer the CI configuration
 
 ## File Discovery
 
@@ -82,7 +82,7 @@ git log --since="7 days ago" --name-only --diff-filter=ACMR --pretty="" \
   -- '*.docx' '*.xlsx' '*.pptx' '*.pdf' | sort -u
 ```
 
-The `--diff-filter=ACMR` flag includes Added, Copied, Modified, and Renamed files — excluding Deleted files (nothing to scan) and Type-changed files (rare edge case).
+The `--diff-filter=ACMR` flag includes Added, Copied, Modified, and Renamed files - excluding Deleted files (nothing to scan) and Type-changed files (rare edge case).
 
 ## Metadata Extraction
 
@@ -90,9 +90,9 @@ For Word, Excel, and PowerPoint files, the agent reads core document properties:
 
 | Property | Source | What It Flags |
 |----------|--------|---------------|
-| Title | `docProps/core.xml` → `dc:title` | Missing title (DOCX-E001 / PPTX-E001 / XLSX-E001) |
-| Language | `word/settings.xml` → `w:themeFontLang` | Missing or inconsistent language |
-| Author | `docProps/core.xml` → `dc:creator` | Informational only |
+| Title | `docProps/core.xml` -> `dc:title` | Missing title (DOCX-E001 / PPTX-E001 / XLSX-E001) |
+| Language | `word/settings.xml` -> `w:themeFontLang` | Missing or inconsistent language |
+| Author | `docProps/core.xml` -> `dc:creator` | Informational only |
 | Template | Word `AttachedTemplate`, PPT slide master name | Used for template grouping |
 
 Properties are extracted by reading the XML inside the ZIP-format Office files. No third-party tool is required.
@@ -101,14 +101,14 @@ Properties are extracted by reading the XML inside the ZIP-format Office files. 
 
 The agent returns a structured inventory that the wizard uses throughout the scan:
 
-```
+```text
 Document Inventory: /path/to/folder
 ==================================================
   Word (.docx):        12 files
   Excel (.xlsx):        4 files
   PowerPoint (.pptx):   8 files
   PDF (.pdf):           3 files
-  ──────────────────────────────
+  
   Total:               27 files
 
 Files:

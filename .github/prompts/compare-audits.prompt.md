@@ -20,10 +20,10 @@ Use the **document-accessibility-wizard** agent to:
 
 1. Read both audit reports
 2. For each finding, classify it as:
-   - **Fixed** — was in the previous report, no longer present
-   - **New** — not in the previous report, appears now
-   - **Persistent** — present in both reports
-   - **Regressed** — was fixed in an interim fix but has returned
+   - **Fixed** - was in the previous report, no longer present
+   - **New** - not in the previous report, appears now
+   - **Persistent** - present in both reports
+   - **Regressed** - was fixed in an interim fix but has returned
 3. Generate a comparison report showing:
    - Summary table: total errors/warnings before vs. after
    - Score changes per document (previous score vs. current score)

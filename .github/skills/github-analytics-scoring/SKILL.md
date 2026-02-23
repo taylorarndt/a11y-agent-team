@@ -7,15 +7,15 @@ description: Scoring formulas and analytical frameworks for GitHub workflow agen
 
 ## Repository Health Score
 
-```
+```text
 Health Score = 100 - (sum of weighted penalties)
 
-Penalties — CI & Reliability:
+Penalties - CI & Reliability:
   Failing workflow, high confidence:         -10 points
   Flaky test (3+ failures/week):             - 5 points
   No CI configured:                          - 8 points
 
-Penalties — Issues & PRs:
+Penalties - Issues & PRs:
   Critical unresolved bug (P0):             -10 points
   Security alert (critical severity):       -10 points
   Security alert (high severity):           - 5 points
@@ -23,7 +23,7 @@ Penalties — Issues & PRs:
   Issue @mentioned, no response >7 days:    - 5 points each (max -10)
   >10 open issues with no labels/triage:    - 3 points
 
-Penalties — Community Health:
+Penalties - Community Health:
   No CONTRIBUTING.md:                        - 5 points
   No CODE_OF_CONDUCT.md:                     - 3 points
   No branch protection on main:              - 5 points
@@ -36,11 +36,11 @@ Floor: 0 (minimum score)
 
 | Score | Grade | Meaning |
 |-------|-------|---------|
-| 90–100 | A | Excellent — healthy repo, minimal issues |
-| 75–89 | B | Good — minor issues, well-managed |
-| 50–74 | C | Needs attention — multiple signals requiring action |
-| 25–49 | D | Poor — significant problems impacting velocity |
-| 0–24 | F | Critical — major issues blocking team progress |
+| 90-100 | A | Excellent - healthy repo, minimal issues |
+| 75-89 | B | Good - minor issues, well-managed |
+| 50-74 | C | Needs attention - multiple signals requiring action |
+| 25-49 | D | Poor - significant problems impacting velocity |
+| 0-24 | F | Critical - major issues blocking team progress |
 
 ---
 
@@ -66,7 +66,7 @@ Internally score each issue to determine sort order in dashboards and reports:
 | Signal | Points |
 |--------|--------|
 | Review requested, user hasn't reviewed | +5 |
-| PR has "changes requested" — author needs to update | +4 |
+| PR has "changes requested" - author needs to update | +4 |
 | PR is approved and ready to merge | +3 |
 | Targets a release branch with upcoming deadline | +3 |
 | CI failed on this PR | +2 |
@@ -104,7 +104,7 @@ Apply confidence levels to all bottleneck findings, health score deductions, and
 | Finding | Severity | Confidence | Recommendation |
 |---------|----------|-----------|----------------|
 | 3 PRs stale >14 days | High | **High** | Assign reviewers or close |
-| Velocity 40% below 4-week avg | Medium | **Medium** | Verify — may be holiday period |
+| Velocity 40% below 4-week avg | Medium | **Medium** | Verify - may be holiday period |
 | Issue activity spike on Fridays | Low | **Low** | Monitor for 2 weeks before acting |
 ```
 
@@ -128,10 +128,10 @@ When re-running an analysis against a previous report, classify every finding by
 
 | Change | Finding | Details |
 |--------|---------|---------|
-| ✅ Fixed | 3 stale PRs resolved | Team cleared the backlog |
-| 🆕 New | CI failing on main | Build broke in last 24h |
-| ⚠️ Persistent (#3) | Velocity 30% below baseline | Third consecutive week |
-| 🔄 Regressed | Security alert reopened | lodash advisory re-filed |
+|  Fixed | 3 stale PRs resolved | Team cleared the backlog |
+|  New | CI failing on main | Build broke in last 24h |
+|  Persistent (#3) | Velocity 30% below baseline | Third consecutive week |
+|  Regressed | Security alert reopened | lodash advisory re-filed |
 
 **Progress:** {N} fixed, {M} new, {P} persistent, {Q} regressed
 **Score change:** {current_score} ({+/-N} from {previous_score})
@@ -141,7 +141,7 @@ When re-running an analysis against a previous report, classify every finding by
 
 If a finding is **Persistent for 3+ consecutive reports**, escalate:
 
-> ⚠️ **Escalation:** [{Finding}] has been present for {N} consecutive reports. Consider a team discussion or explicit ownership assignment to resolve this.
+>  **Escalation:** [{Finding}] has been present for {N} consecutive reports. Consider a team discussion or explicit ownership assignment to resolve this.
 
 ---
 
@@ -149,12 +149,12 @@ If a finding is **Persistent for 3+ consecutive reports**, escalate:
 
 | Metric | Formula | Healthy | Warning | Critical |
 |--------|---------|---------|---------|---------|
-| PR merge rate | PRs merged / week | >3/week | 1–3/week | <1/week |
-| Issue close rate | Issues closed / week | >5/week | 2–5/week | <2/week |
-| Review turnaround | Avg hours PR open before first review | <24h | 24–72h | >72h |
-| Issue response time | Avg hours until first team response | <8h | 8–48h | >48h |
-| Stale PR ratio | PRs open >14 days / total open PRs | <10% | 10–30% | >30% |
-| CI reliability | Passing runs / total runs (7-day) | >95% | 80–95% | <80% |
+| PR merge rate | PRs merged / week | >3/week | 1-3/week | <1/week |
+| Issue close rate | Issues closed / week | >5/week | 2-5/week | <2/week |
+| Review turnaround | Avg hours PR open before first review | <24h | 24-72h | >72h |
+| Issue response time | Avg hours until first team response | <8h | 8-48h | >48h |
+| Stale PR ratio | PRs open >14 days / total open PRs | <10% | 10-30% | >30% |
+| CI reliability | Passing runs / total runs (7-day) | >95% | 80-95% | <80% |
 
 ---
 
@@ -174,13 +174,13 @@ If a finding is **Persistent for 3+ consecutive reports**, escalate:
 
 | Category | Signals | Example Finding |
 |----------|---------|-----------------    |
-| Review bottleneck | High PR open time, review-requested PRs >3 days | "4 PRs waiting for review >3 days — assign or redistribute" |
-| CI bottleneck | Frequent failures, long runtimes | "Test suite 45min avg — 2× slower than 4-week average" |
+| Review bottleneck | High PR open time, review-requested PRs >3 days | "4 PRs waiting for review >3 days - assign or redistribute" |
+| CI bottleneck | Frequent failures, long runtimes | "Test suite 45min avg - 2x slower than 4-week average" |
 | Stale work | Issues/PRs with no activity >14 days | "7 issues open >30 days with no recent comments" |
-| Knowledge concentration | 80%+ commits from one contributor | "3 of 4 core modules have only one contributor — bus factor 1" |
-| Response lag | >24h average first response to new issues | "Average first response: 38h — community may feel unsupported" |
+| Knowledge concentration | 80%+ commits from one contributor | "3 of 4 core modules have only one contributor - bus factor 1" |
+| Response lag | >24h average first response to new issues | "Average first response: 38h - community may feel unsupported" |
 | Security debt | Open Dependabot alerts unresolved >7 days | "2 critical alerts open for 12 days" |
-| Release congestion | >10 merged PRs unreleased | "11 merged PRs awaiting release — coordinate cut date" |
+| Release congestion | >10 merged PRs unreleased | "11 merged PRs awaiting release - coordinate cut date" |
 
 ---
 
@@ -225,7 +225,7 @@ If a finding is **Persistent for 3+ consecutive reports**, escalate:
 | owner/repo-a | 88 | B | Improving | 0 | |
 | owner/repo-b | 54 | C | Declining | 1 | Security alert unresolved |
 | owner/repo-c | 22 | F | Stable | 3 | Review bottleneck + stale PRs |
-| **Average** | **54.7** | **C** | — | **4** | |
+| **Average** | **54.7** | **C** | - | **4** | |
 ```
 
 ---
@@ -236,7 +236,7 @@ When project boards are configured, track sprint metrics:
 
 | Metric | Formula |
 |--------|---------|
-| Sprint completion rate | Done items / total sprint items × 100 |
+| Sprint completion rate | Done items / total sprint items x 100 |
 | Carryover rate | Items moved to next sprint / planned items |
 | Cycle time | Average days from "In Progress" to "Done" |
 | Throughput | Items completed per sprint |

@@ -1,6 +1,6 @@
 # generate-remediation-scripts
 
-Create PowerShell and Bash scripts to batch-fix automatable document accessibility issues. Scripts include dry-run mode, automatic backups, and a change log — safe to run on large document libraries.
+Create PowerShell and Bash scripts to batch-fix automatable document accessibility issues. Scripts include dry-run mode, automatic backups, and a change log - safe to run on large document libraries.
 
 ## When to Use It
 
@@ -12,13 +12,14 @@ Create PowerShell and Bash scripts to batch-fix automatable document accessibili
 ## How to Launch It
 
 **In GitHub Copilot Chat:**
-```
+
+```text
 /generate-remediation-scripts
 ```
 
 Then provide the audit report path when prompted. Or specify directly:
 
-```
+```text
 /generate-remediation-scripts DOCUMENT-ACCESSIBILITY-AUDIT.md
 ```
 
@@ -29,6 +30,7 @@ Then provide the audit report path when prompted. Or specify directly:
 The agent reads the audit report and divides findings into two categories:
 
 **Automatable fixes:**
+
 - Setting document title from filename
 - Setting the document language property
 - Removing Office lock/temp files (`~$*`)
@@ -36,6 +38,7 @@ The agent reads the audit report and divides findings into two categories:
 - Adding bookmark structure to PDFs from heading tags
 
 **Non-automatable fixes (manual attention required):**
+
 - Writing meaningful alt text for images
 - Correcting heading hierarchy
 - Fixing reading order in PowerPoint
@@ -44,8 +47,9 @@ The agent reads the audit report and divides findings into two categories:
 ### Step 2: Script Format Selection
 
 The agent asks which format to generate:
-- PowerShell (`.ps1`) — recommended for Windows environments
-- Bash (`.sh`) — recommended for macOS/Linux environments
+
+- PowerShell (`.ps1`) - recommended for Windows environments
+- Bash (`.sh`) - recommended for macOS/Linux environments
 - Both
 
 ### Step 3: Safety Features
@@ -54,7 +58,7 @@ Every generated script includes:
 
 | Safety Feature | Implementation |
 |---------------|----------------|
-| **Dry-run mode** | `-WhatIf` (PowerShell) or `--dry-run` (Bash) — preview changes without modifying files |
+| **Dry-run mode** | `-WhatIf` (PowerShell) or `--dry-run` (Bash) - preview changes without modifying files |
 | **Automatic backups** | Copies all target files to `_backup/` folder before any modifications |
 | **Change log** | Writes every modification to `remediation-log.txt` with timestamp and file path |
 | **Clear comments** | Each fix section explains what it does and the WCAG criterion it addresses |
@@ -63,20 +67,20 @@ Every generated script includes:
 
 Scripts are written to `scripts/remediation/`:
 
-```
+```text
 scripts/
-└── remediation/
-    ├── fix-document-titles.ps1
-    ├── fix-document-titles.sh
-    ├── fix-language-settings.ps1
-    ├── fix-language-settings.sh
-    └── README.md            ← instructions for running the scripts
+ remediation/
+     fix-document-titles.ps1
+     fix-document-titles.sh
+     fix-language-settings.ps1
+     fix-language-settings.sh
+     README.md            <- instructions for running the scripts
 ```
 
 ### Running the Scripts
 
 ```powershell
-# Preview changes (dry run — no files modified)
+# Preview changes (dry run - no files modified)
 .\fix-document-titles.ps1 -WhatIf -Path "C:\documents"
 
 # Apply changes with backup
@@ -88,13 +92,13 @@ Get-Content remediation-log.txt
 
 ## Example Variations
 
-```
+```text
 /generate-remediation-scripts DOCUMENT-ACCESSIBILITY-AUDIT.md
-→ Format: Both PowerShell and Bash
+-> Format: Both PowerShell and Bash
 
 /generate-remediation-scripts reports/library-audit.md
-→ Format: PowerShell only
-→ Target: the entire SharePoint library export folder
+-> Format: PowerShell only
+-> Target: the entire SharePoint library export folder
 ```
 
 ## Output Files
@@ -113,6 +117,6 @@ Get-Content remediation-log.txt
 
 ## Related Prompts
 
-- [audit-single-document](audit-single-document.md) — generate the audit report first
-- [audit-document-folder](audit-document-folder.md) — audit the whole library before scripting
-- [compare-audits](compare-audits.md) — verify improvement after running the scripts
+- [audit-single-document](audit-single-document.md) - generate the audit report first
+- [audit-document-folder](audit-document-folder.md) - audit the whole library before scripting
+- [compare-audits](compare-audits.md) - verify improvement after running the scripts

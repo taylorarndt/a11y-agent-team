@@ -11,7 +11,7 @@ description: Web content discovery, URL crawling, and page inventory for accessi
 |--------|------|-------------|
 | Runtime scan | axe-core CLI | Live URL available (dev server or production) |
 | Code review | Agent specialists | Source code available in workspace |
-| Both | axe-core + agents | Most comprehensive — catches issues from both angles |
+| Both | axe-core + agents | Most comprehensive - catches issues from both angles |
 
 ## Runtime Scanning Commands
 
@@ -44,7 +44,7 @@ npx @axe-core/cli <URL> --tags wcag2a,wcag2aa,wcag21a,wcag21aa --chrome-flags="-
 
 ## Screenshot Capture
 
-### capture-website-cli (preferred — lightweight)
+### capture-website-cli (preferred - lightweight)
 
 ```bash
 # Full-page screenshot

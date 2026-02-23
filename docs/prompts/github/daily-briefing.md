@@ -1,6 +1,6 @@
 # daily-briefing
 
-Generate a comprehensive daily GitHub briefing across all your repos. Covers everything that needs your attention — issues, PRs, releases, CI status, notifications, reactions, and accessibility updates — saved as both markdown and HTML.
+Generate a comprehensive daily GitHub briefing across all your repos. Covers everything that needs your attention - issues, PRs, releases, CI status, notifications, reactions, and accessibility updates - saved as both markdown and HTML.
 
 ## When to Use It
 
@@ -12,12 +12,14 @@ Generate a comprehensive daily GitHub briefing across all your repos. Covers eve
 ## How to Launch It
 
 **In GitHub Copilot Chat:**
-```
+
+```text
 /daily-briefing
 ```
 
 With optional scope:
-```
+
+```text
 /daily-briefing morning
 /daily-briefing afternoon update
 /daily-briefing weekly
@@ -43,6 +45,7 @@ With optional scope:
 ### Data Collected
 
 The agent pulls from all enabled streams in parallel:
+
 - Open issues with @mentions, reactions, and release context
 - Open PRs with review status, CI state, and merge readiness
 - Recent releases and draft releases
@@ -55,7 +58,7 @@ The agent pulls from all enabled streams in parallel:
 
 Both versions are saved to `.github/reviews/briefings/`:
 
-```
+```text
 briefing-2026-02-22.md
 briefing-2026-02-22.html
 ```
@@ -70,8 +73,8 @@ If a briefing already exists for today, running `/daily-briefing afternoon updat
 
 After saving the documents, the agent presents a compact summary in chat:
 
-```
-Morning Briefing — Feb 22, 2026
+```text
+Morning Briefing - Feb 22, 2026
 
 3 PRs need your review (1 from @alice is 4 days old)
 2 issues were @mentioned with you
@@ -88,7 +91,7 @@ The agent respects scope configuration from `.github/agents/preferences.md`. If 
 
 ## Example Variations
 
-```
+```text
 /daily-briefing                               # Full morning briefing
 /daily-briefing afternoon update              # Add what changed since morning
 /daily-briefing weekly                        # 7-day summary for Monday planning
@@ -111,8 +114,8 @@ The agent respects scope configuration from `.github/agents/preferences.md`. If 
 
 ## Related Prompts
 
-- [my-prs](my-prs.md) — focused PR dashboard
-- [my-issues](my-issues.md) — focused issue dashboard
-- [ci-status](ci-status.md) — CI/CD health only
-- [security-dashboard](security-dashboard.md) — Dependabot alerts only
-- [notifications](notifications.md) — manage GitHub notifications
+- [my-prs](my-prs.md) - focused PR dashboard
+- [my-issues](my-issues.md) - focused issue dashboard
+- [ci-status](ci-status.md) - CI/CD health only
+- [security-dashboard](security-dashboard.md) - Dependabot alerts only
+- [notifications](notifications.md) - manage GitHub notifications

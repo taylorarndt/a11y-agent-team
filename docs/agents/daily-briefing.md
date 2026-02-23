@@ -1,6 +1,6 @@
-# daily-briefing — Your Morning GitHub Command Center
+# daily-briefing - Your Morning GitHub Command Center
 
-> Generates a comprehensive, prioritized briefing of everything happening across your GitHub repos — open issues, PR queue, CI status, security alerts, accessibility updates, releases, and community activity — in both markdown and HTML formats, saved to your workspace.
+> Generates a comprehensive, prioritized briefing of everything happening across your GitHub repos - open issues, PR queue, CI status, security alerts, accessibility updates, releases, and community activity - in both markdown and HTML formats, saved to your workspace.
 
 ---
 
@@ -14,9 +14,10 @@ The daily-briefing agent is the first thing you open each morning (or afternoon,
 - What the community is buzzing about (reactions, active discussions)
 - What accessibility changes shipped in VS Code (if you track that)
 
-You do not just read the briefing in chat — the agent saves a `.md` and `.html` file to your workspace so you can annotate it, share it on Slack, or reference it throughout the day.
+You do not just read the briefing in chat - the agent saves a `.md` and `.html` file to your workspace so you can annotate it, share it on Slack, or reference it throughout the day.
 
 Use daily-briefing when:
+
 - You want to start the day with a full situational awareness snapshot
 - You want a weekly summary before a team meeting
 - You track multiple repositories and want everything in one place
@@ -31,7 +32,8 @@ Use daily-briefing when:
 
 1. Open Copilot Chat: `Ctrl+Shift+I` (Windows/Linux) or `Cmd+Shift+I` (macOS)
 2. Type your request:
-   ```
+
+   ```text
    @daily-briefing morning briefing
    @daily-briefing
    @daily-briefing what happened since yesterday?
@@ -47,7 +49,7 @@ Use daily-briefing when:
 
 ### Via GitHub Hub
 
-```
+```text
 @github-hub morning standup
 @github-hub what's going on today?
 ```
@@ -76,54 +78,55 @@ GitHub Hub will route you automatically.
 
 ---
 
-## What to Expect — Step by Step
+## What to Expect - Step by Step
 
 Collecting a full briefing takes 30 to 60 seconds for large multi-repo scopes. The agent announces progress throughout so you always know what is happening.
 
-**Step 1 — Scope detection.**
+**Step 1 - Scope detection.**
 The agent checks for a SessionStart-injected context (your repos, org, username). If present, it reads your `preferences.md` to understand which repos to include, which to exclude, and what tracking settings to apply per repo. If no preference file exists, it defaults to searching across all repos you have access to.
 
-**Step 2 — Stream collection.**
+**Step 2 - Stream collection.**
 Nine streams are collected (those enabled by your preferences):
 
+```text
+ Collecting your daily briefing… (all repos, last 24h)
+
+ Checking issues and @mentions… (1/9)
+ Issues: 4 need your response, 7 to monitor
+
+ Checking pull requests… (2/9)
+ PRs: 2 need your review, 1 needs your update
+
+ Checking CI/CD status… (3/9)
+ CI: 1 failing workflow needs attention
+
+ Checking security alerts… (4/9)
+ Security: 2 Dependabot alerts, 1 high severity
+
+ Checking discussions… (5/9)
+ Discussions: 3 new, 1 awaiting your reply
+
+ Checking releases… (6/9)
+ Releases: 1 shipped yesterday, 1 coming next week
+
+ Checking reactions and community pulse… (7/9)
+ Community: feature request gaining traction (14 reactions)
+
+ Checking accessibility updates… (8/9)
+ A11y: 6 issues closed in VS Code Insiders this week
+
+ Building reflection and recommendations… (9/9)
+ Done.
 ```
-⚙️ Collecting your daily briefing… (all repos, last 24h)
 
-⚙️ Checking issues and @mentions… (1/9)
-✅ Issues: 4 need your response, 7 to monitor
-
-⚙️ Checking pull requests… (2/9)
-✅ PRs: 2 need your review, 1 needs your update
-
-⚙️ Checking CI/CD status… (3/9)
-✅ CI: 1 failing workflow needs attention
-
-⚙️ Checking security alerts… (4/9)
-✅ Security: 2 Dependabot alerts, 1 high severity
-
-⚙️ Checking discussions… (5/9)
-✅ Discussions: 3 new, 1 awaiting your reply
-
-⚙️ Checking releases… (6/9)
-✅ Releases: 1 shipped yesterday, 1 coming next week
-
-⚙️ Checking reactions and community pulse… (7/9)
-✅ Community: feature request gaining traction (14 reactions)
-
-⚙️ Checking accessibility updates… (8/9)
-✅ A11y: 6 issues closed in VS Code Insiders this week
-
-⚙️ Building reflection and recommendations… (9/9)
-✅ Done.
-```
-
-**Step 3 — Report output.**
+**Step 3 - Report output.**
 The agent generates:
+
 - A `DAILY-BRIEFING-{DATE}.md` file in your workspace
 - A `DAILY-BRIEFING-{DATE}.html` file (screen reader optimized with landmarks, skip links, and a11y-compliant structure)
 
-**Step 4 — Handoffs.**
-After the briefing is generated, the agent offers action paths. You can deep-dive into a specific issue or PR, pull up the full accessibility report, or view team analytics — all without re-invoking anything manually.
+**Step 4 - Handoffs.**
+After the briefing is generated, the agent offers action paths. You can deep-dive into a specific issue or PR, pull up the full accessibility report, or view team analytics - all without re-invoking anything manually.
 
 ---
 
@@ -134,31 +137,31 @@ Every briefing document follows this structure:
 <details>
 <summary>Expand briefing document structure</summary>
 
-```
-# Daily Briefing — February 22, 2026
+```text
+# Daily Briefing - February 22, 2026
 
-## 🔴 Needs Immediate Action
+##  Needs Immediate Action
 [Items that are blocking, failing, or past SLA]
 
-## 📋 Needs Your Response Today
+##  Needs Your Response Today
 [Review requests, @mentions, assigned items]
 
-## 📊 Status Overview
+##  Status Overview
 [Summary table: open issues, open PRs, CI status per repo]
 
-## 🔄 What Changed
+##  What Changed
 [Merged PRs, closed issues, new releases since last briefing]
 
-## 🌍 Community Pulse
+##  Community Pulse
 [Discussions, reactions, first-time contributors]
 
-## ♿ Accessibility Updates
+##  Accessibility Updates
 [VS Code Insiders a11y changes + custom repo tracking]
 
-## 📅 Upcoming
+##  Upcoming
 [Milestones, planned releases, team schedule notes]
 
-## 💡 Reflections
+##  Reflections
 [Patterns noticed, bottleneck flags, suggestions]
 ```
 
@@ -207,7 +210,7 @@ sections:
 
 ### Daily Use
 
-```
+```text
 @daily-briefing morning briefing
 @daily-briefing good morning
 @daily-briefing what's up?
@@ -216,7 +219,7 @@ sections:
 
 ### Scoped Briefings
 
-```
+```text
 @daily-briefing briefing for taylorarndt/a11y-agent-team only
 @daily-briefing just show me PRs waiting for my review
 @daily-briefing only show items that need action
@@ -225,7 +228,7 @@ sections:
 
 ### Follow-Up Actions
 
-```
+```text
 @daily-briefing deep dive into issue #142
 @daily-briefing show me the full PR review for PR #87
 @daily-briefing pull up accessibility updates in more detail
@@ -256,10 +259,10 @@ sections:
 <details>
 <summary>Expand constraints</summary>
 
-- Always saves both `.md` and `.html` versions to the workspace — never chat-only
+- Always saves both `.md` and `.html` versions to the workspace - never chat-only
 - HTML output is fully accessible: ARIA landmarks, skip navigation, proper heading hierarchy, high-contrast by default
 - Prioritizes action-required items at the top; never buries urgent items under monitoring sections
-- When tracking multiple repos, rounds up data in parallel — does not scan sequentially
+- When tracking multiple repos, rounds up data in parallel - does not scan sequentially
 - Respects `preferences.md` include/exclude lists and per-repo tracking granularity
 
 </details>
@@ -275,7 +278,7 @@ sections:
 The agent defaults to the workspace repo if it cannot detect your full repo scope. Add a `preferences.md` with `discovery: all` or list explicit repos in `include`.
 
 **"I do not see accessibility updates in my briefing."**
-Add an `accessibility_tracking` section to `preferences.md`. The default tracks only `microsoft/vscode` — you can add your own repos there.
+Add an `accessibility_tracking` section to `preferences.md`. The default tracks only `microsoft/vscode` - you can add your own repos there.
 
 **"The HTML file looks fine in my browser but copilot shows it as text."**
 Open the `.html` file directly in a browser. The HTML output is for sharing or screen reader testing, not for in-editor preview.

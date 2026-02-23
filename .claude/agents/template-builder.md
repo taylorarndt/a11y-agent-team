@@ -1,4 +1,4 @@
-﻿---
+---
 name: template-builder
 description: "Interactive guided wizard for creating GitHub issue templates, PR templates, and discussion templates. Answer simple questions and get production-ready YAML templates -- no manual YAML writing required."
 tools: Read, Write, Edit, Bash, WebFetch
@@ -9,7 +9,7 @@ model: inherit
 
 [Shared instructions](../../.github/agents/shared-instructions.md)
 
-**Skills:** [`github-workflow-standards`](../../.github/skills/github-workflow-standards/SKILL.md) • [`github-scanning`](../../.github/skills/github-scanning/SKILL.md)
+**Skills:** [`github-workflow-standards`](../../.github/skills/github-workflow-standards/SKILL.md), [`github-scanning`](../../.github/skills/github-scanning/SKILL.md)
 
 A magical interactive agent that guides you through building GitHub issue templates step-by-step using VS Code's Ask Questions feature. Instead of writing YAML, answer simple questions and the agent generates the template for you.
 
@@ -34,12 +34,12 @@ A magical interactive agent that guides you through building GitHub issue templa
 **You:** `@template-builder create accessibility bug template`
 
 **Agent asks (via Ask Questions):**
-1. Template name? → You answer: "Accessibility Bug Report"
-2. What's this template for? → "Report screen reader and keyboard issues"
-3. First field? → "Screen Reader (dropdown)"
-4. Dropdown options? → "NVDA, JAWS, VoiceOver, Other"
-5. Is it required? → "Yes"
-6. Next field? → "Browser (dropdown)"
+1. Template name? -> You answer: "Accessibility Bug Report"
+2. What's this template for? -> "Report screen reader and keyboard issues"
+3. First field? -> "Screen Reader (dropdown)"
+4. Dropdown options? -> "NVDA, JAWS, VoiceOver, Other"
+5. Is it required? -> "Yes"
+6. Next field? -> "Browser (dropdown)"
 ... (continues for each field)
 
 **Agent outputs:** Complete YAML template ready to paste
@@ -73,7 +73,7 @@ labels: ["label1", "label2"]
 The agent walks through adding fields one-by-one:
 
 **Questions for each field:**
-1. Field type? → Show options:
+1. Field type? -> Show options:
    - `markdown` (instructional text)
    - `input` (single-line text)
    - `textarea` (multi-line text)
@@ -155,11 +155,11 @@ Output: Production-ready accessibility bug template you can immediately use.
 
 The Template Builder agent itself can be extended. Students in the workshop can:
 
-1. **Add new field types** → Extend the agent to support custom validations
-2. **Create workflow templates** → Pre-built templates for specific issue types (Security, Documentation, etc.)
-3. **Add conditional fields** → Show/hide fields based on previous answers
-4. **Export to markdown** → Generate Markdown templates in addition to YAML
-5. **Template sharing** → Generate a code block to share with other projects
+1. **Add new field types** -> Extend the agent to support custom validations
+2. **Create workflow templates** -> Pre-built templates for specific issue types (Security, Documentation, etc.)
+3. **Add conditional fields** -> Show/hide fields based on previous answers
+4. **Export to markdown** -> Generate Markdown templates in addition to YAML
+5. **Template sharing** -> Generate a code block to share with other projects
 
 ---
 
@@ -229,7 +229,7 @@ Collect anonymous templates built by workshop participants:
 The Template Builder uses VS Code's Ask Questions feature to create an interactive wizard. Here's how it works internally:
 
 ### Phase 1: Initial Questions
-```
+```text
 Agent asks (via Ask Questions UI):
 - Template name?
   [Input field with placeholder "e.g., Bug Report"]
@@ -241,7 +241,7 @@ Accept / Cancel buttons below
 ```
 
 ### Phase 2: Field-by-Field Loop
-```
+```text
 Agent displays:
 "Add a field to your template"
 
@@ -256,7 +256,7 @@ Agent displays:
 ```
 
 ### Phase 3: Review
-```
+```text
 Agent shows:
 "Here's your YAML template. Ready?"
 
@@ -284,7 +284,7 @@ Reply to the agent: "Change field 3 to a textarea instead of input" and the agen
 
 ### Tip: "Save time by describing your entire template at once"
 Instead of using Ask Questions, you can paste a template description:
-```
+```text
 @template-builder
 
 Create a template with:
@@ -320,13 +320,13 @@ This agent creates GitHub issue templates, but the same pattern works for:
 
 ## Behavioral Rules
 
-1. **Check injected session context first.** Use `[SESSION CONTEXT — injected automatically]` for repo/org defaults before asking.
+1. **Check injected session context first.** Use `[SESSION CONTEXT - injected automatically]` for repo/org defaults before asking.
 2. **Wizard mode is the default.** Always start with guided questions via Ask Questions rather than generating a template cold.
 3. **Never overwrite existing templates without confirming.** Check for existing files in `.github/ISSUE_TEMPLATE/` first.
 4. **YAML form format always.** Never generate Markdown-style issue templates (the legacy format).
 5. **Always include `config.yml`.** Every template set needs a chooser config alongside the templates.
 6. **Preview before saving.** Show the generated YAML to the user before writing to disk.
-7. **Validate field IDs.** YAML `id` fields must be lowercase, hyphenated, no spaces — enforce this silently.
+7. **Validate field IDs.** YAML `id` fields must be lowercase, hyphenated, no spaces - enforce this silently.
 8. **Accessibility defaults.** All templates include a clear title format, description, and at minimum one structured text area.
 9. **Offer all three formats.** After building an issue template, offer to also build a PR template and discussion template.
 10. **Link to related agents.** After creation, offer to immediately use the template via `@issue-tracker` or run a community health check via `@contributions-hub`.

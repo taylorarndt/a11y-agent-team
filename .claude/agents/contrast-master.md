@@ -224,8 +224,8 @@ Values: `more` | `less` | `custom` | `no-preference`
 ```
 
 Key rules:
-- `prefers-contrast: more` — eliminate subtle grays, increase border weight, remove transparency
-- `prefers-contrast: less` — soften harsh black-on-white, but never drop below 4.5:1 for text
+- `prefers-contrast: more` - eliminate subtle grays, increase border weight, remove transparency
+- `prefers-contrast: less` - soften harsh black-on-white, but never drop below 4.5:1 for text
 - Semi-transparent backgrounds (`rgba()`, `opacity < 1`) should become opaque under `more`
 - Gradient text and low-contrast placeholder text should be fixed under `more`
 
@@ -254,8 +254,8 @@ Dark mode is a preference, not just a design trend. Users with light sensitivity
 Key rules:
 - Re-check EVERY contrast ratio in dark mode. Inverting colors does not preserve ratios.
 - Dark mode backgrounds should not be pure black (`#000000`). Use `#121212` to `#1e1e1e` to reduce halation for users with astigmatism.
-- Avoid pure white text on dark backgrounds for body text — use `#e0e0e0` to `#f0f0f0`.
-- Shadows are invisible on dark backgrounds — use borders or lighter backgrounds for elevation.
+- Avoid pure white text on dark backgrounds for body text - use `#e0e0e0` to `#f0f0f0`.
+- Shadows are invisible on dark backgrounds - use borders or lighter backgrounds for elevation.
 - Status colors (red, green, amber) often need different shades in dark mode to maintain contrast.
 - Test with both OS-level dark mode AND any in-app theme toggle.
 
@@ -268,7 +268,7 @@ Windows High Contrast Mode (now called "Contrast Themes") overrides all colors w
   /* The browser replaces your colors, but you may need to fix layout */
 
   /* Borders that were invisible (matching background) become visible */
-  /* Custom focus indicators may be overridden — verify they still work */
+  /* Custom focus indicators may be overridden - verify they still work */
 
   /* Use system colors for intentional styling */
   .custom-button {
@@ -277,12 +277,12 @@ Windows High Contrast Mode (now called "Contrast Themes") overrides all colors w
     color: ButtonText;
   }
 
-  /* SVG icons may become invisible — use currentColor */
+  /* SVG icons may become invisible - use currentColor */
   svg {
     fill: currentColor;
   }
 
-  /* Decorative backgrounds/gradients are removed — use borders instead */
+  /* Decorative backgrounds/gradients are removed - use borders instead */
   .card {
     border: 1px solid CanvasText;
   }
@@ -295,24 +295,24 @@ Windows High Contrast Mode (now called "Contrast Themes") overrides all colors w
 ```
 
 System color keywords to use when `forced-colors: active`:
-- `Canvas` — page background
-- `CanvasText` — page text
-- `LinkText` — link color
-- `VisitedText` — visited link
-- `ActiveText` — active link
-- `ButtonFace` — button background
-- `ButtonText` — button text
-- `Field` — input background
-- `FieldText` — input text
-- `Highlight` — selected item background
-- `HighlightText` — selected item text
-- `GrayText` — disabled text
-- `Mark` / `MarkText` — highlighted (find-on-page) text
+- `Canvas` - page background
+- `CanvasText` - page text
+- `LinkText` - link color
+- `VisitedText` - visited link
+- `ActiveText` - active link
+- `ButtonFace` - button background
+- `ButtonText` - button text
+- `Field` - input background
+- `FieldText` - input text
+- `Highlight` - selected item background
+- `HighlightText` - selected item text
+- `GrayText` - disabled text
+- `Mark` / `MarkText` - highlighted (find-on-page) text
 
 Key rules:
 - Never use `forced-color-adjust: none` globally. Only apply it to specific elements where you manually manage every color state.
 - Custom UI controls built from `<div>` and `<span>` often become invisible. Use semantic HTML (`<button>`, `<input>`).
-- Background images used for icons will disappear — use inline SVGs with `fill: currentColor`.
+- Background images used for icons will disappear - use inline SVGs with `fill: currentColor`.
 - CSS gradients vanish. If a gradient conveys information, provide a text or border alternative.
 - Test in Windows with at least two contrast themes (e.g., "High Contrast Black" and "High Contrast White").
 
@@ -401,10 +401,10 @@ Always verify. Do not assume Tailwind color names indicate accessibility complia
 8. Placeholder text meets contrast requirements?
 9. Disabled states are still distinguishable (even if interaction is blocked)?
 10. Error states use text and/or icons, not just red?
-11. `prefers-contrast: more` — subtle colors upgraded, transparency removed?
-12. `prefers-color-scheme: dark` — all ratios verified in dark mode?
-13. `forced-colors: active` — custom controls still visible? SVGs use `currentColor`?
-14. `prefers-reduced-transparency` — frosty/translucent backgrounds have solid fallback?
+11. `prefers-contrast: more` - subtle colors upgraded, transparency removed?
+12. `prefers-color-scheme: dark` - all ratios verified in dark mode?
+13. `forced-colors: active` - custom controls still visible? SVGs use `currentColor`?
+14. `prefers-reduced-transparency` - frosty/translucent backgrounds have solid fallback?
 15. Combined preferences tested (e.g., dark + high contrast)?
 
 ## How to Report Issues

@@ -62,12 +62,12 @@ See [VPAT Generation](vpat-generation.md) for detailed usage.
 
 The tools accept inputs as described in each tool's parameters. Agents call these automatically during reviews:
 
-```
-# Claude Code — agents use tools automatically
+```text
+# Claude Code - agents use tools automatically
 /accessibility-lead review index.html
-# → The lead reads the file, passes HTML to check_heading_structure,
+# -> The lead reads the file, passes HTML to check_heading_structure,
 #   check_link_text, check_form_labels as needed
 
-# Copilot — same behavior
+# Copilot - same behavior
 @accessibility-wizard audit the signup page
 ```

@@ -14,12 +14,12 @@ Patterns for background execution and isolated scanning contexts when working wi
 
 Claude Code supports the `Task` tool for spawning parallel sub-agents. For background-style scanning:
 
-```
+```text
 Scan these 4 document types in parallel:
-1. Task 1: Scan all .docx files in /docs/ → return findings summary
-2. Task 2: Scan all .xlsx files in /docs/ → return findings summary
-3. Task 3: Scan all .pptx files in /docs/ → return findings summary
-4. Task 4: Scan all .pdf files in /docs/ → return findings summary
+1. Task 1: Scan all .docx files in /docs/ -> return findings summary
+2. Task 2: Scan all .xlsx files in /docs/ -> return findings summary
+3. Task 3: Scan all .pptx files in /docs/ -> return findings summary
+4. Task 4: Scan all .pdf files in /docs/ -> return findings summary
 
 Wait for all tasks to complete, then merge results.
 ```
@@ -27,7 +27,8 @@ Wait for all tasks to complete, then merge results.
 Each task runs in its own context window, scanning independently. The orchestrator collects results and merges them.
 
 **Limitations:**
-- Tasks share the same filesystem — no isolation between tasks
+
+- Tasks share the same filesystem - no isolation between tasks
 - Each task has its own context window but sees the same working directory
 - Progress reporting happens only when tasks complete
 
@@ -39,9 +40,10 @@ Copilot agents use the `agents` frontmatter to reference sub-agents:
 agents: ['word-accessibility', 'excel-accessibility', 'powerpoint-accessibility', 'pdf-accessibility', 'document-inventory', 'cross-document-analyzer']
 ```
 
-The orchestrator (document-accessibility-wizard) delegates to sub-agents sequentially or by type group. True background execution is not yet supported — sub-agents run within the main conversation context.
+The orchestrator (document-accessibility-wizard) delegates to sub-agents sequentially or by type group. True background execution is not yet supported - sub-agents run within the main conversation context.
 
 **Practical pattern for large scans:**
+
 1. Use `document-inventory` to build the file list
 2. Group files by type
 3. Process each type group as a batch
@@ -52,7 +54,7 @@ The orchestrator (document-accessibility-wizard) delegates to sub-agents sequent
 For true background execution, use CI/CD pipelines:
 
 ```yaml
-# GitHub Actions — runs asynchronously on push
+# GitHub Actions - runs asynchronously on push
 name: Document Accessibility Audit
 on:
   push:
@@ -153,13 +155,13 @@ git worktree remove compare-branch
 
 For very large document libraries (500+ documents):
 
-**Tier 1 — Triage (minimal profile):**
+**Tier 1 - Triage (minimal profile):**
 Scan all documents with `errors only` to identify the worst offenders.
 
-**Tier 2 — Priority (moderate profile):**
+**Tier 2 - Priority (moderate profile):**
 Re-scan the worst 20% with errors and warnings.
 
-**Tier 3 — Comprehensive (strict profile):**
+**Tier 3 - Comprehensive (strict profile):**
 Full scan of high-priority or public-facing documents.
 
 ### Incremental Scanning
