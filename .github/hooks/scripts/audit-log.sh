@@ -17,7 +17,7 @@ case "$tool" in
   mcp_github_*|run_in_terminal|create_file|replace_string_in_file|multi_replace_string_in_file)
     ;;
   *)
-    echo '{"continue":true}'
+    echo '{"continue":true,"hookSpecificOutput":{"hookEventName":"PostToolUse"}}'
     exit 0
     ;;
 esac
@@ -62,6 +62,6 @@ print(json.dumps({
     'additionalContext': 'Audit logged: ${tool} at ${timestamp}'
   }
 }))
-" 2>/dev/null || echo '{"continue":true}'
+" 2>/dev/null || echo '{"continue":true,"hookSpecificOutput":{"hookEventName":"PostToolUse"}}'
 
 exit 0

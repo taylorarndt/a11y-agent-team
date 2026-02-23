@@ -11,7 +11,7 @@ tool_input=$(echo "$input_json" | python3 -c "import sys,json; d=json.load(sys.s
 
 # If we can't parse, allow through
 if [ -z "$tool" ]; then
-  echo '{"continue":true}'
+  echo '{"continue":true,"hookSpecificOutput":{"hookEventName":"PreToolUse"}}'
   exit 0
 fi
 
@@ -49,5 +49,5 @@ if [ "$tool" = "mcp_github_github_update_repository" ]; then
 fi
 
 # ─── Safe — allow through ────────────────────────────────────────────────────
-echo '{"continue":true}'
+echo '{"continue":true,"hookSpecificOutput":{"hookEventName":"PreToolUse"}}'
 exit 0
