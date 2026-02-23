@@ -3,13 +3,32 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 import { execFile } from "node:child_process";
 import { readFile as fsReadFile, writeFile as fsWriteFile, unlink, stat } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join, dirname, extname, basename } from "node:path";
+import { tmpdir, homedir } from "node:os";
+import { join, dirname, extname, basename, resolve, sep } from "node:path";
 import { randomUUID } from "node:crypto";
 import { promisify } from "node:util";
 import { inflateRawSync } from "node:zlib";
 
 const execFileAsync = promisify(execFile);
+
+/**
+ * Resolve an output path and verify it stays within the user's home directory
+ * or the current working directory. Prevents writing to arbitrary system paths.
+ */
+function validateOutputPath(inputPath) {
+  const resolved = resolve(inputPath);
+  const home = homedir();
+  const cwd = process.cwd();
+  const underHome = resolved === home || resolved.startsWith(home + sep);
+  const underCwd  = resolved === cwd  || resolved.startsWith(cwd  + sep);
+  if (!underHome && !underCwd) {
+    throw new Error(
+      `Output path must be within your home directory or current working directory. ` +
+      `Resolved: ${resolved}`
+    );
+  }
+  return resolved;
+}
 
 const server = new McpServer({
   name: "a11y-agent-team",
@@ -996,8 +1015,9 @@ server.registerTool(
     let reportNote = "";
     if (reportPath) {
       try {
-        await fsWriteFile(reportPath, report, "utf-8");
-        reportNote = `\nReport written to: ${reportPath}`;
+        const safeReportPath = validateOutputPath(reportPath);
+        await fsWriteFile(safeReportPath, report, "utf-8");
+        reportNote = `\nReport written to: ${safeReportPath}`;
       } catch (writeErr) {
         reportNote = `\nFailed to write report to ${reportPath}: ${writeErr.message}`;
       }
@@ -1195,14 +1215,19 @@ server.registerTool(
       tags,
     ];
     if (selector) {
+      // Allowlist CSS selector characters to prevent injection on Windows
+      if (/[;&|`$<>']/.test(selector)) {
+        return { content: [{ type: "text", text: "Invalid selector: contains disallowed characters." }] };
+      }
       cliArgs.push("--include", selector);
     }
 
     try {
-      await execFileAsync("npx", cliArgs, {
+      // Use npx.cmd on Windows to avoid running through cmd.exe shell
+      const npxCmd = process.platform === "win32" ? "npx.cmd" : "npx";
+      await execFileAsync(npxCmd, cliArgs, {
         timeout: 60000,
-        // Windows requires shell for npx.cmd; Unix does not
-        shell: process.platform === "win32",
+        shell: false,
       });
 
       const raw = await fsReadFile(tmpFile, "utf-8");
@@ -1221,8 +1246,9 @@ server.registerTool(
       let reportNote = "";
       if (reportPath) {
         try {
-          await fsWriteFile(reportPath, report, "utf-8");
-          reportNote = `\nReport written to: ${reportPath}`;
+          const safeReportPath = validateOutputPath(reportPath);
+          await fsWriteFile(safeReportPath, report, "utf-8");
+          reportNote = `\nReport written to: ${safeReportPath}`;
         } catch (writeErr) {
           reportNote = `\nFailed to write report to ${reportPath}: ${writeErr.message}`;
         }
@@ -1924,7 +1950,11 @@ server.registerTool(
     let config;
     if (configPath) {
       try {
-        const raw = await fsReadFile(configPath, "utf-8");
+        if (!configPath.toLowerCase().endsWith(".json")) {
+          return { content: [{ type: "text", text: "configPath must be a .json file." }] };
+        }
+        const safeConfigPath = validateOutputPath(configPath);
+        const raw = await fsReadFile(safeConfigPath, "utf-8");
         config = JSON.parse(raw);
       } catch {
         config = {};
@@ -1950,18 +1980,20 @@ server.registerTool(
     let reportNote = "";
     if (reportPath) {
       try {
+        const safeReportPath = validateOutputPath(reportPath);
         const md = buildOfficeMarkdownReport(filePath, findings, fileType);
-        await fsWriteFile(reportPath, md, "utf-8");
-        reportNote += `\nReport written to: ${reportPath}`;
+        await fsWriteFile(safeReportPath, md, "utf-8");
+        reportNote += `\nReport written to: ${safeReportPath}`;
       } catch (err) {
         reportNote += `\nFailed to write report: ${err.message}`;
       }
     }
     if (sarifPath) {
       try {
+        const safeSarifPath = validateOutputPath(sarifPath);
         const sarif = buildOfficeSarif(filePath, findings, fileType);
-        await fsWriteFile(sarifPath, JSON.stringify(sarif, null, 2), "utf-8");
-        reportNote += `\nSARIF written to: ${sarifPath}`;
+        await fsWriteFile(safeSarifPath, JSON.stringify(sarif, null, 2), "utf-8");
+        reportNote += `\nSARIF written to: ${safeSarifPath}`;
       } catch (err) {
         reportNote += `\nFailed to write SARIF: ${err.message}`;
       }
@@ -2424,7 +2456,11 @@ server.registerTool(
     let config;
     if (configPath) {
       try {
-        const raw = await fsReadFile(configPath, "utf-8");
+        if (!configPath.toLowerCase().endsWith(".json")) {
+          return { content: [{ type: "text", text: "configPath must be a .json file." }] };
+        }
+        const safeConfigPath = validateOutputPath(configPath);
+        const raw = await fsReadFile(safeConfigPath, "utf-8");
         config = JSON.parse(raw);
       } catch { config = {}; }
     } else {
@@ -2443,18 +2479,20 @@ server.registerTool(
     let reportNote = "";
     if (reportPath) {
       try {
+        const safeReportPath = validateOutputPath(reportPath);
         const md = buildPdfMarkdownReport(filePath, findings, info);
-        await fsWriteFile(reportPath, md, "utf-8");
-        reportNote += `\nReport written to: ${reportPath}`;
+        await fsWriteFile(safeReportPath, md, "utf-8");
+        reportNote += `\nReport written to: ${safeReportPath}`;
       } catch (err) {
         reportNote += `\nFailed to write report: ${err.message}`;
       }
     }
     if (sarifPath) {
       try {
+        const safeSarifPath = validateOutputPath(sarifPath);
         const sarif = buildPdfSarif(filePath, findings);
-        await fsWriteFile(sarifPath, JSON.stringify(sarif, null, 2), "utf-8");
-        reportNote += `\nSARIF written to: ${sarifPath}`;
+        await fsWriteFile(safeSarifPath, JSON.stringify(sarif, null, 2), "utf-8");
+        reportNote += `\nSARIF written to: ${safeSarifPath}`;
       } catch (err) {
         reportNote += `\nFailed to write SARIF: ${err.message}`;
       }
@@ -2851,8 +2889,9 @@ server.registerTool(
         reportLines.push(``);
       }
       try {
-        await fsWriteFile(reportPath, reportLines.join("\n"), "utf-8");
-        reportNote = `\nReport written to: ${reportPath}`;
+        const safeReportPath = validateOutputPath(reportPath);
+        await fsWriteFile(safeReportPath, reportLines.join("\n"), "utf-8");
+        reportNote = `\nReport written to: ${safeReportPath}`;
       } catch (err) {
         reportNote = `\nFailed to write report: ${err.message}`;
       }

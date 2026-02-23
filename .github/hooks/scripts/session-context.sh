@@ -35,8 +35,12 @@ Available agents: @nexus or @github-hub (orchestrators), @repo-admin, @team-mana
 Use @nexus (auto-routes to subagents) or @github-hub (confirms before routing) as entry points.
 All destructive operations require explicit confirmation via safety hook."
 
-# Escape for JSON
-context_escaped=$(printf '%s' "$context" | python3 -c "import sys,json; print(json.dumps(sys.stdin.read()))" 2>/dev/null || printf '"%s"' "$context")
+# Escape for JSON — output a static safe response if python3 is unavailable
+context_escaped=$(printf '%s' "$context" | python3 -c "import sys,json; print(json.dumps(sys.stdin.read()))" 2>/dev/null)
+if [ -z "$context_escaped" ]; then
+  echo '{"continue":true,"hookSpecificOutput":{"hookEventName":"SessionStart"}}'
+  exit 0
+fi
 
 printf '{"continue":true,"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":%s}}\n' "$context_escaped"
 exit 0

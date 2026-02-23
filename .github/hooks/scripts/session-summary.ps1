@@ -31,7 +31,7 @@ if (-not (Test-Path $audit_dir)) {
 # Count actions taken this session from today's audit log
 $session_actions = 0
 if (Test-Path $today_log) {
-    $session_actions = (Get-Content $today_log | Where-Object { $_ -match $session } | Measure-Object).Count
+    $session_actions = (Get-Content $today_log | Where-Object { $_ -match [regex]::Escape($session) } | Measure-Object).Count
 }
 
 $branch    = (git rev-parse --abbrev-ref HEAD 2>$null) ?? "unknown"
