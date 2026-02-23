@@ -16,7 +16,6 @@ process.stdin.on('end', () => {
 
   // Guard against infinite loop — stop hooks can re-trigger the Stop event.
   if (payload.stop_hook_active === true) {
-    process.stdout.write(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: 'Stop' } }));
     process.exit(0);
   }
 
@@ -75,12 +74,12 @@ process.stdin.on('end', () => {
     }
   } catch { /* no access — skip */ }
 
+  // All reports complete or none present — allow stop.
   if (Object.keys(incomplete).length === 0) {
-    process.stdout.write(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: 'Stop' } }));
     process.exit(0);
   }
 
-  // One or more reports are incomplete — inject guidance for the agent to act on.
+  // One or more reports are incomplete — block stop with quality gate reason.
   const lines = ['[A11y Quality Gate] Audit report(s) are missing required sections:'];
   for (const [report, sections] of Object.entries(incomplete)) {
     lines.push(`${report}:`);
@@ -89,11 +88,8 @@ process.stdin.on('end', () => {
   lines.push('Please complete these sections before finishing the session.');
 
   process.stdout.write(JSON.stringify({
-    continue: true,
-    hookSpecificOutput: {
-      hookEventName: 'Stop',
-      additionalContext: lines.join('\n'),
-    },
+    decision: 'block',
+    reason: lines.join('\n'),
   }));
   process.exit(0);
 });
