@@ -14,6 +14,9 @@
 
 ## What It Catches
 
+<details>
+<summary>Expand — 12 image, heading, and landmark issues detected</summary>
+
 - Missing `alt` attributes
 - Generic alt text ("image", "photo", filename-based alt text)
 - Decorative images missing `alt=""`
@@ -26,11 +29,16 @@
 - Missing or generic page titles
 - Missing `lang` attribute on `<html>`
 
+</details>
+
 ## What It Will Not Catch
 
 Interactive behavior (aria-specialist, keyboard-navigator), form content (forms-specialist), or color/contrast of images (contrast-master).
 
 ## Example Prompts
+
+<details>
+<summary>Show example prompts</summary>
 
 ### Claude Code
 
@@ -49,9 +57,16 @@ Interactive behavior (aria-specialist, keyboard-navigator), form content (forms-
 @alt-text-headings audit SVG icons in the component library
 ```
 
+</details>
+
 ## Behavioral Constraints
+
+<details>
+<summary>Expand constraints</summary>
 
 - Evaluates alt text based on context, not just image content — the same image may need different alt text on different pages
 - Requires `alt=""` on decorative images (not the absence of the `alt` attribute)
 - Enforces strict heading sequence: one H1 per page, no skipped levels
 - Requires all `<nav>` elements to have unique `aria-label` when multiple exist
+
+</details>

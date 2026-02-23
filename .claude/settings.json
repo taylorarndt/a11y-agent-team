@@ -1,11 +1,49 @@
 {
   "hooks": {
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -ExecutionPolicy Bypass -File .github\\hooks\\scripts\\safety-gate.ps1"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -ExecutionPolicy Bypass -File .github\\hooks\\scripts\\audit-log.ps1"
+          }
+        ]
+      }
+    ],
     "UserPromptSubmit": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": ".claude/hooks/a11y-team-eval.sh"
+            "command": "powershell -ExecutionPolicy Bypass -File .claude\\hooks\\a11y-team-eval.ps1"
+          },
+          {
+            "type": "command",
+            "command": "powershell -ExecutionPolicy Bypass -File .github\\hooks\\scripts\\sensitive-input-guard.ps1"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .github/hooks/scripts/session-stop.js"
+          },
+          {
+            "type": "command",
+            "command": "powershell -ExecutionPolicy Bypass -File .github\\hooks\\scripts\\session-summary.ps1"
           }
         ]
       }

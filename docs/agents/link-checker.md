@@ -12,6 +12,9 @@
 
 ## What It Catches
 
+<details>
+<summary>Expand — 7 link text patterns detected</summary>
+
 | Pattern | Example | Why It Fails |
 |---------|---------|-------------|
 | Generic exact match | `<a href="/pricing">Click here</a>` | No purpose in link list |
@@ -22,7 +25,12 @@
 | Missing new-window warning | `<a href="/file.pdf" target="_blank">Report</a>` | No indication behavior changes |
 | Non-HTML resource | `<a href="/file.xlsx">Download</a>` | User does not know the file type or size |
 
+</details>
+
 ## Example Prompts
+
+<details>
+<summary>Show example prompts</summary>
 
 ### Claude Code
 
@@ -42,7 +50,12 @@
 @link-checker audit links across the entire src/ directory
 ```
 
+</details>
+
 ## Behavioral Constraints
+
+<details>
+<summary>Expand constraints</summary>
 
 - Never suggests `aria-label` as a first fix — always rewrites the visible text first
 - Does not flag links with 4+ descriptive words (e.g., "View quarterly earnings report" is fine)
@@ -50,3 +63,5 @@
 - Flags adjacent image + text links to the same destination as requiring combination into a single `<a>`
 - Adds `(opens in new tab)` visually and via `aria-label` for `target="_blank"` links
 - Adds file type and size for non-HTML resources (e.g., "Annual report (PDF, 2.4 MB)")
+
+</details>

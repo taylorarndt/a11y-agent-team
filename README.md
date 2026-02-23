@@ -18,7 +18,12 @@ AI coding tools generate inaccessible code by default. They forget ARIA rules, s
 
 ## The Solution
 
-A11y Agent Team provides twenty-two specialized agents that enforce WCAG AA standards across three platforms:
+A11y Agent Team provides thirty-four specialized agents across two teams and three platforms:
+
+- **Accessibility team** — twenty-four agents that enforce WCAG AA standards for web code and Office/PDF documents
+- **GitHub Workflow team** — ten agents that manage repositories, triage issues, review PRs, and keep your team informed
+
+All agents run on:
 
 - **Claude Code** — Agents + a hook that forces accessibility evaluation on every prompt
 - **GitHub Copilot** — Agents + workspace instructions that ensure accessibility guidance in every conversation
@@ -65,9 +70,27 @@ See the full [Getting Started Guide](docs/getting-started.md) for all installati
 | **pdf-scan-config** | PDF scan rule configuration and preset profiles. |
 | **document-accessibility-wizard** | Guided document audit with cross-document analysis and VPAT export. |
 
-See the [Agent Reference Guide](docs/agents/README.md) for deep dives on every agent, example prompts, and behavioral constraints.
+### GitHub Workflow Agents
+
+| Agent | Role |
+|-------|------|
+| **github-hub** | Orchestrator. Routes GitHub management tasks to the right specialist from plain English. |
+| **daily-briefing** | Morning overview — open issues, PR queue, CI status, security alerts in one report. |
+| **pr-review** | PR diff analysis with confidence per finding, delta tracking, and inline comments. |
+| **issue-tracker** | Issue triage — priority scoring, duplicate detection, action inference, project board sync. |
+| **analytics** | Repository health scoring (0-100/A-F), velocity metrics, bottleneck detection. |
+| **insiders-a11y-tracker** | Track accessibility changes in VS Code Insiders and custom repos with WCAG mapping. |
+| **repo-admin** | Collaborator management, branch protection rules, access audits. |
+| **team-manager** | Onboarding, offboarding, org team membership, permission management. |
+| **contributions-hub** | Discussions, community health metrics, first-time contributor insights. |
+| **template-builder** | Guided wizard for issue/PR/discussion templates — no YAML knowledge required. |
+| **repo-manager** | Repository scaffolding — labels, CI, CONTRIBUTING, SECURITY, issue templates. |
+
+See the [Agent Reference Guide](docs/agents/README.md) for deep dives on every agent, example prompts, behavioral constraints, and instructor-led walkthroughs.
 
 ## Documentation
+
+### Accessibility Docs
 
 | Guide | What It Covers |
 |-------|---------------|
@@ -82,6 +105,12 @@ See the [Agent Reference Guide](docs/agents/README.md) for deep dives on every a
 | [Custom Prompts](docs/scanning/custom-prompts.md) | Nine pre-built prompts for one-click document workflows |
 | [Configuration](docs/configuration.md) | Character budget, hook management, troubleshooting |
 | [Architecture](docs/architecture.md) | Project structure, why agents over skills/MCP, design philosophy |
+
+### GitHub Workflow Docs
+
+| Guide | What It Covers |
+|-------|---------------|
+| [GitHub Workflow Agents](docs/agents/README.md#github-workflow-agents) | All 10 workflow agents with invocation syntax, examples, and instructor-led walkthroughs |
 
 ### Advanced Guides
 

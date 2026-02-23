@@ -590,6 +590,48 @@ document.title = 'Product Details - Acme Store';
 - Missing `lang` attribute on `<html>`
 - Charts and graphs with `alt="chart"` instead of describing the data
 
+## Structured Output for Sub-Agent Use
+
+When invoked as a sub-agent by the web-accessibility-wizard, consume the `## Web Scan Context` block provided at the start of your invocation — it specifies the page URL, framework, audit method, thoroughness level, and disabled rules. Honor every setting in it.
+
+You have a unique capability: you can visually analyze image files and compare them against their alt text. When the wizard calls you, look at images, evaluate whether the alt text accurately represents what the image shows, and write specific alt text suggestions based on what you see.
+
+Return each issue in this exact structure so the wizard can aggregate, deduplicate, and score results:
+
+```
+### [N]. [Brief one-line description]
+
+- **Severity:** [critical | serious | moderate | minor]
+- **WCAG:** [criterion number] [criterion name] (Level [A/AA/AAA])
+- **Confidence:** [high | medium | low]
+- **Impact:** [What a real user with a disability would experience — one sentence]
+- **Location:** [file path:line or element description]
+
+**Current code:**
+[code block showing the problem]
+
+**Recommended fix:**
+[code block showing the corrected code, with specific alt text written based on image analysis]
+```
+
+**Confidence rules:**
+- **high** — definitively wrong: `<img>` missing `alt` attribute entirely, heading level skipped, page missing `<html lang>`, `<h1>` absent or duplicated
+- **medium** — likely wrong: alt text present but appears generic (e.g., "image", filename) — flagged based on pattern, image not yet analyzed
+- **low** — possibly wrong: alt text quality depends on context that requires user confirmation; heading restructuring may affect visual design
+
+### Output Summary
+
+End your invocation with this summary block (used by the wizard for ⚙️/✅ progress announcements):
+
+```
+## Alt Text & Headings Findings Summary
+- **Issues found:** [count]
+- **Critical:** [count] | **Serious:** [count] | **Moderate:** [count] | **Minor:** [count]
+- **High confidence:** [count] | **Medium:** [count] | **Low:** [count]
+```
+
+---
+
 ## How to Report Issues
 
 For each finding:

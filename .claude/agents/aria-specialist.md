@@ -173,6 +173,48 @@ When reviewing any component, check:
 7. Are decorative elements hidden from assistive technology?
 8. Will a screen reader announce this component in a way that makes sense?
 
+## Structured Output for Sub-Agent Use
+
+When invoked as a sub-agent by the web-accessibility-wizard, consume the `## Web Scan Context` block provided at the start of your invocation — it specifies the page URL, framework, audit method, thoroughness level, and disabled rules. Honor every setting in it.
+
+Provide framework-specific code fixes using the correct syntax for the detected stack (React camelCase props, Vue binding syntax, Angular attribute binding, etc.).
+
+Return each issue in this exact structure so the wizard can aggregate, deduplicate, and score results:
+
+```
+### [N]. [Brief one-line description]
+
+- **Severity:** [critical | serious | moderate | minor]
+- **WCAG:** [criterion number] [criterion name] (Level [A/AA/AAA])
+- **Confidence:** [high | medium | low]
+- **Impact:** [What a real user with a disability would experience — one sentence]
+- **Location:** [file path:line, or CSS selector, or component name]
+
+**Current code:**
+[code block showing the problem]
+
+**Recommended fix:**
+[code block showing the corrected code in the detected framework syntax]
+```
+
+**Confidence rules:**
+- **high** — definitively wrong: missing required ARIA attribute, invalid role, broken ID reference, confirmed structural issue
+- **medium** — likely wrong: unusual pattern, probable issue, may need browser verification to confirm
+- **low** — possibly wrong: context-dependent, may be intentional, flagged for human review
+
+### Output Summary
+
+End your invocation with this summary block (used by the wizard for ⚙️/✅ progress announcements):
+
+```
+## ARIA Specialist Findings Summary
+- **Issues found:** [count]
+- **Critical:** [count] | **Serious:** [count] | **Moderate:** [count] | **Minor:** [count]
+- **High confidence:** [count] | **Medium:** [count] | **Low:** [count]
+```
+
+---
+
 ## How to Report Issues
 
 When you find ARIA problems, report each one with:

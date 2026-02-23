@@ -6,6 +6,9 @@ Both Office and PDF scanning tools support project-level configuration files tha
 
 **File:** `.a11y-office-config.json`
 
+<details>
+<summary>Expand Office configuration JSON example</summary>
+
 ```json
 {
   "docx": {
@@ -26,9 +29,14 @@ Both Office and PDF scanning tools support project-level configuration files tha
 }
 ```
 
+</details>
+
 ## PDF Configuration
 
 **File:** `.a11y-pdf-config.json`
+
+<details>
+<summary>Expand PDF configuration JSON example</summary>
 
 ```json
 {
@@ -39,9 +47,14 @@ Both Office and PDF scanning tools support project-level configuration files tha
 }
 ```
 
+</details>
+
 Both config files are searched upward from the scanned file's directory. Use the `office-scan-config` and `pdf-scan-config` agents to generate configurations interactively.
 
 ## Preset Profiles
+
+<details>
+<summary>Expand preset profile descriptions</summary>
 
 The `templates/` directory contains pre-built profiles:
 
@@ -50,6 +63,8 @@ The `templates/` directory contains pre-built profiles:
 | **strict** | `office-config-strict.json` | `pdf-config-strict.json` | All rules, all severities |
 | **moderate** | `office-config-moderate.json` | `pdf-config-moderate.json` | Errors and warnings only |
 | **minimal** | `office-config-minimal.json` | `pdf-config-minimal.json` | Errors only |
+
+</details>
 
 **Quick setup with VS Code tasks:**
 
@@ -62,4 +77,4 @@ cp templates/office-config-moderate.json .a11y-office-config.json
 cp templates/pdf-config-moderate.json .a11y-pdf-config.json
 ```
 
-See [templates/README.md](../templates/README.md) for customization guidance.
+See [templates/README.md](../../templates/README.md) for customization guidance.
