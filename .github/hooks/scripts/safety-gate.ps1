@@ -8,7 +8,7 @@ try {
     $payload = $input_json | ConvertFrom-Json
 } catch {
     # If we can't parse, allow through — don't block on hook failure
-    @{ continue = $true } | ConvertTo-Json -Compress
+    @{ continue = $true; hookSpecificOutput = @{ hookEventName = 'PreToolUse' } } | ConvertTo-Json -Compress
     exit 0
 }
 
@@ -72,5 +72,5 @@ foreach ($pattern in $ask_patterns) {
 }
 
 # ─── Safe — allow through ────────────────────────────────────────────────────
-@{ continue = $true } | ConvertTo-Json -Compress
+@{ continue = $true; hookSpecificOutput = @{ hookEventName = 'PreToolUse' } } | ConvertTo-Json -Compress
 exit 0

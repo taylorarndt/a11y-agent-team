@@ -7,7 +7,7 @@ $input_json = $input | Out-String
 try {
     $payload = $input_json | ConvertFrom-Json
 } catch {
-    @{ continue = $true } | ConvertTo-Json -Compress
+    @{ continue = $true; hookSpecificOutput = @{ hookEventName = 'SubagentStart' } } | ConvertTo-Json -Compress
     exit 0
 }
 

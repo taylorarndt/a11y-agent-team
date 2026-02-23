@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # sensitive-input-guard.sh
 # UserPromptSubmit hook — detects accidental credential/secret exposure in prompts.
-
-set -euo pipefail
+# NOTE: Do NOT use set -euo pipefail here — grep returns exit 1 on no-match,
+# which would cause premature script termination under set -e.
 
 input_json=$(cat)
 prompt=$(echo "$input_json" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('prompt',''))" 2>/dev/null || echo "")
@@ -21,17 +21,18 @@ print(json.dumps({
 }
 
 # GitHub tokens
-echo "$prompt" | grep -qP 'ghp_[A-Za-z0-9]{36,}'           && block "GitHub Personal Access Token (ghp_...)"
-echo "$prompt" | grep -qP 'gho_[A-Za-z0-9]{36,}'           && block "GitHub OAuth token (gho_...)"
-echo "$prompt" | grep -qP 'github_pat_[A-Za-z0-9_]{80,}'   && block "GitHub fine-grained PAT"
+# Use grep -qE (extended regex) instead of -P for macOS BSD grep compatibility
+echo "$prompt" | grep -qE 'ghp_[A-Za-z0-9]{36,}'           && block "GitHub Personal Access Token (ghp_...)"
+echo "$prompt" | grep -qE 'gho_[A-Za-z0-9]{36,}'           && block "GitHub OAuth token (gho_...)"
+echo "$prompt" | grep -qE 'github_pat_[A-Za-z0-9_]{80,}'   && block "GitHub fine-grained PAT"
 # OpenAI
-echo "$prompt" | grep -qP 'sk-[A-Za-z0-9]{40,}'            && block "OpenAI API key"
+echo "$prompt" | grep -qE 'sk-[A-Za-z0-9]{40,}'            && block "OpenAI API key"
 # AWS
-echo "$prompt" | grep -qP 'AKIA[A-Z0-9]{16}'               && block "AWS Access Key ID"
+echo "$prompt" | grep -qE 'AKIA[A-Z0-9]{16}'               && block "AWS Access Key ID"
 # Private keys
 echo "$prompt" | grep -q 'BEGIN.*PRIVATE KEY'               && block "private key / certificate"
 # Slack
-echo "$prompt" | grep -qP 'xox[baprs]-[0-9A-Za-z-]+'       && block "Slack token"
+echo "$prompt" | grep -qE 'xox[baprs]-[0-9A-Za-z-]+'       && block "Slack token"
 
-echo '{"continue":true}'
+echo '{"continue":true,"hookSpecificOutput":{"hookEventName":"UserPromptSubmit"}}'
 exit 0

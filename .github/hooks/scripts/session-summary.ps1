@@ -7,13 +7,13 @@ $input_json = $input | Out-String
 try {
     $payload = $input_json | ConvertFrom-Json
 } catch {
-    @{ continue = $true } | ConvertTo-Json -Compress
+    @{ continue = $true; hookSpecificOutput = @{ hookEventName = 'Stop' } } | ConvertTo-Json -Compress
     exit 0
 }
 
 # Don't trigger a loop if we're already in a stop hook continuation
 if ($payload.stop_hook_active -eq $true) {
-    @{ continue = $true } | ConvertTo-Json -Compress
+    @{ continue = $true; hookSpecificOutput = @{ hookEventName = 'Stop' } } | ConvertTo-Json -Compress
     exit 0
 }
 
@@ -53,5 +53,5 @@ $summary_entry = [PSCustomObject]@{
 Add-Content -Path $log_file -Value $summary_entry -Encoding UTF8
 
 # Allow session to end normally
-@{ continue = $true } | ConvertTo-Json -Compress
+@{ continue = $true; hookSpecificOutput = @{ hookEventName = 'Stop' } } | ConvertTo-Json -Compress
 exit 0

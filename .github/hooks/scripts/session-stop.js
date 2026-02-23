@@ -21,13 +21,13 @@ process.stdin.on('end', () => {
     );
   } catch {
     // No access to cwd — skip validation
-    process.stdout.write(JSON.stringify({ continue: true }));
+    process.stdout.write(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: 'SessionEnd' } }));
     process.exit(0);
   }
 
   // If no audit report exists, nothing to validate — pass through silently
   if (auditFiles.length === 0) {
-    process.stdout.write(JSON.stringify({ continue: true }));
+    process.stdout.write(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: 'SessionEnd' } }));
     process.exit(0);
   }
 
@@ -37,7 +37,7 @@ process.stdin.on('end', () => {
   try {
     content = fs.readFileSync(reportPath, 'utf8');
   } catch {
-    process.stdout.write(JSON.stringify({ continue: true }));
+    process.stdout.write(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: 'SessionEnd' } }));
     process.exit(0);
   }
 
@@ -55,7 +55,7 @@ process.stdin.on('end', () => {
 
   if (missing.length === 0) {
     // All required sections present — report is complete
-    process.stdout.write(JSON.stringify({ continue: true }));
+    process.stdout.write(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: 'SessionEnd' } }));
     process.exit(0);
   }
 

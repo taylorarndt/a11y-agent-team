@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 # session-summary.sh
 # Stop hook — appends a structured session summary to .github/audit/sessions.log.
-
-set -euo pipefail
+# NOTE: Do NOT use set -euo pipefail here — grep returning exit 1 on no-match
+# would cause premature script termination under set -e.
 
 input_json=$(cat)
 
 # Don't loop if we're already in a stop hook continuation
 stop_active=$(echo "$input_json" | python3 -c "import sys,json; d=json.load(sys.stdin); print(str(d.get('stop_hook_active',False)).lower())" 2>/dev/null || echo "false")
 if [ "$stop_active" = "true" ]; then
-  echo '{"continue":true}'
+  echo '{"continue":true,"hookSpecificOutput":{"hookEventName":"Stop"}}'
   exit 0
 fi
 
@@ -43,5 +43,5 @@ entry = {
 print(json.dumps(entry))
 " >> "$log_file" 2>/dev/null || true
 
-echo '{"continue":true}'
+echo '{"continue":true,"hookSpecificOutput":{"hookEventName":"Stop"}}'
 exit 0

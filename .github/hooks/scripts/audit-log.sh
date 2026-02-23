@@ -2,8 +2,8 @@
 # audit-log.sh
 # PostToolUse hook — appends every successfully completed tool call to a
 # date-stamped append-only audit log in .github/audit/YYYY-MM-DD.log
-
-set -euo pipefail
+# NOTE: Do NOT use set -euo pipefail here — grep/python3 failures would cause
+# premature script termination and no JSON output to the hook runner.
 
 input_json=$(cat)
 
@@ -17,7 +17,7 @@ case "$tool" in
   mcp_github_*|run_in_terminal|create_file|replace_string_in_file|multi_replace_string_in_file)
     ;;
   *)
-    echo '{"continue":true}'
+    echo '{"continue":true,"hookSpecificOutput":{"hookEventName":"PostToolUse"}}'
     exit 0
     ;;
 esac
@@ -62,6 +62,6 @@ print(json.dumps({
     'additionalContext': 'Audit logged: ${tool} at ${timestamp}'
   }
 }))
-" 2>/dev/null || echo '{"continue":true}'
+" 2>/dev/null || echo '{"continue":true,"hookSpecificOutput":{"hookEventName":"PostToolUse"}}'
 
 exit 0

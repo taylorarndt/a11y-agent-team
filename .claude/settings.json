@@ -6,6 +6,40 @@
           {
             "type": "command",
             "command": ".claude/hooks/a11y-team-eval.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .github/hooks/scripts/sensitive-input-guard.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .github/hooks/scripts/safety-gate.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .github/hooks/scripts/audit-log.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .github/hooks/scripts/session-summary.sh"
           }
         ]
       }
