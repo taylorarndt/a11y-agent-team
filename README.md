@@ -20,9 +20,9 @@ AI coding tools generate inaccessible code by default. They forget ARIA rules, s
 
 ## The Solution
 
-**Accessibility Agents** provides thirty-four specialized agents across two teams and three platforms:
+**Accessibility Agents** provides thirty-five specialized agents across two teams and three platforms:
 
-- **Accessibility team** - twenty-four agents that enforce WCAG AA standards for web code and Office/PDF documents
+- **Accessibility team** - twenty-five agents that enforce WCAG AA standards for web code, Office/PDF documents, and Markdown documentation
 - **GitHub Workflow team** - ten agents that manage repositories, triage issues, review PRs, and keep your team informed
 
 All agents run on:
@@ -75,6 +75,7 @@ The following agents make up the accessibility enforcement team, each owning one
 | **pdf-accessibility** | PDF conformance per PDF/UA and the Matterhorn Protocol. |
 | **pdf-scan-config** | PDF scan rule configuration and preset profiles. |
 | **document-accessibility-wizard** | Guided document audit with cross-document analysis and VPAT export. |
+| **markdown-a11y-assistant** | Markdown documentation audit — links, alt text, headings, tables, emoji, diagrams, em-dashes, anchors. |
 
 ### GitHub Workflow Agents
 
@@ -113,6 +114,7 @@ The following guides cover web and document accessibility features.
 | [PDF Scanning](docs/scanning/pdf-scanning.md) | PDF/UA scanning with 56 built-in rules |
 | [Scan Configuration](docs/scanning/scan-configuration.md) | Config files, preset profiles, CI/CD templates |
 | [Custom Prompts](docs/scanning/custom-prompts.md) | Nine pre-built prompts for one-click document workflows |
+| [Markdown Accessibility](docs/prompts/README.md#markdown-accessibility-prompts) | Four prompts for markdown auditing, quick checks, fix mode, and audit comparison |
 | [Configuration](docs/configuration.md) | Character budget, hook management, troubleshooting |
 | [Architecture](docs/architecture.md) | Project structure, why agents over skills/MCP, design philosophy |
 
@@ -150,6 +152,7 @@ The following guides cover advanced configuration, cross-platform handoff, and d
 - VPAT 2.5 / Accessibility Conformance Report generation
 - Office document accessibility scanning (DOCX, XLSX, PPTX) with 46 built-in rules
 - PDF document accessibility scanning per PDF/UA and the Matterhorn Protocol with 56 built-in rules
+- Markdown documentation accessibility scanning across 9 domains (links, alt text, headings, tables, emoji, diagrams, em-dashes, anchors, plain language)
 - SARIF 2.1.0 output for CI/CD integration
 - Common framework pitfalls (React conditional rendering, Tailwind contrast failures)
 

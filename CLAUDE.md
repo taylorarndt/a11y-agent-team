@@ -36,7 +36,7 @@ Invoke these agents from the Claude Code agent picker (type `/` to browse):
 
 ## Hidden Helper Sub-Agents
 
-These agents are not meant to be invoked directly by users. They are used internally by the document-accessibility-wizard and web-accessibility-wizard to parallelize scanning and analysis:
+These agents are not meant to be invoked directly by users. They are used internally by the document-accessibility-wizard, web-accessibility-wizard, and markdown-a11y-assistant to parallelize scanning and analysis:
 
 | Agent | Purpose |
 |-------|--------|
@@ -46,6 +46,8 @@ These agents are not meant to be invoked directly by users. They are used intern
 | web-issue-fixer | Automated and guided web accessibility fix application |
 | office-scan-config | Office scan config management - invoked internally by document-accessibility-wizard Phase 0 |
 | pdf-scan-config | PDF scan config management - invoked internally by document-accessibility-wizard Phase 0 |
+| markdown-scanner | Per-file markdown scanning across all 9 accessibility domains - invoked in parallel by markdown-a11y-assistant |
+| markdown-fixer | Applies approved markdown fixes and presents human-judgment items - invoked by markdown-a11y-assistant |
 
 ## Knowledge Domains
 
@@ -62,6 +64,7 @@ The following knowledge domains are available across agent files. On Copilot the
 | Cognitive Accessibility | WCAG 2.2 cognitive SC reference tables, plain language analysis, COGA guidance, auth pattern detection |
 | Mobile Accessibility | React Native prop reference, iOS/Android API quick reference, touch target rules, violation patterns |
 | Design System | Color token contrast computation, framework token paths (Tailwind/MUI/Chakra/shadcn), focus ring validation, WCAG 2.4.11 |
+| Markdown Accessibility | Ambiguous link/anchor patterns, emoji handling modes (remove/translate), Mermaid and ASCII diagram replacement templates, heading structure, severity scoring |
 
 ## Lifecycle Hooks
 

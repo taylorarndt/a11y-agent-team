@@ -1,6 +1,28 @@
 # Agent Teams Configuration
 
-This file defines coordinated multi-agent workflows for enterprise document accessibility scanning.
+This file defines coordinated multi-agent workflows for enterprise accessibility scanning.
+
+## Team: Markdown Accessibility Audit
+
+**Lead:** `markdown-a11y-assistant`
+
+**Members:**
+- `markdown-scanner` *(hidden helper)* - Per-file scanning across all 9 accessibility domains
+- `markdown-fixer` *(hidden helper)* - Applies auto-fixes and presents human-judgment items for approval
+
+**Workflow:**
+1. `markdown-a11y-assistant` receives the user request and runs Phase 0 (discovery + configuration)
+2. `markdown-scanner` is dispatched **in parallel** for each discovered file using runSubagent
+3. All scan results are aggregated; cross-file patterns are identified
+4. Review gate is presented: auto-fix list + human-judgment items
+5. `markdown-fixer` applies approved fixes in a single edit pass per file
+6. Final `MARKDOWN-ACCESSIBILITY-AUDIT.md` report is generated with per-file scores
+
+**Handoffs:**
+- `fix-markdown-issues` prompt for interactive fix mode from a saved report
+- `compare-markdown-audits` prompt for tracking progress between audit runs
+- `quick-markdown-check` prompt for fast triage without a full report
+- `web-accessibility-wizard` for web UI after markdown audit is complete
 
 ## Team: Document Accessibility Audit
 

@@ -34,7 +34,7 @@ Select these agents from the agents dropdown in Copilot Chat, or type `/agents` 
 
 ### Hidden Helper Sub-Agents
 
-These agents are not user-invokable. They are used internally by the document-accessibility-wizard and web-accessibility-wizard to parallelize scanning and analysis:
+These agents are not user-invokable. They are used internally by the document-accessibility-wizard, web-accessibility-wizard, and markdown-a11y-assistant to parallelize scanning and analysis:
 
 | Agent | Purpose |
 |-------|--------|
@@ -44,6 +44,8 @@ These agents are not user-invokable. They are used internally by the document-ac
 | web-issue-fixer | Automated and guided web accessibility fix application |
 | office-scan-config | Office scan config management - invoked internally by document-accessibility-wizard Phase 0 |
 | pdf-scan-config | PDF scan config management - invoked internally by document-accessibility-wizard Phase 0 |
+| markdown-scanner | Per-file markdown scanning across all 9 accessibility domains - invoked in parallel by markdown-a11y-assistant |
+| markdown-fixer | Applies approved markdown fixes and presents human-judgment items - invoked by markdown-a11y-assistant |
 
 ### Agent Skills
 
@@ -60,7 +62,7 @@ Reusable knowledge modules in `.github/skills/` that agents reference automatica
 | cognitive-accessibility | WCAG 2.2 cognitive SC reference tables, plain language analysis, COGA guidance, auth pattern detection |
 | mobile-accessibility | React Native prop reference, iOS/Android API quick reference, touch target rules, violation patterns |
 | design-system | Color token contrast computation, framework token paths (Tailwind/MUI/Chakra/shadcn), focus ring validation, WCAG 2.4.11 |
-| markdown-accessibility | Markdown-specific rule library: ambiguous links, anchor validation, emoji patterns, mermaid alternatives, dash normalization, table descriptions, severity scoring |
+| markdown-accessibility | Markdown rule library: ambiguous links, anchor validation, emoji modes (remove/translate), Mermaid and ASCII diagram replacement templates, heading structure, table descriptions, severity scoring |
 | github-workflow-standards | Core standards for all GitHub workflow agents: auth, discovery, dual MD+HTML output, HTML accessibility, safety rules, progress announcements, parallel execution |
 | github-scanning | GitHub search patterns by intent, date range handling, parallel stream collection, cross-repo intelligence, auto-recovery |
 | github-analytics-scoring | Repo health scoring (0-100/A-F), issue/PR priority scoring, confidence levels, delta tracking, velocity metrics, bottleneck detection |
@@ -127,7 +129,10 @@ One-click workflows for web accessibility auditing tasks:
 | audit-web-multi-page | Multi-page comparison audit with cross-page pattern detection |
 | compare-web-audits | Compare two web audit reports to track remediation progress |
 | fix-web-issues | Interactive fix mode - auto-fixable and human-judgment items from audit report |
-| audit-markdown | Full markdown accessibility audit - links, alt text, headings, tables, emoji, mermaid, dashes, anchor links |
+| audit-markdown | Full markdown accessibility audit with Phase 0 config, parallel scanning, and saved scored report |
+| quick-markdown-check | Fast markdown triage - errors only, inline pass/fail verdict, no report file |
+| fix-markdown-issues | Interactive fix mode - auto-fix table and human-judgment items from saved report |
+| compare-markdown-audits | Track markdown remediation progress between two audit snapshots |
 
 ### Scan Configuration Templates
 

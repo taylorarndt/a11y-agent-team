@@ -88,3 +88,12 @@ This directory contains complete documentation for all 45 prompt files in this r
 | [add-collaborator](github/add-collaborator.md) | Add a user to a repo with role selection |
 | [build-template](github/build-template.md) | Interactive wizard to build a GitHub issue, PR, or discussion template |
 | [build-a11y-template](github/build-a11y-template.md) | Generate a production-ready accessibility bug report template |
+
+## Markdown Accessibility Prompts
+
+| Prompt | Description |
+|--------|-------------|
+| [audit-markdown](../../.github/prompts/audit-markdown.prompt.md) | Full guided audit with Phase 0 config, parallel scanning, saved scored report |
+| [quick-markdown-check](../../.github/prompts/quick-markdown-check.prompt.md) | Fast triage - errors only, inline pass/fail verdict, no report file |
+| [fix-markdown-issues](../../.github/prompts/fix-markdown-issues.prompt.md) | Interactive fix mode - auto-fix table + human-judgment items from saved report |
+| [compare-markdown-audits](../../.github/prompts/compare-markdown-audits.prompt.md) | Track remediation progress between two audit snapshots with Fixed/New/Persistent/Regressed scoring |

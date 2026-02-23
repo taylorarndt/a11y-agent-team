@@ -44,6 +44,8 @@ $latest_web = Get-ChildItem "WEB-ACCESSIBILITY-AUDIT*.md" -ErrorAction SilentlyC
 if ($latest_web) { $audit_reports += "  Last web audit:      $($latest_web.Name)" }
 $latest_doc = Get-ChildItem "DOCUMENT-ACCESSIBILITY-AUDIT*.md" -ErrorAction SilentlyContinue | Sort-Object Name | Select-Object -Last 1
 if ($latest_doc) { $audit_reports += "  Last document audit: $($latest_doc.Name)" }
+$latest_md = Get-ChildItem "MARKDOWN-ACCESSIBILITY-AUDIT*.md" -ErrorAction SilentlyContinue | Sort-Object Name | Select-Object -Last 1
+if ($latest_md) { $audit_reports += "  Last markdown audit: $($latest_md.Name)" }
 if ($audit_reports.Count -eq 0) { $audit_reports = @("  No previous audit reports found in workspace root.") }
 $audit_report_text = $audit_reports -join "`n"
 
@@ -67,6 +69,10 @@ Actions logged today: $actions_today
   @document-accessibility-wizard (orchestrator — Word, Excel, PowerPoint, PDF)
   @word-accessibility, @excel-accessibility, @powerpoint-accessibility, @pdf-accessibility
   Sub-agents: @document-inventory, @cross-document-analyzer
+
+── Markdown Accessibility Agents ─────────────────────────────────────────────
+  @markdown-a11y-assistant (orchestrator — links, alt text, headings, tables, emoji, diagrams)
+  Sub-agents: @markdown-scanner (per-file scanning), @markdown-fixer (fix application)
 
 ── GitHub Workflow Agents ────────────────────────────────────────────────────
   @github-hub (orchestrator — confirms before routing to sub-agents)

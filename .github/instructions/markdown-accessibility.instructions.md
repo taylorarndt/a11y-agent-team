@@ -1,11 +1,13 @@
 ---
-description: Markdown accessibility guidelines - comprehensive rules for inclusive documentation
+description: Markdown accessibility guidelines - comprehensive rules for inclusive documentation. Covers links, alt text, headings, tables, emoji (remove or translate), Mermaid/ASCII diagrams (replace with accessible text alternatives), em-dashes, and anchor link validation.
 applyTo: "**/*.md"
 ---
 
 # Markdown Accessibility Review Guidelines
 
 When reviewing or generating markdown files, check for all of the following accessibility issues. Flag violations and suggest fixes with clear explanations of the accessibility impact. These rules extend GitHub's [5 tips for making your GitHub profile page accessible](https://github.blog/developer-skills/github/5-tips-for-making-your-github-profile-page-accessible/) with table, diagram, typographic, and anchor-link rules.
+
+**For guided interactive audits**, use the `markdown-a11y-assistant` agent which orchestrates `markdown-scanner` and `markdown-fixer` sub-agents with parallel scanning and a full review gate.
 
 ## 1. Descriptive Links (WCAG 2.4.4)
 
@@ -52,18 +54,28 @@ The following table lists agents with their role and supported platform.
 
 ## 5. Emoji (WCAG 1.3.3 / Cognitive)
 
-- Flag consecutive emoji sequences (2 or more in a row) - screen readers announce each emoji name in full.
-- Flag emoji used as the first character of a list item that acts as a visual bullet.
-- Flag emoji in headings - they disrupt landmark navigation for screen reader users.
-- Flag emoji that convey meaning not communicated in surrounding text.
-- When removing meaning-bearing emoji, preserve the meaning in words.
-- Single contextual emoji in body text may be acceptable if meaning is also in text.
+Screen readers read full emoji names aloud ("face with stuck-out tongue and squinting eyes"). Emoji as bullets break list semantics.
 
-## 6. Mermaid Diagrams (WCAG 1.1.1 / 1.3.1)
+Default behavior (remove-decorative mode):
 
-- Mermaid code blocks render as images on GitHub with no accessible alternative.
+- Flag consecutive emoji sequences (2 or more in a row) - auto-fix by removing.
+- Flag emoji used as the first character of a list item - auto-fix by removing and keeping the text.
+- Flag emoji in headings - auto-fix by removing.
+- Flag single inline emoji that conveys meaning not in surrounding text - suggest removal or word replacement.
+- When removing meaning-bearing emoji, preserve the meaning in text.
+
+**Translate mode** (when user requests English translations instead of removal):
+- Replace each emoji with its parenthesized English equivalent: `🚀` -> `(Launch)`, `✅` -> `(Done)`, `⚠️` -> `(Warning)`, `💡` -> `(Tip)`, `🔧` -> `(Configuration)`.
+- For unknown emoji, flag for human review.
+- Default mode is removal, not translation. Only translate when the user explicitly requests it.
+
+## 6. Mermaid and ASCII Diagrams (WCAG 1.1.1 / 1.3.1)
+
+Both Mermaid diagrams and ASCII art render without accessible text alternatives for screen reader users.
+
+**Mermaid diagrams:**
 - Flag every ` ```mermaid ` block that does not have a text description immediately before it.
-- Recommended replacement pattern: add a text description before the block, then wrap the original Mermaid source in a `<details>` element so sighted users retain the visual:
+- For replacement: add a text description, then wrap the original Mermaid source in `<details>` so sighted users retain the visual:
 
 ```markdown
 The following diagram shows a linear flow: Start leads to Process, then to End.
@@ -79,28 +91,34 @@ graph TD
 </details>
 ```
 
-- For complex diagrams: flag and ask the author to provide or approve the description.
+- Simple diagrams (`graph`, `flowchart`, `pie`, `gantt`): auto-generate a description from node labels and connections.
+- Complex diagrams (`sequenceDiagram`, `classDiagram`, `erDiagram`): generate a draft description and ask the author to verify accuracy before applying.
+
+**ASCII art diagrams:**
+- Flag any ASCII art block (combinations of `+`, `-`, `|`, `>`, `<`, `^`, `v`, `*` forming a visual structure) without a preceding text description.
+- For replacement: add a text description (author must provide or approve), then move the ASCII art into a `<details>` block to preserve it for sighted users.
+- Never silently remove ASCII art - always preserve it in the collapsed `<details>` block.
 
 ## 7. Em-Dash and En-Dash Normalization (Cognitive / Readability)
 
-- Em-dashes (`—`, `--` used as em-dash, or `---` in prose) are read inconsistently by screen readers and are harder for users with dyslexia.
-- En-dashes (`–`) used as range separators in prose are similarly problematic.
+- Em-dashes (`—`, `--` used as em-dash, or `---` in prose) are read inconsistently by screen readers.
 - Recommended fix: replace with ` - ` (space-hyphen-space) in prose.
-- Never modify: content inside code blocks or inline code, YAML front matter, HTML comments, or `---` horizontal rules (three hyphens on their own line).
+- Never modify: content inside code blocks or inline code, YAML front matter, HTML comments, or standalone `---` horizontal rules.
 
 Before: `The process takes 2--4 hours—depending on configuration.`
 After: `The process takes 2 - 4 hours - depending on configuration.`
 
 ## 8. Anchor Link Validation (WCAG 2.4.4)
 
-- Broken anchor links (`[text](#nonexistent-section)`) silently fail - keyboard and screen reader users are dropped at the top of the page with no error feedback.
+- Broken anchor links (`[text](#nonexistent-section)`) silently fail - users are dropped at top of page with no error.
 - Validate all `[text](#anchor)` links against headings in the same file.
 - GitHub anchor generation rules: lowercase everything, replace spaces with hyphens, remove all non-alphanumeric characters except hyphens.
   - `## My Heading` -> `#my-heading`
   - `## API: v2.0` -> `#api-v20`
   - `## What's New?` -> `#whats-new`
-- Flag mismatches with a suggested correction. Do not auto-fix the link without confirming which end (link or heading) should change.
+- Flag mismatches with a suggested correction. Do not auto-fix without confirming which end (link or heading) should change.
 - Cross-file anchors (`[text](./other.md#section)`) require manual verification - flag with a note.
+- Headings containing emoji produce unstable anchors - flag those too.
 
 ## Review Priority
 

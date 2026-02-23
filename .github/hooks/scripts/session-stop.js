@@ -57,6 +57,24 @@ process.stdin.on('end', () => {
     }
   } catch { /* no access — skip */ }
 
+  // ─── Validate markdown accessibility audit report ──────────────────────────
+  try {
+    const mdAudits = fs.readdirSync(cwd)
+      .filter(f => /^MARKDOWN-ACCESSIBILITY-AUDIT.*\.md$/i.test(f));
+    if (mdAudits.length > 0) {
+      const latest = mdAudits.sort().pop();
+      const content = fs.readFileSync(path.join(cwd, latest), 'utf8');
+      const required = [
+        'Executive Summary',
+        'Issue Breakdown',
+        'Per-File Scorecards',
+        'Remaining Items',
+      ];
+      const missing = required.filter(s => !content.includes(s));
+      if (missing.length > 0) incomplete[`Markdown audit "${latest}"`] = missing;
+    }
+  } catch { /* no access — skip */ }
+
   if (Object.keys(incomplete).length === 0) {
     process.stdout.write(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: 'Stop' } }));
     process.exit(0);

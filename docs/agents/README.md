@@ -16,6 +16,8 @@ Think of the A11y Agent Team as a consulting team of accessibility specialists. 
 
 **The document-accessibility-wizard** does the same for Office and PDF documents, with cross-document analysis, severity scoring, remediation tracking, and VPAT/ACR compliance export.
 
+**The markdown-a11y-assistant** audits Markdown documentation files across 9 accessibility domains: links, alt text, headings, tables, emoji, diagrams, em-dashes, anchor links, and plain language. It runs per-file parallel scans via `markdown-scanner` and applies fixes via `markdown-fixer`.
+
 **The testing-coach** does not write product code. It teaches you how to test what the other agents built.
 
 **The wcag-guide** does not write or review code. It explains the Web Content Accessibility Guidelines in plain language.
@@ -86,6 +88,19 @@ Think of the A11y Agent Team as a consulting team of accessibility specialists. 
 | [epub-accessibility](epub-accessibility.md) | ePub (EPUB 2/3) scanning | [Full docs](epub-accessibility.md) |
 | [epub-scan-config](epub-scan-config.md) | ePub scan configuration | [Full docs](epub-scan-config.md) |
 | [document-accessibility-wizard](document-accessibility-wizard.md) | Guided document audit | [Full docs](document-accessibility-wizard.md) |
+
+</details>
+
+## Markdown Accessibility Agents
+
+<details>
+<summary>Expand markdown accessibility agent reference (3 agents)</summary>
+
+| Agent | Domain | Documentation |
+|-------|--------|--------------|
+| [markdown-a11y-assistant](markdown-a11y-assistant.md) | Orchestrator — links, alt text, headings, tables, emoji, diagrams, em-dashes, anchors | [Full docs](markdown-a11y-assistant.md) |
+| markdown-scanner | Per-file parallel scanning across all 9 domains (hidden — invoked by orchestrator) | Internal |
+| markdown-fixer | Applies auto-fixes and presents human-judgment items (hidden — invoked by orchestrator) | Internal |
 
 </details>
 
@@ -192,6 +207,17 @@ When `document-accessibility-wizard` scans a folder, it distributes by type:
 
 All four type-specialist streams run simultaneously. `cross-document-analyzer` then runs cross-document pattern detection after all scans complete.
 
+### Markdown Accessibility Parallel Groups
+
+When `markdown-a11y-assistant` runs an audit, it dispatches `markdown-scanner` for each file simultaneously:
+
+| What Runs in Parallel | Details |
+|-----------------------|---------|
+| Per-file `markdown-scanner` calls | One scanner per `.md` file, all running concurrently |
+| 9 domain checks per file | Links, alt text, headings, tables, emoji, diagrams, em-dashes, anchors, plain language |
+
+`markdown-fixer` then runs sequentially by file, applying auto-fixable items and surfacing human-judgment items for review.
+
 ### GitHub Workflow Parallel Streams
 
 `daily-briefing` runs Batch 1 streams simultaneously:
@@ -269,6 +295,7 @@ Skills are reusable knowledge modules loaded by agents at runtime. Each skill de
 | [`github-workflow-standards`](../skills/github-workflow-standards.md) | Auth, dual MD+HTML output, HTML accessibility, safety rules, parallel execution | github-hub, daily-briefing, issue-tracker, pr-review, analytics, repo-admin, team-manager, contributions-hub, insiders-a11y-tracker, repo-manager, template-builder |
 | [`github-scanning`](../skills/github-scanning.md) | Search query construction, date ranges, cross-repo parallel streams, auto-recovery | github-hub, daily-briefing, issue-tracker, pr-review, analytics, insiders-a11y-tracker |
 | [`github-analytics-scoring`](../skills/github-analytics-scoring.md) | Repo health 0-100/A-F, priority scoring, bottleneck detection, velocity metrics | daily-briefing, issue-tracker, pr-review, analytics, repo-admin, insiders-a11y-tracker |
+| [`markdown-accessibility`](../skills/markdown-accessibility.md) | Ambiguous link/anchor patterns, emoji handling (remove/translate), Mermaid/ASCII diagram replacement, heading rules, severity scoring | markdown-a11y-assistant, markdown-scanner, markdown-fixer |
 
 ---
 

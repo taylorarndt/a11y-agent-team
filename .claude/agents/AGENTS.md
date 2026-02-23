@@ -2,6 +2,26 @@
 
 This file defines coordinated multi-agent workflows for enterprise accessibility scanning in the Claude Code environment.
 
+## Team: Markdown Accessibility Audit
+
+**Lead:** `markdown-a11y-assistant`
+
+**Members:**
+- `markdown-scanner` *(hidden helper)* - Per-file scanning across all 9 accessibility domains; returns structured findings
+- `markdown-fixer` *(hidden helper)* - Applies auto-fixes and presents human-judgment items for approval
+
+**Workflow:**
+1. `markdown-a11y-assistant` receives the user request and runs Phase 0 (discovery + configuration)
+2. `markdown-scanner` is dispatched **in parallel** via the Task tool for each discovered file
+3. All scan results are aggregated; cross-file patterns are identified
+4. Review gate is presented to the user with auto-fix list + human-judgment items
+5. `markdown-fixer` applies approved fixes in a single edit pass per file
+6. Final `MARKDOWN-ACCESSIBILITY-AUDIT.md` report is generated with per-file scores and grades
+
+**Handoffs:**
+- `web-accessibility-wizard` after markdown audit is complete for HTML/JSX/TSX files
+- `document-accessibility-wizard` for Office/PDF documents after markdown audit
+
 ## Team: Document Accessibility Audit
 
 **Lead:** `document-accessibility-wizard`

@@ -1,31 +1,192 @@
 # Markdown Accessibility Skill
 
-Reusable knowledge module for the `markdown-a11y-assistant` agent and inline instructions. Provides pattern libraries, severity scoring, fix templates, and GitHub anchor generation rules for comprehensive markdown accessibility auditing.
+Reusable knowledge module for the `markdown-a11y-assistant`, `markdown-scanner`, and `markdown-fixer` agents and the `markdown-accessibility` always-on instructions. Provides pattern libraries, severity scoring, fix templates, emoji translation maps, diagram description templates, and GitHub anchor generation rules for comprehensive markdown accessibility auditing across 9 domains.
+
+## Domains Covered
+
+1. **Descriptive Links** (WCAG 2.4.4) - Ambiguous link text, bare URLs, repeated identical text
+2. **Image Alt Text** (WCAG 1.1.1) - Missing, empty, filename-as-alt, generic placeholders
+3. **Heading Hierarchy** (WCAG 1.3.1 / 2.4.6) - Skipped levels, multiple H1s, bold-as-heading
+4. **Table Accessibility** (WCAG 1.3.1) - Missing descriptions, empty headers, layout tables
+5. **Emoji** (WCAG 1.3.3 / Cognitive) - Remove-all, remove-decorative, translate, or leave-unchanged modes
+6. **Mermaid and ASCII Diagrams** (WCAG 1.1.1 / 1.3.1) - Replace with accessible text + collapsible source
+7. **Em-Dash / En-Dash Normalization** (Cognitive) - Normalize to ` - ` or leave unchanged
+8. **Anchor Link Validation** (WCAG 2.4.4) - Validate `#anchor` links against actual headings
+9. **Plain Language and List Structure** (Cognitive) - Emoji bullets, passive voice, sentence length
 
 ## Severity Scoring
 
 | Issue | Severity | WCAG | Auto-fix? |
 |-------|----------|------|-----------|
 | Image missing alt text | Critical | 1.1.1 (A) | No - needs visual judgment |
-| Mermaid diagram with no text alternative | Critical | 1.1.1 (A) | Partial - wrap in details, ask for description |
+| Mermaid diagram with no text alternative | Critical | 1.1.1 (A) | Partial - simple diagrams auto-described; complex need human |
+| ASCII diagram with no text description | Critical | 1.1.1 (A) | Partial - flag and wrap; description needs human or auto-gen |
 | Broken anchor link | Serious | 2.4.4 (A) | No - confirm which end changes |
-| Ambiguous link text ("here", "click here") | Serious | 2.4.4 (A) | Yes - use surrounding context |
+| Ambiguous link text ("here", "click here") | Serious | 2.4.4 (A) | Yes - rewrite using surrounding context |
 | Skipped heading level | Serious | 1.3.1 (A) | Yes - interpolate missing level |
 | Multiple H1s | Serious | 1.3.1 (A) | Yes - demote all but first |
-| Emoji in heading | Moderate | Cognitive | Yes - remove |
-| Consecutive emoji (2+) | Moderate | 1.3.3 (A) | Yes - remove sequence |
+| Emoji in heading | Moderate | Cognitive | Yes - remove or translate per preference |
+| Consecutive emoji (2+) | Moderate | 1.3.3 (A) | Yes - remove sequence or translate |
 | Emoji used as bullet | Moderate | 1.3.1 (A) | Yes - replace with `-` |
 | Em-dash in prose | Moderate | Cognitive | Yes - replace with ` - ` |
 | Table without preceding description | Moderate | 1.3.1 (A) | Yes - add one-sentence summary |
-| Bold text used as heading | Minor | 2.4.6 (AA) | Yes - convert to heading |
+| Bold text used as heading | Minor | 2.4.6 (AA) | Yes - convert to appropriate heading |
 | Bare URL in prose | Minor | 2.4.4 (A) | Yes - wrap with descriptive text |
-| Emoji used for meaning (single) | Minor | 1.3.3 (A) | No - needs intent judgment |
+| Emoji used for meaning, single inline | Minor | 1.3.3 (A) | Conditional - remove-all: yes; remove-decorative: flag; translate: translate |
+
+### Scoring Formula
+
+```text
+File Score = 100 - (sum of weighted findings)
+
+Critical: -15 pts each
+Serious:  - 7 pts each
+Moderate: - 3 pts each
+Minor:    - 1 pt each
+
+Floor: 0
+```
+
+### Score Grades
+
+| Score | Grade | Meaning |
+|-------|-------|---------|
+| 90-100 | A | Excellent - accessible documentation |
+| 75-89 | B | Good - minor issues |
+| 50-74 | C | Needs Work - several barriers |
+| 25-49 | D | Poor - significant barriers |
+| 0-24 | F | Failing - critical AT barriers |
+
+## Emoji Handling Modes
+
+The agent supports four modes configured during Phase 0:
+
+| Mode | Description | Default? |
+|------|-------------|----------|
+| `remove-all` | Strip every emoji from prose, headings, and bullets | No |
+| `remove-decorative` | Remove emoji in headings, bullets, and consecutive sequences; flag single inline for review | **Yes (default)** |
+| `translate` | Replace known emoji with `(English)` text; flag unknown for review | No |
+| `leave-unchanged` | Do not flag or modify any emoji | No |
+
+### Emoji Translation Map
+
+When using `translate` mode, replace each emoji with the parenthesized English equivalent:
+
+| Emoji | Translation | Emoji | Translation |
+|-------|------------|-------|------------|
+| 🚀 | (Launch) | ✅ | (Done) |
+| ⚠️ | (Warning) | ❌ | (Error) |
+| 📝 | (Note) | 💡 | (Tip) |
+| 🔧 | (Configuration) | 📚 | (Documentation) |
+| 🎯 | (Goal) | ✨ | (New) |
+| 🔍 | (Search) | 🛠️ | (Tools) |
+| 👋 | (Hello) | 🎉 | (Celebration) |
+| ⭐ | (Featured) | 💬 | (Discussion) |
+| 🏠 | (Home) | 📊 | (Data) |
+| 🔒 | (Security) | 🌐 | (Web) |
+| 📦 | (Package) | 🔗 | (Link) |
+| 📋 | (Checklist) | 🏆 | (Achievement) |
+| ⚡ | (Quick) | 👍 | (Approved) |
+| 👎 | (Rejected) | 🐛 | (Bug) |
+| 🤝 | (Collaboration) | 🎓 | (Learning) |
+| 🔑 | (Key) | 📌 | (Pinned) |
+| ℹ️ | (Info) | 🔄 | (Refresh) |
+| ➕ | (Add) | ➖ | (Remove) |
+| 💻 | (Code) | 🔔 | (Notification) |
+| 📣 | (Announcement) | 🧪 | (Test) |
+| 🎨 | (Design) | 🌟 | (Highlight) |
+| 📈 | (Increase) | 📉 | (Decrease) |
+| 🏗️ | (Build) | 🔐 | (Locked) |
+| 📂 | (Folder) | 📁 | (Folder) |
+| 🗂️ | (Category) | 🗃️ | (Archive) |
+| ⚙️ | (Settings) | 🏁 | (Finish) |
+| 🚧 | (In Progress) | 🚫 | (Not Allowed) |
+| ✔️ | (Check) | ➡️ | (Next) |
+| ⬆️ | (Up) | ⬇️ | (Down) |
+
+For emoji not in this table: flag as `needs-human-review`. Do not guess.
+
+### Emoji Detection Unicode Ranges
+
+```
+[\u{1F600}-\u{1F64F}]  - Emoticons
+[\u{1F300}-\u{1F5FF}]  - Misc symbols and pictographs
+[\u{1F680}-\u{1F6FF}]  - Transport and map symbols
+[\u{1F700}-\u{1F77F}]  - Alchemical symbols
+[\u{1F780}-\u{1F7FF}]  - Geometric shapes extended
+[\u{1F900}-\u{1F9FF}]  - Supplemental symbols
+[\u{1FA70}-\u{1FAFF}]  - Symbols and pictographs extended
+[\u{2600}-\u{26FF}]    - Misc symbols
+[\u{2700}-\u{27BF}]    - Dingbats
+[\u{1F1E0}-\u{1F1FF}]  - Flags
+[\u{FE00}-\u{FE0F}]    - Variation selectors
+```
+
+Emoji-as-bullet pattern: list item where the first non-whitespace character is an emoji.
+
+## Pattern Library: Mermaid and ASCII Diagrams
+
+### Mermaid Detection
+
+Lines matching ` ```mermaid` (with optional leading spaces/tabs).
+
+### Mermaid Description Templates
+
+| Type | Description Template |
+|------|---------------------|
+| `graph TD/LR/RL/BT` / `flowchart` | "The following [direction] diagram shows: [list major nodes and connections from source]" |
+| `sequenceDiagram` | "The following sequence diagram shows the interaction between [participants]: [list each message in order]" |
+| `classDiagram` | "The following class diagram shows [N] classes: [list class names, key properties, and relationships]" |
+| `erDiagram` | "The following entity-relationship diagram shows [entities] with these relationships: [list relationships]" |
+| `gantt` | "The following Gantt chart shows project tasks: [list section names and tasks with dates if available]" |
+| `pie` | "The following pie chart shows [title] with values: [list each label and percentage/value if available]" |
+| `stateDiagram` | "The following state diagram shows [N] states: [list state names and transition triggers]" |
+| `mindmap` | "The following mind map shows [root topic] with branches: [list top-level branch names]" |
+| `timeline` | "The following timeline shows events: [list events in chronological order]" |
+
+Auto-generate description for: `graph`, `flowchart`, `pie`, `gantt`, `mindmap`, `timeline`.
+Flag for human review: `sequenceDiagram`, `classDiagram`, `erDiagram`, `stateDiagram` (complex enough to need human verification).
+
+### Mermaid Replacement Template
+
+```markdown
+[Generated or user-provided text description - this is the primary accessible content]
+
+<details>
+<summary>Diagram source (Mermaid)</summary>
+
+```mermaid
+[original diagram source - unchanged]
+```
+
+</details>
+```
+
+### ASCII Diagram Detection
+
+ASCII art patterns: non-code-block lines (or unnamed code blocks) containing combinations of `+`, `-`, `|`, `/`, `\`, `>`, `<`, `^`, `v`, `*` forming a visual structure. Minimum 3 lines with consistent column alignment.
+
+### ASCII Diagram Replacement Template
+
+```markdown
+[Generated or user-provided text description - this is the primary accessible content]
+
+<details>
+<summary>ASCII diagram</summary>
+
+```
+[original ASCII art - unchanged]
+```
+
+</details>
+```
 
 ## Pattern Library: Ambiguous Link Detection
 
 Match these patterns (case-insensitive, trim whitespace):
 
 ### Exact-match violations
+
 ```
 here, click here, read more, learn more, more, more info,
 link, details, info, go, see more, continue, start, download,
@@ -33,18 +194,22 @@ view, open, submit, this, that
 ```
 
 ### Starts-with violations
+
 ```
 click here to ..., read more about ..., learn more about ...,
 here to ..., see more ...
 ```
 
 ### URL-as-text pattern
+
 Any link where visible text matches `https?://` or `www\.`
 
 ### Repeated identical text
+
 Multiple `[X](url1)` and `[X](url2)` with same X but different URLs on the same page.
 
 ### Safe patterns (do not flag)
+
 - Badge links: `[![text](img)](url)` at top of README
 - Section self-references: `[Installation](#installation)` where text matches heading
 - Footer resource lists using the resource/tool name as text

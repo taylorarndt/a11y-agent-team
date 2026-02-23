@@ -34,6 +34,8 @@ latest_web=$(ls WEB-ACCESSIBILITY-AUDIT*.md 2>/dev/null | sort | tail -1)
 [ -n "$latest_web" ] && audit_reports="${audit_reports}  Last web audit:      ${latest_web}\n"
 latest_doc=$(ls DOCUMENT-ACCESSIBILITY-AUDIT*.md 2>/dev/null | sort | tail -1)
 [ -n "$latest_doc" ] && audit_reports="${audit_reports}  Last document audit: ${latest_doc}\n"
+latest_md=$(ls MARKDOWN-ACCESSIBILITY-AUDIT*.md 2>/dev/null | sort | tail -1)
+[ -n "$latest_md" ] && audit_reports="${audit_reports}  Last markdown audit: ${latest_md}\n"
 [ -z "$audit_reports" ] && audit_reports="  No previous audit reports found in workspace root.\n"
 
 context="[SESSION CONTEXT — injected automatically by .github/hooks/context.json]
@@ -55,6 +57,10 @@ Actions logged today: ${actions_today}
   @document-accessibility-wizard (orchestrator — Word, Excel, PowerPoint, PDF)
   @word-accessibility, @excel-accessibility, @powerpoint-accessibility, @pdf-accessibility
   Sub-agents: @document-inventory, @cross-document-analyzer
+
+── Markdown Accessibility Agents ─────────────────────────────────────────────
+  @markdown-a11y-assistant (orchestrator — links, alt text, headings, tables, emoji, diagrams)
+  Sub-agents: @markdown-scanner (per-file scanning), @markdown-fixer (fix application)
 
 ── GitHub Workflow Agents ────────────────────────────────────────────────────
   @github-hub (orchestrator — confirms before routing to sub-agents)

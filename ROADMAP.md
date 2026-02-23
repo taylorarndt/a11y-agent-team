@@ -47,6 +47,10 @@ The following items are planned but not yet scheduled.
 
 See the [changelog](https://github.com/taylorarndt/a11y-agent-team/releases) for shipped features.
 
+| Feature | Description |
+|---------|-------------|
+| Markdown Accessibility Agents | `markdown-a11y-assistant` orchestrator with parallel `markdown-scanner` and `markdown-fixer` sub-agents. Covers 9 domains: links, alt text, headings, tables, emoji, diagrams, em-dashes, anchor links, and plain language. Includes 4 custom prompts, a `markdown-accessibility` skill, lifecycle hook integration, and full Copilot/Claude Code parity. |
+
 ---
 
 ## Have an Idea?

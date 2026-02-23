@@ -39,7 +39,28 @@ process.stdin.on('end', () => {
     }
   }
 
-  // Check for previous audit reports
+  // Check for ePub scan configuration
+  const epubConfigPath = path.join(cwd, '.a11y-epub-config.json');
+  if (fs.existsSync(epubConfigPath)) {
+    try {
+      const config = JSON.parse(fs.readFileSync(epubConfigPath, 'utf8'));
+      const profile = config.profile || 'custom';
+      context.push(`ePub scan config: profile=${profile}`);
+    } catch {
+      context.push('ePub scan config: present but could not parse');
+    }
+  }
+
+  // Check for markdownlint configuration
+  const markdownlintPaths = ['.markdownlint.json', '.markdownlint-cli2.jsonc', '.markdownlint.yaml'];
+  for (const mlPath of markdownlintPaths) {
+    if (fs.existsSync(path.join(cwd, mlPath))) {
+      context.push(`Markdownlint config: ${mlPath}`);
+      break;
+    }
+  }
+
+  // Check for previous document audit reports
   try {
     const auditFiles = fs.readdirSync(cwd).filter(f =>
       /^DOCUMENT-ACCESSIBILITY-AUDIT.*\.md$/i.test(f)
@@ -47,7 +68,31 @@ process.stdin.on('end', () => {
     if (auditFiles.length > 0) {
       const latest = auditFiles.sort().pop();
       const stat = fs.statSync(path.join(cwd, latest));
-      context.push(`Last audit: ${latest} (${stat.mtime.toISOString().split('T')[0]})`);
+      context.push(`Last document audit: ${latest} (${stat.mtime.toISOString().split('T')[0]})`);
+    }
+  } catch { /* ignore read errors */ }
+
+  // Check for previous web audit reports
+  try {
+    const webAuditFiles = fs.readdirSync(cwd).filter(f =>
+      /^WEB-ACCESSIBILITY-AUDIT.*\.md$/i.test(f)
+    );
+    if (webAuditFiles.length > 0) {
+      const latest = webAuditFiles.sort().pop();
+      const stat = fs.statSync(path.join(cwd, latest));
+      context.push(`Last web audit: ${latest} (${stat.mtime.toISOString().split('T')[0]})`);
+    }
+  } catch { /* ignore read errors */ }
+
+  // Check for previous markdown audit reports
+  try {
+    const mdAuditFiles = fs.readdirSync(cwd).filter(f =>
+      /^MARKDOWN-ACCESSIBILITY-AUDIT.*\.md$/i.test(f)
+    );
+    if (mdAuditFiles.length > 0) {
+      const latest = mdAuditFiles.sort().pop();
+      const stat = fs.statSync(path.join(cwd, latest));
+      context.push(`Last markdown audit: ${latest} (${stat.mtime.toISOString().split('T')[0]})`);
     }
   } catch { /* ignore read errors */ }
 

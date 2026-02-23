@@ -19,9 +19,10 @@ user-facing web content:
    alt-text-headings, tables-data-specialist, link-checker
 4. For a full guided audit, use accessibility-wizard
 5. For testing guidance, use testing-coach. For WCAG questions, use wcag-guide.
-5. Do NOT write UI code without accessibility-lead review
+6. For markdown documentation accessibility (.md files), use markdown-a11y-assistant
+7. Do NOT write UI code without accessibility-lead review
 
-If the task does not involve any user-facing web content, proceed normally.
+If the task does not involve any user-facing web content or markdown docs, proceed normally.
 "@
 
 @{ continue = $true; additionalContext = $message } | ConvertTo-Json -Compress
