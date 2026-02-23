@@ -109,8 +109,6 @@ if (Test-Path $InstalledAgentsDir) {
         }
     }
 }
-
-# Copy updated hook
 $HookSrc = Join-Path $CacheDir ".claude\hooks\a11y-team-eval.ps1"
 $HookDst = Join-Path $InstallDir "hooks\a11y-team-eval.ps1"
 if ((Test-Path $HookSrc) -and (Test-Path $HookDst)) {
@@ -123,53 +121,103 @@ if ((Test-Path $HookSrc) -and (Test-Path $HookDst)) {
     }
 }
 
-# Update Copilot agents if previously installed
-$CopilotDirs = @()
-if ($Project) {
-    $ProjectCopilot = Join-Path (Get-Location) ".github\agents"
-    if (Test-Path $ProjectCopilot) { $CopilotDirs += $ProjectCopilot }
-} else {
-    # Central store
-    $Central = Join-Path $env:USERPROFILE ".a11y-agent-team\copilot-agents"
-    if (Test-Path $Central) { $CopilotDirs += $Central }
-
-    # VS Code profile folders (only if agents were previously installed there)
-    $VSCodeProfile = Join-Path $env:APPDATA "Code\User"
-    $VSCodeInsidersProfile = Join-Path $env:APPDATA "Code - Insiders\User"
-    if ((Get-ChildItem -Path $VSCodeProfile -Filter "*.agent.md" -ErrorAction SilentlyContinue).Count -gt 0) {
-        $CopilotDirs += $VSCodeProfile
+# Helper: recursively sync a source directory to a destination directory.
+# Updates changed files, adds new files, and removes files that no longer exist in source.
+# Auto-discovered — no hardcoded file list to maintain.
+function Sync-GitHubDir {
+    param([string]$SrcDir, [string]$DstDir, [string]$Label)
+    if (-not (Test-Path $SrcDir)) { return }
+    if (-not (Test-Path $DstDir)) { return }  # only sync if previously installed
+    # Update/add
+    foreach ($File in Get-ChildItem -Recurse -File $SrcDir) {
+        $Rel = $File.FullName.Substring($SrcDir.Length).TrimStart('\')
+        $Dst = Join-Path $DstDir $Rel
+        New-Item -ItemType Directory -Force -Path (Split-Path $Dst) | Out-Null
+        $SrcContent = Get-Content $File.FullName -Raw -ErrorAction SilentlyContinue
+        $DstContent = Get-Content $Dst -Raw -ErrorAction SilentlyContinue
+        if ($SrcContent -ne $DstContent) {
+            Copy-Item -Path $File.FullName -Destination $Dst -Force
+            Write-Log "Updated $Label\$Rel"
+            $script:Updated++
+        }
     }
-    if ((Get-ChildItem -Path $VSCodeInsidersProfile -Filter "*.agent.md" -ErrorAction SilentlyContinue).Count -gt 0) {
-        $CopilotDirs += $VSCodeInsidersProfile
+    # Remove obsolete
+    foreach ($File in Get-ChildItem -Recurse -File $DstDir) {
+        $Rel = $File.FullName.Substring($DstDir.Length).TrimStart('\')
+        if (-not (Test-Path (Join-Path $SrcDir $Rel))) {
+            Remove-Item -Path $File.FullName -Force
+            Write-Log "Removed $Label\$Rel"
+            $script:Updated++
+        }
     }
 }
 
-$CopilotSrcDir = Join-Path $CacheDir ".github\agents"
-foreach ($CopilotDir in $CopilotDirs) {
-    if (Test-Path $CopilotSrcDir) {
-        foreach ($File in Get-ChildItem -Path $CopilotSrcDir -Filter "*.agent.md") {
-            $Dst = Join-Path $CopilotDir $File.Name
+$GitHubSrc = Join-Path $CacheDir ".github"
+
+# Update Copilot assets for project install
+if ($Project) {
+    $ProjectRoot = (Get-Location).Path
+    $ProjectGitHub = Join-Path $ProjectRoot ".github"
+    if (Test-Path $ProjectGitHub) {
+        # Agents (all files: *.agent.md + AGENTS.md, shared-instructions.md, etc.)
+        Sync-GitHubDir -SrcDir (Join-Path $GitHubSrc "agents") -DstDir (Join-Path $ProjectGitHub "agents") -Label "agents"
+        # Config files
+        foreach ($Config in @("copilot-instructions.md", "copilot-review-instructions.md", "copilot-commit-message-instructions.md")) {
+            $Src = Join-Path $GitHubSrc $Config
+            $Dst = Join-Path $ProjectGitHub $Config
+            if ((Test-Path $Src) -and (Test-Path $Dst)) {
+                $SrcContent = Get-Content $Src -Raw -ErrorAction SilentlyContinue
+                $DstContent = Get-Content $Dst -Raw -ErrorAction SilentlyContinue
+                if ($SrcContent -ne $DstContent) {
+                    Copy-Item -Path $Src -Destination $Dst -Force
+                    Write-Log "Updated Copilot config: $Config"
+                    $Updated++
+                }
+            }
+        }
+        # Asset subdirs: skills, instructions, prompts, hooks
+        foreach ($SubDir in @("skills", "instructions", "prompts", "hooks")) {
+            Sync-GitHubDir -SrcDir (Join-Path $GitHubSrc $SubDir) -DstDir (Join-Path $ProjectGitHub $SubDir) -Label $SubDir
+        }
+    }
+}
+
+# Update Copilot assets for global install
+if (-not $Project) {
+    $CentralRoot   = Join-Path $env:USERPROFILE ".a11y-agent-team"
+    $Central       = Join-Path $CentralRoot "copilot-agents"
+    $CentralPrompts      = Join-Path $CentralRoot "copilot-prompts"
+    $CentralInstructions = Join-Path $CentralRoot "copilot-instructions-files"
+    $CentralSkills       = Join-Path $CentralRoot "copilot-skills"
+
+    # Update central stores (agents, prompts, instructions, skills)
+    if (Test-Path $Central) {
+        foreach ($File in Get-ChildItem -Path (Join-Path $GitHubSrc "agents") -Filter "*.agent.md" -ErrorAction SilentlyContinue) {
+            $Dst = Join-Path $Central $File.Name
             $SrcContent = Get-Content $File.FullName -Raw -ErrorAction SilentlyContinue
             $DstContent = Get-Content $Dst -Raw -ErrorAction SilentlyContinue
             if ($SrcContent -ne $DstContent) {
                 Copy-Item -Path $File.FullName -Destination $Dst -Force
-                Write-Log "Updated Copilot agent: $($File.BaseName)"
+                Write-Log "Updated central agent: $($File.BaseName)"
+                $Updated++
+            }
+        }
+        # Remove central agents no longer in repo
+        foreach ($File in Get-ChildItem -Path $Central -Filter "*.agent.md" -ErrorAction SilentlyContinue) {
+            if (-not (Test-Path (Join-Path $GitHubSrc "agents\$($File.Name)"))) {
+                Remove-Item -Path $File.FullName -Force
+                Write-Log "Removed central agent: $($File.BaseName)"
                 $Updated++
             }
         }
     }
-
-    # Update Copilot config files (only for central store and project)
-    if ($CopilotDir -eq $Central) {
-        $ConfigDir = Join-Path $env:USERPROFILE ".a11y-agent-team"
-    } elseif ($CopilotDir -match "\.github\\agents$") {
-        $ConfigDir = Split-Path $CopilotDir -Parent
-    } else {
-        continue
-    }
+    if (Test-Path $CentralPrompts)      { Sync-GitHubDir -SrcDir (Join-Path $GitHubSrc "prompts")      -DstDir $CentralPrompts      -Label "central-prompts" }
+    if (Test-Path $CentralInstructions) { Sync-GitHubDir -SrcDir (Join-Path $GitHubSrc "instructions") -DstDir $CentralInstructions -Label "central-instructions" }
+    if (Test-Path $CentralSkills)       { Sync-GitHubDir -SrcDir (Join-Path $GitHubSrc "skills")       -DstDir $CentralSkills       -Label "central-skills" }
+    # Update config files in central store
     foreach ($Config in @("copilot-instructions.md", "copilot-review-instructions.md", "copilot-commit-message-instructions.md")) {
-        $Src = Join-Path $CacheDir ".github\$Config"
-        $Dst = Join-Path $ConfigDir $Config
+        $Src = Join-Path $GitHubSrc $Config
+        $Dst = Join-Path $CentralRoot $Config
         if ((Test-Path $Src) -and (Test-Path $Dst)) {
             $SrcContent = Get-Content $Src -Raw -ErrorAction SilentlyContinue
             $DstContent = Get-Content $Dst -Raw -ErrorAction SilentlyContinue
@@ -179,6 +227,34 @@ foreach ($CopilotDir in $CopilotDirs) {
                 $Updated++
             }
         }
+    }
+
+    # Push agents, prompts, and instructions to VS Code User profile folders.
+    # VS Code 1.110+ discovers from User/prompts/; older from User/ root. Both are updated.
+    $VSCodeProfiles = @(
+        (Join-Path $env:APPDATA "Code\User"),
+        (Join-Path $env:APPDATA "Code - Insiders\User")
+    )
+    foreach ($ProfileDir in $VSCodeProfiles) {
+        $PromptsDir = Join-Path $ProfileDir "prompts"
+        # Only update if agents were previously installed
+        $HasAgents = (Get-ChildItem -Path $ProfileDir -Filter "*.agent.md" -ErrorAction SilentlyContinue).Count -gt 0
+        $HasPrompts = (Test-Path $PromptsDir) -and ((Get-ChildItem -Path $PromptsDir -Filter "*.agent.md" -ErrorAction SilentlyContinue).Count -gt 0)
+        if (-not ($HasAgents -or $HasPrompts)) { continue }
+        New-Item -ItemType Directory -Force -Path $PromptsDir | Out-Null
+        foreach ($File in Get-ChildItem -Path $Central -Filter "*.agent.md" -ErrorAction SilentlyContinue) {
+            Copy-Item -Path $File.FullName -Destination (Join-Path $ProfileDir $File.Name) -Force
+            Copy-Item -Path $File.FullName -Destination (Join-Path $PromptsDir $File.Name) -Force
+        }
+        foreach ($File in Get-ChildItem -Path $CentralPrompts -Filter "*.prompt.md" -ErrorAction SilentlyContinue) {
+            Copy-Item -Path $File.FullName -Destination (Join-Path $ProfileDir $File.Name) -Force
+            Copy-Item -Path $File.FullName -Destination (Join-Path $PromptsDir $File.Name) -Force
+        }
+        foreach ($File in Get-ChildItem -Path $CentralInstructions -Filter "*.instructions.md" -ErrorAction SilentlyContinue) {
+            Copy-Item -Path $File.FullName -Destination (Join-Path $ProfileDir $File.Name) -Force
+            Copy-Item -Path $File.FullName -Destination (Join-Path $PromptsDir $File.Name) -Force
+        }
+        Write-Log "Updated VS Code profile: $ProfileDir"
     }
 }
 

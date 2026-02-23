@@ -166,6 +166,17 @@ if [ "$install_copilot" = true ]; then
       mkdir -p "$COPILOT_DST"
       COPILOT_DESTINATIONS+=("$COPILOT_DST")
 
+      # Copy all agent files (*.agent.md + AGENTS.md and other support files)
+      echo ""
+      echo "  Copying Copilot agents..."
+      if [ -d "$COPILOT_AGENTS_SRC" ]; then
+        for f in "$COPILOT_AGENTS_SRC"/*; do
+          [ -f "$f" ] || continue
+          cp "$f" "$COPILOT_DST/"
+          echo "    + $(basename "$f")"
+        done
+      fi
+
       # Copy Copilot config files to project
       echo ""
       echo "  Copying Copilot config..."
@@ -178,11 +189,27 @@ if [ "$install_copilot" = true ]; then
         fi
       done
 
+      # Copy asset subdirs: skills, instructions, prompts, hooks — auto-discovered
+      for subdir in skills instructions prompts hooks; do
+        SRC_DIR="$COPILOT_CONFIG_SRC/$subdir"
+        DST_DIR="$PROJECT_DIR/.github/$subdir"
+        if [ -d "$SRC_DIR" ]; then
+          mkdir -p "$DST_DIR"
+          cp -r "$SRC_DIR/." "$DST_DIR/"
+          echo "    + $subdir/"
+        fi
+      done
+
+      COPILOT_INSTALLED=true
+
     else
       # Global install: copy .agent.md files directly into VS Code user profile folders.
       # This is the documented way to make agents available across all workspaces.
       COPILOT_CENTRAL="$HOME/.a11y-agent-team/copilot-agents"
-      mkdir -p "$COPILOT_CENTRAL"
+      COPILOT_CENTRAL_PROMPTS="$HOME/.a11y-agent-team/copilot-prompts"
+      COPILOT_CENTRAL_INSTRUCTIONS="$HOME/.a11y-agent-team/copilot-instructions-files"
+      COPILOT_CENTRAL_SKILLS="$HOME/.a11y-agent-team/copilot-skills"
+      mkdir -p "$COPILOT_CENTRAL" "$COPILOT_CENTRAL_PROMPTS" "$COPILOT_CENTRAL_INSTRUCTIONS" "$COPILOT_CENTRAL_SKILLS"
 
       # Store a central copy for updates and a11y-copilot-init
       echo ""
@@ -196,6 +223,11 @@ if [ "$install_copilot" = true ]; then
           echo "    + $name"
         done
       fi
+
+      # Store prompts, instructions, and skills centrally
+      [ -d "$COPILOT_CONFIG_SRC/prompts" ]      && cp -r "$COPILOT_CONFIG_SRC/prompts/."      "$COPILOT_CENTRAL_PROMPTS/"
+      [ -d "$COPILOT_CONFIG_SRC/instructions" ] && cp -r "$COPILOT_CONFIG_SRC/instructions/." "$COPILOT_CENTRAL_INSTRUCTIONS/"
+      [ -d "$COPILOT_CONFIG_SRC/skills" ]       && cp -r "$COPILOT_CONFIG_SRC/skills/."       "$COPILOT_CENTRAL_SKILLS/"
 
       # Copy Copilot config files to central store
       for config in copilot-instructions.md copilot-review-instructions.md copilot-commit-message-instructions.md; do
@@ -234,6 +266,13 @@ if [ "$install_copilot" = true ]; then
           [ -f "$f" ] || continue
           cp "$f" "$profile_dir/"
         done
+
+        # Copy prompts and instructions to profile (both root and prompts/ for full compatibility)
+        [ -d "$COPILOT_CENTRAL_PROMPTS" ]      && cp -r "$COPILOT_CENTRAL_PROMPTS/."      "$prompts_dir/"
+        [ -d "$COPILOT_CENTRAL_INSTRUCTIONS" ] && cp -r "$COPILOT_CENTRAL_INSTRUCTIONS/." "$prompts_dir/"
+        # Flat copies to root User/ for older VS Code versions
+        find "$COPILOT_CENTRAL_PROMPTS"      -name "*.prompt.md"      2>/dev/null -exec cp {} "$profile_dir/" \;
+        find "$COPILOT_CENTRAL_INSTRUCTIONS" -name "*.instructions.md" 2>/dev/null -exec cp {} "$profile_dir/" \;
 
         echo "    Copied $(ls "$COPILOT_CENTRAL"/*.agent.md 2>/dev/null | wc -l | tr -d ' ') agents"
 
@@ -346,6 +385,17 @@ cp "$CENTRAL"/*.agent.md "$TARGET/"
 # Copy config files
 for config in copilot-instructions.md copilot-review-instructions.md copilot-commit-message-instructions.md; do
   [ -f "$HOME/.a11y-agent-team/$config" ] && cp "$HOME/.a11y-agent-team/$config" ".github/$config"
+done
+
+# Copy prompts, instructions, and skills
+for pair in "copilot-prompts:prompts" "copilot-instructions-files:instructions" "copilot-skills:skills"; do
+  SRC="$HOME/.a11y-agent-team/${pair%%:*}"
+  DST=".github/${pair##*:}"
+  if [ -d "$SRC" ] && [ -n "$(ls "$SRC" 2>/dev/null)" ]; then
+    mkdir -p "$DST"
+    cp -r "$SRC/." "$DST/"
+    echo "  Copied ${pair##*:} to $DST/"
+  fi
 done
 
 echo "  Copied Copilot agents to $TARGET/"
