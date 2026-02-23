@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # session-summary.sh
 # Stop hook — appends a structured session summary to .github/audit/sessions.log.
-
-set -euo pipefail
+# NOTE: Do NOT use set -euo pipefail here — grep/python3 failures would cause
+# premature script termination and no JSON output to the hook runner.
 
 input_json=$(cat)
 
@@ -28,20 +28,22 @@ remote=$(git remote get-url origin 2>/dev/null || echo "unknown")
 owner_repo=$(echo "$remote" | sed -E 's|.*github\.com[:/](.+?)(\.git)?$|\1|' 2>/dev/null || echo "unknown")
 
 actions_logged=0
-[ -f "$today_log" ] && actions_logged=$(grep -c "$session" "$today_log" 2>/dev/null || echo 0)
+[ -f "$today_log" ] && actions_logged=$(grep -cF "$session" "$today_log" 2>/dev/null || echo 0)
 
-python3 -c "
-import json
+ENTRY_TS="$timestamp" ENTRY_SESSION="$session" ENTRY_REPO="$owner_repo" \
+  ENTRY_BRANCH="$branch" ENTRY_ACTIONS="$actions_logged" ENTRY_LOG="$today_log" \
+  python3 - << 'PYEOF' >> "$log_file" 2>/dev/null || true
+import json, os
 entry = {
-  'session_end': '${timestamp}',
-  'session_id': '${session}',
-  'repository': '${owner_repo}',
-  'branch': '${branch}',
-  'actions_logged': ${actions_logged},
-  'audit_log': '${today_log}'
+  'session_end':    os.environ.get('ENTRY_TS', ''),
+  'session_id':     os.environ.get('ENTRY_SESSION', ''),
+  'repository':     os.environ.get('ENTRY_REPO', ''),
+  'branch':         os.environ.get('ENTRY_BRANCH', ''),
+  'actions_logged': int(os.environ.get('ENTRY_ACTIONS', '0') or '0'),
+  'audit_log':      os.environ.get('ENTRY_LOG', ''),
 }
 print(json.dumps(entry))
-" >> "$log_file" 2>/dev/null || true
+PYEOF
 
 echo '{"continue":true,"hookSpecificOutput":{"hookEventName":"Stop"}}'
 exit 0

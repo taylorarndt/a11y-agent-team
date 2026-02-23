@@ -3,8 +3,6 @@
 # PostToolUse hook — appends every successfully completed tool call to a
 # date-stamped append-only audit log in .github/audit/YYYY-MM-DD.log
 
-set -euo pipefail
-
 input_json=$(cat)
 
 tool=$(echo "$input_json" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('tool_name',''))" 2>/dev/null || echo "")
@@ -28,6 +26,7 @@ audit_dir=".github/audit"
 log_file="${audit_dir}/${today}.log"
 
 mkdir -p "$audit_dir"
+chmod 700 "$audit_dir" 2>/dev/null || true
 
 # Redact tokens from input
 tool_input_safe=$(echo "$tool_input" | sed \
@@ -39,29 +38,38 @@ tool_input_safe=$(echo "$tool_input" | sed \
   -e 's/"secret":"[^"]*"/"secret":"[REDACTED]"/g')
 
 # Build log entry as a single JSON line
-log_entry=$(python3 -c "
-import json, sys
+log_entry=$(ENTRY_TS="$timestamp" ENTRY_SESSION="$session" ENTRY_TOOL="$tool" \
+  ENTRY_INPUT="$tool_input_safe" ENTRY_RESULT="$tool_response" \
+  python3 - << 'PYEOF'
+import json, os
+try:
+  input_val = json.loads(os.environ.get('ENTRY_INPUT', '{}'))
+except Exception:
+  input_val = {}
 entry = {
-  'ts': '${timestamp}',
-  'session': '${session}',
-  'tool': '${tool}',
-  'input': ${tool_input_safe},
-  'result_summary': '''${tool_response}'''
+  'ts':             os.environ.get('ENTRY_TS', ''),
+  'session':        os.environ.get('ENTRY_SESSION', ''),
+  'tool':           os.environ.get('ENTRY_TOOL', ''),
+  'input':          input_val,
+  'result_summary': os.environ.get('ENTRY_RESULT', ''),
 }
 print(json.dumps(entry))
-" 2>/dev/null || printf '{"ts":"%s","session":"%s","tool":"%s","note":"log_parse_error"}\n' "$timestamp" "$session" "$tool")
+PYEOF
+) 2>/dev/null || printf '{"ts":"%s","session":"%s","tool":"%s","note":"log_parse_error"}\n' "$timestamp" "$session" "$tool"
 
 echo "$log_entry" >> "$log_file"
+chmod 600 "$log_file" 2>/dev/null || true
 
-python3 -c "
-import json
+ENTRY_TOOL="$tool" ENTRY_TS="$timestamp" ENTRY_LOGFILE="$log_file" \
+  python3 - << 'PYEOF' 2>/dev/null || echo '{"continue":true,"hookSpecificOutput":{"hookEventName":"PostToolUse"}}'
+import json, os
 print(json.dumps({
   'continue': True,
   'hookSpecificOutput': {
     'hookEventName': 'PostToolUse',
-    'additionalContext': 'Audit logged: ${tool} at ${timestamp}'
+    'additionalContext': 'Audit logged: ' + os.environ.get('ENTRY_TOOL','') +
+                        ' at ' + os.environ.get('ENTRY_TS','') +
+                        ' → ' + os.environ.get('ENTRY_LOGFILE',''),
   }
 }))
-" 2>/dev/null || echo '{"continue":true,"hookSpecificOutput":{"hookEventName":"PostToolUse"}}'
-
-exit 0
+PYEOF

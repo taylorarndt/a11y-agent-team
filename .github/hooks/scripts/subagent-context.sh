@@ -20,7 +20,11 @@ information the parent agent already collected (repo name, org name, username).
 Report completion clearly so the parent agent can continue orchestration.
 Safety hooks are still active — destructive operations require confirmation."
 
-context_escaped=$(printf '%s' "$context" | python3 -c "import sys,json; print(json.dumps(sys.stdin.read()))" 2>/dev/null || printf '"%s"' "$context")
+context_escaped=$(printf '%s' "$context" | python3 -c "import sys,json; print(json.dumps(sys.stdin.read()))" 2>/dev/null)
+if [ -z "$context_escaped" ]; then
+  echo '{"continue":true,"hookSpecificOutput":{"hookEventName":"SubagentStart"}}'
+  exit 0
+fi
 
 printf '{"continue":true,"hookSpecificOutput":{"hookEventName":"SubagentStart","additionalContext":%s}}\n' "$context_escaped"
 exit 0

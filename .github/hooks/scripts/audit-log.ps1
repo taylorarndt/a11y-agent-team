@@ -66,7 +66,7 @@ $log_entry = [PSCustomObject]@{
     session        = $session
     tool           = $tool
     input          = $input_str
-    result_summary = $result_summary -replace '"', "'"
+    result_summary = $result_summary
 } | ConvertTo-Json -Compress
 
 # Append to log file

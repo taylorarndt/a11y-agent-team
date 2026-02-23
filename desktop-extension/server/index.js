@@ -3,13 +3,39 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 import { execFile } from "node:child_process";
 import { readFile as fsReadFile, writeFile as fsWriteFile, unlink, stat } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join, dirname, extname, basename } from "node:path";
+import { tmpdir, homedir } from "node:os";
+import { join, dirname, extname, basename, resolve, sep } from "node:path";
 import { randomUUID } from "node:crypto";
 import { promisify } from "node:util";
 import { inflateRawSync } from "node:zlib";
 
 const execFileAsync = promisify(execFile);
+
+/** Maximum file size accepted for document scanning (100 MB). */
+const MAX_FILE_BYTES = 100 * 1024 * 1024;
+
+/** Maximum number of files accepted in a single batch scan. */
+const MAX_BATCH_FILES = 50;
+
+/**
+ * Resolve a path and verify it stays within the user's home directory or
+ * the current working directory. Applied to both reads and writes to prevent
+ * path traversal attacks (OWASP A01 / CWE-22).
+ */
+function validateFilePath(inputPath) {
+  const resolved = resolve(inputPath);
+  const home = homedir();
+  const cwd = process.cwd();
+  const underHome = resolved === home || resolved.startsWith(home + sep);
+  const underCwd  = resolved === cwd  || resolved.startsWith(cwd  + sep);
+  if (!underHome && !underCwd) {
+    throw new Error(
+      `Path must be within your home directory or current working directory. ` +
+      `Resolved: ${resolved}`
+    );
+  }
+  return resolved;
+}
 
 const server = new McpServer({
   name: "a11y-agent-team",
@@ -996,8 +1022,9 @@ server.registerTool(
     let reportNote = "";
     if (reportPath) {
       try {
-        await fsWriteFile(reportPath, report, "utf-8");
-        reportNote = `\nReport written to: ${reportPath}`;
+        const safeReportPath = validateFilePath(reportPath);
+        await fsWriteFile(safeReportPath, report, "utf-8");
+        reportNote = `\nReport written to: ${safeReportPath}`;
       } catch (writeErr) {
         reportNote = `\nFailed to write report to ${reportPath}: ${writeErr.message}`;
       }
@@ -1195,14 +1222,19 @@ server.registerTool(
       tags,
     ];
     if (selector) {
+      // Allowlist CSS selector characters to prevent injection on Windows
+      if (/[;&|`$<>']/.test(selector)) {
+        return { content: [{ type: "text", text: "Invalid selector: contains disallowed characters." }] };
+      }
       cliArgs.push("--include", selector);
     }
 
     try {
-      await execFileAsync("npx", cliArgs, {
+      // Use npx.cmd on Windows to avoid running through cmd.exe shell
+      const npxCmd = process.platform === "win32" ? "npx.cmd" : "npx";
+      await execFileAsync(npxCmd, cliArgs, {
         timeout: 60000,
-        // Windows requires shell for npx.cmd; Unix does not
-        shell: process.platform === "win32",
+        shell: false,
       });
 
       const raw = await fsReadFile(tmpFile, "utf-8");
@@ -1221,8 +1253,9 @@ server.registerTool(
       let reportNote = "";
       if (reportPath) {
         try {
-          await fsWriteFile(reportPath, report, "utf-8");
-          reportNote = `\nReport written to: ${reportPath}`;
+          const safeReportPath = validateFilePath(reportPath);
+          await fsWriteFile(safeReportPath, report, "utf-8");
+          reportNote = `\nReport written to: ${safeReportPath}`;
         } catch (writeErr) {
           reportNote = `\nFailed to write report to ${reportPath}: ${writeErr.message}`;
         }
@@ -1908,7 +1941,11 @@ server.registerTool(
 
     let buf;
     try {
-      buf = await fsReadFile(filePath);
+      const safeFilePath = validateFilePath(filePath);
+      buf = await fsReadFile(safeFilePath);
+      if (buf.length > MAX_FILE_BYTES) {
+        return { content: [{ type: "text", text: `File too large: ${(buf.length / 1024 / 1024).toFixed(1)} MB. Maximum allowed: ${MAX_FILE_BYTES / 1024 / 1024} MB.` }] };
+      }
     } catch (err) {
       return { content: [{ type: "text", text: `Cannot read file: ${err.message}` }] };
     }
@@ -1924,7 +1961,11 @@ server.registerTool(
     let config;
     if (configPath) {
       try {
-        const raw = await fsReadFile(configPath, "utf-8");
+        if (!configPath.toLowerCase().endsWith(".json")) {
+          return { content: [{ type: "text", text: "configPath must be a .json file." }] };
+        }
+        const safeConfigPath = validateFilePath(configPath);
+        const raw = await fsReadFile(safeConfigPath, "utf-8");
         config = JSON.parse(raw);
       } catch {
         config = {};
@@ -1950,18 +1991,20 @@ server.registerTool(
     let reportNote = "";
     if (reportPath) {
       try {
+        const safeReportPath = validateFilePath(reportPath);
         const md = buildOfficeMarkdownReport(filePath, findings, fileType);
-        await fsWriteFile(reportPath, md, "utf-8");
-        reportNote += `\nReport written to: ${reportPath}`;
+        await fsWriteFile(safeReportPath, md, "utf-8");
+        reportNote += `\nReport written to: ${safeReportPath}`;
       } catch (err) {
         reportNote += `\nFailed to write report: ${err.message}`;
       }
     }
     if (sarifPath) {
       try {
+        const safeSarifPath = validateFilePath(sarifPath);
         const sarif = buildOfficeSarif(filePath, findings, fileType);
-        await fsWriteFile(sarifPath, JSON.stringify(sarif, null, 2), "utf-8");
-        reportNote += `\nSARIF written to: ${sarifPath}`;
+        await fsWriteFile(safeSarifPath, JSON.stringify(sarif, null, 2), "utf-8");
+        reportNote += `\nSARIF written to: ${safeSarifPath}`;
       } catch (err) {
         reportNote += `\nFailed to write SARIF: ${err.message}`;
       }
@@ -2409,7 +2452,11 @@ server.registerTool(
 
     let buf;
     try {
-      buf = await fsReadFile(filePath);
+      const safeFilePath = validateFilePath(filePath);
+      buf = await fsReadFile(safeFilePath);
+      if (buf.length > MAX_FILE_BYTES) {
+        return { content: [{ type: "text", text: `File too large: ${(buf.length / 1024 / 1024).toFixed(1)} MB. Maximum allowed: ${MAX_FILE_BYTES / 1024 / 1024} MB.` }] };
+      }
     } catch (err) {
       return { content: [{ type: "text", text: `Cannot read file: ${err.message}` }] };
     }
@@ -2424,7 +2471,11 @@ server.registerTool(
     let config;
     if (configPath) {
       try {
-        const raw = await fsReadFile(configPath, "utf-8");
+        if (!configPath.toLowerCase().endsWith(".json")) {
+          return { content: [{ type: "text", text: "configPath must be a .json file." }] };
+        }
+        const safeConfigPath = validateFilePath(configPath);
+        const raw = await fsReadFile(safeConfigPath, "utf-8");
         config = JSON.parse(raw);
       } catch { config = {}; }
     } else {
@@ -2443,18 +2494,20 @@ server.registerTool(
     let reportNote = "";
     if (reportPath) {
       try {
+        const safeReportPath = validateFilePath(reportPath);
         const md = buildPdfMarkdownReport(filePath, findings, info);
-        await fsWriteFile(reportPath, md, "utf-8");
-        reportNote += `\nReport written to: ${reportPath}`;
+        await fsWriteFile(safeReportPath, md, "utf-8");
+        reportNote += `\nReport written to: ${safeReportPath}`;
       } catch (err) {
         reportNote += `\nFailed to write report: ${err.message}`;
       }
     }
     if (sarifPath) {
       try {
+        const safeSarifPath = validateFilePath(sarifPath);
         const sarif = buildPdfSarif(filePath, findings);
-        await fsWriteFile(sarifPath, JSON.stringify(sarif, null, 2), "utf-8");
-        reportNote += `\nSARIF written to: ${sarifPath}`;
+        await fsWriteFile(safeSarifPath, JSON.stringify(sarif, null, 2), "utf-8");
+        reportNote += `\nSARIF written to: ${safeSarifPath}`;
       } catch (err) {
         reportNote += `\nFailed to write SARIF: ${err.message}`;
       }
@@ -2526,13 +2579,18 @@ server.registerTool(
     }
 
     let buf;
+    let safeMetaPath;
     try {
-      buf = await fsReadFile(filePath);
+      safeMetaPath = validateFilePath(filePath);
+      buf = await fsReadFile(safeMetaPath);
+      if (buf.length > MAX_FILE_BYTES) {
+        return { content: [{ type: "text", text: `File too large: ${(buf.length / 1024 / 1024).toFixed(1)} MB. Maximum allowed: ${MAX_FILE_BYTES / 1024 / 1024} MB.` }] };
+      }
     } catch (err) {
       return { content: [{ type: "text", text: `Cannot read file: ${err.message}` }] };
     }
 
-    const fileStat = await stat(filePath).catch(() => null);
+    const fileStat = await stat(safeMetaPath).catch(() => null);
     const fileSize = fileStat ? fileStat.size : buf.length;
 
     if (ext === ".pdf") {
@@ -2667,6 +2725,10 @@ server.registerTool(
     }),
   },
   async ({ filePaths, reportPath, severityFilter }) => {
+    if (filePaths.length > MAX_BATCH_FILES) {
+      return { content: [{ type: "text", text: `Too many files: ${filePaths.length}. Maximum batch size is ${MAX_BATCH_FILES} files.` }] };
+    }
+
     const results = [];
     const errors = [];
 
@@ -2680,7 +2742,12 @@ server.registerTool(
 
       let buf;
       try {
-        buf = await fsReadFile(fp);
+        const safeFp = validateFilePath(fp);
+        buf = await fsReadFile(safeFp);
+        if (buf.length > MAX_FILE_BYTES) {
+          errors.push(`${basename(fp)}: file too large (${(buf.length / 1024 / 1024).toFixed(1)} MB, max ${MAX_FILE_BYTES / 1024 / 1024} MB)`);
+          continue;
+        }
       } catch (err) {
         errors.push(`${basename(fp)}: ${err.message}`);
         continue;
@@ -2851,8 +2918,9 @@ server.registerTool(
         reportLines.push(``);
       }
       try {
-        await fsWriteFile(reportPath, reportLines.join("\n"), "utf-8");
-        reportNote = `\nReport written to: ${reportPath}`;
+        const safeReportPath = validateFilePath(reportPath);
+        await fsWriteFile(safeReportPath, reportLines.join("\n"), "utf-8");
+        reportNote = `\nReport written to: ${safeReportPath}`;
       } catch (err) {
         reportNote = `\nFailed to write report: ${err.message}`;
       }
