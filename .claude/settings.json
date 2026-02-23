@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "powershell -ExecutionPolicy Bypass -File .github\\hooks\\scripts\\safety-gate.ps1"
+            "command": "bash .github/hooks/scripts/safety-gate.sh"
           }
         ]
       }
@@ -15,7 +15,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "powershell -ExecutionPolicy Bypass -File .github\\hooks\\scripts\\audit-log.ps1"
+            "command": "bash .github/hooks/scripts/audit-log.sh"
           }
         ]
       }
@@ -25,11 +25,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "powershell -ExecutionPolicy Bypass -File .claude\\hooks\\a11y-team-eval.ps1"
+            "command": "bash .claude/hooks/a11y-team-eval.sh"
           },
           {
             "type": "command",
-            "command": "powershell -ExecutionPolicy Bypass -File .github\\hooks\\scripts\\sensitive-input-guard.ps1"
+            "command": "bash .github/hooks/scripts/sensitive-input-guard.sh"
           }
         ]
       }
@@ -43,7 +43,7 @@
           },
           {
             "type": "command",
-            "command": "powershell -ExecutionPolicy Bypass -File .github\\hooks\\scripts\\session-summary.ps1"
+            "command": "bash .github/hooks/scripts/session-summary.sh"
           }
         ]
       }
