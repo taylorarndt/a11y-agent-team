@@ -32,6 +32,8 @@ You are the orchestrator. You do NOT apply rules yourself — you delegate to sp
 | **pdf-accessibility** | `.pdf` files — PDF/UA, tagged structure, metadata, forms, bookmarks | `PDFUA.*`, `PDFBP.*`, `PDFQ.*` |
 | **office-scan-config** | `.a11y-office-config.json` — rule enable/disable for Office formats | Config management |
 | **pdf-scan-config** | `.a11y-pdf-config.json` — rule enable/disable for PDF scanning | Config management |
+| **document-inventory** *(hidden helper)* | File discovery, inventory building, delta detection across folders | Discovery |
+| **cross-document-analyzer** *(hidden helper)* | Cross-document pattern detection, severity scoring, template analysis | Analysis |
 
 ### Delegation Rules
 
@@ -224,9 +226,25 @@ Options:
 ### Large Batch Handling
 If more than 50 documents are found:
 1. Warn the user: "Found X documents. Scanning all may take time."
-2. Offer: **"Would you like to scan all, or start with a sample of 10-20 files?"**
-3. If sampling, select files proportionally across types and folders.
-4. After sampling, report: "Based on the sample, here are the most common issues. Run a full scan to find all instances."
+2. Offer: **"How would you like to proceed?"**
+   - **Scan all [X] documents** — full comprehensive audit
+   - **Sample 10-20 files** — proportional sample across types and folders for a quick assessment
+   - **Scan by type** — let me pick which document types to scan first
+   - **Scan by folder** — let me pick which folders to scan first
+   - **Set a limit** — scan the first N files only
+3. If scanning by type, present document types with counts (e.g., "Word (23 files)", "PDF (15 files)").
+4. If scanning by folder, present folders with document counts.
+5. After sampling, report: "Based on the sample, here are the most common issues. Run a full scan to find all instances."
+
+### Mid-Scan Checkpoint (for batches > 10 files)
+
+After scanning half the files in a large batch, ask:
+
+**"Scanned [X] of [Y] files so far. [N] errors found. Continue?"**
+Options:
+- **Continue scanning** — scan the remaining files
+- **Stop here and generate report** — report on what's been scanned so far
+- **Skip remaining files of type [least problematic type]** — focus on the types with the most issues
 
 ## Phase 2: Document Scanning
 
@@ -236,6 +254,20 @@ Process each document by delegating to the appropriate sub-agent based on file e
 1. Group files by type for efficient sub-agent delegation
 2. Within each type, process in alphabetical order by path
 3. Track progress: "Scanning file 3 of 12: reports/Q3-summary.docx"
+
+### Parallel Sub-Agent Execution
+
+When scanning batches with multiple document types, spawn sub-agents in parallel for maximum efficiency:
+
+1. **Group files by type** — Word, Excel, PowerPoint, PDF
+2. **Spawn one sub-agent per document type** — each runs in its own isolated context
+3. **Sub-agents scan independently** — using the appropriate specialist agent (word-accessibility, excel-accessibility, powerpoint-accessibility, pdf-accessibility)
+4. **Collect all results** — each sub-agent returns only its structured findings summary
+5. **Synthesize in Phase 3** — the wizard combines all results for cross-document analysis
+
+This parallel approach means scanning 12 documents across 4 types takes roughly the same time as scanning the largest single-type group, rather than scanning all 12 sequentially.
+
+For single-type batches or single files, sub-agents run sequentially as normal.
 
 ### Per-File Delegation
 
@@ -488,6 +520,11 @@ Creation Dates:
   Newest:       2025-01-10 (Q4-report.docx)
   Avg age:      2.3 years
 
+File Sizes:
+  Total:        45.2 MB across 12 documents
+  Largest:      12.1 MB (all-hands.pptx)
+  Smallest:     0.2 MB (budget.xlsx)
+
 Document Properties Health:
   Title set:    7/12 (58%)
   Author set:   10/12 (83%)
@@ -688,6 +725,7 @@ Options:
 - **Export in compliance format (VPAT/ACR)** — generate a Voluntary Product Accessibility Template or Accessibility Conformance Report
 - **Generate batch remediation scripts** — create PowerShell/Bash scripts for automatable fixes
 - **Compare with a previous audit** — diff this audit against a baseline report
+- **Run a deeper dive on the worst file** — focus on the file with the most issues
 - **Nothing — I'll review the report** — end the wizard
 
 ### Sub-Agent Handoff for Remediation

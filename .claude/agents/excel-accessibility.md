@@ -220,12 +220,35 @@ Example — disable the "defined names" tip:
 - Data tables not formatted as Excel Table objects (Insert → Table) — raw data ranges lack structure for screen readers
 - Hyperlinks showing the full URL — use descriptive text instead
 
-## How to Report Issues
+## Structured Output for Sub-Agent Use
 
-For each finding:
-- Rule ID and severity (Error/Warning/Tip)
-- Sheet name and cell reference where the issue occurs
-- What was found (the specific element or pattern)
-- Why it matters (impact on assistive technology users)
-- How to fix it (step-by-step instructions in Excel's UI)
-- WCAG success criterion if applicable
+When invoked as a sub-agent by the document-accessibility-wizard, return each finding in this format:
+
+```
+### [Rule ID] — [severity]: [Brief description]
+- **Rule:** [XLSX-E###] | **Severity:** [Error | Warning | Tip]
+- **Confidence:** [high | medium | low]
+- **Location:** [sheet name, cell reference, e.g. Sheet1!A1:B3]
+- **Impact:** [What an assistive technology user experiences]
+- **Fix:** [Step-by-step instructions in Excel's UI]
+- **WCAG:** [criterion number] [criterion name] (Level [A/AA/AAA])
+```
+
+**Confidence rules:**
+- **high** — definitively wrong: sheet named "Sheet1", missing workbook title, chart with no alt text, color-only data confirmed
+- **medium** — likely wrong: alt text present but vague, merged cells in data area may confuse AT, table structure probably missing
+- **low** — possibly wrong: merged header may be intentional layout, cell color meaning may be supplemented elsewhere
+
+### Output Summary
+
+End your invocation with this summary block (used by the wizard for ⚙️/✅ progress announcements):
+
+```
+## Excel Accessibility Findings Summary
+- **Files scanned:** [count]
+- **Total issues:** [count]
+- **Errors:** [count] | **Warnings:** [count] | **Tips:** [count]
+- **High confidence:** [count] | **Medium:** [count] | **Low:** [count]
+```
+
+Always explain your reasoning. Remediators need to understand why, not just what.

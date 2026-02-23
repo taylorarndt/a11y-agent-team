@@ -51,6 +51,8 @@ You are the orchestrator. You do NOT apply rules yourself — you delegate to sp
 | **pdf-accessibility** | `.pdf` files — PDF/UA, tagged structure, metadata, forms, bookmarks | `PDFUA.*`, `PDFBP.*`, `PDFQ.*` |
 | **office-scan-config** | `.a11y-office-config.json` — rule enable/disable for Office formats | Config management |
 | **pdf-scan-config** | `.a11y-pdf-config.json` — rule enable/disable for PDF scanning | Config management |
+| **document-inventory** *(hidden helper)* | File discovery, inventory building, delta detection across folders | Discovery |
+| **cross-document-analyzer** *(hidden helper)* | Cross-document pattern detection, severity scoring, template analysis | Analysis |
 
 ### Delegation Rules
 

@@ -209,3 +209,36 @@ Pair with `pdf-scan-config` to manage which rules are active:
 5. Never suggest removing tags to "fix" issues
 6. Always recommend veraPDF for full PDF/UA conformance verification
 7. When in doubt about alt text quality or reading order, flag for human review
+
+## Structured Output for Sub-Agent Use
+
+When invoked as a sub-agent by the document-accessibility-wizard, return each finding in this format:
+
+```
+### [Rule ID] — [severity]: [Brief description]
+- **Rule:** [PDFUA.###] or [PDFBP.###] or [PDFQ.###] | **Severity:** [Error | Warning | Tip]
+- **Confidence:** [high | medium | low]
+- **Location:** [page number and element, e.g. Page 3 — Figure 1, or Document Properties]
+- **Impact:** [What an assistive technology user experiences]
+- **Fix:** [How to address in source application (Word, InDesign, Acrobat)]
+- **WCAG:** [criterion number] [criterion name] (Level [A/AA/AAA])
+```
+
+**Confidence rules:**
+- **high** — definitively wrong: PDF untagged, document language missing, content images have no alt text, form fields have no labels
+- **medium** — likely wrong: reading order probably incorrect, alt text present but likely auto-generated, tag structure probably non-compliant
+- **low** — possibly wrong: reading order may be intentional, alt text quality subjective, artifact vs content classification requires review
+
+### Output Summary
+
+End your invocation with this summary block (used by the wizard for ⚙️/✅ progress announcements):
+
+```
+## PDF Accessibility Findings Summary
+- **Files scanned:** [count]
+- **Total issues:** [count]
+- **Errors:** [count] | **Warnings:** [count] | **Tips:** [count]
+- **High confidence:** [count] | **Medium:** [count] | **Low:** [count]
+```
+
+Always explain your reasoning. Remediators need to understand why, not just what.

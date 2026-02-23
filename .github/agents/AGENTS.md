@@ -29,9 +29,10 @@ This file defines coordinated multi-agent workflows for enterprise document acce
 
 ## Team: Web Accessibility Audit
 
-**Lead:** `accessibility-lead`
+**Lead:** `web-accessibility-wizard`
 
 **Members:**
+- `accessibility-lead` — Coordinates specialists, runs final review
 - `aria-specialist` — ARIA roles, states, properties
 - `modal-specialist` — Dialogs, drawers, overlays
 - `contrast-master` — Color contrast, visual design
@@ -43,20 +44,76 @@ This file defines coordinated multi-agent workflows for enterprise document acce
 - `link-checker` — Link text quality
 - `testing-coach` — Testing guidance
 
+**Hidden Helpers:**
+- `cross-page-analyzer` — Cross-page pattern detection, severity scoring, remediation tracking
+- `web-issue-fixer` — Automated and guided accessibility fix application
+
 **Workflow:**
-1. `accessibility-lead` coordinates specialists based on the content being reviewed
-2. Relevant specialists are invoked based on the code context (forms, modals, tables, etc.)
-3. `accessibility-lead` compiles findings and resolves any conflicting guidance
-4. `testing-coach` provides manual testing instructions for issues that require human verification
+1. `web-accessibility-wizard` receives the user request and runs Phase 0 (discovery)
+2. Parallel specialist scanning groups execute based on content:
+   - **Group 1:** `aria-specialist` + `keyboard-navigator` + `forms-specialist`
+   - **Group 2:** `contrast-master` + `alt-text-headings` + `link-checker`
+   - **Group 3:** `modal-specialist` + `live-region-controller` + `tables-data-specialist`
+3. `cross-page-analyzer` detects cross-page patterns, computes severity scores, and tracks remediation
+4. `web-issue-fixer` applies auto-fixable corrections and presents human-judgment items
+5. `web-accessibility-wizard` compiles the final report with scorecard and follow-up options
+6. `testing-coach` provides manual testing instructions for issues that require human verification
+
+**Handoffs:**
+- After audit, user can invoke `fix-web-issues` prompt for interactive fix mode
+- `compare-web-audits` prompt enables remediation tracking between audits
+- `audit-web-multi-page` prompt enables cross-page comparison audits
 
 ## Team: Full Audit (Web + Documents)
 
 **Lead:** `accessibility-lead`
 
 **Workflow:**
-1. `accessibility-wizard` runs the web accessibility audit
+1. `web-accessibility-wizard` runs the web accessibility audit (with severity scoring and framework detection)
 2. `document-accessibility-wizard` runs the document accessibility audit
 3. `accessibility-lead` compiles a unified report covering both web and document findings
+4. Cross-cutting patterns (e.g., shared templates, design system issues) are highlighted across both audits
+
+## Team: GitHub Workflow Management
+
+**Lead:** `github-hub` or `nexus` (alternative entry points — same team, both orchestrate all GitHub workflow agents)
+
+**Members:**
+- `daily-briefing` — Morning overview of issues, PRs, CI, and security alerts
+- `pr-review` — Pull request review, diff analysis, inline commenting
+- `issue-tracker` — Issue triage, priority scoring, response drafting, project board management
+- `analytics` — Repository health scoring, velocity metrics, bottleneck detection
+- `insiders-a11y-tracker` — Accessibility change tracking and WCAG regression detection
+- `repo-admin` — Collaborator management, branch protection, label sync, access audits
+- `team-manager` — Team onboarding, offboarding, permissions, org membership
+- `contributions-hub` — Discussions, community health, contributor insights
+- `template-builder` — Guided wizard for issue, PR, and discussion templates
+
+**Skills:**
+- `github-workflow-standards` — Core standards: auth, dual output, progress announcements, parallel execution, safety rules
+- `github-scanning` — Search patterns by intent, parallel stream collection, auto-recovery
+- `github-analytics-scoring` — Health scoring, priority scoring, confidence levels, delta tracking
+
+**Workflow:**
+1. `github-hub` or `nexus` receives the user request, loads hook-injected context, and discovers repos/orgs
+2. The orchestrator classifies intent and routes to the appropriate specialist agent with full context
+3. Specialist agents run their workflows (data collection, analysis, reporting)
+4. Results are returned to the user; the orchestrator offers contextual follow-on actions
+5. Any state-changing operation (comment, merge, add collaborator) requires explicit user confirmation before execution
+
+**Handoffs:**
+- `github-hub`/`nexus` → `daily-briefing` for overview and morning briefings
+- `github-hub`/`nexus` → `pr-review` for code review work
+- `github-hub`/`nexus` → `issue-tracker` for issue triage and response
+- `github-hub`/`nexus` → `analytics` for metrics and health reports
+- `github-hub`/`nexus` → `repo-admin` for access and settings management
+- `github-hub`/`nexus` → `team-manager` for people and team management
+- `github-hub`/`nexus` → `contributions-hub` for community and discussions
+- `github-hub`/`nexus` → `insiders-a11y-tracker` for accessibility tracking
+- `github-hub`/`nexus` → `template-builder` for creating GitHub templates
+- Any agent → `github-hub` or `nexus` when the user wants to switch tasks or repos
+
+---
 
 ## Enterprise Scanning Patterns
 
@@ -86,3 +143,21 @@ For Section 508, EN 301 549, or organizational compliance:
 2. Generate VPAT/ACR using `generate-vpat` prompt
 3. Track remediation progress with `compare-audits` prompt
 4. Export SARIF for integration with compliance tracking systems
+
+### Web Audit Patterns
+
+**Single-Page Deep Audit:**
+1. Use `audit-web-page` prompt for combined axe-core + code review
+2. Framework-specific patterns are detected automatically (React, Vue, Angular, Svelte, Tailwind)
+3. Severity scoring produces a 0-100 score with A-F grade
+
+**Multi-Page Comparison:**
+1. Use `audit-web-multi-page` prompt with base URL and page paths
+2. `cross-page-analyzer` identifies systemic vs template vs page-specific issues
+3. Comparative scorecard shows per-page scores and cross-cutting patterns
+
+**Remediation Workflow:**
+1. Run initial audit with `audit-web-page` or `audit-web-multi-page`
+2. Apply fixes with `fix-web-issues` prompt (auto-fixable + human-judgment items)
+3. Track progress with `compare-web-audits` prompt between audit runs
+4. Use `quick-web-check` for fast axe-core triage between full audits

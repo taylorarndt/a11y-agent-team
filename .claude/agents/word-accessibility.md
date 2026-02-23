@@ -230,11 +230,35 @@ Example — disable the "repeated blank characters" tip for a project:
 - Manual numbered lists ("1. ", "2. ") instead of Word's list functionality
 - Pasting formatted text from other applications without cleaning up styles
 
-## How to Report Issues
+## Structured Output for Sub-Agent Use
 
-For each finding:
-- Rule ID and severity (Error/Warning/Tip)
-- What was found (the specific element or section)
-- Why it matters (impact on assistive technology users)
-- How to fix it (step-by-step instructions in Word's UI)
-- WCAG success criterion if applicable
+When invoked as a sub-agent by the document-accessibility-wizard, return each finding in this format:
+
+```
+### [Rule ID] — [severity]: [Brief description]
+- **Rule:** [DOCX-E###] | **Severity:** [Error | Warning | Tip]
+- **Confidence:** [high | medium | low]
+- **Location:** [section name, heading text, table name, or paragraph number]
+- **Impact:** [What an assistive technology user experiences]
+- **Fix:** [Step-by-step instructions in Word's UI]
+- **WCAG:** [criterion number] [criterion name] (Level [A/AA/AAA])
+```
+
+**Confidence rules:**
+- **high** — definitively wrong: missing document title or language, empty alt text on content image, no heading styles used, detected by inspection
+- **medium** — likely wrong: alt text present but may be insufficient, heading hierarchy probably skipped, manually verify content intent
+- **low** — possibly wrong: decorative vs content image ambiguous, reading order may be intentional, requires author context
+
+### Output Summary
+
+End your invocation with this summary block (used by the wizard for ⚙️/✅ progress announcements):
+
+```
+## Word Accessibility Findings Summary
+- **Files scanned:** [count]
+- **Total issues:** [count]
+- **Errors:** [count] | **Warnings:** [count] | **Tips:** [count]
+- **High confidence:** [count] | **Medium:** [count] | **Low:** [count]
+```
+
+Always explain your reasoning. Remediators need to understand why, not just what.
