@@ -1,25 +1,5 @@
 {
   "hooks": {
-    "PreToolUse": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash .github/hooks/scripts/safety-gate.sh"
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash .github/hooks/scripts/audit-log.sh"
-          }
-        ]
-      }
-    ],
     "UserPromptSubmit": [
       {
         "hooks": [
@@ -29,21 +9,11 @@
           },
           {
             "type": "command",
-            "command": "bash .github/hooks/scripts/sensitive-input-guard.sh"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node .github/hooks/scripts/session-stop.js"
+            "command": "bash .claude/hooks/swift-team-eval.sh"
           },
           {
             "type": "command",
-            "command": "bash .github/hooks/scripts/session-summary.sh"
+            "command": "bash .github/hooks/scripts/sensitive-input-guard.sh"
           }
         ]
       }
