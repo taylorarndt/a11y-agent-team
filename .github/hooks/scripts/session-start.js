@@ -98,16 +98,14 @@ process.stdin.on('end', () => {
 
   // Only inject context if something relevant was found
   if (context.length === 0) {
-    process.stdout.write(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: 'SessionStart' } }));
     process.exit(0);
   }
 
   process.stdout.write(JSON.stringify({
-    continue: true,
     hookSpecificOutput: {
       hookEventName: 'SessionStart',
-      additionalContext: `[Document A11y] ${context.join(' | ')}`
-    }
+      additionalContext: `[Document A11y] ${context.join(' | ')}`,
+    },
   }));
   process.exit(0);
 });
