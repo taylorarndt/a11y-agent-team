@@ -2,8 +2,6 @@
 # sensitive-input-guard.sh
 # UserPromptSubmit hook — detects accidental credential/secret exposure in prompts.
 
-set -euo pipefail
-
 input_json=$(cat)
 prompt=$(echo "$input_json" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('prompt',''))" 2>/dev/null || echo "")
 

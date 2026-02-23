@@ -3,8 +3,6 @@
 # PreToolUse hook — blocks or escalates destructive GitHub operations.
 # Reads JSON from stdin, outputs JSON decision to stdout.
 
-set -euo pipefail
-
 input_json=$(cat)
 tool=$(echo "$input_json" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('tool_name',''))" 2>/dev/null || echo "")
 tool_input=$(echo "$input_json" | python3 -c "import sys,json; d=json.load(sys.stdin); print(json.dumps(d.get('tool_input','')))" 2>/dev/null || echo "{}")
@@ -35,9 +33,9 @@ ask() {
 
 # ─── Ask list ────────────────────────────────────────────────────────────────
 if [ "$tool" = "run_in_terminal" ]; then
-  echo "$tool_input" | grep -q -- "--force"      && ask "Force-push detected. This rewrites history on the remote."
+  echo "$tool_input" | grep -qi -- "--force"     && ask "Force-push detected. This rewrites history on the remote."
   echo "$tool_input" | grep -q "reset --hard"    && ask "Hard reset detected. Uncommitted changes will be lost."
-  echo "$tool_input" | grep -q "rm -rf"          && ask "Recursive delete detected."
+  echo "$tool_input" | grep -qi "rm -rf"         && ask "Recursive delete detected."
   echo "$tool_input" | grep -qi "DROP TABLE"     && ask "SQL DROP TABLE detected."
   echo "$tool_input" | grep -qi "DROP DATABASE"  && ask "SQL DROP DATABASE detected."
 fi

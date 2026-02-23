@@ -240,27 +240,30 @@ if [ "$install_copilot" = true ]; then
         # Add chat.agentFilesLocations to VS Code settings for older versions
         if command -v python3 &>/dev/null; then
           if [ -f "$settings_file" ]; then
-            python3 -c "
-import json, sys
+            A11Y_SF="$settings_file" A11Y_PD="$profile_dir" A11Y_PMD="$prompts_dir" \
+            python3 - << 'PYEOF' 2>/dev/null && echo "    Updated VS Code settings for agent discovery"
+import json, os
 try:
-    with open('$settings_file', 'r') as f:
+    sf = os.environ['A11Y_SF']
+    with open(sf, 'r') as f:
         s = json.load(f)
     loc = s.get('chat.agentFilesLocations', {})
-    loc['$profile_dir'] = True
-    loc['$prompts_dir'] = True
+    loc[os.environ['A11Y_PD']] = True
+    loc[os.environ['A11Y_PMD']] = True
     s['chat.agentFilesLocations'] = loc
-    with open('$settings_file', 'w') as f:
+    with open(sf, 'w') as f:
         json.dump(s, f, indent=4)
 except:
     pass
-" 2>/dev/null && echo "    Updated VS Code settings for agent discovery"
+PYEOF
           else
-            python3 -c "
-import json
-s = {'chat.agentFilesLocations': {'$profile_dir': True, '$prompts_dir': True}}
-with open('$settings_file', 'w') as f:
+            A11Y_SF="$settings_file" A11Y_PD="$profile_dir" A11Y_PMD="$prompts_dir" \
+            python3 - << 'PYEOF' 2>/dev/null && echo "    Created VS Code settings for agent discovery"
+import json, os
+s = {'chat.agentFilesLocations': {os.environ['A11Y_PD']: True, os.environ['A11Y_PMD']: True}}
+with open(os.environ['A11Y_SF'], 'w') as f:
     json.dump(s, f, indent=4)
-" 2>/dev/null && echo "    Created VS Code settings for agent discovery"
+PYEOF
           fi
         fi
 
@@ -388,12 +391,13 @@ if [ -f "$SETTINGS_FILE" ]; then
   else
     # Try to auto-merge with python3 (available on macOS and most Linux)
     if command -v python3 &>/dev/null; then
-      MERGED=$(python3 -c "
-import json, sys
+      MERGED=$(A11Y_SF="$SETTINGS_FILE" A11Y_HC="$HOOK_CMD" \
+        python3 - << 'PYEOF' 2>/dev/null
+import json, sys, os
 try:
-    with open('$SETTINGS_FILE', 'r') as f:
+    with open(os.environ['A11Y_SF'], 'r') as f:
         settings = json.load(f)
-    hook_entry = {'type': 'command', 'command': '$HOOK_CMD'}
+    hook_entry = {'type': 'command', 'command': os.environ['A11Y_HC']}
     new_group = {'hooks': [hook_entry]}
     if 'hooks' not in settings:
         settings['hooks'] = {}
@@ -404,7 +408,8 @@ try:
 except Exception as e:
     print('MERGE_FAILED', file=sys.stderr)
     sys.exit(1)
-" 2>/dev/null) && {
+PYEOF
+) && {
         echo "$MERGED" > "$SETTINGS_FILE"
         echo "  Updated existing settings.json with hook."
       } || {

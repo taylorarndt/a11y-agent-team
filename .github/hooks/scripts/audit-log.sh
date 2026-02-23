@@ -3,8 +3,6 @@
 # PostToolUse hook — appends every successfully completed tool call to a
 # date-stamped append-only audit log in .github/audit/YYYY-MM-DD.log
 
-set -euo pipefail
-
 input_json=$(cat)
 
 tool=$(echo "$input_json" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('tool_name',''))" 2>/dev/null || echo "")
@@ -28,6 +26,7 @@ audit_dir=".github/audit"
 log_file="${audit_dir}/${today}.log"
 
 mkdir -p "$audit_dir"
+chmod 700 "$audit_dir" 2>/dev/null || true
 
 # Redact tokens from input
 tool_input_safe=$(echo "$tool_input" | sed \
@@ -59,6 +58,7 @@ PYEOF
 ) 2>/dev/null || printf '{"ts":"%s","session":"%s","tool":"%s","note":"log_parse_error"}\n' "$timestamp" "$session" "$tool"
 
 echo "$log_entry" >> "$log_file"
+chmod 600 "$log_file" 2>/dev/null || true
 
 ENTRY_TOOL="$tool" ENTRY_TS="$timestamp" ENTRY_LOGFILE="$log_file" \
   python3 - << 'PYEOF' 2>/dev/null || echo '{"continue":true,"hookSpecificOutput":{"hookEventName":"PostToolUse"}}'
