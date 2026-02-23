@@ -14,6 +14,9 @@
 
 ## What It Catches
 
+<details>
+<summary>Expand — 11 table and grid issues detected</summary>
+
 - `<div>` grids styled to look like tables (screen readers cannot navigate these)
 - `<td>` elements styled as headers instead of `<th>` with `scope`
 - Missing `<caption>` on data tables
@@ -26,11 +29,16 @@
 - Layout tables without `role="presentation"`
 - Responsive tables that hide columns incorrectly
 
+</details>
+
 ## What It Will Not Catch
 
 Content within table cells (form inputs are forms-specialist, links are aria-specialist), visual contrast of table borders (contrast-master), or focus management between pages (keyboard-navigator).
 
 ## Example Prompts
+
+<details>
+<summary>Show example prompts</summary>
 
 ### Claude Code
 
@@ -49,9 +57,16 @@ Content within table cells (form inputs are forms-specialist, links are aria-spe
 @tables-data-specialist make this sortable table accessible
 ```
 
+</details>
+
 ## Behavioral Constraints
+
+<details>
+<summary>Expand constraints</summary>
 
 - Requires `<table>` for tabular data — will never accept `<div>` grid patterns as accessible
 - Requires `<caption>` or `aria-label` on every data table
 - Requires `scope` on every `<th>` — does not trust screen reader guessing
 - Only allows `role="grid"` when cells contain interactive elements
+
+</details>

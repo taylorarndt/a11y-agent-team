@@ -404,10 +404,41 @@ Always verify. Do not assume Tailwind color names indicate accessibility complia
 14. `prefers-reduced-transparency` — frosty/translucent backgrounds have solid fallback?
 15. Combined preferences tested (e.g., dark + high contrast)?
 
-## How to Report Issues
+## Structured Output for Sub-Agent Use
 
-For each finding:
-- The specific color values and their contrast ratio
-- Whether it fails AA normal text, AA large text, or non-text
-- The file and line where the color is defined
-- A replacement color that passes while staying close to the design intent
+When invoked as a sub-agent by the web-accessibility-wizard, consume the `## Web Scan Context` block provided at the start of your invocation — it specifies the page URL, framework, audit method, thoroughness level, and disabled rules. Honor every setting in it.
+
+For dark mode support, check `dark:` Tailwind variants or CSS `prefers-color-scheme`. Provide replacement colors that pass the required contrast ratio while staying as close as possible to the design's original palette intent.
+
+Return each issue in this exact structure so the wizard can aggregate, deduplicate, and score results:
+
+```
+### [N]. [Brief one-line description]
+
+- **Severity:** [critical | serious | moderate | minor]
+- **WCAG:** [criterion number] [criterion name] (Level [A/AA/AAA])
+- **Confidence:** [high | medium | low]
+- **Impact:** [What a real user with a disability would experience — one sentence]
+- **Location:** [file path:line or CSS rule selector]
+
+**Current:** foreground `[#hex]` on background `[#hex]` — ratio [X.X]:1 (requires [Y.Y]:1 for [text size])
+
+**Recommended fix:**
+[code block showing replacement color value that passes, with the new ratio]
+```
+
+**Confidence rules:**
+- **high** — measured failure: exact hex values extracted, ratio calculated below threshold
+- **medium** — probable failure: color defined by variable or dynamic theming, estimated below threshold
+- **low** — possible failure: color appears low-contrast visually but cannot be precisely measured (e.g., gradient background)
+
+### Output Summary
+
+End your invocation with this summary block (used by the wizard for ⚙️/✅ progress announcements):
+
+```
+## Contrast Master Findings Summary
+- **Issues found:** [count]
+- **Critical:** [count] | **Serious:** [count] | **Moderate:** [count] | **Minor:** [count]
+- **High confidence:** [count] | **Medium:** [count] | **Low:** [count]
+```

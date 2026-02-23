@@ -1,221 +1,228 @@
 {
-  "version": "2.0.0",
-  "tasks": [
-    {
-      "label": "A11y: Check Contrast",
-      "type": "shell",
-      "command": "node",
-      "args": [
-        "-e",
-        "const fg='${input:foreground}',bg='${input:background}';function s(c){c=c/255;return c<=0.04045?c/12.92:Math.pow((c+0.055)/1.055,2.4)}function l(h){h=h.replace('#','');if(h.length===3)h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];const r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);return 0.2126*s(r)+0.7152*s(g)+0.0722*s(b)}const l1=l(fg),l2=l(bg),ratio=(Math.max(l1,l2)+0.05)/(Math.min(l1,l2)+0.05),r=Math.round(ratio*100)/100;console.log(`\\nContrast: ${r}:1\\nNormal text (4.5:1): ${ratio>=4.5?'PASS':'FAIL'}\\nLarge text (3:1): ${ratio>=3?'PASS':'FAIL'}\\nUI components (3:1): ${ratio>=3?'PASS':'FAIL'}\\n`)"
-      ],
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": true,
-        "panel": "shared"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "A11y: Find Missing Alt Text",
-      "type": "shell",
-      "command": "grep",
-      "args": [
-        "-rn",
-        "<img[^>]*>",
-        "--include=*.html",
-        "--include=*.jsx",
-        "--include=*.tsx",
-        "--include=*.vue",
-        "--include=*.svelte",
-        ".",
-        "|",
-        "grep",
-        "-v",
-        "alt="
-      ],
-      "options": {
-        "shell": {
-          "executable": "bash",
-          "args": ["-c"]
-        }
-      },
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": true,
-        "panel": "shared"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "A11y: Find Positive Tabindex",
-      "type": "shell",
-      "command": "grep",
-      "args": [
-        "-rn",
-        "tabindex=\"[1-9]",
-        "--include=*.html",
-        "--include=*.jsx",
-        "--include=*.tsx",
-        "--include=*.vue",
-        "--include=*.svelte",
-        "."
-      ],
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": true,
-        "panel": "shared"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "A11y: Find Outline Removal",
-      "type": "shell",
-      "command": "grep",
-      "args": [
-        "-rn",
-        "outline:\\s*none\\|outline:\\s*0",
-        "--include=*.css",
-        "--include=*.scss",
-        "--include=*.html",
-        "--include=*.jsx",
-        "--include=*.tsx",
-        "."
-      ],
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": true,
-        "panel": "shared"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "A11y: Run axe-core Scan",
-      "type": "shell",
-      "command": "npx",
-      "args": [
-        "@axe-core/cli",
-        "${input:scanUrl}",
-        "--tags",
-        "wcag2a,wcag2aa,wcag21a,wcag21aa"
-      ],
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": true,
-        "panel": "shared"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "A11y: Find Documents (Recursive)",
-      "type": "shell",
-      "command": "powershell",
-      "args": [
-        "-NoProfile",
-        "-Command",
-        "$folder='${input:docFolder}'; $files=Get-ChildItem -Path $folder -Recurse -File -Include *.docx,*.xlsx,*.pptx,*.pdf | Where-Object { $_.Name -notlike '~$*' -and $_.Name -notlike '*.tmp' -and $_.Name -notlike '*.bak' -and $_.FullName -notmatch '[\\\\/](\\.git|node_modules|__pycache__|\\.vscode)[\\\\/]' }; $docx=($files | Where-Object Extension -eq '.docx').Count; $xlsx=($files | Where-Object Extension -eq '.xlsx').Count; $pptx=($files | Where-Object Extension -eq '.pptx').Count; $pdf=($files | Where-Object Extension -eq '.pdf').Count; Write-Host \"`nDocument Inventory: $folder`n$('=' * 50)\"; Write-Host \"  Word (.docx):        $docx files\"; Write-Host \"  Excel (.xlsx):       $xlsx files\"; Write-Host \"  PowerPoint (.pptx):  $pptx files\"; Write-Host \"  PDF (.pdf):          $pdf files\"; Write-Host \"  $('-' * 30)\"; Write-Host \"  Total:               $($files.Count) files`n\"; if($files.Count -gt 0){Write-Host 'Files:'; $files | ForEach-Object { Write-Host \"  $($_.FullName)\" }}"
-      ],
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": true,
-        "panel": "shared"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "A11y: Find Changed Documents (Git)",
-      "type": "shell",
-      "command": "git",
-      "args": [
-        "diff",
-        "--name-only",
-        "HEAD~1",
-        "HEAD",
-        "--",
-        "*.docx",
-        "*.xlsx",
-        "*.pptx",
-        "*.pdf"
-      ],
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": true,
-        "panel": "shared"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "A11y: Init Office Scan Config (Moderate)",
-      "type": "shell",
-      "command": "powershell",
-      "args": [
-        "-NoProfile",
-        "-Command",
-        "Copy-Item -Path '${workspaceFolder}/templates/office-config-moderate.json' -Destination '${workspaceFolder}/.a11y-office-config.json'; Write-Host 'Created .a11y-office-config.json (moderate profile)'"
-      ],
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": true,
-        "panel": "shared"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "A11y: Init PDF Scan Config (Moderate)",
-      "type": "shell",
-      "command": "powershell",
-      "args": [
-        "-NoProfile",
-        "-Command",
-        "Copy-Item -Path '${workspaceFolder}/templates/pdf-config-moderate.json' -Destination '${workspaceFolder}/.a11y-pdf-config.json'; Write-Host 'Created .a11y-pdf-config.json (moderate profile)'"
-      ],
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": true,
-        "panel": "shared"
-      },
-      "problemMatcher": []
-    }
-  ],
-  "inputs": [
-    {
-      "id": "foreground",
-      "type": "promptString",
-      "description": "Foreground color (hex, e.g. #1a1a1a or #fff)"
-    },
-    {
-      "id": "background",
-      "type": "promptString",
-      "description": "Background color (hex, e.g. #ffffff or #000)"
-    },
-    {
-      "id": "scanUrl",
-      "type": "promptString",
-      "description": "URL to scan (e.g., http://localhost:3000)"
-    },
-    {
-      "id": "docFolder",
-      "type": "promptString",
-      "description": "Folder path to scan for documents (e.g., ./docs or C:\\Documents)"
-    },
-    {
-      "id": "documentPath",
-      "type": "promptString",
-      "description": "Path to the document file (.docx, .xlsx, .pptx, or .pdf)"
-    },
-    {
-      "id": "auditReportPath",
-      "type": "promptString",
-      "description": "Path to an existing audit report (e.g., DOCUMENT-ACCESSIBILITY-AUDIT.md)"
-    }
-  ]
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "A11y: Check Contrast",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"-e",
+				"const fg='${input:foreground}',bg='${input:background}';function s(c){c=c/255;return c<=0.04045?c/12.92:Math.pow((c+0.055)/1.055,2.4)}function l(h){h=h.replace('#','');if(h.length===3)h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];const r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);return 0.2126*s(r)+0.7152*s(g)+0.0722*s(b)}const l1=l(fg),l2=l(bg),ratio=(Math.max(l1,l2)+0.05)/(Math.min(l1,l2)+0.05),r=Math.round(ratio*100)/100;console.log(`\\nContrast: ${r}:1\\nNormal text (4.5:1): ${ratio>=4.5?'PASS':'FAIL'}\\nLarge text (3:1): ${ratio>=3?'PASS':'FAIL'}\\nUI components (3:1): ${ratio>=3?'PASS':'FAIL'}\\n`)"
+			],
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "A11y: Find Missing Alt Text",
+			"type": "shell",
+			"command": "grep",
+			"args": [
+				"-rn",
+				"<img[^>]*>",
+				"--include=*.html",
+				"--include=*.jsx",
+				"--include=*.tsx",
+				"--include=*.vue",
+				"--include=*.svelte",
+				".",
+				"|",
+				"grep",
+				"-v",
+				"alt="
+			],
+			"options": {
+				"shell": {
+					"executable": "bash",
+					"args": [
+						"-c"
+					]
+				}
+			},
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "A11y: Find Positive Tabindex",
+			"type": "shell",
+			"command": "grep",
+			"args": [
+				"-rn",
+				"tabindex=\"[1-9]",
+				"--include=*.html",
+				"--include=*.jsx",
+				"--include=*.tsx",
+				"--include=*.vue",
+				"--include=*.svelte",
+				"."
+			],
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "A11y: Find Outline Removal",
+			"type": "shell",
+			"command": "grep",
+			"args": [
+				"-rn",
+				"outline:\\s*none\\|outline:\\s*0",
+				"--include=*.css",
+				"--include=*.scss",
+				"--include=*.html",
+				"--include=*.jsx",
+				"--include=*.tsx",
+				"."
+			],
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "A11y: Run axe-core Scan",
+			"type": "shell",
+			"command": "npx",
+			"args": [
+				"@axe-core/cli",
+				"${input:scanUrl}",
+				"--tags",
+				"wcag2a,wcag2aa,wcag21a,wcag21aa"
+			],
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "A11y: Find Documents (Recursive)",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"$folder='${input:docFolder}'; $files=Get-ChildItem -Path $folder -Recurse -File -Include *.docx,*.xlsx,*.pptx,*.pdf | Where-Object { $_.Name -notlike '~$*' -and $_.Name -notlike '*.tmp' -and $_.Name -notlike '*.bak' -and $_.FullName -notmatch '[\\\\/](\\.git|node_modules|__pycache__|\\.vscode)[\\\\/]' }; $docx=($files | Where-Object Extension -eq '.docx').Count; $xlsx=($files | Where-Object Extension -eq '.xlsx').Count; $pptx=($files | Where-Object Extension -eq '.pptx').Count; $pdf=($files | Where-Object Extension -eq '.pdf').Count; Write-Host \"`nDocument Inventory: $folder`n$('=' * 50)\"; Write-Host \"  Word (.docx):        $docx files\"; Write-Host \"  Excel (.xlsx):       $xlsx files\"; Write-Host \"  PowerPoint (.pptx):  $pptx files\"; Write-Host \"  PDF (.pdf):          $pdf files\"; Write-Host \"  $('-' * 30)\"; Write-Host \"  Total:               $($files.Count) files`n\"; if($files.Count -gt 0){Write-Host 'Files:'; $files | ForEach-Object { Write-Host \"  $($_.FullName)\" }}"
+			],
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "A11y: Find Changed Documents (Git)",
+			"type": "shell",
+			"command": "git",
+			"args": [
+				"diff",
+				"--name-only",
+				"HEAD~1",
+				"HEAD",
+				"--",
+				"*.docx",
+				"*.xlsx",
+				"*.pptx",
+				"*.pdf"
+			],
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "A11y: Init Office Scan Config (Moderate)",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"Copy-Item -Path '${workspaceFolder}/templates/office-config-moderate.json' -Destination '${workspaceFolder}/.a11y-office-config.json'; Write-Host 'Created .a11y-office-config.json (moderate profile)'"
+			],
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "A11y: Init PDF Scan Config (Moderate)",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"Copy-Item -Path '${workspaceFolder}/templates/pdf-config-moderate.json' -Destination '${workspaceFolder}/.a11y-pdf-config.json'; Write-Host 'Created .a11y-pdf-config.json (moderate profile)'"
+			],
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Delete forge.agent.md",
+			"type": "shell",
+			"command": "Remove-Item -Path '.github\\agents\\forge.agent.md' -Force && echo DONE"
+		}
+	],
+	"inputs": [
+		{
+			"id": "foreground",
+			"type": "promptString",
+			"description": "Foreground color (hex, e.g. #1a1a1a or #fff)"
+		},
+		{
+			"id": "background",
+			"type": "promptString",
+			"description": "Background color (hex, e.g. #ffffff or #000)"
+		},
+		{
+			"id": "scanUrl",
+			"type": "promptString",
+			"description": "URL to scan (e.g., http://localhost:3000)"
+		},
+		{
+			"id": "docFolder",
+			"type": "promptString",
+			"description": "Folder path to scan for documents (e.g., ./docs or C:\\Documents)"
+		},
+		{
+			"id": "documentPath",
+			"type": "promptString",
+			"description": "Path to the document file (.docx, .xlsx, .pptx, or .pdf)"
+		},
+		{
+			"id": "auditReportPath",
+			"type": "promptString",
+			"description": "Path to an existing audit report (e.g., DOCUMENT-ACCESSIBILITY-AUDIT.md)"
+		}
+	]
 }

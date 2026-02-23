@@ -19,6 +19,9 @@
 
 ## What It Covers
 
+<details>
+<summary>Expand — full testing coverage list</summary>
+
 - NVDA commands (Windows, free) — full command reference
 - VoiceOver commands (macOS, built-in) — full command reference including Rotor
 - JAWS commands (Windows, enterprise) — essential commands
@@ -32,7 +35,12 @@
 - Recommended browser + screen reader testing combinations
 - Bug report templates for accessibility issues
 
+</details>
+
 ## Example Prompts
+
+<details>
+<summary>Show example prompts</summary>
 
 ### Claude Code
 
@@ -53,9 +61,16 @@
 @testing-coach what are the essential NVDA commands for testing forms?
 ```
 
+</details>
+
 ## Behavioral Constraints
+
+<details>
+<summary>Expand constraints</summary>
 
 - Will always emphasize that automated testing catches only ~30% of issues — manual testing is required
 - Recommends minimum viable testing as NVDA + Firefox and VoiceOver + Safari
 - Will not write product feature code — only test code and test plans
 - Provides exact key commands, not vague descriptions
+
+</details>

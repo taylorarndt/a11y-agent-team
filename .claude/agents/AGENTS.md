@@ -120,3 +120,49 @@ For Section 508, EN 301 549, or organizational compliance:
 2. Apply fixes interactively (auto-fixable + human-judgment items)
 3. Track progress by comparing audit reports between runs
 4. Use quick triage mode for fast axe-core scans between full audits
+
+## Team: GitHub Workflow Management
+
+**Lead:** `github-hub` or `nexus` (alternative entry points — same team, both orchestrate all GitHub workflow agents)
+
+**Members:**
+- `daily-briefing` — Daily GitHub command center: issues, PRs, reviews, releases, discussions, accessibility updates
+- `issue-tracker` — Issue search, triage, deep-dive, commenting, management, and dual-format workspace documents
+- `pr-review` — PR diff analysis, before/after snapshots, review comments, code suggestions, and review documents
+- `analytics` — Team velocity, review turnaround, issue resolution metrics, bottleneck detection, code churn
+- `insiders-a11y-tracker` — Tracks accessibility changes in VS Code Insiders and custom repos with delta tracking
+- `repo-admin` — Collaborator management, access auditing, branch protection, label sync, repo settings
+- `team-manager` — Org team member management, onboarding/offboarding checklists, cross-repo access sync
+- `contributions-hub` — Discussion management, community health, contributor insights, first-time contributor support
+- `template-builder` — Interactive issue/PR/workflow template wizard with YAML frontmatter generation
+- `repo-manager` — Repo infrastructure scaffolding: templates, CI/CD, labels, README, CONTRIBUTING, licenses
+
+**Skills:**
+- `github-workflow-standards` — Auth, smart defaults, dual MD+HTML output, HTML accessibility, safety rules, parallel execution
+- `github-scanning` — Search query patterns, date range handling, cross-repo intelligence, auto-recovery
+- `github-analytics-scoring` — Repo health scoring (0-100/A-F), priority scoring, confidence levels, delta tracking
+
+**Workflow:**
+1. User invokes `github-hub` or `nexus` with any natural language request about GitHub
+2. The orchestrator reads injected session context (`SessionStart` hook), identifies the authenticated user, discovers repos/orgs, and loads `preferences.md`
+3. The orchestrator classifies user intent and routes to the appropriate specialist agent
+4. Specialist agents run their workflow, announce steps with ⚙️/✅ pattern, collect data in parallel
+5. All reports saved as dual `.md` + `.html` outputs to `.github/reviews/` subdirectories
+6. Agents surface relevant handoffs (e.g., `issue-tracker` → `pr-review` for linked PRs)
+
+**Parallel Execution Model:**
+- `daily-briefing` runs Batch 1 streams simultaneously: issues, PRs, CI/security, accessibility
+- `analytics` collects PR metrics, issue metrics, contribution activity, churn, and bottleneck data in parallel
+- `github-hub` routes to multiple sub-agents in one session without repeating context
+- `nexus` routes identically — both orchestrators share the same team and handoff logic
+
+**Confidence & Delta Tracking:**
+- All agents tag findings with **High / Medium / Low** confidence
+- `analytics`, `issue-tracker`, `pr-review`, and `insiders-a11y-tracker` support delta tracking across reports: ✅ Resolved / 🆕 New / ⚠️ Persistent / 🔄 Regressed
+- Persistent bottlenecks (3+ consecutive reports) trigger escalation flags
+
+**Handoffs:**
+- `github-hub`/`nexus` → any specialist via intent routing
+- `daily-briefing` → `issue-tracker` (deep dive on issue), `pr-review` (full review), `analytics` (team metrics), `insiders-a11y-tracker` (a11y detail)
+- `issue-tracker` ↔ `pr-review` (bidirectional: linked PRs/issues)
+- Any agent → `github-hub` or `nexus` for scope changes or re-routing

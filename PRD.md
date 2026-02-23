@@ -24,7 +24,7 @@
   - [Hidden Helper Sub-Agents (5)](#hidden-helper-sub-agents-5)
 - [Prompts and Skills](#prompts-and-skills)
   - [Custom Prompts (14)](#custom-prompts-14)
-  - [Reusable Skills (6)](#reusable-skills-6)
+  - [Reusable Skills (9)](#reusable-skills-9)
   - [Lifecycle Hooks (2)](#lifecycle-hooks-2)
   - [Agent Teams (AGENTS.md)](#agent-teams-agentsmd)
 - [MCP Tool Specifications](#mcp-tool-specifications)
@@ -48,11 +48,11 @@
 
 ## Executive Summary
 
-A11y Agent Team is an accessibility enforcement system for AI-powered coding and authoring tools. It deploys twenty-four specialized agents across three platforms — Claude Code (terminal), GitHub Copilot (VS Code), and Claude Desktop (app) — to ensure that web code, Office documents, and PDF files meet accessibility standards. The system intercepts the developer workflow at code-generation time, applying WCAG 2.2 AA standards for web content, format-specific rules for Office documents (DOCX/XLSX/PPTX), and PDF/UA conformance with Matterhorn Protocol alignment for PDF files.
+A11y Agent Team is an accessibility enforcement system for AI-powered coding and authoring tools. It deploys specialized agents across three platforms — Claude Code (terminal), GitHub Copilot (VS Code), and Claude Desktop (app) — to ensure that web code, Office documents, and PDF files meet accessibility standards. The system intercepts the developer workflow at code-generation time, applying WCAG 2.2 AA standards for web content, format-specific rules for Office documents (DOCX/XLSX/PPTX), and PDF/UA conformance with Matterhorn Protocol alignment for PDF files.
 
-The project includes eleven MCP tools (zero external dependencies for document scanning), fourteen custom prompts, six reusable skills, lifecycle hooks, agent team coordination (AGENTS.md), three CI scripts, automated installer/uninstaller scripts for all platforms, auto-update capability, an example project with 20+ intentional violations, and SARIF 2.1.0 output for GitHub Code Scanning integration.
+The project includes eleven MCP tools (zero external dependencies for document scanning), fourteen custom prompts, nine reusable skills, lifecycle hooks, agent team coordination (AGENTS.md), three CI scripts, automated installer/uninstaller scripts for all platforms, auto-update capability, an example project with 20+ intentional violations, and SARIF 2.1.0 output for GitHub Code Scanning integration.
 
-Key capabilities added since v1.0: document accessibility wizard with delta scanning, severity scoring (0-100 with A-F grades), template analysis, remediation tracking, VPAT/ACR export, batch remediation scripts, CI/CD integration guides; web accessibility wizard with sub-agent delegation, page metadata dashboard, component/template analysis, framework intelligence (React, Vue, Angular, Svelte, Tailwind), large crawl handling, interactive fix mode, and web scan configuration files; hidden helper sub-agents for parallel workload distribution; and comprehensive documentation in `docs/`.
+Key capabilities added since v1.0: document accessibility wizard with delta scanning, severity scoring (0-100 with A-F grades), template analysis, remediation tracking, VPAT/ACR export, batch remediation scripts, CI/CD integration guides; web accessibility wizard with sub-agent delegation, page metadata dashboard, component/template analysis, framework intelligence (React, Vue, Angular, Svelte, Tailwind), large crawl handling, interactive fix mode, and web scan configuration files; hidden helper sub-agents for parallel workload distribution; **GitHub Workflow Management** team (10 agents: github-hub, daily-briefing, pr-review, issue-tracker, analytics, insiders-a11y-tracker, repo-admin, team-manager, contributions-hub, template-builder) with three new skills (github-workflow-standards, github-scanning, github-analytics-scoring) providing priority scoring, health scoring, delta tracking, confidence levels, and progress announcements; and comprehensive documentation in `docs/`.
 
 ---
 
@@ -268,18 +268,34 @@ flowchart TD
 | 18 | **pdf-accessibility** | PDF/UA conformance, Matterhorn Protocol, structure, metadata | 56 rules (3 layers) | scan_pdf_document |
 | 19 | **pdf-scan-config** | PDF scan configuration management | 3 presets | N/A (config only) |
 
+### GitHub Workflow Agents (10)
+
+Project and repository management agents for GitHub operations. All agents implement the `github-workflow-standards` skill, produce dual MD+HTML output, and apply scoring, confidence levels, and delta tracking.
+
+| # | Agent | Role | Skills |
+|---|-------|------|--------|
+| 20 | **github-hub** | Orchestrator — routes to the right agent from plain English | workflow-standards, scanning |
+| 21 | **daily-briefing** | Morning overview of issues, PRs, CI, security alerts | workflow-standards, scanning, analytics-scoring |
+| 22 | **pr-review** | PR review with diff analysis, confidence per finding, delta tracking | workflow-standards, scanning, analytics-scoring |
+| 23 | **issue-tracker** | Issue triage, priority scoring, action inference, project board | workflow-standards, scanning, analytics-scoring |
+| 24 | **analytics** | Repo health scoring (0-100/A-F), velocity, bottleneck detection | workflow-standards, scanning, analytics-scoring |
+| 25 | **insiders-a11y-tracker** | Track a11y changes in VS Code and custom repos with delta + WCAG mapping | workflow-standards, scanning, analytics-scoring |
+| 26 | **repo-admin** | Collaborator management, branch protection, access audits | workflow-standards, scanning, analytics-scoring |
+| 27 | **team-manager** | Onboarding, offboarding, org team membership | workflow-standards, scanning |
+| 28 | **contributions-hub** | Discussions, community health, contributor insights | workflow-standards, scanning |
+| 29 | **template-builder** | Guided wizard: issue/PR/discussion templates, no YAML required | workflow-standards, scanning |
+| 30 | **repo-manager** | Repo scaffolding: issue templates, CI, labels, CONTRIBUTING, SECURITY | workflow-standards, scanning |
+
 ### Hidden Helper Sub-Agents (5)
 
 These agents are not user-invokable. They are used internally by the document-accessibility-wizard and web-accessibility-wizard to parallelize scanning and analysis.
 
 | # | Agent | Parent Wizard | Purpose | Platforms |
 |---|-------|--------------|---------|----------|
-| 20 | **cross-page-analyzer** | web-accessibility-wizard | Cross-page web pattern detection, severity scoring, remediation tracking | Claude + Copilot |
-| 21 | **web-issue-fixer** | web-accessibility-wizard | Automated and guided web accessibility fix application | Claude + Copilot |
-| 22 | **cross-document-analyzer** | document-accessibility-wizard | Cross-document pattern detection, severity scoring, template analysis | Claude + Copilot |
-| 23 | **document-inventory** | document-accessibility-wizard | File discovery, inventory building, delta detection across folders | Claude + Copilot |
-
-> **Note:** The accessibility-lead agent (#1) also serves as the 24th agent per platform. The document-accessibility-wizard is listed as a distinct agent but shares the same count slot as #14 in the document agents section above — the hidden sub-agents bring the total to 24 unique agents per platform.
+| H1 | **cross-page-analyzer** | web-accessibility-wizard | Cross-page web pattern detection, severity scoring, remediation tracking | Claude + Copilot |
+| H2 | **web-issue-fixer** | web-accessibility-wizard | Automated and guided web accessibility fix application | Claude + Copilot |
+| H3 | **cross-document-analyzer** | document-accessibility-wizard | Cross-document pattern detection, severity scoring, template analysis | Claude + Copilot |
+| H4 | **document-inventory** | document-accessibility-wizard | File discovery, inventory building, delta detection across folders | Claude + Copilot |
 
 ---
 
@@ -313,7 +329,7 @@ One-click workflows available from the Copilot prompt picker:
 | compare-web-audits | Compare two web audit reports to track remediation progress |
 | fix-web-issues | Interactive fix mode — auto-fixable and human-judgment items from audit report |
 
-### Reusable Skills (6)
+### Reusable Skills (9)
 
 Domain-specific knowledge modules in `.github/skills/` that agents reference automatically:
 
@@ -325,6 +341,9 @@ Domain-specific knowledge modules in `.github/skills/` that agents reference aut
 | web-scanning | Web content discovery, URL crawling, axe-core CLI commands, framework detection |
 | web-severity-scoring | Web severity scoring formulas (0-100, A-F grades), confidence levels, remediation tracking |
 | framework-accessibility | Framework-specific accessibility patterns and fix templates (React, Vue, Angular, Svelte, Tailwind) |
+| github-workflow-standards | Core standards for all GitHub workflow agents: auth, dual MD+HTML output, HTML accessibility, safety rules, progress announcements, parallel execution |
+| github-scanning | GitHub search patterns by intent, date range handling, parallel stream collection model, cross-repo intelligence, auto-recovery |
+| github-analytics-scoring | Repo health scoring (0-100/A-F), issue/PR priority scoring, confidence levels (High/Medium/Low), delta tracking (Fixed/New/Persistent/Regressed), velocity metrics, bottleneck detection |
 
 ### Lifecycle Hooks (2)
 
@@ -335,13 +354,14 @@ Domain-specific knowledge modules in `.github/skills/` that agents reference aut
 
 ### Agent Teams (AGENTS.md)
 
-Team coordination is defined in `.github/agents/AGENTS.md`. Three defined teams:
+Team coordination is defined in `.github/agents/AGENTS.md`. Four defined teams:
 
 | Team | Led By | Members |
 |------|--------|--------|
 | Document Accessibility Audit | document-accessibility-wizard | word-accessibility, excel-accessibility, powerpoint-accessibility, pdf-accessibility, document-inventory, cross-document-analyzer |
 | Web Accessibility Audit | accessibility-lead | All 13 web agents + cross-page-analyzer, web-issue-fixer |
 | Full Audit | accessibility-lead | All agents (combined web + document workflow) |
+| GitHub Workflow Management | github-hub | daily-briefing, pr-review, issue-tracker, analytics, insiders-a11y-tracker, repo-admin, team-manager, contributions-hub, template-builder, repo-manager |
 
 ---
 
@@ -838,7 +858,9 @@ mcpb pack . ../a11y-agent-team.mcpb
 
 ## File Inventory
 
-### Agent Files (48 total: 24 Claude + 24 Copilot)
+### Agent Files (68 total: 34 Claude + 34 Copilot)
+
+#### Accessibility Agents (24 per platform)
 
 | Agent | Claude Path | Copilot Path |
 |-------|------------|--------------|
@@ -866,6 +888,24 @@ mcpb pack . ../a11y-agent-team.mcpb
 | web-accessibility-wizard | `.claude/agents/web-accessibility-wizard.md` | `.github/agents/web-accessibility-wizard.agent.md` |
 | web-issue-fixer | `.claude/agents/web-issue-fixer.md` | `.github/agents/web-issue-fixer.agent.md` |
 | word-accessibility | `.claude/agents/word-accessibility.md` | `.github/agents/word-accessibility.agent.md` |
+
+#### GitHub Workflow Agents (10 per platform)
+
+| Agent | Claude Path | Copilot Path |
+|-------|------------|-------------|
+| github-hub | `.claude/agents/github-hub.md` | `.github/agents/github-hub.agent.md` |
+| analytics | `.claude/agents/analytics.md` | `.github/agents/analytics.agent.md` |
+| contributions-hub | `.claude/agents/contributions-hub.md` | `.github/agents/contributions-hub.agent.md` |
+| daily-briefing | `.claude/agents/daily-briefing.md` | `.github/agents/daily-briefing.agent.md` |
+| insiders-a11y-tracker | `.claude/agents/insiders-a11y-tracker.md` | `.github/agents/insiders-a11y-tracker.agent.md` |
+| issue-tracker | `.claude/agents/issue-tracker.md` | `.github/agents/issue-tracker.agent.md` |
+| pr-review | `.claude/agents/pr-review.md` | `.github/agents/pr-review.agent.md` |
+| repo-admin | `.claude/agents/repo-admin.md` | `.github/agents/repo-admin.agent.md` |
+| repo-manager | `.claude/agents/repo-manager.md` | `.github/agents/repo-manager.agent.md` |
+| team-manager | `.claude/agents/team-manager.md` | `.github/agents/team-manager.agent.md` |
+| template-builder | `.claude/agents/template-builder.md` | `.github/agents/template-builder.agent.md` |
+
+The old file header "Agent Files (48 total)" is now "68 total": 34 unique agents × 2 platforms.
 
 ### Infrastructure Files
 
@@ -926,6 +966,9 @@ mcpb pack . ../a11y-agent-team.mcpb
 | `.github/skills/web-scanning/SKILL.md` | Web crawling and axe-core commands |
 | `.github/skills/web-severity-scoring/SKILL.md` | Web severity scoring |
 | `.github/skills/framework-accessibility/SKILL.md` | Framework-specific patterns |
+| `.github/skills/github-workflow-standards/SKILL.md` | GitHub auth, dual MD+HTML output, HTML accessibility, safety rules, progress announcements |
+| `.github/skills/github-scanning/SKILL.md` | GitHub search by intent, date ranges, parallel streams, auto-recovery |
+| `.github/skills/github-analytics-scoring/SKILL.md` | Repo health scoring, issue/PR priority, confidence levels, delta tracking, velocity metrics |
 
 ### Hooks and Config Templates
 
@@ -994,15 +1037,16 @@ mcpb pack . ../a11y-agent-team.mcpb
 
 | Metric | Count |
 |--------|-------|
-| Total agents | 24 (× 2 platforms = 48 files) |
+| Total unique agents | 34 (24 accessibility + 10 GitHub workflow, × 2 platforms = 68 files) |
 | Web accessibility agents | 13 |
 | Document accessibility agents | 6 |
 | Hidden helper sub-agents | 4 |
+| GitHub workflow agents | 10 (1 orchestrator + 9 specialists) |
 | Document/web wizards | 2 (1 web + 1 document, × 2 platforms each) |
 | Custom prompts | 14 (9 document + 5 web) |
-| Reusable skills | 6 |
+| Reusable skills | 9 (6 accessibility + 3 GitHub workflow) |
 | Lifecycle hooks | 2 (SessionStart + SessionEnd) |
-| Agent teams | 3 (Document, Web, Full) |
+| Agent teams | 4 (Document, Web, Full, GitHub Workflow) |
 | MCP tools | 11 (7 web + 4 document) |
 | MCP prompts | 6 |
 | Office document rules | 46 (16 DOCX + 14 XLSX + 16 PPTX) |
@@ -1015,4 +1059,4 @@ mcpb pack . ../a11y-agent-team.mcpb
 | WCAG criteria covered (VPAT) | 50 (30 Level A + 20 Level AA) |
 | Installer scripts | 6 (install, uninstall, update × 2 platforms) |
 | Documentation pages | 38 (in `docs/` directory) |
-| Total project files | ~160 |
+| Total project files | ~175 |

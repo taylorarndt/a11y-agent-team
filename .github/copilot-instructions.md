@@ -54,6 +54,9 @@ Reusable knowledge modules in `.github/skills/` that agents reference automatica
 | web-scanning | Web content discovery, URL crawling, axe-core CLI commands, framework detection |
 | web-severity-scoring | Web severity scoring formulas (0-100, A-F grades), confidence levels, remediation tracking |
 | framework-accessibility | Framework-specific accessibility patterns and fix templates (React, Vue, Angular, Svelte, Tailwind) |
+| github-workflow-standards | Core standards for all GitHub workflow agents: auth, discovery, dual MD+HTML output, HTML accessibility, safety rules, progress announcements, parallel execution |
+| github-scanning | GitHub search patterns by intent, date range handling, parallel stream collection, cross-repo intelligence, auto-recovery |
+| github-analytics-scoring | Repo health scoring (0-100/A-F), issue/PR priority scoring, confidence levels, delta tracking, velocity metrics, bottleneck detection |
 
 ### Lifecycle Hooks
 
@@ -66,11 +69,12 @@ Session hooks in `.github/hooks/` that inject context automatically:
 
 ### Agent Teams
 
-Team coordination is defined in `.github/agents/AGENTS.md`. Three defined teams:
+Team coordination is defined in `.github/agents/AGENTS.md`. Four defined teams:
 
 - **Document Accessibility Audit** — led by document-accessibility-wizard with format-specific sub-agents
 - **Web Accessibility Audit** — led by accessibility-lead with all web specialist agents
 - **Full Audit** — combined web + document audit workflow
+- **GitHub Workflow** — led by github-hub; routes to daily-briefing, pr-review, issue-tracker, analytics, repo-admin, team-manager, contributions-hub, insiders-a11y-tracker, template-builder
 
 ### Decision Matrix
 
