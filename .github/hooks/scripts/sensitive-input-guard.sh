@@ -22,10 +22,19 @@ print(json.dumps({
 echo "$prompt" | grep -qE 'ghp_[A-Za-z0-9]{36,}'           && block "GitHub Personal Access Token (ghp_...)"
 echo "$prompt" | grep -qE 'gho_[A-Za-z0-9]{36,}'           && block "GitHub OAuth token (gho_...)"
 echo "$prompt" | grep -qE 'github_pat_[A-Za-z0-9_]{80,}'   && block "GitHub fine-grained PAT"
-# OpenAI
+echo "$prompt" | grep -qE 'ghsr_[A-Za-z0-9]{36,}'           && block "GitHub secret scanning token"
+# OpenAI / Anthropic
 echo "$prompt" | grep -qE 'sk-[A-Za-z0-9]{40,}'            && block "OpenAI API key"
+echo "$prompt" | grep -qE 'sk-ant-api03-[A-Za-z0-9_-]{93,}' && block "Anthropic API key"
 # AWS
 echo "$prompt" | grep -qE 'AKIA[A-Z0-9]{16}'               && block "AWS Access Key ID"
+# Google
+echo "$prompt" | grep -qE 'AIza[0-9A-Za-z_-]{35}'          && block "Google API key"
+# Stripe
+echo "$prompt" | grep -qE 'sk_(live|test)_[A-Za-z0-9]{24,}' && block "Stripe secret key"
+# Azure SAS token / Storage connection string
+echo "$prompt" | grep -qE 'sig=[A-Za-z0-9%+/]{43,}'        && block "Azure SAS token"
+echo "$prompt" | grep -qE 'AccountKey=[A-Za-z0-9+/]{80,}==' && block "Azure Storage account key"
 # Private keys
 echo "$prompt" | grep -q 'BEGIN.*PRIVATE KEY'               && block "private key / certificate"
 # Slack

@@ -1,4 +1,4 @@
-# pdf-scan-config — PDF Scan Configuration
+# pdf-scan-config - PDF Scan Configuration
 
 > Manages `.a11y-pdf-config.json` configuration files that control which rules the `scan_pdf_document` MCP tool enforces. Supports rule enabling/disabling, severity filters, max file size limits, and three preset profiles.
 
@@ -27,7 +27,7 @@
 <details>
 <summary>Show example prompts</summary>
 
-```
+```text
 /pdf-scan-config create a strict config for this project
 @pdf-scan-config disable PDFBP rules and only check PDF/UA
 @pdf-scan-config set max file size to 50MB
@@ -38,14 +38,16 @@
 ## How to Launch It
 
 **In Claude Code:**
-```
+
+```text
 /pdf-scan-config create a moderate config for this project
 /pdf-scan-config disable PDFBP rules, only check PDF/UA compliance
 /pdf-scan-config set max file size to 50MB
 ```
 
 **In GitHub Copilot Chat:**
-```
+
+```text
 @pdf-scan-config set up PDF scanning for our procurement documents
 @pdf-scan-config we only need PDF/UA checks, skip best practices
 ```
@@ -57,12 +59,14 @@
 **Step 1: Identify your compliance target.**
 
 Different use cases require different rule layers:
-- **Government/procurement (Section 508, EN 301 549):** Use strict profile — all 56 rules
-- **Internal documents:** Use moderate profile — PDFUA + PDFBP, errors and warnings
-- **Quick CI/CD gate, legacy document backlog:** Use minimal profile — PDFUA errors only
+
+- **Government/procurement (Section 508, EN 301 549):** Use strict profile - all 56 rules
+- **Internal documents:** Use moderate profile - PDFUA + PDFBP, errors and warnings
+- **Quick CI/CD gate, legacy document backlog:** Use minimal profile - PDFUA errors only
 
 **Step 2: Create the config.**
-```
+
+```text
 /pdf-scan-config create a moderate config
 ```
 
@@ -71,7 +75,8 @@ This creates `.a11y-pdf-config.json` in your project root.
 **Step 3: Set performance limits if needed.**
 
 For large PDF libraries, scanning very large files can be slow. Set a file size limit:
-```
+
+```text
 /pdf-scan-config set max file size to 25MB
 ```
 
@@ -79,7 +84,8 @@ Files exceeding the limit are flagged in the inventory but skipped during scanni
 
 **Step 4: Disable rule layers you do not need.**
 If your organization cares only about PDF/UA structural conformance and not best practices:
-```
+
+```text
 /pdf-scan-config disable the PDFBP layer
 ```
 
@@ -134,9 +140,9 @@ To disable an entire layer, set `"enabled": false` on the layer. To disable a sp
 
 | Layer | Rules | Use When |
 |-------|-------|----------|
-| **PDFUA** | 30 rules | Always — these are the conformance requirements |
+| **PDFUA** | 30 rules | Always - these are the conformance requirements |
 | **PDFBP** | 22 rules | When distributing externally or for public sector compliance |
-| **PDFQ** | 4 rules | Always — these catch pipeline issues (scanned PDFs, encryption) |
+| **PDFQ** | 4 rules | Always - these catch pipeline issues (scanned PDFs, encryption) |
 
 ## Connections
 

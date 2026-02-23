@@ -12,12 +12,14 @@ Run a thorough code review on any pull request. The agent reads the full diff, f
 ## How to Launch It
 
 **In GitHub Copilot Chat:**
-```
+
+```text
 /review-pr owner/repo#123
 ```
 
 Or just provide the PR context:
-```
+
+```text
 /review-pr https://github.com/owner/repo/pull/123
 ```
 
@@ -25,12 +27,12 @@ If you are already on the PR branch, you can simply run `/review-pr` and the age
 
 ## What to Expect
 
-1. **Fetch diff** — The agent downloads the full unified diff, all changed files, and the PR description
-2. **Build Change Map** — A table of every changed file, lines added/removed, and the logical purpose of each change
-3. **Per-file analysis** — Line-numbered observations categorized as CRITICAL / IMPORTANT / SUGGESTION / NIT / PRAISE
-4. **Before/after snapshots** — For complex logic changes, side-by-side code comparison
-5. **Summary verdict** — Overall review outcome: Approve / Approve with nits / Request changes / Block
-6. **Save documents** — Writes `.github/reviews/prs/{repo}-pr-{number}.md` and `.html`
+1. **Fetch diff** - The agent downloads the full unified diff, all changed files, and the PR description
+2. **Build Change Map** - A table of every changed file, lines added/removed, and the logical purpose of each change
+3. **Per-file analysis** - Line-numbered observations categorized as CRITICAL / IMPORTANT / SUGGESTION / NIT / PRAISE
+4. **Before/after snapshots** - For complex logic changes, side-by-side code comparison
+5. **Summary verdict** - Overall review outcome: Approve / Approve with nits / Request changes / Block
+6. **Save documents** - Writes `.github/reviews/prs/{repo}-pr-{number}.md` and `.html`
 
 ### Review Priority Levels
 
@@ -44,8 +46,8 @@ If you are already on the PR branch, you can simply run `/review-pr` and the age
 
 ### Sample Output (in chat)
 
-```
-## Review — owner/repo #123 "Add authentication middleware"
+```text
+## Review - owner/repo #123 "Add authentication middleware"
 
 Change Map:
   src/middleware/auth.ts    +80 / -12   New JWT validation
@@ -70,7 +72,7 @@ Saved to .github/reviews/prs/repo-pr-123.md
 
 ## Example Variations
 
-```
+```text
 /review-pr owner/docs-site#88            # Review specific PR
 /review-pr                               # Detect PR from current branch
 /review-pr focus on security            # Emphasize security findings
@@ -92,7 +94,7 @@ Saved to .github/reviews/prs/repo-pr-123.md
 
 ## Related Prompts
 
-- [pr-report](pr-report.md) — generate a review document without inline comments
-- [pr-author-checklist](pr-author-checklist.md) — pre-submit checklist for PR authors
-- [pr-comment](pr-comment.md) — add a specific comment to a PR
-- [merge-pr](merge-pr.md) — merge after review is complete
+- [pr-report](pr-report.md) - generate a review document without inline comments
+- [pr-author-checklist](pr-author-checklist.md) - pre-submit checklist for PR authors
+- [pr-comment](pr-comment.md) - add a specific comment to a PR
+- [merge-pr](merge-pr.md) - merge after review is complete

@@ -12,7 +12,7 @@ The `scan_office_document` MCP tool scans DOCX, XLSX, and PPTX files by parsing 
 
 ## Usage
 
-```
+```text
 # Claude Code
 /word-accessibility scan docs/report.docx
 /excel-accessibility check data/budget.xlsx
@@ -26,12 +26,13 @@ The `scan_office_document` MCP tool scans DOCX, XLSX, and PPTX files by parsing 
 
 ## Output Formats
 
-- **SARIF** (default) — Machine-readable, compatible with GitHub Code Scanning
-- **Markdown** — Human-readable report with severity, rule explanations, and remediation guidance
+- **SARIF** (default) - Machine-readable, compatible with GitHub Code Scanning
+- **Markdown** - Human-readable report with severity, rule explanations, and remediation guidance
 
 ## CI/CD Script
 
 The CI scanner at `.github/scripts/office-a11y-scan.mjs`:
+
 - Discovers documents recursively (skipping `node_modules`, `.git`, `vendor`)
 - Applies `.a11y-office-config.json` if present
 - Outputs SARIF 2.1.0 reports

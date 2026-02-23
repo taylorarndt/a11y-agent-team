@@ -48,7 +48,7 @@
 
 ## Executive Summary
 
-A11y Agent Team is an accessibility enforcement system for AI-powered coding and authoring tools. It deploys specialized agents across three platforms — Claude Code (terminal), GitHub Copilot (VS Code), and Claude Desktop (app) — to ensure that web code, Office documents, and PDF files meet accessibility standards. The system intercepts the developer workflow at code-generation time, applying WCAG 2.2 AA standards for web content, format-specific rules for Office documents (DOCX/XLSX/PPTX), and PDF/UA conformance with Matterhorn Protocol alignment for PDF files.
+A11y Agent Team is an accessibility enforcement system for AI-powered coding and authoring tools. It deploys specialized agents across three platforms - Claude Code (terminal), GitHub Copilot (VS Code), and Claude Desktop (app) - to ensure that web code, Office documents, and PDF files meet accessibility standards. The system intercepts the developer workflow at code-generation time, applying WCAG 2.2 AA standards for web content, format-specific rules for Office documents (DOCX/XLSX/PPTX), and PDF/UA conformance with Matterhorn Protocol alignment for PDF files.
 
 The project includes eleven MCP tools (zero external dependencies for document scanning), fourteen custom prompts, nine reusable skills, lifecycle hooks, agent team coordination (AGENTS.md), three CI scripts, automated installer/uninstaller scripts for all platforms, auto-update capability, an example project with 20+ intentional violations, and SARIF 2.1.0 output for GitHub Code Scanning integration.
 
@@ -62,14 +62,16 @@ Key capabilities added since v1.0: document accessibility wizard with delta scan
 
 AI coding tools (Claude Code, GitHub Copilot, Cursor, etc.) generate inaccessible code by default. They:
 
-1. **Forget ARIA rules** — Misuse roles, states, and properties; violate the First Rule of ARIA
-2. **Skip keyboard navigation** — Produce interactive elements unreachable by keyboard
-3. **Ignore contrast ratios** — Use color combinations that fail WCAG AA thresholds
-4. **Break focus management** — Modals without focus trapping, SPAs without focus restoration on route change
-5. **Omit live regions** — Dynamic content changes invisible to screen readers
-6. **Produce inaccessible documents** — Office files and PDFs without tagged structure, alt text, or proper metadata
+1. **Forget ARIA rules** - Misuse roles, states, and properties; violate the First Rule of ARIA
+2. **Skip keyboard navigation** - Produce interactive elements unreachable by keyboard
+3. **Ignore contrast ratios** - Use color combinations that fail WCAG AA thresholds
+4. **Break focus management** - Modals without focus trapping, SPAs without focus restoration on route change
+5. **Omit live regions** - Dynamic content changes invisible to screen readers
+6. **Produce inaccessible documents** - Office files and PDFs without tagged structure, alt text, or proper metadata
 
 ### Why Existing Approaches Fail
+
+The following table summarizes common accessibility enforcement approaches and why each falls short.
 
 | Approach | Failure Mode |
 |----------|-------------|
@@ -81,7 +83,7 @@ AI coding tools (Claude Code, GitHub Copilot, Cursor, etc.) generate inaccessibl
 
 ### Solution Insight
 
-Agents run in their own context window with a dedicated system prompt. The accessibility rules aren't suggestions — they are the agent's entire identity. An ARIA specialist cannot forget about ARIA. A contrast master cannot skip contrast checks. The rules are who they are.
+Agents run in their own context window with a dedicated system prompt. The accessibility rules aren't suggestions - they are the agent's entire identity. An ARIA specialist cannot forget about ARIA. A contrast master cannot skip contrast checks. The rules are who they are.
 
 ---
 
@@ -89,20 +91,22 @@ Agents run in their own context window with a dedicated system prompt. The acces
 
 "Accessibility is how I work, not something I bolt on at the end."
 
-A11y Agent Team makes accessibility enforcement automatic, comprehensive, and unavoidable in AI-assisted development workflows. It covers the full lifecycle — from code generation through document authoring to CI verification — across every major AI coding platform.
+A11y Agent Team makes accessibility enforcement automatic, comprehensive, and unavoidable in AI-assisted development workflows. It covers the full lifecycle - from code generation through document authoring to CI verification - across every major AI coding platform.
 
 ### Design Principles
 
-1. **Zero tolerance for silent failures** — Accessibility issues are caught at generation time, not after deployment
-2. **Single responsibility per agent** — Each agent owns one domain completely and cannot be distracted
-3. **Native platform integration** — Works within each platform's architecture (hooks for Claude Code, workspace instructions for Copilot, MCP for Desktop)
-4. **Zero external dependencies for core features** — Document scanning uses only Node.js built-ins
-5. **Standards-first** — All rules trace back to specific WCAG criteria, PDF/UA checkpoints, or Matterhorn Protocol requirements
-6. **Progressive enforcement** — Configurable rule sets with preset profiles (strict/moderate/minimal)
+1. **Zero tolerance for silent failures** - Accessibility issues are caught at generation time, not after deployment
+2. **Single responsibility per agent** - Each agent owns one domain completely and cannot be distracted
+3. **Native platform integration** - Works within each platform's architecture (hooks for Claude Code, workspace instructions for Copilot, MCP for Desktop)
+4. **Zero external dependencies for core features** - Document scanning uses only Node.js built-ins
+5. **Standards-first** - All rules trace back to specific WCAG criteria, PDF/UA checkpoints, or Matterhorn Protocol requirements
+6. **Progressive enforcement** - Configurable rule sets with preset profiles (strict/moderate/minimal)
 
 ---
 
 ## Target Users
+
+The following table describes the primary user types and how each uses the system.
 
 | User Type | Primary Need | Primary Platform |
 |-----------|-------------|-----------------|
@@ -123,7 +127,7 @@ A11y Agent Team makes accessibility enforcement automatic, comprehensive, and un
 - **Activation mechanism:** `UserPromptSubmit` hook fires on every prompt; evaluates whether UI code is involved
 - **Hook scripts:** Bash (macOS/Linux) and PowerShell (Windows)
 - **Install scope:** Project-level (`.claude/`) or global (`~/.claude/`)
-- **Auto-updates:** LaunchAgent (macOS), cron (Linux), Task Scheduler (Windows) — daily at 9:00 AM
+- **Auto-updates:** LaunchAgent (macOS), cron (Linux), Task Scheduler (Windows) - daily at 9:00 AM
 
 ### GitHub Copilot (VS Code)
 
@@ -134,7 +138,7 @@ A11y Agent Team makes accessibility enforcement automatic, comprehensive, and un
 
 ### Claude Desktop (App)
 
-- **Extension format:** `.mcpb` (MCP Bundle) — packaged Node.js server with manifest
+- **Extension format:** `.mcpb` (MCP Bundle) - packaged Node.js server with manifest
 - **Activation mechanism:** Tools auto-invoked by Claude; prompts available from prompt picker
 - **Distribution:** GitHub Releases download; submitted to Anthropic Connectors Directory
 - **MCP SDK:** `@modelcontextprotocol/sdk` ^1.20.0 with `zod` 3.25
@@ -144,6 +148,11 @@ A11y Agent Team makes accessibility enforcement automatic, comprehensive, and un
 ## System Architecture
 
 ### Agent Architecture
+
+The following diagram shows the agent activation flow, from user prompt through the orchestrator to specialist sub-agents and wizard components.
+
+<details>
+<summary>Agent architecture flowchart</summary>
 
 ```mermaid
 flowchart TD
@@ -177,6 +186,8 @@ flowchart TD
     C --> R2["wcag-guide<br>(standard reference)"]
 ```
 
+</details>
+
 ### MCP Server Architecture
 
 The MCP server (`desktop-extension/server/index.js`) is a single Node.js ESM module that:
@@ -190,7 +201,7 @@ The MCP server (`desktop-extension/server/index.js`) is a single Node.js ESM mod
 
 ```mermaid
 flowchart TD
-    subgraph MCP["MCP Server — desktop-extension/server/index.js"]
+    subgraph MCP["MCP Server - desktop-extension/server/index.js"]
         direction TB
         DEPS["Imports: node:child_process, node:fs, node:os, node:path,<br>node:crypto, node:util, node:zlib<br>External: @modelcontextprotocol/sdk, zod"]
 
@@ -224,6 +235,11 @@ flowchart TD
 
 ### CI/CD Architecture
 
+The following diagram shows the pull request pipeline that triggers accessibility scanning and uploads SARIF results to GitHub Code Scanning.
+
+<details>
+<summary>CI/CD architecture flowchart</summary>
+
 ```mermaid
 flowchart TD
     TRIGGER["pull_request event<br>(opened, synchronize)"] --> WORKFLOW[".github/workflows/a11y-check.yml"]
@@ -235,11 +251,15 @@ flowchart TD
     STEP3 --> OUTPUT
 ```
 
+</details>
+
 ---
 
 ## Agent Specifications
 
 ### Web Accessibility Agents (13)
+
+The following table lists all web accessibility agents with their domains, rule coverage, and whether they write code.
 
 | # | Agent | Domain | Rule Coverage | Writes Code? |
 |---|-------|--------|---------------|-------------|
@@ -259,6 +279,8 @@ flowchart TD
 
 ### Document Accessibility Agents (6)
 
+The following table lists all document accessibility agents with their rule counts and MCP tool mappings.
+
 | # | Agent | Domain | Rule Count | MCP Tool |
 |---|-------|--------|-----------|----------|
 | 14 | **word-accessibility** | DOCX alt text, headings, tables, language, reading order | 16 rules | scan_office_document |
@@ -274,7 +296,7 @@ Project and repository management agents for GitHub operations. All agents imple
 
 | # | Agent | Role | Skills |
 |---|-------|------|--------|
-| 20 | **github-hub** | Orchestrator — routes to the right agent from plain English | workflow-standards, scanning |
+| 20 | **github-hub** | Orchestrator - routes to the right agent from plain English | workflow-standards, scanning |
 | 21 | **daily-briefing** | Morning overview of issues, PRs, CI, security alerts | workflow-standards, scanning, analytics-scoring |
 | 22 | **pr-review** | PR review with diff analysis, confidence per finding, delta tracking | workflow-standards, scanning, analytics-scoring |
 | 23 | **issue-tracker** | Issue triage, priority scoring, action inference, project board | workflow-standards, scanning, analytics-scoring |
@@ -307,27 +329,31 @@ One-click workflows available from the Copilot prompt picker:
 
 #### Document Accessibility Prompts (9)
 
+The following one-click prompts cover common document accessibility tasks.
+
 | Prompt | What It Does |
 |--------|-------------|
 | audit-single-document | Scan a single .docx, .xlsx, .pptx, or .pdf with severity scoring |
 | audit-document-folder | Recursively scan an entire folder of documents |
-| audit-changed-documents | Delta scan — only audit documents changed since last commit |
+| audit-changed-documents | Delta scan - only audit documents changed since last commit |
 | generate-vpat | Generate a VPAT 2.5 / ACR compliance report from audit results |
 | generate-remediation-scripts | Create PowerShell/Bash scripts to batch-fix common issues |
 | compare-audits | Compare two audit reports to track remediation progress |
 | setup-document-cicd | Set up CI/CD pipelines for automated document scanning |
-| quick-document-check | Fast triage — errors only, pass/fail verdict |
+| quick-document-check | Fast triage - errors only, pass/fail verdict |
 | create-accessible-template | Guidance for creating accessible document templates |
 
 #### Web Accessibility Prompts (5)
 
+The following one-click prompts cover common web accessibility audit and remediation tasks.
+
 | Prompt | What It Does |
 |--------|-------------|
 | audit-web-page | Full single-page audit with axe-core scan and code review |
-| quick-web-check | Fast axe-core triage — runtime scan only, pass/fail verdict |
+| quick-web-check | Fast axe-core triage - runtime scan only, pass/fail verdict |
 | audit-web-multi-page | Multi-page comparison audit with cross-page pattern detection |
 | compare-web-audits | Compare two web audit reports to track remediation progress |
-| fix-web-issues | Interactive fix mode — auto-fixable and human-judgment items from audit report |
+| fix-web-issues | Interactive fix mode - auto-fixable and human-judgment items from audit report |
 
 ### Reusable Skills (9)
 
@@ -347,10 +373,12 @@ Domain-specific knowledge modules in `.github/skills/` that agents reference aut
 
 ### Lifecycle Hooks (2)
 
+The following hooks fire automatically at session boundaries to inject context and enforce quality gates.
+
 | Hook | When | Purpose |
 |------|------|--------|
 | SessionStart | Beginning of session | Auto-detects scan config files and previous audit reports; injects relevant context |
-| SessionEnd | End of session | Quality gate — validates audit report completeness and prompts for missing sections |
+| SessionEnd | End of session | Quality gate - validates audit report completeness and prompts for missing sections |
 
 ### Agent Teams (AGENTS.md)
 
@@ -371,6 +399,8 @@ Team coordination is defined in `.github/agents/AGENTS.md`. Four defined teams:
 
 #### check_contrast
 
+The following table specifies the inputs, output, algorithm, and dependencies for this tool.
+
 | Property | Value |
 |----------|-------|
 | **Input** | `foreground` (hex), `background` (hex) |
@@ -380,6 +410,8 @@ Team coordination is defined in `.github/agents/AGENTS.md`. Four defined teams:
 
 #### get_accessibility_guidelines
 
+The following table specifies the inputs, output, and dependencies for this tool.
+
 | Property | Value |
 |----------|-------|
 | **Input** | `componentType` (enum: modal, tabs, accordion, combobox, carousel, form, live-region, navigation, general) |
@@ -387,6 +419,8 @@ Team coordination is defined in `.github/agents/AGENTS.md`. Four defined teams:
 | **Dependencies** | None |
 
 #### check_heading_structure
+
+The following table specifies the inputs, output, WCAG criteria, and dependencies for this tool.
 
 | Property | Value |
 |----------|-------|
@@ -397,6 +431,8 @@ Team coordination is defined in `.github/agents/AGENTS.md`. Four defined teams:
 
 #### check_link_text
 
+The following table specifies the inputs, output, WCAG criteria, and dependencies for this tool.
+
 | Property | Value |
 |----------|-------|
 | **Input** | `html` (string) |
@@ -405,6 +441,8 @@ Team coordination is defined in `.github/agents/AGENTS.md`. Four defined teams:
 | **Dependencies** | None |
 
 #### check_form_labels
+
+The following table specifies the inputs, output, WCAG criteria, and dependencies for this tool.
 
 | Property | Value |
 |----------|-------|
@@ -415,6 +453,8 @@ Team coordination is defined in `.github/agents/AGENTS.md`. Four defined teams:
 
 #### generate_vpat
 
+The following table specifies the inputs, output format, and dependencies for this tool.
+
 | Property | Value |
 |----------|-------|
 | **Input** | `productName`, `productVersion`, `evaluationDate`, optional `findings[]`, optional `reportPath` |
@@ -424,9 +464,11 @@ Team coordination is defined in `.github/agents/AGENTS.md`. Four defined teams:
 
 #### run_axe_scan
 
+The following table specifies the inputs, output format, and dependencies for this tool.
+
 | Property | Value |
 |----------|-------|
-| **Input** | `url` (required), optional `selector` (CSS), optional `reportPath` |
+| **Input** | `url` (required), optional `selector`(CSS), optional `reportPath` |
 | **Output** | Violations grouped by severity with affected elements, WCAG criteria, and fix suggestions |
 | **Format** | Markdown report when reportPath provided |
 | **Dependencies** | `@axe-core/cli` (external, must be installed separately) |
@@ -434,6 +476,8 @@ Team coordination is defined in `.github/agents/AGENTS.md`. Four defined teams:
 ### Document Accessibility Tools (4)
 
 #### extract_document_metadata
+
+The following table specifies the inputs, supported formats, output, and dependencies for this tool.
 
 | Property | Value |
 |----------|-------|
@@ -444,6 +488,8 @@ Team coordination is defined in `.github/agents/AGENTS.md`. Four defined teams:
 
 #### batch_scan_documents
 
+The following table specifies the inputs, behavior, output, and dependencies for this tool.
+
 | Property | Value |
 |----------|-------|
 | **Input** | `directoryPath` (string), optional `recursive` (boolean), optional `formats` (string[]), optional `outputFormat` (sarif\|markdown) |
@@ -453,27 +499,31 @@ Team coordination is defined in `.github/agents/AGENTS.md`. Four defined teams:
 
 #### scan_office_document
 
+The following table specifies the inputs, supported formats, parsing approach, rule engine, configuration, and output for this tool.
+
 | Property | Value |
 |----------|-------|
-| **Input** | `filePath` (string), optional `outputFormat` (sarif\|markdown, default: sarif) |
+| **Input** | `filePath` (string), optional `outputFormat`(sarif\|markdown, default: sarif) |
 | **Supported Formats** | DOCX, XLSX, PPTX (detected by file extension) |
 | **Parsing** | Pure Node.js ZIP Central Directory parsing, `inflateRawSync` for deflate entries |
 | **XML Processing** | Custom regex-based XML helpers (`xmlText`, `xmlAttr`, `xmlHas`, `xmlCount`) |
 | **Rule Engine** | Per-format scanners: `scanDocx()` (16 rules), `scanXlsx()` (14 rules), `scanPptx()` (16 rules) |
-| **Config** | `.a11y-office-config.json` — per-format `enabled`, `disabledRules`, `severityFilter` |
+| **Config** | `.a11y-office-config.json` - per-format `enabled`, `disabledRules`, `severityFilter` |
 | **Config Search** | Upward directory traversal from scanned file |
 | **Output** | SARIF 2.1.0 or human-readable markdown |
 | **Dependencies** | None (pure Node.js) |
 
 #### scan_pdf_document
 
+The following table specifies the inputs, parsing approach, rule engine, configuration, and output for this tool.
+
 | Property | Value |
 |----------|-------|
 | **Input** | `filePath` (string), optional `outputFormat` (sarif\|markdown, default: sarif) |
 | **Parsing** | Direct buffer reading with `latin1` encoding, regex-based PDF object detection |
 | **Structure Detection** | StructTreeRoot, MarkInfo, /Title, /Lang, /Outlines, AcroForm, /Link, /Figure, /Table, /Font, /Encrypt |
-| **Rule Engine** | `scanPdf()` with 3 layers: PDFUA.* (30), PDFBP.* (22), PDFQ.* (4) — total 56 rules |
-| **Config** | `.a11y-pdf-config.json` — `enabled`, `disabledRules`, `severityFilter`, `maxFileSize` |
+| **Rule Engine** | `scanPdf()` with 3 layers: PDFUA.*(30), PDFBP.* (22), PDFQ.* (4) - total 56 rules |
+| **Config** | `.a11y-pdf-config.json` - `enabled`, `disabledRules`, `severityFilter`, `maxFileSize` |
 | **Config Search** | Upward directory traversal from scanned file |
 | **Output** | SARIF 2.1.0 or human-readable markdown |
 | **Dependencies** | None (pure Node.js) |
@@ -486,6 +536,8 @@ Team coordination is defined in `.github/agents/AGENTS.md`. Four defined teams:
 
 #### DOCX Rules (16)
 
+The following rules apply when scanning Word documents for accessibility issues.
+
 | Rule ID | Severity | Description |
 |---------|----------|-------------|
 | DOCX-E001 | error | Image without alt text |
@@ -496,7 +548,7 @@ Team coordination is defined in `.github/agents/AGENTS.md`. Four defined teams:
 | DOCX-E006 | error | Color-only formatting conveying meaning (Bold+Color but no other semantic indicator) |
 | DOCX-E007 | error | Inline image without alt text |
 | DOCX-W001 | warning | Alt text exceeds 125 characters (may need summarization) |
-| DOCX-W002 | warning | Heading levels skipped (e.g., H1 → H3) |
+| DOCX-W002 | warning | Heading levels skipped (e.g., H1 -> H3) |
 | DOCX-W003 | warning | Table contains merged cells |
 | DOCX-W004 | warning | Font size below 10pt |
 | DOCX-W005 | warning | Empty paragraphs used for spacing |
@@ -506,6 +558,8 @@ Team coordination is defined in `.github/agents/AGENTS.md`. Four defined teams:
 | DOCX-T003 | tip | Consider adding bookmarks for key sections |
 
 #### XLSX Rules (14)
+
+The following rules apply when scanning Excel spreadsheets for accessibility issues.
 
 | Rule ID | Severity | Description |
 |---------|----------|-------------|
@@ -525,6 +579,8 @@ Team coordination is defined in `.github/agents/AGENTS.md`. Four defined teams:
 | XLSX-T003 | tip | Consider adding cell comments for complex formulas |
 
 #### PPTX Rules (16)
+
+The following rules apply when scanning PowerPoint presentations for accessibility issues.
 
 | Rule ID | Severity | Description |
 |---------|----------|-------------|
@@ -547,7 +603,9 @@ Team coordination is defined in `.github/agents/AGENTS.md`. Four defined teams:
 
 ### PDF Document Rules
 
-#### PDFUA Layer — PDF/UA Conformance (30 rules)
+#### PDFUA Layer - PDF/UA Conformance (30 rules)
+
+The following rules check PDF/UA conformance, mapped to Matterhorn Protocol checkpoints.
 
 | Rule ID | Severity | Matterhorn Checkpoint | Description |
 |---------|----------|----------------------|-------------|
@@ -582,11 +640,13 @@ Team coordination is defined in `.github/agents/AGENTS.md`. Four defined teams:
 | PDFUA.FONT.002 | warning | 26-002 | No /ToUnicode map for font (glyph-to-text mapping) |
 | PDFUA.FONT.003 | warning | 26-003 | Type3 font detected (may cause rendering issues) |
 
-#### PDFBP Layer — Best Practices (22 rules)
+#### PDFBP Layer - Best Practices (22 rules)
+
+The following rules check PDF accessibility best practices beyond strict PDF/UA conformance.
 
 | Rule ID | Severity | Description |
 |---------|----------|-------------|
-| PDFBP.META.001 | warning | Document title matches filename (likely default) |
+| PDFBP.META.001| warning | Document title matches filename (likely default) |
 | PDFBP.META.002 | tip | Missing PDF/UA identifier in metadata |
 | PDFBP.META.003 | tip | Missing XMP metadata stream |
 | PDFBP.NAV.001 | tip | Consider adding named destinations for navigation |
@@ -609,11 +669,13 @@ Team coordination is defined in `.github/agents/AGENTS.md`. Four defined teams:
 | PDFBP.A11Y.001 | tip | Consider embedding accessibility conformance identifier |
 | PDFBP.A11Y.002 | tip | Consider adding a document summary in XMP |
 
-#### PDFQ Layer — Quality / Pipeline (4 rules)
+#### PDFQ Layer - Quality / Pipeline (4 rules)
+
+The following rules check PDF quality and pipeline health issues that can affect accessibility.
 
 | Rule ID | Severity | Description |
 |---------|----------|-------------|
-| PDFQ.SIZE.001 | warning | File exceeds configured size limit (default 100MB) |
+| PDFQ.SIZE.001| warning | File exceeds configured size limit (default 100MB) |
 | PDFQ.SCAN.001 | warning | Suspect scanned-image PDF (no text content, all images) |
 | PDFQ.ENC.001 | error | Encryption restricts content access (may block AT) |
 | PDFQ.VER.001 | tip | PDF version older than 1.7 (limited tag support) |
@@ -624,6 +686,8 @@ Team coordination is defined in `.github/agents/AGENTS.md`. Four defined teams:
 
 ### Scripts
 
+The following table lists the three CI scripts and the file formats each processes.
+
 | Script | Format | Input | Config File |
 |--------|--------|-------|-------------|
 | `a11y-lint.mjs` | HTML, JSX, TSX | File/directory paths | None |
@@ -633,6 +697,7 @@ Team coordination is defined in `.github/agents/AGENTS.md`. Four defined teams:
 ### Common Behavior
 
 All three CI scripts:
+
 - Accept file paths or directory paths as CLI arguments (default: current directory)
 - Skip `node_modules`, `.git`, `vendor`, and `dist` directories
 - Emit `::error::` and `::warning::` GitHub Actions annotations
@@ -669,9 +734,11 @@ The `.github/workflows/a11y-check.yml` workflow triggers on `pull_request` event
 }
 ```
 
+The following table describes each field in the Office configuration schema.
+
 | Field | Type | Description |
 |-------|------|-------------|
-| `[format].enabled` | boolean | Enable/disable scanning for this format |
+| `[format].enabled`| boolean | Enable/disable scanning for this format |
 | `[format].disabledRules` | string[] | Rule IDs to suppress |
 | `[format].severityFilter` | string[] | Severity levels to include in output |
 
@@ -686,9 +753,11 @@ The `.github/workflows/a11y-check.yml` workflow triggers on `pull_request` event
 }
 ```
 
+The following table describes each field in the PDF configuration schema.
+
 | Field | Type | Description |
 |-------|------|-------------|
-| `enabled` | boolean | Enable/disable PDF scanning |
+| `enabled` | boolean| Enable/disable PDF scanning |
 | `disabledRules` | string[] | Rule IDs to suppress |
 | `severityFilter` | string[] | Severity levels to include |
 | `maxFileSize` | number | Maximum file size in bytes (default 100MB) |
@@ -706,6 +775,7 @@ Both config agents support three preset profiles:
 ### Config Resolution
 
 Both tools search upward from the scanned file's directory to find the nearest config file. This enables:
+
 - Project-wide defaults at the repo root
 - Directory-specific overrides (e.g., stricter rules for `legal/` documents)
 
@@ -726,15 +796,17 @@ All document scanning tools and CI scripts output [SARIF 2.1.0](https://docs.oas
 ### Markdown Reports
 
 Human-readable reports include:
+
 - Scan metadata (file, date, tool version)
 - Summary table (counts by severity)
-- Findings grouped by severity (error → warning → tip)
+- Findings grouped by severity (error -> warning -> tip)
 - Rule explanations and remediation guidance
 - Actionable fix descriptions per finding
 
 ### VPAT 2.5
 
 The `generate_vpat` tool outputs a full VPAT 2.5 / ACR template:
+
 - All WCAG 2.2 Level A (30 criteria) and Level AA (20 criteria)
 - Conformance levels: Supports, Partially Supports, Does Not Support, Not Applicable, Not Evaluated
 - Terms and definitions section
@@ -746,6 +818,8 @@ The `generate_vpat` tool outputs a full VPAT 2.5 / ACR template:
 
 ### Installers
 
+The following table lists the installer scripts for each supported platform.
+
 | File | Platform | Description |
 |------|----------|-------------|
 | `install.sh` | macOS/Linux | Interactive installer (--global / --project flags) |
@@ -756,6 +830,8 @@ The `generate_vpat` tool outputs a full VPAT 2.5 / ACR template:
 | `update.ps1` | Windows | Manual or auto-update |
 
 ### Auto-Update Mechanisms
+
+The following table lists the auto-update mechanism and schedule for each platform.
 
 | Platform | Mechanism | Schedule |
 |----------|-----------|----------|
@@ -781,6 +857,8 @@ mcpb pack . ../a11y-agent-team.mcpb
 ---
 
 ## Standards Compliance
+
+The following table maps each standard to the coverage level and how it is addressed by the system.
 
 | Standard | Coverage | Notes |
 |----------|----------|-------|
@@ -831,18 +909,24 @@ mcpb pack . ../a11y-agent-team.mcpb
 
 ### Runtime Dependencies
 
+The following packages are required at runtime.
+
 | Package | Version | Purpose |
 |---------|---------|---------|
-| `@modelcontextprotocol/sdk` | ^1.20.0 | MCP server framework |
+| `@modelcontextprotocol/sdk`| ^1.20.0 | MCP server framework |
 | `zod` | 3.25 | Input validation and schema definition |
 
 ### Optional Runtime Dependencies
 
+The following package is required only when using the `run_axe_scan` MCP tool.
+
 | Package | Version | Purpose |
 |---------|---------|---------|
-| `@axe-core/cli` | Any | Required only for `run_axe_scan` tool |
+| `@axe-core/cli`| Any | Required only for `run_axe_scan` tool |
 
 ### Node.js Built-in Modules Used
+
+The following Node.js built-in modules are used by the MCP server.
 
 | Module | Usage |
 |--------|-------|
@@ -861,6 +945,8 @@ mcpb pack . ../a11y-agent-team.mcpb
 ### Agent Files (68 total: 34 Claude + 34 Copilot)
 
 #### Accessibility Agents (24 per platform)
+
+The following table lists all 24 accessibility agents with their Claude and Copilot file paths.
 
 | Agent | Claude Path | Copilot Path |
 |-------|------------|--------------|
@@ -891,6 +977,8 @@ mcpb pack . ../a11y-agent-team.mcpb
 
 #### GitHub Workflow Agents (10 per platform)
 
+The following table lists all 10 GitHub workflow agents with their Claude and Copilot file paths.
+
 | Agent | Claude Path | Copilot Path |
 |-------|------------|-------------|
 | github-hub | `.claude/agents/github-hub.md` | `.github/agents/github-hub.agent.md` |
@@ -905,13 +993,15 @@ mcpb pack . ../a11y-agent-team.mcpb
 | team-manager | `.claude/agents/team-manager.md` | `.github/agents/team-manager.agent.md` |
 | template-builder | `.claude/agents/template-builder.md` | `.github/agents/template-builder.agent.md` |
 
-The old file header "Agent Files (48 total)" is now "68 total": 34 unique agents × 2 platforms.
+The old file header "Agent Files (48 total)" is now "68 total": 34 unique agents x 2 platforms.
 
 ### Infrastructure Files
 
+The following table lists all infrastructure and configuration files with their purposes.
+
 | File | Purpose |
 |------|---------|
-| `.claude/hooks/a11y-team-eval.sh` | UserPromptSubmit hook (macOS/Linux) |
+| `.claude/hooks/a11y-team-eval.sh`| UserPromptSubmit hook (macOS/Linux) |
 | `.claude/hooks/a11y-team-eval.ps1` | UserPromptSubmit hook (Windows) |
 | `.claude/settings.json` | Example hook configuration |
 | `.github/copilot-instructions.md` | Workspace accessibility instructions |
@@ -933,9 +1023,11 @@ The old file header "Agent Files (48 total)" is now "68 total": 34 unique agents
 
 ### Distribution Files
 
+The following table lists all installer, uninstaller, and updater scripts.
+
 | File | Purpose |
 |------|---------|
-| `install.sh` | macOS/Linux installer |
+| `install.sh`| macOS/Linux installer |
 | `install.ps1` | Windows installer |
 | `uninstall.sh` | macOS/Linux uninstaller |
 | `uninstall.ps1` | Windows uninstaller |
@@ -944,9 +1036,11 @@ The old file header "Agent Files (48 total)" is now "68 total": 34 unique agents
 
 ### Prompts and Skills Files
 
+The following table lists all prompt and skill files with their purposes.
+
 | File | Purpose |
 |------|--------|
-| `.github/prompts/audit-single-document.prompt.md` | Single document scan |
+| `.github/prompts/audit-single-document.prompt.md`| Single document scan |
 | `.github/prompts/audit-document-folder.prompt.md` | Folder recursive scan |
 | `.github/prompts/audit-changed-documents.prompt.md` | Delta scan (changed files) |
 | `.github/prompts/generate-vpat.prompt.md` | VPAT 2.5 / ACR export |
@@ -972,9 +1066,11 @@ The old file header "Agent Files (48 total)" is now "68 total": 34 unique agents
 
 ### Hooks and Config Templates
 
+The following table lists all lifecycle hook files and scan configuration templates.
+
 | File | Purpose |
 |------|--------|
-| `.github/hooks/session-start.md` | SessionStart lifecycle hook |
+| `.github/hooks/session-start.md`| SessionStart lifecycle hook |
 | `.github/hooks/session-end.md` | SessionEnd quality gate hook |
 | `templates/a11y-office-config-strict.json` | Office strict profile |
 | `templates/a11y-office-config-moderate.json` | Office moderate profile |
@@ -985,6 +1081,8 @@ The old file header "Agent Files (48 total)" is now "68 total": 34 unique agents
 | `templates/a11y-web-config-moderate.json` | Web moderate profile |
 
 ### Documentation Files
+
+The following table lists the documentation directories and their contents.
 
 | Directory | Contents |
 |-----------|----------|
@@ -998,15 +1096,19 @@ The old file header "Agent Files (48 total)" is now "68 total": 34 unique agents
 
 ### Example Project
 
+The following table lists the example project files and their purposes.
+
 | File | Purpose |
 |------|---------|
-| `example/index.html` | Web page with 20+ intentional accessibility violations |
+| `example/index.html`| Web page with 20+ intentional accessibility violations |
 | `example/styles.css` | CSS with contrast failures and missing prefers-* queries |
 | `example/README.md` | Example project documentation |
 
 ---
 
 ## Future Roadmap
+
+The following table lists planned features by priority.
 
 | Priority | Feature | Description |
 |----------|---------|-------------|
@@ -1021,6 +1123,8 @@ The old file header "Agent Files (48 total)" is now "68 total": 34 unique agents
 
 ## Risks and Mitigations
 
+The following table identifies key project risks and the mitigations in place for each.
+
 | Risk | Impact | Mitigation |
 |------|--------|-----------|
 | AI model ignores agent instructions | Accessibility issues slip through | Hook-based enforcement (Claude Code), workspace instructions (Copilot), multiple specialist layers |
@@ -1034,14 +1138,16 @@ The old file header "Agent Files (48 total)" is now "68 total": 34 unique agents
 
 ## Appendix: Quantitative Summary
 
+The following table summarizes the key quantitative metrics for the project.
+
 | Metric | Count |
 |--------|-------|
-| Total unique agents | 34 (24 accessibility + 10 GitHub workflow, × 2 platforms = 68 files) |
+| Total unique agents | 34 (24 accessibility + 10 GitHub workflow, x 2 platforms = 68 files) |
 | Web accessibility agents | 13 |
 | Document accessibility agents | 6 |
 | Hidden helper sub-agents | 4 |
 | GitHub workflow agents | 10 (1 orchestrator + 9 specialists) |
-| Document/web wizards | 2 (1 web + 1 document, × 2 platforms each) |
+| Document/web wizards | 2 (1 web + 1 document, x 2 platforms each) |
 | Custom prompts | 14 (9 document + 5 web) |
 | Reusable skills | 9 (6 accessibility + 3 GitHub workflow) |
 | Lifecycle hooks | 2 (SessionStart + SessionEnd) |
@@ -1056,6 +1162,6 @@ The old file header "Agent Files (48 total)" is now "68 total": 34 unique agents
 | External runtime dependencies | 2 (`@modelcontextprotocol/sdk`, `zod`) |
 | Optional external dependencies | 1 (`@axe-core/cli`) |
 | WCAG criteria covered (VPAT) | 50 (30 Level A + 20 Level AA) |
-| Installer scripts | 6 (install, uninstall, update × 2 platforms) |
+| Installer scripts | 6 (install, uninstall, update x 2 platforms) |
 | Documentation pages | 38 (in `docs/` directory) |
 | Total project files | ~175 |

@@ -93,7 +93,7 @@ useEffect(() => {
 
 | Pattern | Issue | Fix |
 |---------|-------|-----|
-| `[aria-label]` binding | Invalid — ARIA is not a property | Use `[attr.aria-label]` |
+| `[aria-label]` binding | Invalid - ARIA is not a property | Use `[attr.aria-label]` |
 | `*ngFor` without `trackBy` | Focus loss on list re-render | Add `trackBy` function |
 | No `LiveAnnouncer` | Route changes not announced | Inject `LiveAnnouncer` and announce navigation |
 | `OnPush` + live regions | Change detection may not trigger | Use `ChangeDetectorRef.markForCheck()` |

@@ -1,0 +1,68 @@
+name: Update Agent Manifest
+
+# Regenerates .a11y-agent-manifest in the repo root whenever agents are added,
+# renamed, or removed in either the Claude or Copilot agent directories.
+# The manifest is the canonical list of all official agents and is used by
+# install/update scripts to distinguish official agents from user-created ones.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".claude/agents/**"
+      - ".github/agents/**"
+
+permissions:
+  contents: write
+
+jobs:
+  update-manifest:
+    name: Regenerate .a11y-agent-manifest
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Use the default GITHUB_TOKEN so the commit is attributed to the bot
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate manifest
+        run: |
+          # Non-agent support files that live alongside agents but are not agents themselves
+          EXCLUDES="AGENTS.md shared-instructions.md code-review-standards.md preferences.md preferences.example.md"
+
+          is_excluded() {
+            for name in $EXCLUDES; do [ "$1" = "$name" ] && return 0; done
+            return 1
+          }
+
+          {
+            # Claude agents (.claude/agents/*.md)
+            find .claude/agents -maxdepth 1 -name "*.md" | sort | while read -r f; do
+              base="$(basename "$f")"
+              is_excluded "$base" && continue
+              echo "agents/$base"
+            done
+
+            # Copilot agents (.github/agents/*.agent.md)
+            find .github/agents -maxdepth 1 -name "*.agent.md" | sort | while read -r f; do
+              echo "agents/$(basename "$f")"
+            done
+          } | sort -u > .a11y-agent-manifest
+
+          count=$(wc -l < .a11y-agent-manifest | tr -d ' ')
+          echo "Generated manifest with $count entries."
+          cat .a11y-agent-manifest
+
+      - name: Commit manifest if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if git diff --quiet .a11y-agent-manifest; then
+            echo "Manifest unchanged — nothing to commit."
+          else
+            git add .a11y-agent-manifest
+            git commit -m "chore: update agent manifest [skip ci]"
+            git push
+          fi

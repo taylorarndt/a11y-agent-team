@@ -16,7 +16,7 @@ The MCP server includes a `generate_vpat` tool that produces a [VPAT 2.5](https:
 
 **With the accessibility-wizard:**
 
-```
+```text
 /accessibility-wizard I need to prepare for a VPAT assessment
 @accessibility-wizard generate a VPAT for this project
 ```
@@ -25,7 +25,7 @@ The wizard runs its full audit, then uses `generate_vpat` to produce a VPAT pre-
 
 **Directly via the MCP tool:**
 
-```
+```text
 generate_vpat with:
   productName: "My App"
   productVersion: "2.1.0"

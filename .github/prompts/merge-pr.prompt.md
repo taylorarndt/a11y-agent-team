@@ -22,7 +22,7 @@ ${input:pr:PR reference -- e.g. owner/repo#123 or a GitHub PR URL}
    - Is the PR a draft? (cannot merge drafts)
    - Any branch protection rules that block merge?
 4. **If not ready**, explain what's blocking:
-   ```
+   ```text
    PR #{number} is not ready to merge:
    - Missing required review from @alice
    - CI check "tests" is failing

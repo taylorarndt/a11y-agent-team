@@ -5,15 +5,19 @@
 If you have many agents or skills installed, you may hit Claude Code's description character limit (defaults to 15,000 characters). Agents will silently stop loading. Increase the budget:
 
 **macOS/Linux:**
+
 ```bash
 export SLASH_COMMAND_TOOL_CHAR_BUDGET=30000
 ```
+
 Add to `~/.bashrc`, `~/.zshrc`, or your shell profile.
 
 **Windows (PowerShell):**
+
 ```powershell
 $env:SLASH_COMMAND_TOOL_CHAR_BUDGET = "30000"
 ```
+
 Add to your PowerShell profile (`$PROFILE`).
 
 ## Disabling the Hook Temporarily (Claude Code only)
@@ -45,7 +49,7 @@ Type `/agents` to see what is loaded. If agents do not appear:
 
 ### Agents activate on non-UI tasks (Claude Code)
 
-The hook fires on every prompt and checks for UI relevance. This is harmless — the agent determines no UI work is needed and lets Claude proceed. Remove the hook if it becomes disruptive.
+The hook fires on every prompt and checks for UI relevance. This is harmless - the agent determines no UI work is needed and lets Claude proceed. Remove the hook if it becomes disruptive.
 
 ### Agents seem to miss things
 

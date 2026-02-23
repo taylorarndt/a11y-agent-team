@@ -1,6 +1,6 @@
-# repo-admin — Repository Access and Configuration Manager
+# repo-admin - Repository Access and Configuration Manager
 
-> Add and remove collaborators, configure branch protection, audit who has access to what, sync labels across repos, and manage milestones — all without leaving VS Code. Every action is previewed before execution with an explicit confirmation step.
+> Add and remove collaborators, configure branch protection, audit who has access to what, sync labels across repos, and manage milestones - all without leaving VS Code. Every action is previewed before execution with an explicit confirmation step.
 
 ---
 
@@ -9,7 +9,8 @@
 The repo-admin agent handles the administrative layer of a GitHub repository: who can do what, what rules protect important branches, and what the repository's shared vocabulary (labels, milestones) looks like.
 
 This is the agent for when you need to:
-- Onboard a new contractor or collaborator and give them exactly the right permission level — no more, no less
+
+- Onboard a new contractor or collaborator and give them exactly the right permission level - no more, no less
 - Remove someone who has left the project from all repo access
 - Set up branch protection so `main` cannot be force-pushed or merged without a passing CI check
 - Audit all current collaborators across multiple repos (often eye-opening)
@@ -24,7 +25,7 @@ This is the agent for when you need to:
 
 ### GitHub Copilot (VS Code)
 
-```
+```text
 @repo-admin add @alice to taylorarndt/a11y-agent-team as maintainer
 @repo-admin audit access on all my repos
 @repo-admin configure branch protection for main
@@ -41,7 +42,7 @@ This is the agent for when you need to:
 
 ### Via GitHub Hub
 
-```
+```text
 @github-hub manage repo admin
 @github-hub audit repository access
 @github-hub add @alice as maintainer
@@ -58,11 +59,11 @@ Before using this agent, understand the five GitHub permission levels:
 
 | Level | Can push code | Can manage PRs | Can manage releases | Can manage settings | Can add admins |
 |-------|:---:|:---:|:---:|:---:|:---:|
-| Read | — | — | — | — | — |
-| Triage | — | ✅ label/assign | — | — | — |
-| Write | ✅ | ✅ | ✅ | — | — |
-| Maintain | ✅ | ✅ | ✅ | Limited | — |
-| Admin | ✅ | ✅ | ✅ | ✅ full | ✅ |
+| Read | - | - | - | - | - |
+| Triage | - |  label/assign | - | - | - |
+| Write |  |  |  | - | - |
+| Maintain |  |  |  | Limited | - |
+| Admin |  |  |  |  full |  |
 
 **Principle of least privilege:** always start with the minimum level needed. Use `Read` for external reviewers, `Triage` for community moderators, `Write` for active contributors, `Maintain` for lead developers, `Admin` only for repo owners.
 
@@ -95,28 +96,31 @@ Before using this agent, understand the five GitHub permission levels:
 
 ---
 
-## What to Expect — Step by Step
+## What to Expect - Step by Step
 
 ### Adding a Collaborator
 
 1. You say: `@repo-admin add @alice to this repo as maintainer`
 
 2. The agent identifies the repo (from workspace context or asks):
-   ```
-   ⚙️ Looking up @alice on GitHub…
-   ✅ Found user: alice (Alice Johnson)
-   ✅ Target repo: taylorarndt/a11y-agent-team
+
+   ```text
+    Looking up @alice on GitHub...
+    Found user: alice (Alice Johnson)
+    Target repo: taylorarndt/a11y-agent-team
    ```
 
 3. Checks for existing access:
-   ```
+
+   ```text
    Current access: @alice has no access to this repo.
    ```
 
 4. Previews the change:
-   ```
+
+   ```text
    Proposed change:
-   + @alice → Maintain (was: no access)
+   + @alice -> Maintain (was: no access)
    
    This will allow @alice to push, manage PRs, releases, and limited settings.
    Confirm? (yes / no / change permission level)
@@ -129,10 +133,11 @@ Before using this agent, understand the five GitHub permission levels:
 1. You say: `@repo-admin audit access on all my repos`
 
 2. Collects collaborators across all your repos:
-   ```
-   ⚙️ Auditing 4 repositories…
-   ✅ Loaded collaborators for taylorarndt/a11y-agent-team (6 collaborators)
-   ✅ Loaded collaborators for taylorarndt/my-app (3 collaborators)
+
+   ```text
+    Auditing 4 repositories...
+    Loaded collaborators for taylorarndt/a11y-agent-team (6 collaborators)
+    Loaded collaborators for taylorarndt/my-app (3 collaborators)
    ```
 
 3. Generates an access matrix:
@@ -140,32 +145,34 @@ Before using this agent, understand the five GitHub permission levels:
    | User | a11y-agent-team | my-app | Notes |
    |------|:---:|:---:|------|
    | @alice | Maintain | Write | Active contributor |
-   | @bob | Read | — | Not in my-app |
+   | @bob | Read | - | Not in my-app |
    | @carol | Admin | Admin | Owner on both |
-   | @dave | Write | — | Only in a11y-agent-team |
+   | @dave | Write | - | Only in a11y-agent-team |
 
 4. Flags anomalies:
-   > ⚠️ @dave has Write access to `a11y-agent-team` but is not in your team roster (preferences.md). Was this intentional?
+   >  @dave has Write access to `a11y-agent-team` but is not in your team roster (preferences.md). Was this intentional?
 
 ### Branch Protection Setup
 
-1. You say: `@repo-admin protect the main branch — require 2 PR reviews and CI to pass`
+1. You say: `@repo-admin protect the main branch - require 2 PR reviews and CI to pass`
 
 2. Shows current state:
-   ```
+
+   ```text
    Current branch protection for main: none
    ```
 
 3. Previews the ruleset:
-   ```
+
+   ```text
    Proposed branch protection rules for main:
    + Require pull request before merging: YES
    + Required approvals: 2
    + Dismiss stale reviews on new commits: YES
    + Require status checks to pass: YES
    + Require branches to be up to date before merging: YES
-   + Restrict who can push directly: (none — open to anyone with Write+)
-   + Enforce above rules for administrators: NO (recommended: YES — add if you want)
+   + Restrict who can push directly: (none - open to anyone with Write+)
+   + Enforce above rules for administrators: NO (recommended: YES - add if you want)
    
    Confirm? (yes / no / adjust)
    ```
@@ -179,18 +186,18 @@ Before using this agent, understand the five GitHub permission levels:
 
 ### Collaborator Management
 
-```
+```text
 @repo-admin add @alice to this repo with write access
 @repo-admin add @bob as a read-only reviewer
 @repo-admin remove @dave from this repo
 @repo-admin list all collaborators and their permission levels
-@repo-admin audit access across all my repos — flag anything unusual
+@repo-admin audit access across all my repos - flag anything unusual
 ```
 
 ### Branch Protection
 
-```
-@repo-admin protect main — require at least 1 PR review before merge
+```text
+@repo-admin protect main - require at least 1 PR review before merge
 @repo-admin require CI to pass before any merge to main
 @repo-admin block direct pushes to main for everyone including admins
 @repo-admin show me the current branch protection rules
@@ -198,7 +205,7 @@ Before using this agent, understand the five GitHub permission levels:
 
 ### Label Management
 
-```
+```text
 @repo-admin sync labels from taylorarndt/label-template to all my repos
 @repo-admin add label "a11y" with color #0e9f6e to this repo
 @repo-admin delete the "wip" label from all repos
@@ -207,7 +214,7 @@ Before using this agent, understand the five GitHub permission levels:
 
 ### Milestones
 
-```
+```text
 @repo-admin create milestone v2.0 due December 31
 @repo-admin list open milestones
 @repo-admin close milestone v1.5
@@ -250,9 +257,9 @@ Before using this agent, understand the five GitHub permission levels:
 <details>
 <summary>Expand constraints</summary>
 
-- **Every access change is previewed before execution** — never acts silently on access or settings
+- **Every access change is previewed before execution** - never acts silently on access or settings
 - Adding `Admin` permission requires a second explicit confirmation ("are you sure you want to grant full admin access?")
-- Removing yourself from a repo is blocked — preventing accidental lockout
+- Removing yourself from a repo is blocked - preventing accidental lockout
 - Label sync is always shown as a diff before applying
 - The agent never removes protection rules without showing what impact that has ("removing CI requirement means anyone can merge without a green build")
 
@@ -272,6 +279,6 @@ Branch protection requires Admin access on the repo. Confirm you are an admin th
 Check the email address associated with their GitHub account. If the invite is pending, you can re-send: "show pending invitations for a11y-agent-team."
 
 **"Label sync deleted labels I wanted to keep."**
-Label sync is additive by default — it adds missing labels but does not delete. To delete, you must explicitly ask: "remove all labels not in the template."
+Label sync is additive by default - it adds missing labels but does not delete. To delete, you must explicitly ask: "remove all labels not in the template."
 
 </details>

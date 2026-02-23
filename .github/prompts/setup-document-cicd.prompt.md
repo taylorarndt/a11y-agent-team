@@ -18,9 +18,9 @@ Use the **document-accessibility-wizard** agent to:
    - Azure DevOps Pipelines
    - Generic CI (shell script)
 2. Ask which scan profile to use:
-   - Strict (all rules — recommended for public/government documents)
-   - Moderate (errors + warnings — good default)
-   - Minimal (errors only — for initial adoption)
+   - Strict (all rules - recommended for public/government documents)
+   - Moderate (errors + warnings - good default)
+   - Minimal (errors only - for initial adoption)
 3. Ask about notification preferences:
    - Comment on the PR with a summary
    - Upload the full report as a build artifact

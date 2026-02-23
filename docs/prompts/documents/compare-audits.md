@@ -1,6 +1,6 @@
 # compare-audits
 
-Compare two document accessibility audit reports to track remediation progress. Shows which issues were fixed, which are new, which persist, and calculates velocity — how many audit cycles will it take to reach zero errors at the current fix rate.
+Compare two document accessibility audit reports to track remediation progress. Shows which issues were fixed, which are new, which persist, and calculates velocity - how many audit cycles will it take to reach zero errors at the current fix rate.
 
 ## When to Use It
 
@@ -12,13 +12,14 @@ Compare two document accessibility audit reports to track remediation progress. 
 ## How to Launch It
 
 **In GitHub Copilot Chat:**
-```
+
+```text
 /compare-audits
 ```
 
 Then provide the two report paths when prompted. Or specify directly:
 
-```
+```text
 /compare-audits DOCUMENT-ACCESSIBILITY-AUDIT-jan.md DOCUMENT-ACCESSIBILITY-AUDIT-feb.md
 ```
 
@@ -36,9 +37,9 @@ Every finding from both reports is classified:
 
 | Classification | Meaning |
 |---------------|---------|
-| Fixed | In the previous report, absent now — a win |
-| New | Not in the previous report, present now — needs attention |
-| Persistent | Present in both reports — highest priority for next sprint |
+| Fixed | In the previous report, absent now - a win |
+| New | Not in the previous report, present now - needs attention |
+| Persistent | Present in both reports - highest priority for next sprint |
 | Regressed | Was fixed at some point but has returned |
 
 ### Step 3: Comparison Report
@@ -57,23 +58,23 @@ Every finding from both reports is classified:
 
 ## Progress: 40% of previous findings resolved
 
-### Fixed Issues (19) ✓
+### Fixed Issues (19) 
 ...
 
-### New Issues (0) ✓
+### New Issues (0) 
 ...
 
 ### Persistent Issues (28)
-[List — prioritize for next sprint]
+[List - prioritize for next sprint]
 ```
 
 ### Step 4: Velocity Calculation
 
 The agent calculates:
 
-- **Issues fixed per cycle** — how many were resolved between the two reports
-- **Percentage reduction** — total issue count change
-- **Cycles to zero** — estimated time to reach zero errors at the current fix rate (e.g., "At this rate, 2 more audit cycles to reach zero errors")
+- **Issues fixed per cycle** - how many were resolved between the two reports
+- **Percentage reduction** - total issue count change
+- **Cycles to zero** - estimated time to reach zero errors at the current fix rate (e.g., "At this rate, 2 more audit cycles to reach zero errors")
 
 This gives you a data-driven projection for your compliance timeline.
 
@@ -83,7 +84,7 @@ The comparison is saved to `DOCUMENT-AUDIT-COMPARISON.md`.
 
 ## Example Variations
 
-```
+```text
 /compare-audits AUDIT-Q1.md AUDIT-Q2.md
 /compare-audits reports/baseline-2025.md reports/current-2026.md
 ```
@@ -103,6 +104,6 @@ The comparison is saved to `DOCUMENT-AUDIT-COMPARISON.md`.
 
 ## Related Prompts
 
-- [audit-document-folder](audit-document-folder.md) — generate new audit reports to compare
-- [audit-changed-documents](audit-changed-documents.md) — incremental comparison on each commit
-- [generate-vpat](generate-vpat.md) — export the current state as a VPAT after improvement
+- [audit-document-folder](audit-document-folder.md) - generate new audit reports to compare
+- [audit-changed-documents](audit-changed-documents.md) - incremental comparison on each commit
+- [generate-vpat](generate-vpat.md) - export the current state as a VPAT after improvement

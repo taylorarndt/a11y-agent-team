@@ -20,10 +20,14 @@ $secret_patterns = @(
     @{ pattern = "github_pat_[A-Za-z0-9_]{80,}";   label = "GitHub fine-grained PAT (github_pat_...)" },
     @{ pattern = "ghsr_[A-Za-z0-9]{36,}";          label = "GitHub secret scanning token" },
     @{ pattern = "sk-[A-Za-z0-9]{40,}";            label = "OpenAI API key (sk-...)" },
+    @{ pattern = "sk-ant-api03-[A-Za-z0-9_\-]{93,}"; label = "Anthropic API key (sk-ant-api03-...)" },
     @{ pattern = "AKIA[A-Z0-9]{16}";               label = "AWS Access Key ID" },
     @{ pattern = "-----BEGIN (RSA |EC )?PRIVATE KEY-----"; label = "Private key / certificate" },
     @{ pattern = "xox[baprs]-[0-9A-Za-z-]+";       label = "Slack token" },
-    @{ pattern = "AIza[0-9A-Za-z\-_]{35}";         label = "Google API key" }
+    @{ pattern = "AIza[0-9A-Za-z\-_]{35}";         label = "Google API key" },
+    @{ pattern = "sk_(live|test)_[A-Za-z0-9]{24,}"; label = "Stripe secret key" },
+    @{ pattern = "sig=[A-Za-z0-9%+/]{43,}";        label = "Azure SAS token" },
+    @{ pattern = "AccountKey=[A-Za-z0-9+/]{80,}=="; label = "Azure Storage account key" }
 )
 
 foreach ($entry in $secret_patterns) {

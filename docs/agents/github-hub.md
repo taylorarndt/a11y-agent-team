@@ -1,6 +1,6 @@
-# github-hub — The GitHub Workflow Orchestrator
+# github-hub - The GitHub Workflow Orchestrator
 
-> Your intelligent front door to every GitHub agent. Describe what you want in plain English — however vague — and GitHub Hub discovers your repositories, understands your intent, and hands you off to exactly the right specialist with context already loaded. You never need to know which agent to call.
+> Your intelligent front door to every GitHub agent. Describe what you want in plain English - however vague - and GitHub Hub discovers your repositories, understands your intent, and hands you off to exactly the right specialist with context already loaded. You never need to know which agent to call.
 
 ---
 
@@ -11,6 +11,7 @@ GitHub Hub is the entry point for all GitHub workflow operations. Its job is not
 Think of it as a brilliant colleague who has memorized every repo in your org, knows every team member, and whose only job is to make GitHub feel effortless. You say "help me deal with the PR backlog" and it already knows your repos, already knows who is waiting on you, and drops you into the `pr-review` agent with a pre-populated queue.
 
 Use GitHub Hub when:
+
 - You are not sure which agent you need
 - You want to start a GitHub task without thinking about routing
 - You want to discover your repos and orgs before diving in
@@ -64,20 +65,21 @@ GitHub Hub is built to understand plain English at every level of specificity. Y
 
 ---
 
-## What to Expect — Step by Step
+## What to Expect - Step by Step
 
 ### First Invocation
 
 When you first invoke `@github-hub` (with or without a message), this is what happens:
 
-**Step 1 — Greeting and discovery.**
+**Step 1 - Greeting and discovery.**
 GitHub Hub checks if session context has been injected automatically by the SessionStart hook. If it has, it uses that context (your repo, branch, org, username) and skips API discovery. If not, it calls the GitHub API to detect your authenticated user and find your current workspace repo.
 
-**Step 2 — Show your world.**
+**Step 2 - Show your world.**
 It presents a quick summary: your GitHub username, your org (if detected), and a list of repos you own or have access to. It shows which repos are active (recent pushes or issues).
 
-**Step 3 — Ask what you want.**
+**Step 3 - Ask what you want.**
 If you sent a question with your invocation (e.g., `@github-hub what PRs need my review?`), it immediately starts working on the answer. If you just typed `@github-hub hello`, it presents a menu of common starting points with clickable options:
+
 - Morning Briefing
 - Review PRs
 - Triage Issues
@@ -85,10 +87,10 @@ If you sent a question with your invocation (e.g., `@github-hub what PRs need my
 - Analytics & Insights
 - Repository Setup
 
-**Step 4 — Context lock.**
-Once you pick a repo or org, the agent locks that context for the entire session. You can say "now look at the issues" without ever repeating which repo — it already knows.
+**Step 4 - Context lock.**
+Once you pick a repo or org, the agent locks that context for the entire session. You can say "now look at the issues" without ever repeating which repo - it already knows.
 
-**Step 5 — Handoff.**
+**Step 5 - Handoff.**
 When routing to a specialist, GitHub Hub passes the full context (repo, org, user, what you said, what it found) so the specialist agent starts with everything it needs.
 
 ### Returning Invocations
@@ -103,16 +105,16 @@ If you have already established context in the session, GitHub Hub resumes witho
 Shows all repos you own, have access to, or have recently interacted with. Can filter to a specific org, show starred repos, or scope to just the workspace repo. Detects org context from the opened project automatically.
 
 **Plain English Intent Parsing**
-Interprets any natural language request — vague, partial, or exploratory — and maps it to the right agent and action. If the intent is ambiguous, it asks one clarifying question (not five) with suggested clickable answers.
+Interprets any natural language request - vague, partial, or exploratory - and maps it to the right agent and action. If the intent is ambiguous, it asks one clarifying question (not five) with suggested clickable answers.
 
 **Intelligent Context Memory**
 Once you say "let's work on `my-project`," it remembers that for the entire conversation. You can switch tasks ("now let's look at the issues") without re-specifying the repo.
 
 **Smart Handoffs**
-When routing to a specialist, GitHub Hub populates the handoff with context so the receiving agent starts with everything it needs — no re-authentication, no re-discovery, no repeated questions.
+When routing to a specialist, GitHub Hub populates the handoff with context so the receiving agent starts with everything it needs - no re-authentication, no re-discovery, no repeated questions.
 
 **Cross-Agent Navigation**
-After completing work in one agent, GitHub Hub can bring you back and route you somewhere new. "Done with PRs, now walk me through the issue backlog" — it routes smoothly.
+After completing work in one agent, GitHub Hub can bring you back and route you somewhere new. "Done with PRs, now walk me through the issue backlog" - it routes smoothly.
 
 ---
 
@@ -123,7 +125,7 @@ After completing work in one agent, GitHub Hub can bring you back and route you 
 
 ### Starting Fresh
 
-```
+```text
 @github-hub
 @github-hub hi
 @github-hub what needs my attention today?
@@ -133,7 +135,7 @@ After completing work in one agent, GitHub Hub can bring you back and route you 
 
 ### Specific Routing
 
-```
+```text
 @github-hub review the PR I got assigned this morning
 @github-hub triage issues in taylorarndt/a11y-agent-team
 @github-hub get me the team velocity for this month
@@ -146,7 +148,7 @@ After completing work in one agent, GitHub Hub can bring you back and route you 
 
 ### Exploratory Queries
 
-```
+```text
 @github-hub what should I work on first?
 @github-hub what's behind on the team?
 @github-hub anything security-related I should know about?
@@ -189,9 +191,9 @@ GitHub Hub connects to every specialist in the GitHub Workflow team:
 
 - Never re-asks for information that was already established in the session
 - Never routes without first confirming the target repo when multiple repos are plausible
-- Always shows the repo list before asking "which repo?" — never asks cold
+- Always shows the repo list before asking "which repo?" - never asks cold
 - Asks one smart question at a time, never a list of questions
-- Does not expose agent names or architecture details to the user ("I'll now use the repo-admin agent" — it won't say that)
+- Does not expose agent names or architecture details to the user ("I'll now use the repo-admin agent" - it won't say that)
 - Trusts SessionStart hook-injected context and uses it without redundant API calls
 
 </details>

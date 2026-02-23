@@ -15,9 +15,9 @@ Run a comprehensive recursive accessibility audit on all documents in the folder
 
 ## Settings
 
-- **Scan mode:** Folder (recursive — include all subfolders)
+- **Scan mode:** Folder (recursive - include all subfolders)
 - **Document types:** All supported (.docx, .xlsx, .pptx, .pdf)
-- **Scan profile:** Moderate (errors and warnings — skip tips for speed)
+- **Scan profile:** Moderate (errors and warnings - skip tips for speed)
 - **Report path:** `DOCUMENT-ACCESSIBILITY-AUDIT.md`
 - **Organization:** By file
 - **Remediation steps:** Summary only

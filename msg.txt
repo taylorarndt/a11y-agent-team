@@ -1,0 +1,43 @@
+feat: add markdown accessibility agents team
+
+Adds a complete markdown documentation accessibility audit system:
+
+## New Agents
+- markdown-a11y-assistant (orchestrator) - Copilot + Claude Code
+- markdown-scanner (hidden sub-agent) - per-file parallel scanning
+- markdown-fixer (hidden sub-agent) - fix application
+
+## New Skill
+- markdown-accessibility/SKILL.md - 9 domain rule library, emoji handling
+  modes, Mermaid/ASCII diagram replacement templates, severity scoring
+
+## New Custom Prompts (4)
+- audit-markdown.prompt.md - full guided audit with Phase 0 config
+- quick-markdown-check.prompt.md - fast triage, pass/fail, no report file
+- fix-markdown-issues.prompt.md - interactive fix mode from saved report
+- compare-markdown-audits.prompt.md - Fixed/New/Persistent/Regressed delta
+
+## New Instructions
+- markdown-accessibility.instructions.md - always-on rules for *.md files
+
+## Bug Fixes
+- Fix emoji default: remove-all -> remove-decorative in both orchestrators
+- Fix duplicate 5. numbering in a11y-team-eval.sh/.ps1
+- Add markdown-a11y-assistant to a11y-team-eval.sh/.ps1 (point 6)
+- Add ghsr_ GitHub secret scanning token pattern to sensitive-input-guard.sh
+
+## Hook Parity
+- session-context.sh/.ps1: add Markdown Accessibility Agents section
+  and MARKDOWN-ACCESSIBILITY-AUDIT*.md previous audit detection
+- session-start.js/.stop.js: markdown audit detection + quality gate already present
+- .claude/settings.json: PreToolUse, PostToolUse, Stop hooks already present
+
+## Documentation
+- README.md: add markdown-a11y-assistant to agent table; counts 34->35, 24->25
+- docs/agents/README.md: add Markdown Accessibility Agents section,
+  parallel groups model, markdown-accessibility skill row
+- ROADMAP.md: add Completed entry for markdown accessibility agents
+- docs/prompts/README.md: Markdown Accessibility Prompts section
+- CLAUDE.md + .github/copilot-instructions.md: updated agent roster
+
+Co-authored-by: Jeff Bishop <jeffreybishop@users.noreply.github.com>

@@ -1,4 +1,4 @@
-# office-scan-config — Office Scan Configuration
+# office-scan-config - Office Scan Configuration
 
 > Manages `.a11y-office-config.json` configuration files that control which rules the `scan_office_document` MCP tool enforces. Supports per-format rule enabling/disabling, severity filters, and three preset profiles.
 
@@ -27,7 +27,7 @@
 <details>
 <summary>Show example prompts</summary>
 
-```
+```text
 /office-scan-config create a moderate config for this project
 @office-scan-config disable DOCX-W005 (empty paragraphs) for this repo
 @office-scan-config switch to strict profile
@@ -38,14 +38,16 @@
 ## How to Launch It
 
 **In Claude Code:**
-```
+
+```text
 /office-scan-config create a moderate config for this project
 /office-scan-config disable DOCX-W005 for this repo
 /office-scan-config switch to strict profile
 ```
 
 **In GitHub Copilot Chat:**
-```
+
+```text
 @office-scan-config set up scanning rules for our compliance documents
 @office-scan-config we only care about errors, not warnings
 ```
@@ -58,7 +60,8 @@ If you are setting up Office document accessibility scanning for the first time,
 
 **Step 1: Start with the moderate profile.**
 The moderate profile runs all rules but suppresses informational tips. It is the best starting point because it gives you a complete picture without noise.
-```
+
+```text
 /office-scan-config create a moderate config for this project
 ```
 
@@ -69,14 +72,16 @@ Invoke `word-accessibility`, `excel-accessibility`, or `powerpoint-accessibility
 
 **Step 3: Tune based on your context.**
 If certain rules create false-positive noise for your use case, disable them:
-```
-@office-scan-config disable DOCX-W005 — we intentionally use empty paragraphs for spacing
-@office-scan-config disable XLSX-W003 — hidden sheets are used for reference data
+
+```text
+@office-scan-config disable DOCX-W005 - we intentionally use empty paragraphs for spacing
+@office-scan-config disable XLSX-W003 - hidden sheets are used for reference data
 ```
 
 **Step 4: Tighten for regulated documents.**
 For documents that will be submitted to government procurement or published externally, switch to strict:
-```
+
+```text
 /office-scan-config switch to strict profile
 ```
 

@@ -4,9 +4,9 @@ The agents review your code and enforce accessibility patterns during developmen
 
 ## Three Levels of Integration
 
-1. **MCP tool (`run_axe_scan`)** — Agents trigger axe-core scans programmatically via the MCP server
-2. **Agent instructions** — The testing-coach and accessibility-wizard know when and how to run scans
-3. **VS Code task** — Manual scan trigger in the VS Code command palette
+1. **MCP tool (`run_axe_scan`)** - Agents trigger axe-core scans programmatically via the MCP server
+2. **Agent instructions** - The testing-coach and accessibility-wizard know when and how to run scans
+3. **VS Code task** - Manual scan trigger in the VS Code command palette
 
 ## How the MCP Tool Works
 
@@ -46,14 +46,14 @@ The tool generates markdown reports with:
 
 The **accessibility-wizard** (Phase 9) asks if you have a dev server running and triggers a scan:
 
-```
+```text
 /accessibility-wizard run a full audit on this project
 @accessibility-wizard audit this project for accessibility
 ```
 
 The **testing-coach** runs ad-hoc scans:
 
-```
+```text
 /testing-coach run an axe-core scan on http://localhost:3000/dashboard
 @testing-coach scan http://localhost:3000/checkout for accessibility issues
 ```
@@ -64,7 +64,7 @@ The **testing-coach** runs ad-hoc scans:
 npx @axe-core/cli http://localhost:3000 --save results.json
 ```
 
-```
+```text
 /accessibility-lead triage the violations in results.json
 ```
 

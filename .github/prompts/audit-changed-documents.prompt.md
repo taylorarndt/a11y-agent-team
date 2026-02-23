@@ -7,7 +7,7 @@ tools:
 
 # Delta Document Accessibility Scan
 
-Run an incremental accessibility audit — scan only documents that have changed since the last audit or git reference.
+Run an incremental accessibility audit - scan only documents that have changed since the last audit or git reference.
 
 ## Settings
 

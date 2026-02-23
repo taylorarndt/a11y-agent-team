@@ -1,4 +1,4 @@
-# contrast-master — Color Contrast and Visual Accessibility
+# contrast-master - Color Contrast and Visual Accessibility
 
 > Verifies color contrast ratios, checks dark mode, ensures focus indicators are visible, validates that no information is conveyed by color alone, and provides comprehensive guidance on user preference media queries.
 
@@ -14,7 +14,7 @@
 ## What It Catches
 
 <details>
-<summary>Expand — 8 contrast issues detected</summary>
+<summary>Expand - 8 contrast issues detected</summary>
 
 - Text below 4.5:1 contrast ratio (3:1 for large text)
 - UI components below 3:1 contrast
@@ -36,11 +36,11 @@ Non-visual issues (ARIA, keyboard, live regions). It owns the visual/color domai
 <details>
 <summary>Expand media query coverage</summary>
 
-- `prefers-reduced-motion` — disabling animations, handling JS-driven motion, framework patterns
-- `prefers-contrast: more` — upgrading subtle colors, removing transparency, increasing borders
-- `prefers-color-scheme` — dark mode with proper contrast re-verification
-- `forced-colors` — Windows Contrast Themes, system color keywords, SVG handling
-- `prefers-reduced-transparency` — solid fallbacks for frosted glass and overlays
+- `prefers-reduced-motion` - disabling animations, handling JS-driven motion, framework patterns
+- `prefers-contrast: more` - upgrading subtle colors, removing transparency, increasing borders
+- `prefers-color-scheme` - dark mode with proper contrast re-verification
+- `forced-colors` - Windows Contrast Themes, system color keywords, SVG handling
+- `prefers-reduced-transparency` - solid fallbacks for frosted glass and overlays
 - Combined preferences (e.g., dark + high contrast) and JavaScript detection
 
 </details>
@@ -52,7 +52,7 @@ Non-visual issues (ARIA, keyboard, live regions). It owns the visual/color domai
 
 ### Claude Code
 
-```
+```text
 /contrast-master check all color combinations in globals.css
 /contrast-master is #767676 on white accessible for body text?
 /contrast-master review the dark mode theme
@@ -61,7 +61,7 @@ Non-visual issues (ARIA, keyboard, live regions). It owns the visual/color domai
 
 ### GitHub Copilot
 
-```
+```text
 @contrast-master review the color palette in this design system
 @contrast-master are these Tailwind colors accessible for text?
 @contrast-master check contrast in the error state

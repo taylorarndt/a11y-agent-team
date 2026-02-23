@@ -2,19 +2,39 @@
 
 This file defines coordinated multi-agent workflows for enterprise accessibility scanning in the Claude Code environment.
 
+## Team: Markdown Accessibility Audit
+
+**Lead:** `markdown-a11y-assistant`
+
+**Members:**
+- `markdown-scanner` *(hidden helper)* - Per-file scanning across all 9 accessibility domains; returns structured findings
+- `markdown-fixer` *(hidden helper)* - Applies auto-fixes and presents human-judgment items for approval
+
+**Workflow:**
+1. `markdown-a11y-assistant` receives the user request and runs Phase 0 (discovery + configuration)
+2. `markdown-scanner` is dispatched **in parallel** via the Task tool for each discovered file
+3. All scan results are aggregated; cross-file patterns are identified
+4. Review gate is presented to the user with auto-fix list + human-judgment items
+5. `markdown-fixer` applies approved fixes in a single edit pass per file
+6. Final `MARKDOWN-ACCESSIBILITY-AUDIT.md` report is generated with per-file scores and grades
+
+**Handoffs:**
+- `web-accessibility-wizard` after markdown audit is complete for HTML/JSX/TSX files
+- `document-accessibility-wizard` for Office/PDF documents after markdown audit
+
 ## Team: Document Accessibility Audit
 
 **Lead:** `document-accessibility-wizard`
 
 **Members:**
-- `document-inventory` — File discovery, inventory building, delta detection
-- `cross-document-analyzer` — Pattern detection, severity scoring, template analysis
-- `word-accessibility` — DOCX scanning and remediation (DOCX-* rules)
-- `excel-accessibility` — XLSX scanning and remediation (XLSX-* rules)
-- `powerpoint-accessibility` — PPTX scanning and remediation (PPTX-* rules)
-- `pdf-accessibility` — PDF scanning and remediation (PDFUA.*, PDFBP.*, PDFQ.* rules)
-- `office-scan-config` — Office scan configuration management
-- `pdf-scan-config` — PDF scan configuration management
+- `document-inventory` - File discovery, inventory building, delta detection
+- `cross-document-analyzer` - Pattern detection, severity scoring, template analysis
+- `word-accessibility` - DOCX scanning and remediation (DOCX-* rules)
+- `excel-accessibility` - XLSX scanning and remediation (XLSX-* rules)
+- `powerpoint-accessibility` - PPTX scanning and remediation (PPTX-* rules)
+- `pdf-accessibility` - PDF scanning and remediation (PDFUA.*, PDFBP.*, PDFQ.* rules)
+- `office-scan-config` - Office scan configuration management
+- `pdf-scan-config` - PDF scan configuration management
 
 **Workflow:**
 1. `document-accessibility-wizard` receives the user request and runs Phase 0 (discovery)
@@ -32,21 +52,21 @@ This file defines coordinated multi-agent workflows for enterprise accessibility
 **Lead:** `web-accessibility-wizard`
 
 **Members:**
-- `accessibility-lead` — Coordinates specialists, runs final review
-- `aria-specialist` — ARIA roles, states, properties
-- `modal-specialist` — Dialogs, drawers, overlays
-- `contrast-master` — Color contrast, visual design
-- `keyboard-navigator` — Tab order, focus management
-- `live-region-controller` — Dynamic content, toasts, loading
-- `forms-specialist` — Forms, inputs, validation
-- `alt-text-headings` — Images, alt text, headings, landmarks
-- `tables-data-specialist` — Data tables, grids
-- `link-checker` — Link text quality
-- `testing-coach` — Testing guidance
+- `accessibility-lead` - Coordinates specialists, runs final review
+- `aria-specialist` - ARIA roles, states, properties
+- `modal-specialist` - Dialogs, drawers, overlays
+- `contrast-master` - Color contrast, visual design
+- `keyboard-navigator` - Tab order, focus management
+- `live-region-controller` - Dynamic content, toasts, loading
+- `forms-specialist` - Forms, inputs, validation
+- `alt-text-headings` - Images, alt text, headings, landmarks
+- `tables-data-specialist` - Data tables, grids
+- `link-checker` - Link text quality
+- `testing-coach` - Testing guidance
 
 **Hidden Helpers:**
-- `cross-page-analyzer` — Cross-page pattern detection, severity scoring, remediation tracking
-- `web-issue-fixer` — Automated and guided accessibility fix application
+- `cross-page-analyzer` - Cross-page pattern detection, severity scoring, remediation tracking
+- `web-issue-fixer` - Automated and guided accessibility fix application
 
 **Workflow:**
 1. `web-accessibility-wizard` receives the user request and runs Phase 0 (discovery)
@@ -123,46 +143,46 @@ For Section 508, EN 301 549, or organizational compliance:
 
 ## Team: GitHub Workflow Management
 
-**Lead:** `github-hub` or `nexus` (alternative entry points — same team, both orchestrate all GitHub workflow agents)
+**Lead:** `github-hub` or `nexus` (alternative entry points - same team, both orchestrate all GitHub workflow agents)
 
 **Members:**
-- `daily-briefing` — Daily GitHub command center: issues, PRs, reviews, releases, discussions, accessibility updates
-- `issue-tracker` — Issue search, triage, deep-dive, commenting, management, and dual-format workspace documents
-- `pr-review` — PR diff analysis, before/after snapshots, review comments, code suggestions, and review documents
-- `analytics` — Team velocity, review turnaround, issue resolution metrics, bottleneck detection, code churn
-- `insiders-a11y-tracker` — Tracks accessibility changes in VS Code Insiders and custom repos with delta tracking
-- `repo-admin` — Collaborator management, access auditing, branch protection, label sync, repo settings
-- `team-manager` — Org team member management, onboarding/offboarding checklists, cross-repo access sync
-- `contributions-hub` — Discussion management, community health, contributor insights, first-time contributor support
-- `template-builder` — Interactive issue/PR/workflow template wizard with YAML frontmatter generation
-- `repo-manager` — Repo infrastructure scaffolding: templates, CI/CD, labels, README, CONTRIBUTING, licenses
+- `daily-briefing` - Daily GitHub command center: issues, PRs, reviews, releases, discussions, accessibility updates
+- `issue-tracker` - Issue search, triage, deep-dive, commenting, management, and dual-format workspace documents
+- `pr-review` - PR diff analysis, before/after snapshots, review comments, code suggestions, and review documents
+- `analytics` - Team velocity, review turnaround, issue resolution metrics, bottleneck detection, code churn
+- `insiders-a11y-tracker` - Tracks accessibility changes in VS Code Insiders and custom repos with delta tracking
+- `repo-admin` - Collaborator management, access auditing, branch protection, label sync, repo settings
+- `team-manager` - Org team member management, onboarding/offboarding checklists, cross-repo access sync
+- `contributions-hub` - Discussion management, community health, contributor insights, first-time contributor support
+- `template-builder` - Interactive issue/PR/workflow template wizard with YAML frontmatter generation
+- `repo-manager` - Repo infrastructure scaffolding: templates, CI/CD, labels, README, CONTRIBUTING, licenses
 
 **Skills:**
-- `github-workflow-standards` — Auth, smart defaults, dual MD+HTML output, HTML accessibility, safety rules, parallel execution
-- `github-scanning` — Search query patterns, date range handling, cross-repo intelligence, auto-recovery
-- `github-analytics-scoring` — Repo health scoring (0-100/A-F), priority scoring, confidence levels, delta tracking
+- `github-workflow-standards` - Auth, smart defaults, dual MD+HTML output, HTML accessibility, safety rules, parallel execution
+- `github-scanning` - Search query patterns, date range handling, cross-repo intelligence, auto-recovery
+- `github-analytics-scoring` - Repo health scoring (0-100/A-F), priority scoring, confidence levels, delta tracking
 
 **Workflow:**
 1. User invokes `github-hub` or `nexus` with any natural language request about GitHub
 2. The orchestrator reads injected session context (`SessionStart` hook), identifies the authenticated user, discovers repos/orgs, and loads `preferences.md`
 3. The orchestrator classifies user intent and routes to the appropriate specialist agent
-4. Specialist agents run their workflow, announce steps with ⚙️/✅ pattern, collect data in parallel
+4. Specialist agents run their workflow, announce steps with / pattern, collect data in parallel
 5. All reports saved as dual `.md` + `.html` outputs to `.github/reviews/` subdirectories
-6. Agents surface relevant handoffs (e.g., `issue-tracker` → `pr-review` for linked PRs)
+6. Agents surface relevant handoffs (e.g., `issue-tracker` -> `pr-review` for linked PRs)
 
 **Parallel Execution Model:**
 - `daily-briefing` runs Batch 1 streams simultaneously: issues, PRs, CI/security, accessibility
 - `analytics` collects PR metrics, issue metrics, contribution activity, churn, and bottleneck data in parallel
 - `github-hub` routes to multiple sub-agents in one session without repeating context
-- `nexus` routes identically — both orchestrators share the same team and handoff logic
+- `nexus` routes identically - both orchestrators share the same team and handoff logic
 
 **Confidence & Delta Tracking:**
 - All agents tag findings with **High / Medium / Low** confidence
-- `analytics`, `issue-tracker`, `pr-review`, and `insiders-a11y-tracker` support delta tracking across reports: ✅ Resolved / 🆕 New / ⚠️ Persistent / 🔄 Regressed
+- `analytics`, `issue-tracker`, `pr-review`, and `insiders-a11y-tracker` support delta tracking across reports:  Resolved /  New /  Persistent /  Regressed
 - Persistent bottlenecks (3+ consecutive reports) trigger escalation flags
 
 **Handoffs:**
-- `github-hub`/`nexus` → any specialist via intent routing
-- `daily-briefing` → `issue-tracker` (deep dive on issue), `pr-review` (full review), `analytics` (team metrics), `insiders-a11y-tracker` (a11y detail)
-- `issue-tracker` ↔ `pr-review` (bidirectional: linked PRs/issues)
-- Any agent → `github-hub` or `nexus` for scope changes or re-routing
+- `github-hub`/`nexus` -> any specialist via intent routing
+- `daily-briefing` -> `issue-tracker` (deep dive on issue), `pr-review` (full review), `analytics` (team metrics), `insiders-a11y-tracker` (a11y detail)
+- `issue-tracker` <-> `pr-review` (bidirectional: linked PRs/issues)
+- Any agent -> `github-hub` or `nexus` for scope changes or re-routing

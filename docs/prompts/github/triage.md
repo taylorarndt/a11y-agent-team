@@ -12,23 +12,25 @@ Score and prioritize all open issues in a repository using a structured priority
 ## How to Launch It
 
 **In GitHub Copilot Chat:**
-```
+
+```text
 /triage owner/repo
 ```
 
 With date range:
-```
+
+```text
 /triage owner/repo last 7 days
 /triage owner/repo since 2026-02-01
 ```
 
 ## What to Expect
 
-1. **Collect all open issues** — Fetches issues with labels, reactions, comments, and milestone data
-2. **Score each issue** — Applies the priority scoring formula
-3. **Classify** — Assigns priority tier P0 through P4
-4. **Generate report** — Structured triage report with prioritized table and action recommendations
-5. **Save** — Written to `.github/reviews/issues/triage-{date}.md` and `.html`
+1. **Collect all open issues** - Fetches issues with labels, reactions, comments, and milestone data
+2. **Score each issue** - Applies the priority scoring formula
+3. **Classify** - Assigns priority tier P0 through P4
+4. **Generate report** - Structured triage report with prioritized table and action recommendations
+5. **Save** - Written to `.github/reviews/issues/triage-{date}.md` and `.html`
 
 ### Priority Scoring Formula
 
@@ -37,7 +39,7 @@ With date range:
 | @mention of a maintainer | +3 |
 | Linked to current release/milestone | +3 |
 | Labeled P0 or P1 | +2 |
-| 5+ 👍 reactions | +2 |
+| 5+  reactions | +2 |
 | Reply awaited (no maintainer response) | +2 |
 | 5+ comments (active discussion) | +1 |
 | Older than 30 days (staleness) | +1 |
@@ -50,14 +52,14 @@ With date range:
 |------|-------|--------|
 | P0 | 10+ | Act in current sprint |
 | P1 | 7-9 | Plan for next sprint |
-| P2 | 4-6 | Backlog — schedule when possible |
-| P3 | 2-3 | Low priority — address if time allows |
-| P4 | 0-1 | Icebox — revisit in future quarter |
+| P2 | 4-6 | Backlog - schedule when possible |
+| P3 | 2-3 | Low priority - address if time allows |
+| P4 | 0-1 | Icebox - revisit in future quarter |
 
 ### Sample Report Section
 
 ```markdown
-## P0 — Critical (2 issues)
+## P0 - Critical (2 issues)
 | # | Title | Score | Why |
 |---|-------|-------|-----|
 | 88 | Login fails after session expires | 12 | @mention + milestone + P0 label |
@@ -73,7 +75,7 @@ With date range:
 
 ## Example Variations
 
-```
+```text
 /triage owner/repo                        # Full triage
 /triage owner/repo last 7 days            # Recent issues only
 /triage owner/repo label:bug              # Only bug issues
@@ -88,7 +90,7 @@ With date range:
 
 ## Related Prompts
 
-- [my-issues](my-issues.md) — issues assigned to or @mentioning you
-- [issue-reply](issue-reply.md) — reply to a specific issue
-- [project-status](project-status.md) — per-column project board status
-- [refine-issue](refine-issue.md) — add acceptance criteria to an issue
+- [my-issues](my-issues.md) - issues assigned to or @mentioning you
+- [issue-reply](issue-reply.md) - reply to a specific issue
+- [project-status](project-status.md) - per-column project board status
+- [refine-issue](refine-issue.md) - add acceptance criteria to an issue

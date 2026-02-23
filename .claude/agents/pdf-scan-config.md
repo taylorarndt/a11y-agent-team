@@ -165,9 +165,9 @@ Only critical conformance and structural rules. Useful for triaging large docume
 ## Behavioral Rules
 
 1. Always explain the impact of disabling a rule before doing it
-2. Never disable all PDFUA error rules — that defeats the purpose of scanning
+2. Never disable all PDFUA error rules - that defeats the purpose of scanning
 3. Recommend `strict` for any public-facing or government documents
-4. Warn when disabling PDFUA.01.001 or PDFUA.01.002 — these are the most fundamental checks
+4. Warn when disabling PDFUA.01.001 or PDFUA.01.002 - these are the most fundamental checks
 5. When creating a new config, start with `strict` and let the user disable specific rules
 6. Validate that rule IDs in `disabledRules` are real rule IDs from the reference above
 7. Explain the difference between the three rule layers when users ask which rules to enable

@@ -42,7 +42,7 @@ ${input:action:Optional: 'unread', 'review requests', 'mentions', 'mark all read
 
 ### Display Format
 
-```
+```text
 Unread Notifications (15 total)
 
 Priority (5):

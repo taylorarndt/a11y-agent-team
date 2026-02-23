@@ -1,6 +1,6 @@
-# analytics — Team Velocity and Repository Health
+# analytics - Team Velocity and Repository Health
 
-> Turn raw GitHub activity into actionable insight. Measures review turnaround, issue resolution velocity, code churn hotspots, contributor load distribution, and team health — then scores everything 0–100 with an A-F grade and saves a full dashboard to your workspace.
+> Turn raw GitHub activity into actionable insight. Measures review turnaround, issue resolution velocity, code churn hotspots, contributor load distribution, and team health - then scores everything 0-100 with an A-F grade and saves a full dashboard to your workspace.
 
 ---
 
@@ -14,9 +14,10 @@ The analytics agent answers the questions team leads and maintainers ask most of
 - *Is anyone on the team overloaded?*
 - *Are we getting faster or slower?*
 
-It collects data across the GitHub API — PRs, reviews, issues, comments, commits — then scores your team's health against threshold tables to produce an objective grade. The output is a dual Markdown + HTML document you can drop into a team retrospective, status page, or portfolio review.
+It collects data across the GitHub API - PRs, reviews, issues, comments, commits - then scores your team's health against threshold tables to produce an objective grade. The output is a dual Markdown + HTML document you can drop into a team retrospective, status page, or portfolio review.
 
 Use analytics when:
+
 - You want a monthly or quarterly health report
 - You are concerned someone is carrying too much review load
 - You want to find which parts of the codebase have the highest churn and need refactoring attention
@@ -29,12 +30,12 @@ Use analytics when:
 
 ### GitHub Copilot (VS Code)
 
-```
+```text
 @analytics team dashboard
 @analytics my stats this month
 @analytics who is overloaded?
 @analytics review turnaround times for the last 30 days
-@analytics code hotspots — which files change most?
+@analytics code hotspots - which files change most?
 ```
 
 ### Claude Code (Terminal)
@@ -48,7 +49,7 @@ Use analytics when:
 
 ### Via GitHub Hub
 
-```
+```text
 @github-hub team analytics
 @github-hub show me team velocity
 @github-hub generate health report
@@ -79,25 +80,26 @@ Use analytics when:
 
 ---
 
-## What to Expect — Step by Step
+## What to Expect - Step by Step
 
 ### Team Dashboard
 
 1. **Scope establishment.** Reads `preferences.md` to find your repos and team members. Defaults to workspace repo if not configured.
 
 2. **Parallel data collection.** All streams run simultaneously:
-   ```
-   ⚙️ Collecting analytics across 3 repos…
-   ✅ PR velocity (84 PRs, last 30d) — loaded
-   ✅ Review turnaround (avg 1.4d, median 0.8d) — loaded
-   ✅ Issue resolution (avg 6.2d close time) — loaded
-   ✅ Contributor load (8 active contributors) — loaded
-   ✅ Code churn (top 12 hotspot files) — loaded
-   ✅ Bottleneck detection — flagging 2 anomalies
+
+   ```text
+    Collecting analytics across 3 repos...
+    PR velocity (84 PRs, last 30d) - loaded
+    Review turnaround (avg 1.4d, median 0.8d) - loaded
+    Issue resolution (avg 6.2d close time) - loaded
+    Contributor load (8 active contributors) - loaded
+    Code churn (top 12 hotspot files) - loaded
+    Bottleneck detection - flagging 2 anomalies
    ```
 
-3. **Health score computation.** Each metric area is scored 0–100:
-   - Review turnaround: 100 − penalty for slow reviews
+3. **Health score computation.** Each metric area is scored 0-100:
+   - Review turnaround: 100 - penalty for slow reviews
    - PR merge rate: based on ratio of merged vs. abandoned PRs
    - Issue responsiveness: time to first response
    - Load distribution: Gini coefficient of contribution load
@@ -105,9 +107,9 @@ Use analytics when:
 
 4. **Overall grade.** Scores are weighted into a single health score:
 
-   ```
-   Repo health score: 74 / 100  →  Grade: C+
-   ──────────────────────────────────────────
+   ```text
+   Repo health score: 74 / 100  ->  Grade: C+
+   
    Review turnaround:    88 / 100  (B+)
    PR merge rate:        72 / 100  (C+)
    Issue responsive:     61 / 100  (D)
@@ -117,7 +119,7 @@ Use analytics when:
 
 5. **Bottleneck report.** For any metric below 70, the agent identifies the likely cause and suggests a focused action:
 
-   > **Issue Responsiveness — 61/100 (D)**
+   > **Issue Responsiveness - 61/100 (D)**
    > Median first-response time is 8.4 days. 14 issues have no response in 30+ days. Recommended action: reserve 30 minutes per week for issue triage, or route all `bug` issues to `@alice` who has the fastest response rate on the team.
 
 6. **Saves dual output:** Markdown and accessible HTML dashboard.
@@ -125,8 +127,8 @@ Use analytics when:
 ### Review Turnaround Analysis
 
 1. Pulls all merged PRs in the date range
-2. Measures: open → first review, first review → approval, approval → merge
-3. Flags outlier PRs (>3× median at any stage)
+2. Measures: open -> first review, first review -> approval, approval -> merge
+3. Flags outlier PRs (>3x median at any stage)
 4. Identifies reviewers who have the fastest and slowest turnaround
 5. Shows trend lines: is turnaround improving or degrading?
 
@@ -135,10 +137,11 @@ Use analytics when:
 1. Counts PRs authored, PRs reviewed, issues commented, commits pushed per contributor
 2. Normalizes by time active in the period
 3. Computes team median per metric
-4. Flags anyone >2× the median on any dimension
+4. Flags anyone >2x the median on any dimension
 5. Shows the imbalance:
-   ```
-   ⚠️ Overload signal: @bob reviewed 34 PRs vs. team median of 12
+
+   ```text
+    Overload signal: @bob reviewed 34 PRs vs. team median of 12
    This pattern has persisted for 3 consecutive months.
    ```
 
@@ -153,21 +156,21 @@ Use analytics when:
 
 | Score | Grade | Interpretation |
 |-------|-------|----------------|
-| 90–100 | A | Excellent — team is performing at high velocity |
-| 80–89 | B | Good — minor inefficiencies but healthy overall |
-| 70–79 | C | Adequate — noticeable pressure points |
-| 60–69 | D | Problematic — bottlenecks affecting output |
-| Below 60 | F | Critical — systemic issues need addressing |
+| 90-100 | A | Excellent - team is performing at high velocity |
+| 80-89 | B | Good - minor inefficiencies but healthy overall |
+| 70-79 | C | Adequate - noticeable pressure points |
+| 60-69 | D | Problematic - bottlenecks affecting output |
+| Below 60 | F | Critical - systemic issues need addressing |
 
 ### Penalty Factors (lower your score)
 
 | Factor | Penalty |
 |--------|---------|
-| Review turnaround >5d | −15 per day over threshold |
-| >30% of PRs abandoned | −25 |
-| First issue response >7d | −20 |
-| One contributor >50% of all reviews | −30 (single point of failure) |
-| Hotspot file >20% of all commits | −10 |
+| Review turnaround >5d | -15 per day over threshold |
+| >30% of PRs abandoned | -25 |
+| First issue response >7d | -20 |
+| One contributor >50% of all reviews | -30 (single point of failure) |
+| Hotspot file >20% of all commits | -10 |
 
 </details>
 
@@ -180,7 +183,7 @@ Use analytics when:
 
 ### Quick Queries
 
-```
+```text
 @analytics what is our current health score?
 @analytics how long does it take us to merge a PR?
 @analytics who reviewed the most PRs this month?
@@ -189,17 +192,17 @@ Use analytics when:
 
 ### Deep Analysis
 
-```
+```text
 @analytics full team dashboard for Q3
-@analytics bottleneck report — where are we losing time?
+@analytics bottleneck report - where are we losing time?
 @analytics contributor activity for @alice this quarter
-@analytics churn analysis — which files should we refactor?
+@analytics churn analysis - which files should we refactor?
 @analytics compare this month to last month
 ```
 
 ### Personal Stats
 
-```
+```text
 @analytics my contribution stats this month
 @analytics how fast am I reviewing PRs compared to the team average?
 @analytics what PRs have I reviewed in the last 2 weeks?
@@ -243,11 +246,11 @@ Use analytics when:
 <details>
 <summary>Expand constraints</summary>
 
-- All scores are shown with the specific signals that drove them — no opaque grades
+- All scores are shown with the specific signals that drove them - no opaque grades
 - Flagging an individual as "overloaded" always pairs with a note that this is a systemic signal, not a performance issue
 - Data is scoped to the configured time window (default: last 30 days)
 - Trend comparisons require at least 2 complete time periods of data; otherwise reports "insufficient history"
-- Does not make hiring or firing recommendations — suggests process interventions only
+- Does not make hiring or firing recommendations - suggests process interventions only
 
 </details>
 

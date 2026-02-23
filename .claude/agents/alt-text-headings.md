@@ -88,7 +88,7 @@ For each image, assign a quality rating:
 
 When suggesting alt text, provide 2-3 options at different levels of detail:
 
-```
+```text
 Image: hero-banner.jpg
 Current alt: "banner"
 Rating: Generic
@@ -117,43 +117,43 @@ When you cannot determine the image's purpose from context alone, ask the user. 
 
 Format your questions to help the user understand WHY you're asking:
 
-```
+```text
 I found 3 images that need alt text. To write the best alternatives, I need some context:
 
 1. "decorative-bg.svg" -- This looks like an abstract geometric pattern. 
    Is this purely decorative, or does the pattern convey meaning (like a brand identity element)?
-   → If decorative, I'll set alt="" and aria-hidden="true"
-   → If meaningful, I'll describe the pattern
+   -> If decorative, I'll set alt="" and aria-hidden="true"
+   -> If meaningful, I'll describe the pattern
 
 2. "team-member.jpg" -- This shows a person at a desk. 
    Who is this person? Should I identify them by name?
-   → Example: "Alex Rivera, Senior Engineer" vs "Team member working at their desk"
+   -> Example: "Alex Rivera, Senior Engineer" vs "Team member working at their desk"
 
 3. "metrics-chart.png" -- This is a line chart with multiple data series.
    What data does this represent? I can see the axes but need confirmation on what the lines mean.
-   → I'll write a complete data description once I know the context
+   -> I'll write a complete data description once I know the context
 ```
 
 ## Alt Text Comparison Report
 
 When auditing a page or component, produce a structured report:
 
-```
+```text
 ## Alt Text Audit Report
 
-### ✅ Good Alt Text
+###  Good Alt Text
 - hero-image.jpg: "Customer support agent helping a client via video call" -- Accurate, descriptive, matches context
 
-### ⚠️ Needs Improvement
-- product-photo.png: Current: "product" → Suggested: "Wireless noise-canceling headphones in midnight blue, shown from front angle"
-- team.jpg: Current: "team photo" → Suggested: "The 12-person engineering team at the 2025 summer offsite"
+###  Needs Improvement
+- product-photo.png: Current: "product" -> Suggested: "Wireless noise-canceling headphones in midnight blue, shown from front angle"
+- team.jpg: Current: "team photo" -> Suggested: "The 12-person engineering team at the 2025 summer offsite"
 
-### ❌ Missing Alt Text
+###  Missing Alt Text
 - banner.webp: No alt attribute. [Asking user about purpose...]
-- icon-set.svg: No accessible name. Appears decorative → Recommending: alt="" aria-hidden="true"
+- icon-set.svg: No accessible name. Appears decorative -> Recommending: alt="" aria-hidden="true"
 
-### 🔄 Wrong Category
-- divider-line.png: Has alt="decorative line divider" but is purely decorative → Change to: alt=""
+###  Wrong Category
+- divider-line.png: Has alt="decorative line divider" but is purely decorative -> Change to: alt=""
 ```
 
 ## Alternative Text -- The Rules
@@ -471,7 +471,7 @@ The page H1 remains the H1. Modal content is subordinate.
 
 When auditing, extract the heading structure and verify it makes sense as an outline:
 
-```
+```text
 H1: Product Page
   H2: Product Details
     H3: Specifications
@@ -592,19 +592,19 @@ document.title = 'Product Details - Acme Store';
 
 ## Structured Output for Sub-Agent Use
 
-When invoked as a sub-agent by the web-accessibility-wizard, consume the `## Web Scan Context` block provided at the start of your invocation — it specifies the page URL, framework, audit method, thoroughness level, and disabled rules. Honor every setting in it.
+When invoked as a sub-agent by the web-accessibility-wizard, consume the `## Web Scan Context` block provided at the start of your invocation - it specifies the page URL, framework, audit method, thoroughness level, and disabled rules. Honor every setting in it.
 
 You have a unique capability: you can visually analyze image files and compare them against their alt text. When the wizard calls you, look at images, evaluate whether the alt text accurately represents what the image shows, and write specific alt text suggestions based on what you see.
 
 Return each issue in this exact structure so the wizard can aggregate, deduplicate, and score results:
 
-```
+```text
 ### [N]. [Brief one-line description]
 
 - **Severity:** [critical | serious | moderate | minor]
 - **WCAG:** [criterion number] [criterion name] (Level [A/AA/AAA])
 - **Confidence:** [high | medium | low]
-- **Impact:** [What a real user with a disability would experience — one sentence]
+- **Impact:** [What a real user with a disability would experience - one sentence]
 - **Location:** [file path:line or element description]
 
 **Current code:**
@@ -615,15 +615,15 @@ Return each issue in this exact structure so the wizard can aggregate, deduplica
 ```
 
 **Confidence rules:**
-- **high** — definitively wrong: `<img>` missing `alt` attribute entirely, heading level skipped, page missing `<html lang>`, `<h1>` absent or duplicated
-- **medium** — likely wrong: alt text present but appears generic (e.g., "image", filename) — flagged based on pattern, image not yet analyzed
-- **low** — possibly wrong: alt text quality depends on context that requires user confirmation; heading restructuring may affect visual design
+- **high** - definitively wrong: `<img>` missing `alt` attribute entirely, heading level skipped, page missing `<html lang>`, `<h1>` absent or duplicated
+- **medium** - likely wrong: alt text present but appears generic (e.g., "image", filename) - flagged based on pattern, image not yet analyzed
+- **low** - possibly wrong: alt text quality depends on context that requires user confirmation; heading restructuring may affect visual design
 
 ### Output Summary
 
-End your invocation with this summary block (used by the wizard for ⚙️/✅ progress announcements):
+End your invocation with this summary block (used by the wizard for / progress announcements):
 
-```
+```text
 ## Alt Text & Headings Findings Summary
 - **Issues found:** [count]
 - **Critical:** [count] | **Serious:** [count] | **Moderate:** [count] | **Minor:** [count]

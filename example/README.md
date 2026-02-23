@@ -1,4 +1,4 @@
-# Example Project — Intentional Accessibility Issues
+# Example Project - Intentional Accessibility Issues
 
 This is a **deliberately broken** web page with common accessibility problems. Use it to test the A11y Agent Team and see how the agents catch and fix real issues.
 
@@ -21,6 +21,7 @@ The `index.html` page contains **20+ intentional accessibility violations** acro
 ## How to Use
 
 ### With Claude Code
+
 ```bash
 # Open this example directory
 cd example
@@ -31,14 +32,16 @@ cd example
 ```
 
 ### With GitHub Copilot
-```
+
+```text
 @workspace /accessibility-wizard Review example/index.html
 @workspace /contrast-master Check the colors in example/index.html
 @workspace /forms-specialist Audit the form in example/index.html
 ```
 
 ### With the MCP Tools
-```
+
+```text
 # Check heading structure
 check_heading_structure with the HTML from index.html
 
@@ -53,6 +56,7 @@ run_axe_scan on example/index.html
 ```
 
 ### With the CI Workflow
+
 ```bash
 # Run the lint script directly
 node .github/scripts/a11y-lint.mjs example/
@@ -60,4 +64,4 @@ node .github/scripts/a11y-lint.mjs example/
 
 ## Expected Findings
 
-When all issues are fixed, matching the patterns in `index-fixed.html`, the agents should report a clean audit. Use this as a learning tool — see how many issues you can identify before running the agents, then compare.
+When all issues are fixed, matching the patterns in `index-fixed.html`, the agents should report a clean audit. Use this as a learning tool - see how many issues you can identify before running the agents, then compare.

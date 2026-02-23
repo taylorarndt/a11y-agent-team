@@ -1,4 +1,4 @@
-# live-region-controller — Dynamic Content Announcements
+# live-region-controller - Dynamic Content Announcements
 
 > Bridges visual changes to screen reader awareness. Handles `aria-live` regions, toast notifications, loading states, search result counts, filter updates, progress indicators, and any content that changes without a full page reload.
 
@@ -16,14 +16,14 @@
 ## What It Catches
 
 <details>
-<summary>Expand — 7 live region issues detected</summary>
+<summary>Expand - 7 live region issues detected</summary>
 
 - Dynamic content changes with no live region announcement
 - Live regions created dynamically (must exist in DOM before content changes)
 - Wrong `aria-live` politeness (`assertive` used for routine updates)
 - Toast notifications that disappear before screen readers can read them
 - Missing loading state announcements
-- `role="alert"` overuse (should be rare — only for genuinely urgent content)
+- `role="alert"` overuse (should be rare - only for genuinely urgent content)
 - Duplicate announcements (debouncing issues)
 
 </details>
@@ -35,14 +35,16 @@ Visual styling of notifications (contrast-master), focus management when notific
 ## How to Launch It
 
 **In Claude Code:**
-```
+
+```text
 /live-region-controller check search result announcements
 /live-region-controller build toast notifications that work with screen readers
 /live-region-controller review all aria-live usage in this project
 ```
 
 **In GitHub Copilot Chat:**
-```
+
+```text
 @live-region-controller review dynamic content updates in this component
 @live-region-controller add a live region for these search filter results
 @live-region-controller how should I announce loading states?
@@ -50,14 +52,15 @@ Visual styling of notifications (contrast-master), focus management when notific
 
 ## The Problem This Agent Solves
 
-Screen readers only hear what changes in the DOM. When content updates without a page reload — a toast appears, search results load, a filter is applied, a form is submitted — a sighted user sees the change. A screen reader user hears nothing unless a live region is present to announce it.
+Screen readers only hear what changes in the DOM. When content updates without a page reload - a toast appears, search results load, a filter is applied, a form is submitted - a sighted user sees the change. A screen reader user hears nothing unless a live region is present to announce it.
 
 Live regions bridge this gap. `aria-live="polite"` tells the browser: "When this region's content changes, announce it at the next available pause in reading." `aria-live="assertive"` interrupts immediately (for critical alerts only).
 
 ## Step-by-Step: Adding Live Region Coverage
 
 **You say:**
-```
+
+```text
 /live-region-controller check search result announcements
 ```
 
@@ -73,7 +76,8 @@ function SearchResults({ results, loading }) {
 ```
 
 **What the agent finds:**
-- No live region — result count changes are silent to screen readers
+
+- No live region - result count changes are silent to screen readers
 - Loading state has no accessible announcement
 
 **What the agent produces:**
@@ -103,7 +107,8 @@ function SearchResults({ results, loading }) {
 ```
 
 **Why it works:**
-1. The `role="status"` live region exists in the DOM from initial render (critical requirement — live regions created dynamically at announcement time are ignored by some screen readers)
+
+1. The `role="status"` live region exists in the DOM from initial render (critical requirement - live regions created dynamically at announcement time are ignored by some screen readers)
 2. `aria-atomic="true"` means the entire content is announced as a unit rather than just the changed text
 3. `aria-live="polite"` does not interrupt ongoing speech
 4. The visual spinner is `aria-hidden="true"` because the live region already handles the announcement
@@ -114,7 +119,7 @@ function SearchResults({ results, loading }) {
 |-----------------|---------------------|
 | Search result count updates | Critical error alerts (form submission failed, session expiring) |
 | Filter/sort changes | Alerts that require immediate user attention |
-| Loading started/finished | Nothing else — assertive is almost always wrong |
+| Loading started/finished | Nothing else - assertive is almost always wrong |
 | Toast notifications (most) | |
 | Step progress in wizards | |
 | Auto-save confirmations | |
@@ -136,6 +141,7 @@ function showToast(message) {
 ```
 
 This works:
+
 ```jsx
 // Correct: Live region already in DOM, update its content
 function App() {
@@ -160,7 +166,7 @@ function App() {
 | Connect to | When |
 |------------|------|
 | [modal-specialist](modal-specialist.md) | Modals that display status after form submission inside the dialog |
-| [keyboard-navigator](keyboard-navigator.md) | When focus should also move to announced content (not just announce — also focus) |
+| [keyboard-navigator](keyboard-navigator.md) | When focus should also move to announced content (not just announce - also focus) |
 | [forms-specialist](forms-specialist.md) | Form submission feedback and validation status announcements |
 | [accessibility-lead](accessibility-lead.md) | Full component reviews that include dynamic content |
 | [testing-coach](testing-coach.md) | Verifying that live region announcements are working correctly with actual screen readers |
@@ -170,7 +176,7 @@ function App() {
 
 ### Claude Code
 
-```
+```text
 /live-region-controller check search result announcements
 /live-region-controller build toast notifications that work with screen readers
 /live-region-controller add loading state announcements for this API call
@@ -179,7 +185,7 @@ function App() {
 
 ### GitHub Copilot
 
-```
+```text
 @live-region-controller review dynamic content updates in this component
 @live-region-controller add a live region for these search filter results
 @live-region-controller how should I announce loading states?
@@ -193,7 +199,7 @@ function App() {
 <summary>Expand constraints</summary>
 
 - Requires live regions to exist in the DOM before content changes (not created dynamically at announcement time)
-- Defaults to `aria-live="polite"` — only allows `assertive` for critical alerts
+- Defaults to `aria-live="polite"` - only allows `assertive` for critical alerts
 - Requires debouncing for rapid updates (e.g., type-ahead search results, not announcing every keystroke)
 - Times toast/notification durations against screen reader reading speed (minimum 5 seconds for short messages)
 

@@ -1,4 +1,4 @@
-# document-accessibility-wizard — Guided Document Accessibility Audit
+# document-accessibility-wizard - Guided Document Accessibility Audit
 
 > Runs an interactive, multi-phase accessibility audit of Office documents (DOCX, XLSX, PPTX) and PDFs. Coordinates the document scanning agents, performs cross-document analysis, scores findings by severity and confidence, tracks remediation across re-scans, generates VPAT/ACR compliance reports, creates batch remediation scripts, and provides CI/CD integration guidance.
 
@@ -33,13 +33,13 @@
 <details>
 <summary>Expand capabilities</summary>
 
-- **Delta scanning** — Only scans files changed since last commit
-- **Severity scoring** — Each finding scored Critical/Major/Minor with confidence level
-- **Template analysis** — Detects when issues originate from shared templates
-- **Remediation tracking** — Compares current scan against baseline, shows progress
-- **Batch remediation** — Generates PowerShell/Bash scripts for automatable fixes
-- **VPAT/ACR export** — Maps findings to WCAG criteria for compliance reporting
-- **Metadata dashboard** — Summary statistics at top of every report
+- **Delta scanning** - Only scans files changed since last commit
+- **Severity scoring** - Each finding scored Critical/Major/Minor with confidence level
+- **Template analysis** - Detects when issues originate from shared templates
+- **Remediation tracking** - Compares current scan against baseline, shows progress
+- **Batch remediation** - Generates PowerShell/Bash scripts for automatable fixes
+- **VPAT/ACR export** - Maps findings to WCAG criteria for compliance reporting
+- **Metadata dashboard** - Summary statistics at top of every report
 
 </details>
 
@@ -50,7 +50,7 @@
 
 ### Claude Code
 
-```
+```text
 /document-accessibility-wizard scan all documents in the docs/ folder
 /document-accessibility-wizard audit only files changed since last commit
 /document-accessibility-wizard generate a VPAT from the last audit
@@ -59,7 +59,7 @@
 
 ### GitHub Copilot
 
-```
+```text
 @document-accessibility-wizard audit all documents in this project
 @document-accessibility-wizard quick check on report.docx
 @document-accessibility-wizard set up CI/CD for document scanning
@@ -77,7 +77,7 @@ Nine pre-built prompts in `.github/prompts/` provide one-click workflows: single
 <details>
 <summary>Expand constraints</summary>
 
-- Always asks the user before moving between phases — never skips ahead silently
+- Always asks the user before moving between phases - never skips ahead silently
 - Presents findings after each phase before proceeding
 - Asks for scan profile preference (strict/moderate/minimal) at startup
 - Groups findings by severity with confidence levels

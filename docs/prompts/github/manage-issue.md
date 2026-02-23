@@ -13,12 +13,14 @@ Edit, label, assign, close, reopen, lock, or transfer a GitHub issue. All destru
 ## How to Launch It
 
 **In GitHub Copilot Chat:**
-```
+
+```text
 /manage-issue owner/repo#89 <action>
 ```
 
 Examples:
-```
+
+```text
 /manage-issue owner/repo#89 add label: bug
 /manage-issue owner/repo#89 assign to: alice
 /manage-issue owner/repo#89 close
@@ -28,11 +30,11 @@ Examples:
 
 ## What to Expect
 
-1. **Parse action** — Identifies the target issue and requested operation
-2. **Fetch current state** — Reads the issue to show current labels, assignees, and status
-3. **Preview change** — Shows what will change in a before/after summary
-4. **Confirm if destructive** — Close, lock, and transfer require a `yes` from you
-5. **Execute** — Applies the change and confirms success with the updated state
+1. **Parse action** - Identifies the target issue and requested operation
+2. **Fetch current state** - Reads the issue to show current labels, assignees, and status
+3. **Preview change** - Shows what will change in a before/after summary
+4. **Confirm if destructive** - Close, lock, and transfer require a `yes` from you
+5. **Execute** - Applies the change and confirms success with the updated state
 
 ### Supported Actions
 
@@ -52,10 +54,10 @@ Examples:
 
 ### Sample Flow (close with confirmation)
 
-```
+```text
 You: /manage-issue owner/repo#89 close as won't fix
 
-Agent: Issue #89 — "Login flickers on mobile"
+Agent: Issue #89 - "Login flickers on mobile"
   Current state: Open, labeled "bug", assigned to alice
 
   Action: Close issue with state "won't fix"
@@ -63,12 +65,12 @@ Agent: Issue #89 — "Login flickers on mobile"
 
 You: yes
 
-Agent: Issue #89 closed as "won't fix". ✅
+Agent: Issue #89 closed as "won't fix". 
 ```
 
 ## Example Variations
 
-```
+```text
 /manage-issue #89 add label: accessibility
 /manage-issue #89 remove label: triage-needed
 /manage-issue #89 assign to: alice
@@ -84,7 +86,7 @@ Agent: Issue #89 closed as "won't fix". ✅
 
 ## Related Prompts
 
-- [issue-reply](issue-reply.md) — post a comment before managing
-- [triage](triage.md) — bulk label and prioritize issues
-- [create-issue](create-issue.md) — create a new issue
-- [refine-issue](refine-issue.md) — add detail to an existing issue
+- [issue-reply](issue-reply.md) - post a comment before managing
+- [triage](triage.md) - bulk label and prioritize issues
+- [create-issue](create-issue.md) - create a new issue
+- [refine-issue](refine-issue.md) - add detail to an existing issue

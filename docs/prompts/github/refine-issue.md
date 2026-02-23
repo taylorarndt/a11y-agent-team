@@ -12,17 +12,18 @@ Improve an existing GitHub issue by adding acceptance criteria, technical consid
 ## How to Launch It
 
 **In GitHub Copilot Chat:**
-```
+
+```text
 /refine-issue owner/repo#89
 ```
 
 ## What to Expect
 
-1. **Read full issue** — Fetches the issue body, all comments, and linked issues
-2. **Extract intent** — Understands the core request from the title, description, and comments
-3. **Generate refinements** — Writes structured additions to the issue
-4. **Preview draft** — Shows all proposed additions before modifying anything
-5. **Apply with confirmation** — Appends the refinements as a new comment or edits the issue body
+1. **Read full issue** - Fetches the issue body, all comments, and linked issues
+2. **Extract intent** - Understands the core request from the title, description, and comments
+3. **Generate refinements** - Writes structured additions to the issue
+4. **Preview draft** - Shows all proposed additions before modifying anything
+5. **Apply with confirmation** - Appends the refinements as a new comment or edits the issue body
 
 ### Refinements Added
 
@@ -32,7 +33,7 @@ Improve an existing GitHub issue by adding acceptance criteria, technical consid
 | Technical considerations | Relevant parts of the codebase, dependencies, approach options |
 | Edge cases | Inputs or conditions that may break the feature |
 | Out of scope | Related ideas explicitly excluded from this issue |
-| Testing strategy | What should be tested — unit, integration, manual, screen reader |
+| Testing strategy | What should be tested - unit, integration, manual, screen reader |
 
 ### Sample Output
 
@@ -48,12 +49,12 @@ Improve an existing GitHub issue by adding acceptance criteria, technical consid
 - Consider `e.preventDefault()` audit
 
 ## Edge Cases
-- Slow network — does the button disable between tap and response?
+- Slow network - does the button disable between tap and response?
 - Double-tap: is this a triggered animation issue?
 
 ## Out of Scope
 - Desktop browser behavior (tracked in #44)
-- Password autofill — separate issue
+- Password autofill - separate issue
 
 ## Testing Strategy
 - Manual: iOS Safari on iPhone 13+
@@ -63,13 +64,14 @@ Improve an existing GitHub issue by adding acceptance criteria, technical consid
 ### Community Context Integration
 
 If the issue has discussion comments, the agent extracts:
+
 - Workarounds contributors suggested
 - Reproduction conditions identified by commenters
 - Design decisions already agreed upon in the thread
 
 ## Example Variations
 
-```
+```text
 /refine-issue owner/repo#89                 # Full refinement
 /refine-issue #89 just acceptance criteria  # Only add AC
 /refine-issue #89 just testing strategy     # Only add testing notes
@@ -83,6 +85,6 @@ If the issue has discussion comments, the agent extracts:
 
 ## Related Prompts
 
-- [create-issue](create-issue.md) — start a new issue from scratch
-- [manage-issue](manage-issue.md) — update labels and assign after refining
-- [triage](triage.md) — prioritize issues in bulk
+- [create-issue](create-issue.md) - start a new issue from scratch
+- [manage-issue](manage-issue.md) - update labels and assign after refining
+- [triage](triage.md) - prioritize issues in bulk

@@ -12,21 +12,23 @@ Generate a complete, pre-built GitHub issue template specifically for accessibil
 ## How to Launch It
 
 **In GitHub Copilot Chat:**
-```
+
+```text
 /build-a11y-template
 ```
 
 With a target repo:
-```
+
+```text
 /build-a11y-template owner/repo
 ```
 
 ## What to Expect
 
-1. **Generate the template** — Produces a complete YAML template immediately (no interactive builder needed)
-2. **Preview** — Shows the full rendered form and raw YAML
-3. **Offer customization** — Asks if any fields should be altered for your project's stack
-4. **Save with confirmation** — Writes to `.github/ISSUE_TEMPLATE/accessibility-bug.yml`
+1. **Generate the template** - Produces a complete YAML template immediately (no interactive builder needed)
+2. **Preview** - Shows the full rendered form and raw YAML
+3. **Offer customization** - Asks if any fields should be altered for your project's stack
+4. **Save with confirmation** - Writes to `.github/ISSUE_TEMPLATE/accessibility-bug.yml`
 
 ### Pre-Built Template Fields
 
@@ -90,6 +92,7 @@ body:
 ### Customization Options
 
 After generating the template, the agent offers:
+
 - Add a dropdown for your specific components or pages
 - Change required vs. optional status on any field
 - Add a severity dropdown (Critical / High / Medium / Low)
@@ -103,6 +106,6 @@ After generating the template, the agent offers:
 
 ## Related Prompts
 
-- [build-template](build-template.md) — interactive custom template builder
-- [create-issue](create-issue.md) — use the template to file an accessibility bug
-- [a11y-update](a11y-update.md) — view recent accessibility issues filed with this template
+- [build-template](build-template.md) - interactive custom template builder
+- [create-issue](create-issue.md) - use the template to file an accessibility bug
+- [a11y-update](a11y-update.md) - view recent accessibility issues filed with this template

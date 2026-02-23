@@ -1,4 +1,4 @@
-# accessibility-lead — The Orchestrator
+# accessibility-lead - The Orchestrator
 
 > Coordinates the entire accessibility team. Evaluates your task, decides which specialists are needed, invokes them, synthesizes their findings into a single prioritized report, and makes the ship/no-ship decision.
 
@@ -11,7 +11,7 @@
 
 ## What It Catches
 
-Everything — by delegating to the right specialists. It also catches cross-cutting issues that span multiple agents (e.g., a modal with a form that has contrast issues — it will invoke modal-specialist, forms-specialist, and contrast-master together).
+Everything - by delegating to the right specialists. It also catches cross-cutting issues that span multiple agents (e.g., a modal with a form that has contrast issues - it will invoke modal-specialist, forms-specialist, and contrast-master together).
 
 ## What It Will Not Do
 
@@ -20,14 +20,16 @@ Deep-dive into a single domain on its own. It delegates. If you ask it about ARI
 ## How to Launch It
 
 **In Claude Code:**
-```
+
+```text
 /accessibility-lead build a login form with email and password
 /accessibility-lead audit the entire checkout flow
 /accessibility-lead review components/DataTable.tsx
 ```
 
 **In GitHub Copilot Chat:**
-```
+
+```text
 @accessibility-lead review this component for accessibility
 @accessibility-lead full audit of the settings page
 @accessibility-lead I'm building a dashboard with charts and tables
@@ -40,44 +42,46 @@ Deep-dive into a single domain on its own. It delegates. If you ask it about ARI
 When you ask the accessibility-lead to audit a component or page, here is exactly what happens.
 
 **You say:**
-```
+
+```text
 /accessibility-lead audit the checkout form in CheckoutPage.tsx
 ```
 
 **Phase 1: Component Classification**
 The lead reads the component and identifies what specialist domains are involved. For a checkout form, it identifies:
-- A form with inputs, labels, and validation → forms-specialist
-- Buttons and interactive elements → aria-specialist + keyboard-navigator
-- Error messages that appear dynamically → live-region-controller
-- Color-coded feedback (red for errors) → contrast-master
-- A modal confirmation dialog → modal-specialist
+
+- A form with inputs, labels, and validation -> forms-specialist
+- Buttons and interactive elements -> aria-specialist + keyboard-navigator
+- Error messages that appear dynamically -> live-region-controller
+- Color-coded feedback (red for errors) -> contrast-master
+- A modal confirmation dialog -> modal-specialist
 
 **Phase 2: Parallel Specialist Invocation**
 The lead invokes each relevant specialist simultaneously, passing the relevant component sections to each one.
 
 **Phase 3: Finding Synthesis**
-Each specialist returns findings. The lead deduplicates (e.g., both aria-specialist and forms-specialist might flag an unlabeled input — the lead keeps one finding, not two), classifies severity, and builds a unified report.
+Each specialist returns findings. The lead deduplicates (e.g., both aria-specialist and forms-specialist might flag an unlabeled input - the lead keeps one finding, not two), classifies severity, and builds a unified report.
 
 **Phase 4: Prioritized Report**
 The report is organized by impact:
 
-```
-Audit: CheckoutPage.tsx — Checkout Form
+```text
+Audit: CheckoutPage.tsx - Checkout Form
 
 Score: 62/100 (C)
 
 Critical (blocks access):
-  1. [keyboard-navigator] Tab order skips the credit card expiry field — users
+  1. [keyboard-navigator] Tab order skips the credit card expiry field - users
      who rely on keyboard cannot reach this input.
 
 Major (degrades experience):
   2. [forms-specialist] Error messages use color only (red text) without an icon
-     or text prefix — WCAG 1.4.1 Use of Color violation.
-  3. [modal-specialist] Confirmation dialog does not trap focus — screen reader
+     or text prefix - WCAG 1.4.1 Use of Color violation.
+  3. [modal-specialist] Confirmation dialog does not trap focus - screen reader
      users can navigate outside the dialog while it is open.
 
 Minor (room for improvement):
-  4. [live-region-controller] Form submission spinner has no live region — screen
+  4. [live-region-controller] Form submission spinner has no live region - screen
      readers do not announce that processing has started.
 
 Passed (21 checks):
@@ -108,7 +112,7 @@ The lead makes an explicit recommendation: ship (no critical/major issues), ship
 | Connect to | When |
 |------------|------|
 | [aria-specialist](aria-specialist.md) | Custom widgets, ARIA roles and properties |
-| [keyboard-navigator](keyboard-navigator.md) | Always — tab order and focus management |
+| [keyboard-navigator](keyboard-navigator.md) | Always - tab order and focus management |
 | [forms-specialist](forms-specialist.md) | Any forms, inputs, or validation |
 | [modal-specialist](modal-specialist.md) | Dialogs, drawers, overlays |
 | [live-region-controller](live-region-controller.md) | Dynamic content and announcements |
@@ -123,7 +127,7 @@ The lead makes an explicit recommendation: ship (no critical/major issues), ship
 
 ### Claude Code
 
-```
+```text
 /accessibility-lead build a login form with email and password
 /accessibility-lead audit the entire checkout flow
 /accessibility-lead review components/DataTable.tsx
@@ -132,7 +136,7 @@ The lead makes an explicit recommendation: ship (no critical/major issues), ship
 
 ### GitHub Copilot
 
-```
+```text
 @accessibility-lead review this component for accessibility
 @accessibility-lead full audit of the settings page
 @accessibility-lead I am building a dashboard with charts and tables, what do I need?

@@ -25,7 +25,7 @@ If the commit modifies accessibility-related code, prefix the scope with `a11y`:
 
 For commits that include accessibility fixes alongside other changes, mention the accessibility improvement in the commit body:
 
-```
+```text
 feat: redesign checkout flow
 
 - Updated layout to single-column for better mobile experience

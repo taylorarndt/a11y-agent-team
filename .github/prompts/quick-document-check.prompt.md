@@ -7,7 +7,7 @@ tools:
 
 # Quick Document Accessibility Check
 
-Fast triage scan — check a single document for critical accessibility errors only. Skips warnings and tips for speed.
+Fast triage scan - check a single document for critical accessibility errors only. Skips warnings and tips for speed.
 
 ## Document to check
 
@@ -28,12 +28,12 @@ Use the **document-accessibility-wizard** agent to:
 3. Filter to **high-confidence** findings only
 4. Report results inline (no separate report file) in this format:
 
-```
+```text
 Quick Check: [filename]
 Score: [0-100] ([A-F])
 
 Errors Found: [count]
-  1. [Rule ID] — [description] — [location]
+  1. [Rule ID] - [description] - [location]
   2. ...
 
 Verdict: [PASS if 0 errors | NEEDS WORK if 1-3 errors | FAIL if 4+ errors]

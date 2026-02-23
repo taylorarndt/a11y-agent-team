@@ -12,13 +12,14 @@ Audit multiple pages of a web application in a single session. Generates a compa
 ## How to Launch It
 
 **In GitHub Copilot Chat:**
-```
+
+```text
 /audit-web-multi-page
 ```
 
 The agent will collect the URLs interactively. Or provide context upfront:
 
-```
+```text
 /audit-web-multi-page audit the main user flows: /, /login, /dashboard, /checkout
 ```
 
@@ -27,14 +28,15 @@ The agent will collect the URLs interactively. Or provide context upfront:
 ### Step 1: Information Collection
 
 The agent asks four questions:
-1. **Base URL** — e.g., `https://myapp.com`
-2. **Pages to audit** — list the paths (e.g., `/`, `/login`, `/dashboard`, `/settings`)
-3. **Framework** — React, Vue, Angular, Next.js, Svelte, or Vanilla HTML/CSS/JS
-4. **Audit method** — Runtime scan only, Code review only, or Both
+
+1. **Base URL** - e.g., `https://myapp.com`
+2. **Pages to audit** - list the paths (e.g., `/`, `/login`, `/dashboard`, `/settings`)
+3. **Framework** - React, Vue, Angular, Next.js, Svelte, or Vanilla HTML/CSS/JS
+4. **Audit method** - Runtime scan only, Code review only, or Both
 
 ### Step 2: Per-Page Audit
 
-For each page, the agent runs the selected audit method and computes a severity score (0–100) and letter grade.
+For each page, the agent runs the selected audit method and computes a severity score (0-100) and letter grade.
 
 ### Step 3: Cross-Page Analysis
 
@@ -42,7 +44,7 @@ The [cross-page-analyzer](../../agents/cross-page-analyzer.md) classifies all fi
 
 | Type | Meaning | Fix Strategy |
 |------|---------|-------------|
-| Systemic | Same issue on every page | Fix in shared layout — highest ROI |
+| Systemic | Same issue on every page | Fix in shared layout - highest ROI |
 | Template-level | Same issue on pages sharing a component | Fix that shared component |
 | Page-specific | Unique to one page | Fix individually |
 
@@ -50,11 +52,11 @@ The [cross-page-analyzer](../../agents/cross-page-analyzer.md) classifies all fi
 
 The report is saved to `ACCESSIBILITY-AUDIT.md` with:
 
-- **Page Scorecard** — side-by-side score table (example below)
-- **Systemic Issues** — problems in the navigation, header, footer — fix once, fix everywhere
-- **Template Issues** — shared component problems
-- **Page-Specific Issues** — unique to individual pages
-- **Remediation Priority** — ordered by ROI
+- **Page Scorecard** - side-by-side score table (example below)
+- **Systemic Issues** - problems in the navigation, header, footer - fix once, fix everywhere
+- **Template Issues** - shared component problems
+- **Page-Specific Issues** - unique to individual pages
+- **Remediation Priority** - ordered by ROI
 
 **Example scorecard:**
 
@@ -67,22 +69,22 @@ The report is saved to `ACCESSIBILITY-AUDIT.md` with:
 
 ### Step 5: Remediation Offer
 
-After the report, the agent asks: "Would you like me to fix the systemic issues that affect all pages?" — systemic fixes yield the largest improvement with the smallest effort.
+After the report, the agent asks: "Would you like me to fix the systemic issues that affect all pages?" - systemic fixes yield the largest improvement with the smallest effort.
 
 ## Example Variations
 
-```
+```text
 /audit-web-multi-page
-→ Base URL: https://myapp.com
-→ Pages: /, /login, /dashboard, /profile, /settings
-→ Framework: React
-→ Method: Both
+-> Base URL: https://myapp.com
+-> Pages: /, /login, /dashboard, /profile, /settings
+-> Framework: React
+-> Method: Both
 ```
 
-```
+```text
 /audit-web-multi-page
-→ Pages: just the checkout flow: /cart, /checkout/shipping, /checkout/payment, /confirmation
-→ Runtime scan only for speed
+-> Pages: just the checkout flow: /cart, /checkout/shipping, /checkout/payment, /confirmation
+-> Runtime scan only for speed
 ```
 
 ## Output Files
@@ -100,6 +102,6 @@ After the report, the agent asks: "Would you like me to fix the systemic issues 
 
 ## Related Prompts
 
-- [audit-web-page](audit-web-page.md) — single-page deep audit
-- [compare-web-audits](compare-web-audits.md) — track improvement after fixing systemic issues
-- [fix-web-issues](fix-web-issues.md) — apply fixes from the multi-page report
+- [audit-web-page](audit-web-page.md) - single-page deep audit
+- [compare-web-audits](compare-web-audits.md) - track improvement after fixing systemic issues
+- [fix-web-issues](fix-web-issues.md) - apply fixes from the multi-page report

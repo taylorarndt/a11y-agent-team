@@ -6,6 +6,8 @@ A11y Agent Team consists of Markdown agent instructions, shell scripts (bash and
 
 ## Supported Versions
 
+The following table lists which versions currently receive security fixes.
+
 | Version | Supported |
 |---------|-----------|
 | Latest release | Yes |

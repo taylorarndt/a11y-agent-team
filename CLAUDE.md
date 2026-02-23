@@ -4,7 +4,7 @@ This workspace enforces WCAG AA accessibility standards for all web UI code.
 
 ## Mandatory Accessibility Check
 
-Before writing or modifying any web UI code — including HTML, JSX, CSS, React components, Tailwind classes, web pages, forms, modals, or any user-facing web content — you MUST:
+Before writing or modifying any web UI code - including HTML, JSX, CSS, React components, Tailwind classes, web pages, forms, modals, or any user-facing web content - you MUST:
 
 1. Consider which accessibility specialist agents are needed for the task
 2. Apply the relevant specialist knowledge before generating code
@@ -16,7 +16,7 @@ Invoke these agents from the Claude Code agent picker (type `/` to browse):
 
 | Agent | When to Use |
 |-------|------------|
-| accessibility-lead | Any UI task — coordinates all specialists and runs final review |
+| accessibility-lead | Any UI task - coordinates all specialists and runs final review |
 | aria-specialist | Interactive components, custom widgets, ARIA usage |
 | modal-specialist | Dialogs, drawers, popovers, overlays |
 | contrast-master | Colors, themes, CSS styling, visual design |
@@ -26,14 +26,17 @@ Invoke these agents from the Claude Code agent picker (type `/` to browse):
 | alt-text-headings | Images, alt text, SVGs, heading structure, page titles, landmarks |
 | tables-data-specialist | Data tables, sortable tables, grids, comparison tables, pricing tables |
 | link-checker | Ambiguous link text, "click here"/"read more" detection, link purpose |
+| cognitive-accessibility | WCAG 2.2 cognitive SC, COGA guidance, plain language, authentication UX |
+| mobile-accessibility | React Native, Expo, iOS, Android - touch targets, screen reader compatibility |
+| design-system-auditor | Color token contrast, focus ring tokens, spacing tokens, Tailwind/MUI/Chakra/shadcn |
 | web-accessibility-wizard | Full guided web accessibility audit with step-by-step walkthrough |
-| document-accessibility-wizard | Document accessibility audit for .docx, .xlsx, .pptx, .pdf — single files, folders, recursive scanning, delta scanning, severity scoring, remediation tracking, compliance export (VPAT/ACR), CI/CD integration |
+| document-accessibility-wizard | Document accessibility audit for .docx, .xlsx, .pptx, .pdf - single files, folders, recursive scanning, delta scanning, severity scoring, remediation tracking, compliance export (VPAT/ACR), CI/CD integration |
 | testing-coach | Screen reader testing, keyboard testing, automated testing guidance |
 | wcag-guide | WCAG 2.2 criteria explanations, conformance levels, what changed |
 
 ## Hidden Helper Sub-Agents
 
-These agents are not meant to be invoked directly by users. They are used internally by the document-accessibility-wizard and web-accessibility-wizard to parallelize scanning and analysis:
+These agents are not meant to be invoked directly by users. They are used internally by the document-accessibility-wizard, web-accessibility-wizard, and markdown-a11y-assistant to parallelize scanning and analysis:
 
 | Agent | Purpose |
 |-------|--------|
@@ -41,6 +44,10 @@ These agents are not meant to be invoked directly by users. They are used intern
 | cross-document-analyzer | Cross-document pattern detection, severity scoring, template analysis |
 | cross-page-analyzer | Cross-page web pattern detection, severity scoring, remediation tracking |
 | web-issue-fixer | Automated and guided web accessibility fix application |
+| office-scan-config | Office scan config management - invoked internally by document-accessibility-wizard Phase 0 |
+| pdf-scan-config | PDF scan config management - invoked internally by document-accessibility-wizard Phase 0 |
+| markdown-scanner | Per-file markdown scanning across all 9 accessibility domains - invoked in parallel by markdown-a11y-assistant |
+| markdown-fixer | Applies approved markdown fixes and presents human-judgment items - invoked by markdown-a11y-assistant |
 
 ## Knowledge Domains
 
@@ -54,6 +61,10 @@ The following knowledge domains are available across agent files. On Copilot the
 | Web Scanning | Web content discovery, URL crawling, axe-core CLI commands, framework detection |
 | Web Severity Scoring | Web severity scoring formulas, confidence levels, remediation tracking |
 | Framework Accessibility | Framework-specific accessibility patterns and fix templates (React, Vue, Angular, Svelte, Tailwind) |
+| Cognitive Accessibility | WCAG 2.2 cognitive SC reference tables, plain language analysis, COGA guidance, auth pattern detection |
+| Mobile Accessibility | React Native prop reference, iOS/Android API quick reference, touch target rules, violation patterns |
+| Design System | Color token contrast computation, framework token paths (Tailwind/MUI/Chakra/shadcn), focus ring validation, WCAG 2.4.11 |
+| Markdown Accessibility | Ambiguous link/anchor patterns, emoji handling modes (remove/translate), Mermaid and ASCII diagram replacement templates, heading structure, severity scoring |
 
 ## Lifecycle Hooks
 
@@ -63,15 +74,17 @@ Claude Code hooks are configured in `.claude/settings.json` and `.claude/hooks/`
 |------|------|---------|
 | UserPromptSubmit | Every user prompt | Evaluates whether the prompt involves UI code and injects accessibility-lead consideration |
 | SessionStart | Built into wizard agent frontmatter | Auto-detects scan config files and previous audit reports; injects relevant context |
-| Stop | Built into wizard agent frontmatter | Quality gate — validates audit report completeness |
+| Stop | Built into wizard agent frontmatter | Quality gate - validates audit report completeness |
 
 ## Agent Teams
 
-Team coordination is defined in `.claude/agents/AGENTS.md`. Three defined teams:
+Team coordination is defined in `.claude/agents/AGENTS.md`. Five defined teams:
 
-- **Document Accessibility Audit** — led by document-accessibility-wizard with format-specific sub-agents
-- **Web Accessibility Audit** — led by accessibility-lead with all web specialist agents
-- **Full Audit** — combined web + document audit workflow
+- **Document Accessibility Audit** - led by document-accessibility-wizard with format-specific sub-agents
+- **Web Accessibility Audit** - led by accessibility-lead with all web specialist agents
+- **Full Audit** - combined web + document audit workflow
+- **Mobile Accessibility** - led by mobile-accessibility; invoked standalone or as handoff from accessibility-lead
+- **Design System Accessibility** - led by design-system-auditor; validates tokens before UI propagation
 
 ## Decision Matrix
 
@@ -79,6 +92,9 @@ Team coordination is defined in `.claude/agents/AGENTS.md`. Three defined teams:
 - **Modifying existing UI:** At minimum apply keyboard-navigator (tab order breaks easily). Add others based on what changed.
 - **Code review/audit:** Apply all specialist checklists. Use web-accessibility-wizard for guided web audits.
 - **Document audit:** Use document-accessibility-wizard for Office and PDF accessibility audits. Supports single files, folders, recursive scanning, delta scanning (changed files only), severity scoring, template analysis, remediation tracking across re-scans, compliance format export (VPAT/ACR), batch remediation scripts, and CI/CD integration guides.
+- **Mobile app (React Native / Expo / iOS / Android):** Apply cognitive-accessibility guidance. Use mobile-accessibility for touch target checks, accessibilityLabel/Role/State audits, and platform-specific screen reader testing.
+- **Cognitive / UX clarity / plain language:** Use cognitive-accessibility for WCAG 2.2 SC 3.3.7, 3.3.8, 3.3.9, COGA guidance, error message quality, and reading level analysis.
+- **Design system / tokens:** Use design-system-auditor to validate color token pairs, focus ring tokens, spacing tokens, and motion tokens before they propagate to UI.
 - **Data tables:** Always apply tables-data-specialist for any tabular data display.
 - **Links:** Always apply link-checker when pages contain hyperlinks.
 - **Images or media:** Always apply alt-text-headings.
@@ -89,11 +105,12 @@ Team coordination is defined in `.claude/agents/AGENTS.md`. Three defined teams:
 
 The `templates/` directory contains pre-built scan configuration profiles:
 
-- **strict** — All rules enabled, all severities reported
-- **moderate** — All rules enabled, errors and warnings only
-- **minimal** — Errors only, for quick triage
+- **strict** - All rules enabled, all severities reported
+- **moderate** - All rules enabled, errors and warnings only
+- **minimal** - Errors only, for quick triage
 
 Copy the appropriate template to your project root:
+
 - `.a11y-office-config.json` for Office document scanning
 - `.a11y-pdf-config.json` for PDF scanning
 - `.a11y-web-config.json` for web accessibility scanning
@@ -113,9 +130,9 @@ Copy the appropriate template to your project root:
 
 Additional guides in `docs/`:
 
-- **cross-platform-handoff.md** — Seamless handoff between Claude Code and Copilot agent environments
-- **advanced-scanning-patterns.md** — Background scanning, worktree isolation, and large library strategies
-- **plugin-packaging.md** — Packaging and distributing agents for different environments
-- **platform-references.md** — All external documentation sources used to build this project, with feature-to-source mapping
+- **cross-platform-handoff.md** - Seamless handoff between Claude Code and Copilot agent environments
+- **advanced-scanning-patterns.md** - Background scanning, worktree isolation, and large library strategies
+- **plugin-packaging.md** - Packaging and distributing agents for different environments
+- **platform-references.md** - All external documentation sources used to build this project, with feature-to-source mapping
 
 For tasks that do not involve any user-facing web content (backend logic, scripts, database work), these requirements do not apply.

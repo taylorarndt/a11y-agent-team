@@ -12,7 +12,7 @@ This guide will help you set up and configure the GitHub Copilot agents in your 
 
 Ensure your workspace has this structure:
 
-```
+```text
 your-workspace/
  .github/
     agents/
@@ -210,7 +210,7 @@ briefing:
 
 ### Daily Briefing Agent
 
-```
+```text
 @daily-briefing generate morning briefing
 @daily-briefing afternoon update
 @daily-briefing weekly summary
@@ -220,7 +220,7 @@ briefing:
 
 ### PR Review Agent
 
-```
+```text
 @pr-review analyze #123
 @pr-review show all PRs waiting for my review
 @pr-review my open PRs across all repos
@@ -229,7 +229,7 @@ briefing:
 
 ### Issue Tracker Agent
 
-```
+```text
 @issue-tracker triage new issues
 @issue-tracker my issues across all repos
 @issue-tracker show critical bugs in my-org
@@ -238,7 +238,7 @@ briefing:
 
 ### Accessibility Tracker
 
-```
+```text
 @insiders-a11y-tracker what a11y changes shipped this week
 @insiders-a11y-tracker track my-org/my-app
 @insiders-a11y-tracker full report with WCAG analysis
@@ -247,7 +247,7 @@ briefing:
 
 ### Analytics & Insights Agent
 
-```
+```text
 @analytics team dashboard across all repos
 @analytics my stats this month
 @analytics review turnaround times

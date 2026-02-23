@@ -1,4 +1,4 @@
-# insiders-a11y-tracker — VS Code Accessibility Progress Tracker
+# insiders-a11y-tracker - VS Code Accessibility Progress Tracker
 
 > Track accessibility improvements shipping to VS Code Insiders and Stable by monitoring the microsoft/vscode repo for issues tagged with `accessibility` + `insiders-released`. Cross-references each fix against WCAG 2.2 success criteria and ARIA patterns, then saves a delta report to your workspace.
 
@@ -23,7 +23,7 @@ It does not just list issues. It maps each fix to the WCAG success criterion it 
 
 ### GitHub Copilot (VS Code)
 
-```
+```text
 @insiders-a11y-tracker latest accessibility updates
 @insiders-a11y-tracker what shipped to Insiders this week?
 @insiders-a11y-tracker WCAG failures in VS Code this month
@@ -40,7 +40,7 @@ It does not just list issues. It maps each fix to the WCAG success criterion it 
 
 ### Via GitHub Hub
 
-```
+```text
 @github-hub accessibility tracker
 @github-hub what's new in VS Code a11y?
 ```
@@ -68,52 +68,54 @@ It does not just list issues. It maps each fix to the WCAG success criterion it 
 
 ---
 
-## What to Expect — Step by Step
+## What to Expect - Step by Step
 
 ### Standard Scan
 
 1. **Channel determination.** The agent distinguishes Insiders vs. Stable by checking which `insiders-released` issues have also been labeled `stable-released`.
 
 2. **Issue collection.** Searches the default repo (`microsoft/vscode`) for issues tagged with both `accessibility` and `insiders-released`, filtering by the configured time window (default: last 30 days).
-   ```
-   ⚙️ Scanning microsoft/vscode for accessibility updates…
-   ✅ Found 23 items: 18 Insiders-only, 5 reaching Stable
+
+   ```text
+    Scanning microsoft/vscode for accessibility updates...
+    Found 23 items: 18 Insiders-only, 5 reaching Stable
    ```
 
 3. **WCAG cross-reference.** Each issue title and body is analyzed to determine which WCAG success criterion is most relevant:
-   - Keyboard navigation issues → WCAG 2.1.1, 2.1.2
-   - Focus management → WCAG 2.4.3
-   - Screen reader labels → WCAG 4.1.2
-   - Color contrast → WCAG 1.4.3, 1.4.11
+   - Keyboard navigation issues -> WCAG 2.1.1, 2.1.2
+   - Focus management -> WCAG 2.4.3
+   - Screen reader labels -> WCAG 4.1.2
+   - Color contrast -> WCAG 1.4.3, 1.4.11
 
 4. **ARIA pattern mapping.** Where possible, each issue is categorized by ARIA design pattern involved (e.g., Dialog, Tree, Grid, Combobox, Live Region).
 
 5. **Structured report:**
-   ```
-   ## VS Code Accessibility — Insiders Report
-   Period: Nov 1 – Nov 30
+
+   ```text
+   ## VS Code Accessibility - Insiders Report
+   Period: Nov 1 - Nov 30
 
    ### Fixed (18 items reaching Insiders this period)
-   ┌─────────────────────────────────────────────────────────────────
-   │ #12847  Focus lost after closing notifications panel
-   │ Channel: Insiders  |  WCAG: 2.4.3  |  Pattern: Live Region / Modal
-   │ Status: Fixed
-   └─────────────────────────────────────────────────────────────────
-   │ #12801  Screen reader not announcing tree item expand state
-   │ Channel: Insiders  |  WCAG: 4.1.2  |  Pattern: Tree
-   │ Status: Fixed
-   └─────────────────────────────────────────────────────────────────
+   
+    #12847  Focus lost after closing notifications panel
+    Channel: Insiders  |  WCAG: 2.4.3  |  Pattern: Live Region / Modal
+    Status: Fixed
+   
+    #12801  Screen reader not announcing tree item expand state
+    Channel: Insiders  |  WCAG: 4.1.2  |  Pattern: Tree
+    Status: Fixed
+   
    ```
 
 6. **Delta tracking.** Compares against the previous scan to show:
-   - **Fixed** — present before, resolved now
-   - **New** — appeared this scan for the first time
-   - **Persistent** — present for 2 consecutive scans
-   - **Persistent (3+)** — ⚠️ escalation flag
-   - **Regressed** — was fixed, has reopened
+   - **Fixed** - present before, resolved now
+   - **New** - appeared this scan for the first time
+   - **Persistent** - present for 2 consecutive scans
+   - **Persistent (3+)** -  escalation flag
+   - **Regressed** - was fixed, has reopened
 
 7. **Escalation flag:**
-   > ⚠️ Persistent Issue Detected (3+ scans): Focus trap not working in Settings editor (#11200). This issue has appeared in 3 consecutive monthly scans without resolution. Recommended action: comment on the issue to signal continued impact, or file a priority escalation issue.
+   >  Persistent Issue Detected (3+ scans): Focus trap not working in Settings editor (#11200). This issue has appeared in 3 consecutive monthly scans without resolution. Recommended action: comment on the issue to signal continued impact, or file a priority escalation issue.
 
 ---
 
@@ -123,11 +125,11 @@ Each time the agent runs, it writes a scan result. The next run compares against
 
 | Delta Status | Meaning | Visual indicator |
 |-------------|---------|-----------------|
-| Fixed | Resolved since last scan | ✅ |
-| New | First appearance | 🆕 |
-| Persistent | Seen across 2 scans | 🔄 |
-| Persistent (3+) | Flagged for escalation | ⚠️ |
-| Regressed | Closed then reopened | 🔁 |
+| Fixed | Resolved since last scan |  |
+| New | First appearance |  |
+| Persistent | Seen across 2 scans |  |
+| Persistent (3+) | Flagged for escalation |  |
+| Regressed | Closed then reopened |  |
 
 **Confidence levels** on WCAG mappings:
 
@@ -147,6 +149,7 @@ Each time the agent runs, it writes a scan result. The next run compares against
 By default only `microsoft/vscode` is tracked. To track additional repos:
 
 **Via preferences.md:**
+
 ```yaml
 accessibility_tracking:
   repos:
@@ -160,7 +163,8 @@ accessibility_tracking:
 ```
 
 **Via prompt:**
-```
+
+```text
 @insiders-a11y-tracker track your-org/your-repo for accessibility issues
 @insiders-a11y-tracker add microsoft/vscode-jupyter to the watch list
 ```
@@ -176,7 +180,7 @@ accessibility_tracking:
 
 ### Routine Monitoring
 
-```
+```text
 @insiders-a11y-tracker what accessibility issues shipped to Insiders this week?
 @insiders-a11y-tracker show me everything that reached Stable this month
 @insiders-a11y-tracker give me the delta since my last scan
@@ -184,7 +188,7 @@ accessibility_tracking:
 
 ### Filtered Views
 
-```
+```text
 @insiders-a11y-tracker focus management issues only
 @insiders-a11y-tracker WCAG 2.1 keyboard issues
 @insiders-a11y-tracker screen reader related fixes
@@ -193,7 +197,7 @@ accessibility_tracking:
 
 ### Multi-Repo
 
-```
+```text
 @insiders-a11y-tracker scan all my tracked repos
 @insiders-a11y-tracker compare vscode and vscode-jupyter accessibility status
 ```
@@ -236,9 +240,9 @@ Previous scan results are kept to enable delta comparison on the next run.
 <details>
 <summary>Expand constraints</summary>
 
-- Default repo is `microsoft/vscode` — always shown in progress output so you know what is being scanned
-- WCAG mappings always include a confidence level — never presented as definitive without textual evidence
-- Escalation (auto-file issue) only happens if explicitly requested — the agent asks first
+- Default repo is `microsoft/vscode` - always shown in progress output so you know what is being scanned
+- WCAG mappings always include a confidence level - never presented as definitive without textual evidence
+- Escalation (auto-file issue) only happens if explicitly requested - the agent asks first
 - Delta comparison is only shown if a previous scan file exists in the workspace
 - If no `insiders-released` issues are found, the agent reports "no new accessibility items in this window" rather than a confusing empty result
 

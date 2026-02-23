@@ -1,6 +1,6 @@
 # my-prs
 
-Show a prioritized dashboard of all your open pull requests — split into "Your PRs" (authored) and "Awaiting Your Review" — with status signals and recommended actions.
+Show a prioritized dashboard of all your open pull requests - split into "Your PRs" (authored) and "Awaiting Your Review" - with status signals and recommended actions.
 
 ## When to Use It
 
@@ -12,21 +12,23 @@ Show a prioritized dashboard of all your open pull requests — split into "Your
 ## How to Launch It
 
 **In GitHub Copilot Chat:**
-```
+
+```text
 /my-prs
 ```
 
 With optional scope:
-```
+
+```text
 /my-prs owner/repo
 /my-prs all repos
 ```
 
 ## What to Expect
 
-1. **Query GitHub** — Find all open PRs you authored and all open PRs that have requested your review
-2. **Classify each PR** — Assign a status signal based on review state, CI, and age
-3. **Render dashboard** — Two-section table output in chat
+1. **Query GitHub** - Find all open PRs you authored and all open PRs that have requested your review
+2. **Classify each PR** - Assign a status signal based on review state, CI, and age
+3. **Render dashboard** - Two-section table output in chat
 
 ### Status Signals
 
@@ -40,22 +42,22 @@ With optional scope:
 
 ### Sample Output
 
-```
+```text
 Your PRs (3 open)
-─────────────────
+
 #123  Add auth middleware          Ready to merge   0 days old
-#118  Refactor login flow          Needs update     3 days old  ● 2 comments
-#109  Docs update                  Stale            12 days old → Action needed
+#118  Refactor login flow          Needs update     3 days old   2 comments
+#109  Docs update                  Stale            12 days old -> Action needed
 
 Awaiting Your Review (2 requests)
-──────────────────────────────────
-#241  feat: add CSV export         alice            2 days old  ▶ Ready for review
-#238  fix: broken pagination       bob              4 days old  ▶ Ready for review
+
+#241  feat: add CSV export         alice            2 days old   Ready for review
+#238  fix: broken pagination       bob              4 days old   Ready for review
 ```
 
 ## Example Variations
 
-```
+```text
 /my-prs                            # All repos, your PRs + your review queue
 /my-prs owner/repo                 # Scoped to one repo
 /my-prs all repos                  # Force cross-org scan
@@ -71,7 +73,7 @@ Awaiting Your Review (2 requests)
 
 ## Related Prompts
 
-- [review-pr](review-pr.md) — do a full review of a specific PR
-- [pr-author-checklist](pr-author-checklist.md) — check a PR before requesting review
-- [merge-pr](merge-pr.md) — merge a PR that is ready
-- [daily-briefing](daily-briefing.md) — full cross-repo briefing including PRs
+- [review-pr](review-pr.md) - do a full review of a specific PR
+- [pr-author-checklist](pr-author-checklist.md) - check a PR before requesting review
+- [merge-pr](merge-pr.md) - merge a PR that is ready
+- [daily-briefing](daily-briefing.md) - full cross-repo briefing including PRs

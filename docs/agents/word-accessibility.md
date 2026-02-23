@@ -1,4 +1,4 @@
-# word-accessibility — Microsoft Word (DOCX) Accessibility
+# word-accessibility - Microsoft Word (DOCX) Accessibility
 
 > Scans Microsoft Word documents for accessibility issues. Uses the `scan_office_document` MCP tool to parse DOCX files (ZIP/XML structure) and check for tagged content, alt text on images, heading structure, table markup, reading order, language settings, and color-only formatting.
 
@@ -12,7 +12,7 @@
 ## What It Catches
 
 <details>
-<summary>Expand — 11 Word accessibility rules (DOCX-E001 – DOCX-W005)</summary>
+<summary>Expand - 11 Word accessibility rules (DOCX-E001 - DOCX-W005)</summary>
 
 | Rule | Severity | Description |
 |------|----------|--------------|
@@ -35,7 +35,7 @@
 <details>
 <summary>Show example prompts</summary>
 
-```
+```text
 /word-accessibility scan report.docx for accessibility issues
 @word-accessibility review the quarterly report template
 @word-accessibility check all Word documents in the docs/ directory
@@ -46,28 +46,31 @@
 ## How to Launch It
 
 **In Claude Code (terminal):**
-```
+
+```text
 /word-accessibility scan report.docx
 /word-accessibility review the quarterly report template
 /word-accessibility check all .docx files in /docs
 ```
 
 **In GitHub Copilot Chat:**
-```
+
+```text
 @word-accessibility scan report.docx for accessibility issues
 @word-accessibility check the employee handbook
 ```
 
 **Via the prompt picker:** Select `audit-single-document` from the prompt picker and enter the `.docx` file path. This pre-configures the full strict scan profile and generates a `DOCUMENT-ACCESSIBILITY-AUDIT.md` report.
 
-**Via document-accessibility-wizard:** For multi-document audits, the wizard orchestrates word-accessibility automatically — you do not invoke it directly.
+**Via document-accessibility-wizard:** For multi-document audits, the wizard orchestrates word-accessibility automatically - you do not invoke it directly.
 
 ## Step-by-Step: What a Scan Session Looks Like
 
 Here is a complete scan from start to finish so you know exactly what to expect.
 
 **You say:**
-```
+
+```text
 /word-accessibility scan quarterly-report.docx
 ```
 
@@ -80,15 +83,15 @@ Here is a complete scan from start to finish so you know exactly what to expect.
    - Determines whether a violation exists
    - Assigns a confidence level: High (definitely a violation), Medium (likely), Low (possible)
 
-3. **Computes the severity score** using the weighted formula: errors = −10 points each (high confidence), warnings = −3 points each (high confidence), floor at 0.
+3. **Computes the severity score** using the weighted formula: errors = -10 points each (high confidence), warnings = -3 points each (high confidence), floor at 0.
 
 4. **Generates a structured report** with findings grouped by severity. Here is what a real finding looks like:
 
-```
-DOCX-E001 [Error] — High Confidence
+```text
+DOCX-E001 [Error] - High Confidence
 Image without alt text
 Location: Paragraph 14, inline image
-Remediation: Right-click the image in Word → select "Edit Alt Text" → describe what
+Remediation: Right-click the image in Word -> select "Edit Alt Text" -> describe what
 the image shows. If the image is purely decorative (borders, dividers, backgrounds),
 check "Mark as decorative" to suppress screen reader announcement instead.
 ```
@@ -101,28 +104,29 @@ check "Mark as decorative" to suppress screen reader announcement instead.
 
 | Score | Grade | What it means |
 |-------|-------|---------------|
-| 90–100 | A | Excellent — minor issues only, safe to distribute |
-| 75–89 | B | Good — some warnings, fix before wide distribution |
-| 50–74 | C | Needs work — multiple errors affecting AT users |
-| 25–49 | D | Poor — significant barriers, remediate before sharing |
-| 0–24 | F | Failing — likely unusable with screen readers |
+| 90-100 | A | Excellent - minor issues only, safe to distribute |
+| 75-89 | B | Good - some warnings, fix before wide distribution |
+| 50-74 | C | Needs work - multiple errors affecting AT users |
+| 25-49 | D | Poor - significant barriers, remediate before sharing |
+| 0-24 | F | Failing - likely unusable with screen readers |
 
 ### What to Fix First
 
 Follow this order for maximum impact with minimum effort:
 
-1. **DOCX-E003** (No headings) — Affects all navigation. Screen reader users rely on the heading hierarchy to jump through long documents. Without headings, they must read linearly.
-2. **DOCX-E001** (Images without alt text) — Every image missing alt text is a content gap for blind users.
-3. **DOCX-E002** (Missing document title) — The document title is announced when the file opens. Missing it is a confusing first experience.
-4. **DOCX-E004/E005** (Tables without headers, missing language) — Affects table reading order and text-to-speech pronunciation.
-5. **DOCX-W002** (Skipped heading levels) — H1 → H3 with no H2 confuses navigation; screen readers announce the level jump.
+1. **DOCX-E003** (No headings) - Affects all navigation. Screen reader users rely on the heading hierarchy to jump through long documents. Without headings, they must read linearly.
+2. **DOCX-E001** (Images without alt text) - Every image missing alt text is a content gap for blind users.
+3. **DOCX-E002** (Missing document title) - The document title is announced when the file opens. Missing it is a confusing first experience.
+4. **DOCX-E004/E005** (Tables without headers, missing language) - Affects table reading order and text-to-speech pronunciation.
+5. **DOCX-W002** (Skipped heading levels) - H1 -> H3 with no H2 confuses navigation; screen readers announce the level jump.
 
 ### Confidence Levels
 
 Not every finding is equally certain from static XML analysis alone:
-- **High confidence** — The issue is definitively present in the XML (e.g., an image element with no alt text attribute).
-- **Medium confidence** — The issue is likely present but context matters (e.g., a very long alt text string that may need summarization).
-- **Low confidence** — A pattern that *might* be a problem depending on intent (e.g., empty paragraphs may be intentional spacing or may indicate a structural issue).
+
+- **High confidence** - The issue is definitively present in the XML (e.g., an image element with no alt text attribute).
+- **Medium confidence** - The issue is likely present but context matters (e.g., a very long alt text string that may need summarization).
+- **Low confidence** - A pattern that *might* be a problem depending on intent (e.g., empty paragraphs may be intentional spacing or may indicate a structural issue).
 
 Focus your manual review effort on medium and low confidence items. High confidence findings can be addressed mechanically.
 
@@ -133,4 +137,4 @@ Focus your manual review effort on medium and low confidence items. High confide
 | [document-accessibility-wizard](document-accessibility-wizard.md) | For full multi-document audits with cross-document scoring, VPAT generation, and CI/CD setup |
 | [office-scan-config](office-scan-config.md) | To configure which rules run and suppress rules that do not apply to your document type |
 | [excel-accessibility](excel-accessibility.md) | For spreadsheets embedded in Word documents or when auditing a mixed Office collection |
-| [pdf-accessibility](pdf-accessibility.md) | Word documents are often exported to PDF — audit both if the PDF is distributed |
+| [pdf-accessibility](pdf-accessibility.md) | Word documents are often exported to PDF - audit both if the PDF is distributed |

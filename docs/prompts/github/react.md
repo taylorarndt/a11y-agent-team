@@ -12,12 +12,14 @@ Add an emoji reaction to a GitHub issue, pull request, or specific comment using
 ## How to Launch It
 
 **In GitHub Copilot Chat:**
-```
-/react owner/repo#89 👍
+
+```text
+/react owner/repo#89 
 ```
 
 Or with natural language:
-```
+
+```text
 /react owner/repo#89 thumbs up
 /react owner/repo#89 I love this idea
 /react owner/repo#89 heart the latest comment
@@ -25,23 +27,23 @@ Or with natural language:
 
 ## What to Expect
 
-1. **Parse intent** — Identifies reaction type from emoji, name, or natural language
-2. **Identify target** — Issue/PR or specific comment (latest or by number)
-3. **Preview** — Shows which item will receive the reaction
-4. **Add reaction** — Posts via GitHub API immediately (reactions are non-destructive)
+1. **Parse intent** - Identifies reaction type from emoji, name, or natural language
+2. **Identify target** - Issue/PR or specific comment (latest or by number)
+3. **Preview** - Shows which item will receive the reaction
+4. **Add reaction** - Posts via GitHub API immediately (reactions are non-destructive)
 
 ### Natural Language to Reaction Mapping
 
 | You say | Reaction added |
 |---------|----------------|
-| thumbs up / +1 / great / agree / 👍 | 👍 +1 |
-| thumbs down / -1 / disagree / 👎 | 👎 -1 |
-| laugh / funny / lol / 😄 | 😄 laugh |
-| hooray / celebrate / party / 🎉 | 🎉 hooray |
-| confused / not sure / 😕 | 😕 confused |
-| heart / love / ❤️ | ❤️ heart |
-| rocket / let's go / 🚀 | 🚀 rocket |
-| eyes / watching / looking / 👀 | 👀 eyes |
+| thumbs up / +1 / great / agree /  |  +1 |
+| thumbs down / -1 / disagree /  |  -1 |
+| laugh / funny / lol /  |  laugh |
+| hooray / celebrate / party /  |  hooray |
+| confused / not sure /  |  confused |
+| heart / love /  |  heart |
+| rocket / let's go /  |  rocket |
+| eyes / watching / looking /  |  eyes |
 
 ### Target Selection
 
@@ -54,23 +56,23 @@ Or with natural language:
 
 ### Sample Flow
 
-```
+```text
 You: /react owner/repo#89 heart the latest comment
 
-Agent: Adding ❤️ to the latest comment on #89:
+Agent: Adding  to the latest comment on #89:
   @alice (2 hours ago): "This is fixed in PR #102"
 
-Reaction added. ✅
+Reaction added. 
 ```
 
 ## Example Variations
 
-```
-/react owner/repo#89 👍
+```text
+/react owner/repo#89 
 /react #89 thumbs up
 /react #89 I love this idea
 /react #89 heart the latest comment
-/react #89 rocket                        # 🚀 on the issue itself
+/react #89 rocket                        #  on the issue itself
 ```
 
 ## Connected Agents
@@ -81,5 +83,5 @@ Reaction added. ✅
 
 ## Related Prompts
 
-- [issue-reply](issue-reply.md) — draft and post a written reply
-- [manage-issue](manage-issue.md) — label, assign, close issues
+- [issue-reply](issue-reply.md) - draft and post a written reply
+- [manage-issue](manage-issue.md) - label, assign, close issues

@@ -1,13 +1,13 @@
 # Prompt Reference
 
-This directory contains complete documentation for all 45 prompt files in this repository. Prompts are one-click workflows that launch pre-configured agent sessions — select them from the prompt picker in GitHub Copilot Chat or type `/` in Claude Code.
+This directory contains complete documentation for all 45 prompt files in this repository. Prompts are one-click workflows that launch pre-configured agent sessions - select them from the prompt picker in GitHub Copilot Chat or type `/` in Claude Code.
 
 ## Web Accessibility Prompts
 
 | Prompt | Description |
 |--------|-------------|
-| [audit-web-page](web/audit-web-page.md) | Full single-page audit — axe-core + code review, scored report saved to file |
-| [quick-web-check](web/quick-web-check.md) | Fast triage — axe-core only, inline pass/fail verdict |
+| [audit-web-page](web/audit-web-page.md) | Full single-page audit - axe-core + code review, scored report saved to file |
+| [quick-web-check](web/quick-web-check.md) | Fast triage - axe-core only, inline pass/fail verdict |
 | [audit-web-multi-page](web/audit-web-multi-page.md) | Multi-page comparison audit with systemic vs page-specific classification |
 | [compare-web-audits](web/compare-web-audits.md) | Track remediation progress between two audit snapshots |
 | [fix-web-issues](web/fix-web-issues.md) | Interactive fix mode with auto-fix + human-judgment workflow |
@@ -18,8 +18,8 @@ This directory contains complete documentation for all 45 prompt files in this r
 |--------|-------------|
 | [audit-single-document](documents/audit-single-document.md) | Audit one .docx, .xlsx, .pptx, or .pdf with strict profile |
 | [audit-document-folder](documents/audit-document-folder.md) | Recursive folder scan with cross-document pattern analysis |
-| [audit-changed-documents](documents/audit-changed-documents.md) | Delta scan — only documents changed since last git commit |
-| [quick-document-check](documents/quick-document-check.md) | Fast triage — errors only, pass/fail verdict, no report file |
+| [audit-changed-documents](documents/audit-changed-documents.md) | Delta scan - only documents changed since last git commit |
+| [quick-document-check](documents/quick-document-check.md) | Fast triage - errors only, pass/fail verdict, no report file |
 | [generate-vpat](documents/generate-vpat.md) | Generate a VPAT 2.5 / Section 508 / EN 301 549 conformance report |
 | [generate-remediation-scripts](documents/generate-remediation-scripts.md) | Create PowerShell and Bash scripts for automatable fixes |
 | [compare-audits](documents/compare-audits.md) | Compare two document audit reports and track progress |
@@ -29,6 +29,7 @@ This directory contains complete documentation for all 45 prompt files in this r
 ## GitHub Workflow Prompts
 
 ### Pull Request Workflows
+
 | Prompt | Description |
 |--------|-------------|
 | [review-pr](github/review-pr.md) | Full PR review with annotated diff, saved as markdown + HTML |
@@ -42,6 +43,7 @@ This directory contains complete documentation for all 45 prompt files in this r
 | [explain-code](github/explain-code.md) | Explain specific lines or functions in a PR diff |
 
 ### Issue Workflows
+
 | Prompt | Description |
 |--------|-------------|
 | [my-issues](github/my-issues.md) | Smart issue dashboard across all repos with priority signals |
@@ -54,21 +56,24 @@ This directory contains complete documentation for all 45 prompt files in this r
 | [react](github/react.md) | Add emoji reactions to issues, PRs, or comments |
 
 ### Briefing and CI Workflows
+
 | Prompt | Description |
 |--------|-------------|
 | [daily-briefing](github/daily-briefing.md) | Daily GitHub briefing across all repos, saved as markdown + HTML |
 | [ci-status](github/ci-status.md) | CI/CD health dashboard with failures, flaky tests, and long runs |
 | [notifications](github/notifications.md) | Manage GitHub notifications with filtering and actions |
 | [security-dashboard](github/security-dashboard.md) | Dependabot alerts and dependency vulnerability overview |
-| [onboard-repo](github/onboard-repo.md) | First-time repo scan — health check, quick wins, saved report |
+| [onboard-repo](github/onboard-repo.md) | First-time repo scan - health check, quick wins, saved report |
 
 ### Release Workflows
+
 | Prompt | Description |
 |--------|-------------|
 | [draft-release](github/draft-release.md) | Draft release notes from merged PRs since last release |
-| [release-prep](github/release-prep.md) | Complete release preparation — milestone, CI, checklist, notes |
+| [release-prep](github/release-prep.md) | Complete release preparation - milestone, CI, checklist, notes |
 
 ### Analytics Workflows
+
 | Prompt | Description |
 |--------|-------------|
 | [my-stats](github/my-stats.md) | Personal contribution metrics with team comparison |
@@ -76,9 +81,19 @@ This directory contains complete documentation for all 45 prompt files in this r
 | [sprint-review](github/sprint-review.md) | End-of-sprint summary with velocity and retrospective prompts |
 
 ### Community and Tooling
+
 | Prompt | Description |
 |--------|-------------|
 | [a11y-update](github/a11y-update.md) | Latest accessibility improvements across tracked repos with WCAG mapping |
 | [add-collaborator](github/add-collaborator.md) | Add a user to a repo with role selection |
 | [build-template](github/build-template.md) | Interactive wizard to build a GitHub issue, PR, or discussion template |
 | [build-a11y-template](github/build-a11y-template.md) | Generate a production-ready accessibility bug report template |
+
+## Markdown Accessibility Prompts
+
+| Prompt | Description |
+|--------|-------------|
+| [audit-markdown](../../.github/prompts/audit-markdown.prompt.md) | Full guided audit with Phase 0 config, parallel scanning, saved scored report |
+| [quick-markdown-check](../../.github/prompts/quick-markdown-check.prompt.md) | Fast triage - errors only, inline pass/fail verdict, no report file |
+| [fix-markdown-issues](../../.github/prompts/fix-markdown-issues.prompt.md) | Interactive fix mode - auto-fix table + human-judgment items from saved report |
+| [compare-markdown-audits](../../.github/prompts/compare-markdown-audits.prompt.md) | Track remediation progress between two audit snapshots with Fixed/New/Persistent/Regressed scoring |

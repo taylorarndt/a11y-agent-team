@@ -101,21 +101,24 @@ Create a properly accessible Word document:
 ## Testing Scenarios
 
 ### Scenario 1: Single File Quick Check
-```
+
+```text
 Use prompt: Quick Document Check
 Path: test-docs/bad-report.docx
 Expected: FAIL with 7 errors
 ```
 
 ### Scenario 2: Full Folder Audit
-```
+
+```text
 Use prompt: Audit Document Folder
 Path: test-docs/
 Expected: 5 files found, 23+ total issues, cross-document patterns detected
 ```
 
 ### Scenario 3: Delta Scan
-```
+
+```text
 1. Run full audit first
 2. Fix one issue in bad-report.docx (add alt text to the image)
 3. Commit and run: Audit Changed Documents
@@ -123,7 +126,8 @@ Expected: 1 fixed issue, score improvement shown
 ```
 
 ### Scenario 4: Template Detection
-```
+
+```text
 1. Create bad-report.docx and bad-report-2.docx from the same Word template
 2. Both should have the same template-inherited issues
 3. Run folder audit
@@ -131,14 +135,16 @@ Expected: Template analysis section groups the 2 files and identifies template-l
 ```
 
 ### Scenario 5: Mixed Types
-```
+
+```text
 Use prompt: Audit Document Folder
 Path: test-docs/ (contains .docx, .xlsx, .pptx, .pdf)
 Expected: All 4 sub-agents invoked, cross-document patterns span types (e.g., "missing alt text in Word, Excel, and PowerPoint")
 ```
 
 ### Scenario 6: VPAT Generation
-```
+
+```text
 1. Run full folder audit first
 2. Use prompt: Generate VPAT
 3. Path: DOCUMENT-ACCESSIBILITY-AUDIT.md

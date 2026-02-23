@@ -60,7 +60,7 @@ description: Cross-format document accessibility rule reference with WCAG 2.2 ma
 |-------|--------|---------|
 | High | 1.0 | Sub-agent is certain this is a real issue |
 | Medium | 0.7 | Likely an issue but requires human judgment |
-| Low | 0.3 | Possible issue — flagged for review |
+| Low | 0.3 | Possible issue - flagged for review |
 
 ## Compliance Standards
 

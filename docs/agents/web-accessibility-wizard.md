@@ -1,4 +1,4 @@
-# accessibility-wizard — Guided Accessibility Audit
+# accessibility-wizard - Guided Accessibility Audit
 
 > Runs a full, interactive accessibility audit of your project by coordinating all specialist agents in sequence. Instead of dumping a wall of issues at you, it walks you through eleven phases, one accessibility domain at a time, and asks you questions at each step to focus the review on what matters for your specific project.
 
@@ -18,7 +18,7 @@
 
 | Phase | Domain | Specialist Used |
 |-------|--------|-----------------|
-| 1 | Project discovery and scope | — |
+| 1 | Project discovery and scope | - |
 | 2 | Document structure and semantics | alt-text-headings |
 | 3 | Keyboard navigation and focus | keyboard-navigator |
 | 4 | Forms and input accessibility | forms-specialist |
@@ -41,7 +41,7 @@ At the end, it generates a prioritized report with issues grouped by severity (C
 
 ### Claude Code
 
-```
+```text
 /accessibility-wizard run a full audit on this project
 /accessibility-wizard audit the checkout flow
 /accessibility-wizard I need to prepare for a VPAT assessment
@@ -50,7 +50,7 @@ At the end, it generates a prioritized report with issues grouped by severity (C
 
 ### GitHub Copilot
 
-```
+```text
 @accessibility-wizard audit this project for accessibility
 @accessibility-wizard guide me through a review of the signup flow
 @accessibility-wizard run a full accessibility audit
@@ -64,10 +64,10 @@ At the end, it generates a prioritized report with issues grouped by severity (C
 <details>
 <summary>Expand constraints</summary>
 
-- Always asks the user before moving to the next phase — never skips ahead silently
+- Always asks the user before moving to the next phase - never skips ahead silently
 - Presents findings from each phase before proceeding, so the user can fix issues iteratively
 - Generates a final report only after all phases complete (or the user chooses to stop early)
-- Does not write code itself — delegates to the appropriate specialist agent and reports what it found
+- Does not write code itself - delegates to the appropriate specialist agent and reports what it found
 - Groups issues by WCAG conformance level and severity, not by file or line number
 
 </details>

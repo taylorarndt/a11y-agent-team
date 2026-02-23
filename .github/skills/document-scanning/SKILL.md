@@ -62,9 +62,9 @@ Get-ChildItem -Path "<folder>" -File -Include *.docx,*.xlsx,*.pptx,*.pdf -Recurs
 ## Files to Skip
 
 Always exclude these patterns during scanning:
-- `~$*` — Office lock/temp files (created when a document is open)
-- `*.tmp` — Temporary files
-- `*.bak` — Backup files
+- `~$*` - Office lock/temp files (created when a document is open)
+- `*.tmp` - Temporary files
+- `*.bak` - Backup files
 - Files inside `.git/`, `node_modules/`, `.vscode/`, `__pycache__/` directories
 
 ## Scan Configuration Files
@@ -86,12 +86,12 @@ Always exclude these patterns during scanning:
 
 When delegating to a sub-agent, always provide this context block:
 
-```
+```text
 ## Document Scan Context
 - **File:** [full path]
 - **Scan Profile:** [strict | moderate | minimal]
 - **Severity Filter:** [error, warning, tip]
 - **Disabled Rules:** [list or "none"]
 - **User Notes:** [any specifics]
-- **Part of Batch:** [yes/no — if yes, indicate X of Y]
+- **Part of Batch:** [yes/no - if yes, indicate X of Y]
 ```

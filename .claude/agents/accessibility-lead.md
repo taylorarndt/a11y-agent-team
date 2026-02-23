@@ -66,11 +66,11 @@ When a task comes in, evaluate what is involved:
 - Run their checklist against the change
 
 **Reviewing Office documents or PDFs:**
-- .docx → word-accessibility
-- .xlsx → excel-accessibility
-- .pptx → powerpoint-accessibility
-- .pdf → pdf-accessibility
-- Configuration questions → office-scan-config or pdf-scan-config
+- .docx -> word-accessibility
+- .xlsx -> excel-accessibility
+- .pptx -> powerpoint-accessibility
+- .pdf -> pdf-accessibility
+- Configuration questions -> office-scan-config or pdf-scan-config
 - Use scan_office_document or scan_pdf_document MCP tools for automated scanning
 
 ## Core Standards

@@ -14,17 +14,17 @@ Compare two web accessibility audit reports to track remediation progress over t
 Use the **web-accessibility-wizard** agent's remediation tracking capabilities:
 
 1. Use askQuestions to ask:
-   - "What is the path to the **previous** audit report?" — default: `ACCESSIBILITY-AUDIT.md`
+   - "What is the path to the **previous** audit report?" - default: `ACCESSIBILITY-AUDIT.md`
    - "What is the path to the **current** audit report (or should I run a new audit)?"
      - Options: "Use an existing report" (let me provide the path) | "Run a new audit now"
 
 2. If running a new audit, ask for the URL and run a standard audit first.
 
 3. Parse both reports and classify every finding:
-   - **Fixed** — in previous report but not in current
-   - **New** — in current report but not in previous
-   - **Persistent** — in both reports
-   - **Regressed** — was fixed (not in a mid-point report) but has returned
+   - **Fixed** - in previous report but not in current
+   - **New** - in current report but not in previous
+   - **Persistent** - in both reports
+   - **Regressed** - was fixed (not in a mid-point report) but has returned
 
 4. Generate the comparison report:
 
@@ -43,19 +43,19 @@ Use the **web-accessibility-wizard** agent's remediation tracking capabilities:
 ## Progress: [X]% of previous issues resolved
 
 ### Fixed Issues ([count])
-[List with celebration — these are wins]
+[List with celebration - these are wins]
 
 ### New Issues ([count])
-[List — these need attention]
+[List - these need attention]
 
 ### Persistent Issues ([count])
-[List — prioritize these for next sprint]
+[List - prioritize these for next sprint]
 
 ### Regressed Issues ([count])
-[List — investigate why these returned]
+[List - investigate why these returned]
 
 ## Trend
-[Improving / Stable / Declining] — [one sentence assessment]
+[Improving / Stable / Declining] - [one sentence assessment]
 ```
 
 5. Ask: "Want to focus on fixing the persistent issues now?"

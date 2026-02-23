@@ -25,7 +25,7 @@ Base URL: `https://code.claude.com/docs/en/`
 | **Sub-agents** | https://code.claude.com/docs/en/sub-agents | Custom subagent frontmatter fields (`name`, `description`, `tools`, `disallowedTools`, `model`, `permissionMode`, `maxTurns`, `skills`, `mcpServers`, `hooks`, `memory`, `background`, `isolation`). Built-in subagents: Explore, Plan, General-purpose. Scope hierarchy and memory scopes. Background vs foreground execution. Worktree isolation via `isolation: "worktree"`. |
 | **Hooks** | https://code.claude.com/docs/en/hooks | 18 hook events including `SessionStart`, `SessionEnd`, `PreToolUse`, `PostToolUse`, `SubagentStart`, `SubagentStop`, `TeammateIdle`, `TaskCompleted`. Three handler types: `command`, `prompt`, `agent`. Async hooks. Hook locations: user settings, project settings, plugin, skill/agent frontmatter. |
 | **Hooks guide** | https://code.claude.com/docs/en/hooks-guide | Practical hook examples and patterns for validation, quality gates, and automation workflows. |
-| **Memory** | https://code.claude.com/docs/en/memory | Memory types: managed policy, project (`CLAUDE.md`), project rules (`.claude/rules/*.md` with `paths` frontmatter), user (`~/.claude/CLAUDE.md`), project local (`CLAUDE.local.md`), auto memory (`MEMORY.md` — first 200 lines loaded). Imports with `@path` syntax. |
+| **Memory** | https://code.claude.com/docs/en/memory | Memory types: managed policy, project (`CLAUDE.md`), project rules (`.claude/rules/*.md` with `paths` frontmatter), user (`~/.claude/CLAUDE.md`), project local (`CLAUDE.local.md`), auto memory (`MEMORY.md` - first 200 lines loaded). Imports with `@path` syntax. |
 | **Skills** | https://code.claude.com/docs/en/skills | Agent Skills standard with `SKILL.md` files. Frontmatter: `name`, `description`, `disable-model-invocation`, `user-invocable`, `allowed-tools`, `model`, `context`, `agent`, `hooks`, `argument-hint`. Supporting files pattern. Skill scopes: enterprise > personal > project. Plugin skills use namespace. Dynamic context injection with `!`command`` syntax. |
 | **Agent teams** | https://code.claude.com/docs/en/agent-teams | Experimental multi-agent orchestration. Teams vs subagents comparison. Team lead + teammates + task list + mailbox architecture. Display modes (in-process, split panes via tmux/iTerm2). Quality gates via TeammateIdle and TaskCompleted hooks. Requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`. |
 | **Plugins** | https://code.claude.com/docs/en/plugins | Plugin structure (`.claude-plugin/plugin.json` manifest). Plugin components: skills, agents, hooks, MCP servers, LSP servers, settings. Namespaced skills (`/plugin:skill`). Plugin vs standalone comparison. Migration from `.claude/` standalone config. |
@@ -117,10 +117,10 @@ This table maps each project feature to the documentation sources that informed 
 
 These documentation sources are actively maintained by their respective platforms. When working on this project:
 
-1. **Check for breaking changes** — Platform features like agent teams (experimental) and hooks may change between releases.
-2. **Verify URLs** — Claude Code docs migrated from `docs.anthropic.com` to `code.claude.com` in 2025. Similar migrations may occur.
-3. **Test cross-platform compatibility** — VS Code now supports Claude agent format (`.md` in `.claude/agents/`), but feature parity varies.
-4. **Review changelogs** — Claude Code and VS Code release notes document new agent/skill/hook capabilities.
+1. **Check for breaking changes** - Platform features like agent teams (experimental) and hooks may change between releases.
+2. **Verify URLs** - Claude Code docs migrated from `docs.anthropic.com` to `code.claude.com` in 2025. Similar migrations may occur.
+3. **Test cross-platform compatibility** - VS Code now supports Claude agent format (`.md` in `.claude/agents/`), but feature parity varies.
+4. **Review changelogs** - Claude Code and VS Code release notes document new agent/skill/hook capabilities.
 
 ---
 

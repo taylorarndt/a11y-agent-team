@@ -85,27 +85,79 @@ switch ($Choice) {
     }
 }
 
+# ---------------------------------------------------------------------------
+# Merge-ConfigFile: append/update our section in a config markdown file.
+# Never overwrites existing user content. Uses <!-- a11y-agent-team --> markers
+# so the user's own content above/below our section is always preserved.
+# ---------------------------------------------------------------------------
+function Merge-ConfigFile {
+    param([string]$SrcFile, [string]$DstFile, [string]$Label)
+    $start  = "<!-- a11y-agent-team: start -->"
+    $end    = "<!-- a11y-agent-team: end -->"
+    $body   = ([IO.File]::ReadAllText($SrcFile, [Text.Encoding]::UTF8)).TrimEnd()
+    $block  = "$start`n$body`n$end"
+    if (-not (Test-Path $DstFile)) {
+        [IO.File]::WriteAllText($DstFile, "$block`n", [Text.Encoding]::UTF8)
+        Write-Host "    + $Label (created)"
+        return
+    }
+    $existing = [IO.File]::ReadAllText($DstFile, [Text.Encoding]::UTF8)
+    if ($existing -match [regex]::Escape($start)) {
+        $pattern = "(?s)" + [regex]::Escape($start) + ".*?" + [regex]::Escape($end)
+        $updated = [regex]::Replace($existing, $pattern, $block)
+        [IO.File]::WriteAllText($DstFile, $updated, [Text.Encoding]::UTF8)
+        Write-Host "    ~ $Label (updated our existing section)"
+    } else {
+        [IO.File]::WriteAllText($DstFile, $existing.TrimEnd() + "`n`n$block`n", [Text.Encoding]::UTF8)
+        Write-Host "    + $Label (merged into your existing file)"
+    }
+}
+
 # Create directories
 New-Item -ItemType Directory -Force -Path (Join-Path $TargetDir "agents") | Out-Null
 New-Item -ItemType Directory -Force -Path (Join-Path $TargetDir "hooks") | Out-Null
 
-# Copy agents
+# Track which files we install so updates never touch user-created files
+$ManifestPath = Join-Path $TargetDir ".a11y-agent-manifest"
+$Manifest = [System.Collections.Generic.List[string]]::new()
+if (Test-Path $ManifestPath) {
+    [IO.File]::ReadAllLines($ManifestPath, [Text.Encoding]::UTF8) | ForEach-Object { $Manifest.Add($_) }
+}
+
+# Copy agents — skip any file that already exists (preserves user customisations)
 Write-Host ""
 Write-Host "  Copying agents..."
+$SkippedAgents = 0
 foreach ($Agent in $Agents) {
     $Src = Join-Path $AgentsSrc $Agent
     $Dst = Join-Path $TargetDir "agents\$Agent"
-    Copy-Item -Path $Src -Destination $Dst -Force
     $Name = $Agent -replace '\.md$', ''
-    Write-Host "    + $Name"
+    if (Test-Path $Dst) {
+        Write-Host "    ~ $Name (skipped - already exists)"
+        $SkippedAgents++
+    } else {
+        Copy-Item -Path $Src -Destination $Dst
+        if (-not $Manifest.Contains("agents/$Agent")) { $Manifest.Add("agents/$Agent") }
+        Write-Host "    + $Name"
+    }
+}
+if ($SkippedAgents -gt 0) {
+    Write-Host "      $SkippedAgents agent(s) skipped. Use -Force flag or delete them first to reinstall."
 }
 
-# Copy hook
+# Copy hook — skip if already exists
 Write-Host ""
 Write-Host "  Copying hook..."
 $HookDst = Join-Path $TargetDir "hooks\a11y-team-eval.ps1"
-Copy-Item -Path $HookSrc -Destination $HookDst -Force
-Write-Host "    + a11y-team-eval.ps1"
+if (Test-Path $HookDst) {
+    Write-Host "    ~ a11y-team-eval.ps1 (skipped - already exists)"
+} else {
+    Copy-Item -Path $HookSrc -Destination $HookDst
+    if (-not $Manifest.Contains("hooks/a11y-team-eval.ps1")) { $Manifest.Add("hooks/a11y-team-eval.ps1") }
+    Write-Host "    + a11y-team-eval.ps1"
+}
+# Save manifest
+[IO.File]::WriteAllLines($ManifestPath, $Manifest.ToArray(), [Text.Encoding]::UTF8)
 
 # Copilot agents
 $CopilotInstalled = $false
@@ -126,32 +178,34 @@ if ($CopilotChoice -eq "y" -or $CopilotChoice -eq "Y") {
         New-Item -ItemType Directory -Force -Path $CopilotDst | Out-Null
         $CopilotDestinations += $CopilotDst
 
-        # Copy Copilot config files to project
+        # Merge Copilot config files — appends our section rather than overwriting
         Write-Host ""
-        Write-Host "  Copying Copilot config..."
+        Write-Host "  Merging Copilot config..."
         foreach ($Config in @("copilot-instructions.md", "copilot-review-instructions.md", "copilot-commit-message-instructions.md")) {
             $Src = Join-Path $CopilotConfigSrc $Config
             $Dst = Join-Path $ProjectDir ".github\$Config"
             if (Test-Path $Src) {
-                Copy-Item -Path $Src -Destination $Dst -Force
-                Write-Host "    + $Config"
+                Merge-ConfigFile -SrcFile $Src -DstFile $Dst -Label $Config
             }
         }
 
-        # Copy Copilot agents (.agent.md + non-agent support files: AGENTS.md, shared-instructions.md, etc.)
+        # Copy Copilot agents — skip files that already exist (preserves user agents)
         Write-Host ""
         Write-Host "  Copying Copilot agents..."
         if (Test-Path $CopilotAgentsSrc) {
             foreach ($File in Get-ChildItem -Path $CopilotAgentsSrc -File) {
-                Copy-Item -Path $File.FullName -Destination (Join-Path $CopilotDst $File.Name) -Force
+                $DstPath = Join-Path $CopilotDst $File.Name
                 $DisplayName = $File.BaseName -replace '\.agent$', ''
-                Write-Host "    + $DisplayName"
+                if (Test-Path $DstPath) {
+                    Write-Host "    ~ $DisplayName (skipped - already exists)"
+                } else {
+                    Copy-Item -Path $File.FullName -Destination $DstPath
+                    Write-Host "    + $DisplayName"
+                }
             }
         }
 
-        # Auto-sync all Copilot asset directories from .github/.
-        # New subdirs (skills, prompts, instructions, hooks) are discovered automatically —
-        # no hardcoded list to maintain. Adding any new asset to the repo makes it installable.
+        # Copy Copilot asset subdirs — file-by-file, skipping files that already exist
         Write-Host ""
         Write-Host "  Copying Copilot assets..."
         foreach ($SubDir in @("skills", "instructions", "prompts", "hooks")) {
@@ -159,9 +213,16 @@ if ($CopilotChoice -eq "y" -or $CopilotChoice -eq "Y") {
             $DstSubDir = Join-Path $ProjectDir ".github\$SubDir"
             if (Test-Path $SrcSubDir) {
                 New-Item -ItemType Directory -Force -Path $DstSubDir | Out-Null
-                Copy-Item -Path "$SrcSubDir\*" -Destination $DstSubDir -Recurse -Force
-                $FileCount = (Get-ChildItem -Recurse -File $SrcSubDir).Count
-                Write-Host "    + .github\$SubDir\ ($FileCount files)"
+                $Added = 0; $Skipped = 0
+                foreach ($File in Get-ChildItem -Recurse -File $SrcSubDir) {
+                    $Rel  = $File.FullName.Substring($SrcSubDir.Length).TrimStart('\')
+                    $Dst  = Join-Path $DstSubDir $Rel
+                    New-Item -ItemType Directory -Force -Path (Split-Path $Dst) | Out-Null
+                    if (Test-Path $Dst) { $Skipped++ } else { Copy-Item $File.FullName $Dst; $Added++ }
+                }
+                $msg = "    + .github\$SubDir\ ($Added new"
+                if ($Skipped -gt 0) { $msg += ", $Skipped skipped" }
+                Write-Host "$msg)"
             }
         }
         $CopilotInstalled = $true
@@ -259,22 +320,49 @@ if (-not (Test-Path $Central)) {
     exit 1
 }
 
-# Agents
-$AgentDst = Join-Path $GithubDir "agents"
-New-Item -ItemType Directory -Force -Path $AgentDst | Out-Null
-Get-ChildItem -Path $Central | Copy-Item -Destination $AgentDst -Force
-Write-Host "  Copied agents to .github\agents\"
-
-# Copilot config files
-foreach ($Config in @("copilot-instructions.md", "copilot-review-instructions.md", "copilot-commit-message-instructions.md")) {
-    $Src = Join-Path $CentralRoot $Config
-    if (Test-Path $Src) {
-        Copy-Item -Path $Src -Destination (Join-Path $GithubDir $Config) -Force
-        Write-Host "  Copied .github\$Config"
+# Merge helper — appends/updates our section in config files; never overwrites user content
+function Merge-ConfigFile {
+    param([string]$SrcFile, [string]$DstFile, [string]$Label)
+    $start  = "<!-- a11y-agent-team: start -->"
+    $end    = "<!-- a11y-agent-team: end -->"
+    $body   = ([IO.File]::ReadAllText($SrcFile, [Text.Encoding]::UTF8)).TrimEnd()
+    $block  = "$start`n$body`n$end"
+    if (-not (Test-Path $DstFile)) {
+        [IO.File]::WriteAllText($DstFile, "$block`n", [Text.Encoding]::UTF8)
+        Write-Host "  + $Label (created)"
+        return
+    }
+    $existing = [IO.File]::ReadAllText($DstFile, [Text.Encoding]::UTF8)
+    if ($existing -match [regex]::Escape($start)) {
+        $pattern = "(?s)" + [regex]::Escape($start) + ".*?" + [regex]::Escape($end)
+        $updated = [regex]::Replace($existing, $pattern, $block)
+        [IO.File]::WriteAllText($DstFile, $updated, [Text.Encoding]::UTF8)
+        Write-Host "  ~ $Label (updated our existing section)"
+    } else {
+        [IO.File]::WriteAllText($DstFile, $existing.TrimEnd() + "`n`n$block`n", [Text.Encoding]::UTF8)
+        Write-Host "  + $Label (merged into your existing file)"
     }
 }
 
-# Auto-sync central asset stores: prompts, instructions, skills
+# Agents — skip files that already exist (preserves user customisations)
+$AgentDst = Join-Path $GithubDir "agents"
+New-Item -ItemType Directory -Force -Path $AgentDst | Out-Null
+$AgentAdded = 0; $AgentSkipped = 0
+Get-ChildItem -Path $Central | ForEach-Object {
+    $dst = Join-Path $AgentDst $_.Name
+    if (Test-Path $dst) { $AgentSkipped++ } else { Copy-Item $_.FullName $dst; $AgentAdded++ }
+}
+Write-Host "  Copied agents to .github\agents\ ($AgentAdded new, $AgentSkipped skipped)"
+
+# Copilot config files — always merged, never overwritten
+foreach ($Config in @("copilot-instructions.md", "copilot-review-instructions.md", "copilot-commit-message-instructions.md")) {
+    $Src = Join-Path $CentralRoot $Config
+    if (Test-Path $Src) {
+        Merge-ConfigFile -SrcFile $Src -DstFile (Join-Path $GithubDir $Config) -Label $Config
+    }
+}
+
+# Asset stores: prompts, instructions, skills — file-by-file, skip existing
 foreach ($Pair in @(
     @{ Src = $CentralPrompts;      Sub = "prompts" },
     @{ Src = $CentralInstructions; Sub = "instructions" },
@@ -283,14 +371,20 @@ foreach ($Pair in @(
     if (Test-Path $Pair.Src) {
         $Dst = Join-Path $GithubDir $Pair.Sub
         New-Item -ItemType Directory -Force -Path $Dst | Out-Null
-        Copy-Item -Path "$($Pair.Src)\*" -Destination $Dst -Recurse -Force
-        $Count = (Get-ChildItem -Recurse -File $Pair.Src).Count
-        Write-Host "  Copied .github\$($Pair.Sub)\ ($Count files)"
+        $Added = 0; $Skipped = 0
+        Get-ChildItem -Recurse -File $Pair.Src | ForEach-Object {
+            $Rel  = $_.FullName.Substring($Pair.Src.Length).TrimStart('\')
+            $DstF = Join-Path $Dst $Rel
+            New-Item -ItemType Directory -Force -Path (Split-Path $DstF) | Out-Null
+            if (Test-Path $DstF) { $Skipped++ } else { Copy-Item $_.FullName $DstF; $Added++ }
+        }
+        Write-Host "  Copied .github\$($Pair.Sub)\ ($Added new, $Skipped skipped)"
     }
 }
 
 Write-Host ""
 Write-Host "  All Copilot assets are now in .github/ for version control."
+Write-Host "  Your existing files were preserved. Only new content was added."
 '@ | Out-File -FilePath $InitScript -Encoding utf8
 
         Write-Host ""

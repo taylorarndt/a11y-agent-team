@@ -8,6 +8,55 @@
             "command": "bash .claude/hooks/a11y-team-eval.sh"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .github/hooks/scripts/sensitive-input-guard.sh"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .github/hooks/scripts/session-start.js"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash|mcp_github",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .github/hooks/scripts/safety-gate.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .github/hooks/scripts/audit-log.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .github/hooks/scripts/session-stop.js"
+          }
+        ]
       }
     ]
   }

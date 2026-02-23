@@ -9,9 +9,9 @@ When reviewing pull requests, enforce the following WCAG 2.1 AA accessibility st
 - Verify page `<title>` is descriptive and unique
 
 ### Semantic HTML
-- Flag `<div>` or `<span>` used as buttons or links — require `<button>` or `<a href>`
+- Flag `<div>` or `<span>` used as buttons or links - require `<button>` or `<a href>`
 - Flag redundant ARIA on native semantic elements (e.g., `role="button"` on `<button>`)
-- Verify links have descriptive text — flag "Click here", "Read more" without context
+- Verify links have descriptive text - flag "Click here", "Read more" without context
 
 ### Images and Icons
 - Every `<img>` must have an `alt` attribute
@@ -64,7 +64,7 @@ When reviewing pull requests, enforce the following WCAG 2.1 AA accessibility st
 - Skip link to main content must be present and functional
 
 ### Data Tables
-- Data tables must use `<table>`, `<thead>`, `<tbody>`, `<th>`, `<td>` — not `<div>` grids
+- Data tables must use `<table>`, `<thead>`, `<tbody>`, `<th>`, `<td>` - not `<div>` grids
 - Every data table must have a `<caption>` or `aria-label`
 - Column headers must use `<th scope="col">`, row headers `<th scope="row">`
 - Sortable columns must use `aria-sort` on the `<th>` element
@@ -78,7 +78,7 @@ When reviewing pull requests, enforce the following WCAG 2.1 AA accessibility st
 - Flag multiple links with identical text pointing to different destinations
 - Flag links opening in new tabs without warning (`target="_blank"` without "(opens in new tab)")
 - Flag links to non-HTML resources (PDFs, documents) without file type indication
-- Flag adjacent duplicate links (image + text link to same destination — combine them)
+- Flag adjacent duplicate links (image + text link to same destination - combine them)
 - Flag URLs used as visible link text
 
 ### What to Ignore

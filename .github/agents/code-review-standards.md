@@ -17,7 +17,7 @@ Use these levels when flagging issues in code reviews:
 | **Praise** | `PRAISE` | Something well done -- clever solution, good test coverage, clean architecture. Always include at least one. | OK to merge |
 
 **Format review comments as:**
-```
+```text
 CRITICAL: {description}
 
 {explanation with code reference}
@@ -26,7 +26,7 @@ CRITICAL: {description}
 ```suggestion
 {code}
 ```
-```
+```text
 
 ---
 

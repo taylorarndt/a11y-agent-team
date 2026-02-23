@@ -1,6 +1,6 @@
 # address-comments
 
-Track all review comments on your PR in one table, work through them systematically, and mark them resolved. The agent is release-context-aware — it flags which comments must be resolved before merging and which can be deferred.
+Track all review comments on your PR in one table, work through them systematically, and mark them resolved. The agent is release-context-aware - it flags which comments must be resolved before merging and which can be deferred.
 
 ## When to Use It
 
@@ -12,22 +12,24 @@ Track all review comments on your PR in one table, work through them systematica
 ## How to Launch It
 
 **In GitHub Copilot Chat:**
-```
+
+```text
 /address-comments owner/repo#123
 ```
 
 Or for the current branch PR:
-```
+
+```text
 /address-comments
 ```
 
 ## What to Expect
 
-1. **Fetch all comments** — Reads every review comment, inline comment, and review summary from the PR
-2. **Build tracking table** — Each comment gets an ID, reviewer name, file/line, content snapshot, and status
-3. **Classify resolution priority** — Blocking (must resolve before merge) vs. Deferrable (can address later)
-4. **Walk comments sequentially** — Presents each one with suggested resolution or asks for your decision
-5. **Mark resolved** — As you address each comment, the agent marks it done and updates the table
+1. **Fetch all comments** - Reads every review comment, inline comment, and review summary from the PR
+2. **Build tracking table** - Each comment gets an ID, reviewer name, file/line, content snapshot, and status
+3. **Classify resolution priority** - Blocking (must resolve before merge) vs. Deferrable (can address later)
+4. **Walk comments sequentially** - Presents each one with suggested resolution or asks for your decision
+5. **Mark resolved** - As you address each comment, the agent marks it done and updates the table
 
 ### Comment Status Tracking
 
@@ -42,15 +44,16 @@ Or for the current branch PR:
 ### Blocking vs. Deferrable
 
 The agent classifies each comment as:
-- **Blocking** — CRITICAL or IMPORTANT priority, or reviewer explicitly said "must fix"
-- **Deferrable** — SUGGESTION or NIT, or reviewer said "optional" or "nice to have"
+
+- **Blocking** - CRITICAL or IMPORTANT priority, or reviewer explicitly said "must fix"
+- **Deferrable** - SUGGESTION or NIT, or reviewer said "optional" or "nice to have"
 
 If a linked milestone or release is near, the threshold shifts and more comments are marked blocking.
 
 ### Sample Tracking Table
 
-```
-# Review Comment Tracker — owner/repo#123
+```text
+# Review Comment Tracker - owner/repo#123
 
 | ID | Reviewer | File | Priority | Status | Comment |
 |----|----------|------|----------|--------|---------|
@@ -63,7 +66,7 @@ Blocking: 2 | Deferrable: 1 | Resolved: 0
 
 ## Example Variations
 
-```
+```text
 /address-comments                         # Current branch PR
 /address-comments owner/repo#123         # Specific PR
 /address-comments blocking only          # Show only must-fix items
@@ -78,6 +81,6 @@ Blocking: 2 | Deferrable: 1 | Resolved: 0
 
 ## Related Prompts
 
-- [review-pr](review-pr.md) — review a PR as a reviewer
-- [pr-comment](pr-comment.md) — add a comment to a PR
-- [merge-pr](merge-pr.md) — merge once all blocking comments are resolved
+- [review-pr](review-pr.md) - review a PR as a reviewer
+- [pr-comment](pr-comment.md) - add a comment to a PR
+- [merge-pr](merge-pr.md) - merge once all blocking comments are resolved

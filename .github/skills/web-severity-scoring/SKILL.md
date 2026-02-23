@@ -7,7 +7,7 @@ description: Severity scoring, scorecard computation, confidence levels, and rem
 
 ## Severity Scoring Formula
 
-```
+```text
 Page Score = 100 - (sum of weighted findings)
 
 Weights:
@@ -30,11 +30,11 @@ Floor: 0 (minimum score)
 
 | Score | Grade | Meaning |
 |-------|-------|---------|
-| 90-100 | A | Excellent — minor or no issues, meets WCAG AA |
-| 75-89 | B | Good — some issues, mostly meets WCAG AA |
-| 50-74 | C | Needs Work — multiple issues, partial WCAG AA compliance |
-| 25-49 | D | Poor — significant accessibility barriers |
-| 0-24 | F | Failing — critical barriers, likely unusable with AT |
+| 90-100 | A | Excellent - minor or no issues, meets WCAG AA |
+| 75-89 | B | Good - some issues, mostly meets WCAG AA |
+| 50-74 | C | Needs Work - multiple issues, partial WCAG AA compliance |
+| 25-49 | D | Poor - significant accessibility barriers |
+| 0-24 | F | Failing - critical barriers, likely unusable with AT |
 
 ## Confidence Levels
 
@@ -83,9 +83,9 @@ Issues found by both axe-core AND agent review are automatically upgraded to **h
 
 | Pattern Type | Definition | Remediation ROI |
 |-------------|-----------|-----------------|
-| Systemic | Same issue on every audited page | Highest — usually layout/nav, fix once |
-| Template | Same issue on pages sharing a component | High — fix the shared component |
-| Page-specific | Unique to one page | Normal — fix individually |
+| Systemic | Same issue on every audited page | Highest - usually layout/nav, fix once |
+| Template | Same issue on pages sharing a component | High - fix the shared component |
+| Page-specific | Unique to one page | Normal - fix individually |
 
 ## Remediation Tracking
 

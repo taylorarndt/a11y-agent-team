@@ -1,6 +1,6 @@
 # release-prep
 
-Walk through an 8-step guided release readiness workflow — milestone closure, PR inclusion, CI verification, security checks, release notes, checklist sign-off, and saved documentation.
+Walk through an 8-step guided release readiness workflow - milestone closure, PR inclusion, CI verification, security checks, release notes, checklist sign-off, and saved documentation.
 
 ## When to Use It
 
@@ -12,12 +12,14 @@ Walk through an 8-step guided release readiness workflow — milestone closure, 
 ## How to Launch It
 
 **In GitHub Copilot Chat:**
-```
+
+```text
 /release-prep owner/repo v2.1.0
 ```
 
 Or without a version to auto-detect:
-```
+
+```text
 /release-prep owner/repo
 ```
 
@@ -28,6 +30,7 @@ The agent walks through 8 steps in sequence, completing each one and confirming 
 ### Step 1: Milestone Verification
 
 Check if a milestone for the target version exists and is properly configured:
+
 - Issue count open vs. closed
 - Any overdue issues that block the milestone
 - Recommendation: close, defer, or block the release
@@ -35,6 +38,7 @@ Check if a milestone for the target version exists and is properly configured:
 ### Step 2: PR Inclusion Review
 
 Confirm all intended PRs are merged and nothing critical is still open:
+
 - PRs merged since last release
 - Open PRs targeting this release
 - PRs in review that may or may not make the cut
@@ -42,6 +46,7 @@ Confirm all intended PRs are merged and nothing critical is still open:
 ### Step 3: CI Verification
 
 Confirm all CI checks are green on the release branch or `main`:
+
 - All required workflow runs passing
 - No flaky tests in the last 7 days
 - Branch protection status
@@ -49,6 +54,7 @@ Confirm all CI checks are green on the release branch or `main`:
 ### Step 4: Security Check
 
 Verify no unpatched critical or high vulnerabilities:
+
 - Open Dependabot alerts by severity
 - Pending security-related PRs
 - Any known CVEs in dependencies
@@ -56,6 +62,7 @@ Verify no unpatched critical or high vulnerabilities:
 ### Step 5: Release Notes Draft
 
 Generate or review release notes (delegates to `/draft-release`):
+
 - Auto-categorized changes
 - Breaking changes prominently surfaced
 - Upgrade instructions if needed
@@ -63,8 +70,9 @@ Generate or review release notes (delegates to `/draft-release`):
 ### Step 6: Checklist Sign-off
 
 Interactive sign-off checklist:
-```
-Release Checklist — v2.1.0:
+
+```text
+Release Checklist - v2.1.0:
   [ ] Milestone closed
   [ ] All required PRs merged
   [ ] CI green on main
@@ -77,6 +85,7 @@ Release Checklist — v2.1.0:
 ### Step 7: Save Documentation
 
 Both `.md` and `.html` saved to `.github/reviews/releases/release-prep-{version}-{date}.*`:
+
 - Full checklist sign-off state
 - Included PR list
 - CI and security summary
@@ -84,6 +93,7 @@ Both `.md` and `.html` saved to `.github/reviews/releases/release-prep-{version}
 ### Step 8: Next Actions
 
 After sign-off:
+
 - Tag and publish GitHub Release
 - Link release to milestone
 - Announce (if configured)
@@ -97,7 +107,7 @@ After sign-off:
 
 ## Example Variations
 
-```
+```text
 /release-prep owner/repo v2.1.0              # Full guided workflow
 /release-prep owner/repo                     # Auto-detect version
 /release-prep owner/repo step 4              # Jump to security step
@@ -111,6 +121,6 @@ After sign-off:
 
 ## Related Prompts
 
-- [draft-release](draft-release.md) — generate release notes only
-- [ci-status](ci-status.md) — CI status check during step 3
-- [security-dashboard](security-dashboard.md) — security check during step 4
+- [draft-release](draft-release.md) - generate release notes only
+- [ci-status](ci-status.md) - CI status check during step 3
+- [security-dashboard](security-dashboard.md) - security check during step 4

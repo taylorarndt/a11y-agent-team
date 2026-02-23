@@ -16,6 +16,8 @@ Nothing yet. Next up: high-priority items below.
 
 ### High Priority
 
+The following items are the highest-priority features planned for the next release.
+
 | Feature | Description | Issue |
 |---------|-------------|-------|
 | Mobile native accessibility agents | iOS (UIAccessibility/SwiftUI) and Android (TalkBack) agents for native app accessibility enforcement | [#8](https://github.com/taylorarndt/a11y-agent-team/issues/8) |
@@ -23,12 +25,16 @@ Nothing yet. Next up: high-priority items below.
 
 ### Medium Priority
 
+The following items are planned after high-priority work is complete.
+
 | Feature | Description | Issue |
 |---------|-------------|-------|
 | veraPDF integration | Full PDF/UA validation via veraPDF CLI for comprehensive, standards-grade PDF checking | [#10](https://github.com/taylorarndt/a11y-agent-team/issues/10) |
 | Document remediation tools | MCP tools that fix accessibility issues in Office and PDF documents, not just detect them | [#11](https://github.com/taylorarndt/a11y-agent-team/issues/11) |
 
 ### Low Priority
+
+The following items are planned but not yet scheduled.
 
 | Feature | Description | Issue |
 |---------|-------------|-------|
@@ -40,6 +46,10 @@ Nothing yet. Next up: high-priority items below.
 ## Completed
 
 See the [changelog](https://github.com/taylorarndt/a11y-agent-team/releases) for shipped features.
+
+| Feature | Description |
+|---------|-------------|
+| Markdown Accessibility Agents | `markdown-a11y-assistant` orchestrator with parallel `markdown-scanner` and `markdown-fixer` sub-agents. Covers 9 domains: links, alt text, headings, tables, emoji, diagrams, em-dashes, anchor links, and plain language. Includes 4 custom prompts, a `markdown-accessibility` skill, lifecycle hook integration, and full Copilot/Claude Code parity. |
 
 ---
 

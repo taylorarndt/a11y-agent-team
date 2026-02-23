@@ -1,19 +1,21 @@
-# Contributing to A11y Agent Team
+# Contributing to Accessibility Agents
 
-First off, thank you for considering contributing. Accessibility matters, and every improvement to these agents helps developers ship more inclusive software.
+Thank you for considering a contribution. This is a community-driven project, and every improvement to these agents helps developers ship more inclusive software for blind and low vision users - and everyone else who depends on accessible design.
+
+A sincere thanks goes out to [Taylor Arndt](https://github.com/taylorarndt) and [Jeff Bishop](https://github.com/jeffreybishop) for leading the charge in building this project. Now we want more contributors to help us make more magic. Whether you are a developer, accessibility specialist, screen reader user, or someone who just cares about inclusive software - your contributions are welcome here.
 
 ## Ways to Contribute
 
 ### Report agent gaps
 
-The most valuable contributions are **agent gap reports** — cases where an agent missed something, gave wrong advice, or suggested unnecessary ARIA. These reports directly improve agent instructions. Use the [Agent Gap](https://github.com/taylorarndt/a11y-agent-team/issues/new?template=agent_gap.yml) issue template.
+The most valuable contributions are **agent gap reports** - cases where an agent missed something, gave wrong advice, or suggested unnecessary ARIA. These reports directly improve agent instructions. Use the [Agent Gap](https://github.com/taylorarndt/a11y-agent-team/issues/new?template=agent_gap.yml) issue template.
 
 ### Improve agent instructions
 
 Each agent is a Markdown file with a system prompt. If you know a pattern an agent should catch, or a rule it enforces incorrectly, open a PR with the fix. Agent files live in:
 
-- `.claude/agents/` — Claude Code agents
-- `.github/agents/` — GitHub Copilot agents
+- `.claude/agents/` - Claude Code agents
+- `.github/agents/` - GitHub Copilot agents
 
 When updating an agent, update both the Claude Code and Copilot versions to keep them in sync.
 
@@ -27,7 +29,7 @@ The install, update, and uninstall scripts support macOS, Linux, and Windows. Bu
 
 ### Improve documentation
 
-Clearer docs, better examples, typo fixes — all welcome.
+Clearer docs, better examples, typo fixes - all welcome.
 
 ## How to Submit a PR
 
@@ -51,4 +53,4 @@ This project follows a [Code of Conduct](CODE_OF_CONDUCT.md). By participating, 
 
 ## Questions?
 
-Open a [discussion](https://github.com/taylorarndt/a11y-agent-team/discussions) or file an issue. No question is too basic.
+Open a [discussion](https://github.com/taylorarndt/a11y-agent-team/discussions) or file an issue. No question is too basic. We especially welcome questions and feedback from blind and low vision users, screen reader users, and others with direct experience of accessibility barriers - your perspective makes these agents more effective for the people who need them most.

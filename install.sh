@@ -114,29 +114,86 @@ case "$choice" in
     ;;
 esac
 
+# ---------------------------------------------------------------------------
+# merge_config_file src dst label
+# Appends/updates our section in a config markdown file using section markers.
+# Never overwrites user content above or below our section.
+# ---------------------------------------------------------------------------
+merge_config_file() {
+  local src="$1" dst="$2" label="$3"
+  local start="<!-- a11y-agent-team: start -->"
+  local end="<!-- a11y-agent-team: end -->"
+  if [ ! -f "$dst" ]; then
+    { printf '%s\n' "$start"; cat "$src"; printf '%s\n' "$end"; } > "$dst"
+    echo "    + $label (created)"
+    return
+  fi
+  if grep -qF "$start" "$dst" 2>/dev/null; then
+    if command -v python3 &>/dev/null; then
+      python3 - "$src" "$dst" << 'PYEOF'
+import re, sys
+src_text = open(sys.argv[1]).read().rstrip()
+dst_path = sys.argv[2]
+dst_text = open(dst_path).read()
+start = "<!-- a11y-agent-team: start -->"
+end   = "<!-- a11y-agent-team: end -->"
+block = start + "\n" + src_text + "\n" + end
+updated = re.sub(re.escape(start) + r".*?" + re.escape(end), block, dst_text, flags=re.DOTALL)
+open(dst_path, "w").write(updated)
+PYEOF
+      echo "    ~ $label (updated our existing section)"
+    else
+      echo "    ! $label (section exists; python3 unavailable to update - edit manually)"
+    fi
+  else
+    { printf '\n%s\n' "$start"; cat "$src"; printf '%s\n' "$end"; echo; } >> "$dst"
+    echo "    + $label (merged into your existing file)"
+  fi
+}
+
 # Create directories
 mkdir -p "$TARGET_DIR/agents"
 mkdir -p "$TARGET_DIR/hooks"
 
-# Copy agents
+# Manifest: track which files we install so updates never touch user-created files
+MANIFEST_FILE="$TARGET_DIR/.a11y-agent-manifest"
+touch "$MANIFEST_FILE"
+
+# Copy agents — skip any file that already exists (preserves user customisations)
 echo ""
 echo "  Copying agents..."
+SKIPPED_AGENTS=0
 for agent in "${AGENTS[@]}"; do
   if [ ! -f "$AGENTS_SRC/$agent" ]; then
     echo "    ! Missing: $agent (skipped)"
     continue
   fi
-  cp "$AGENTS_SRC/$agent" "$TARGET_DIR/agents/$agent"
+  dst_agent="$TARGET_DIR/agents/$agent"
   name="${agent%.md}"
-  echo "    + $name"
+  if [ -f "$dst_agent" ]; then
+    echo "    ~ $name (skipped - already exists)"
+    SKIPPED_AGENTS=$((SKIPPED_AGENTS + 1))
+  else
+    cp "$AGENTS_SRC/$agent" "$dst_agent"
+    grep -qxF "agents/$agent" "$MANIFEST_FILE" 2>/dev/null || echo "agents/$agent" >> "$MANIFEST_FILE"
+    echo "    + $name"
+  fi
 done
+if [ "$SKIPPED_AGENTS" -gt 0 ]; then
+  echo "      $SKIPPED_AGENTS agent(s) skipped. Delete them first to reinstall."
+fi
 
-# Copy hook
+# Copy hook — skip if already exists
 echo ""
 echo "  Copying hook..."
-cp "$HOOK_SRC" "$TARGET_DIR/hooks/a11y-team-eval.sh"
-chmod +x "$TARGET_DIR/hooks/a11y-team-eval.sh"
-echo "    + a11y-team-eval.sh"
+if [ -f "$TARGET_DIR/hooks/a11y-team-eval.sh" ]; then
+  echo "    ~ a11y-team-eval.sh (skipped - already exists)"
+else
+  cp "$HOOK_SRC" "$TARGET_DIR/hooks/a11y-team-eval.sh"
+  chmod +x "$TARGET_DIR/hooks/a11y-team-eval.sh"
+  grep -qxF "hooks/a11y-team-eval.sh" "$MANIFEST_FILE" 2>/dev/null || echo "hooks/a11y-team-eval.sh" >> "$MANIFEST_FILE"
+  echo "    + a11y-team-eval.sh"
+fi
 
 # Copilot agents
 COPILOT_INSTALLED=false
@@ -166,37 +223,52 @@ if [ "$install_copilot" = true ]; then
       mkdir -p "$COPILOT_DST"
       COPILOT_DESTINATIONS+=("$COPILOT_DST")
 
-      # Copy all agent files (*.agent.md + AGENTS.md and other support files)
+      # Copy Copilot agents — skip files that already exist
       echo ""
       echo "  Copying Copilot agents..."
       if [ -d "$COPILOT_AGENTS_SRC" ]; then
         for f in "$COPILOT_AGENTS_SRC"/*; do
           [ -f "$f" ] || continue
-          cp "$f" "$COPILOT_DST/"
-          echo "    + $(basename "$f")"
+          dst_f="$COPILOT_DST/$(basename "$f")"
+          if [ -f "$dst_f" ]; then
+            echo "    ~ $(basename "$f") (skipped - already exists)"
+          else
+            cp "$f" "$COPILOT_DST/"
+            echo "    + $(basename "$f")"
+          fi
         done
       fi
 
-      # Copy Copilot config files to project
+      # Merge Copilot config files — appends our section, never overwrites
       echo ""
-      echo "  Copying Copilot config..."
+      echo "  Merging Copilot config..."
       for config in copilot-instructions.md copilot-review-instructions.md copilot-commit-message-instructions.md; do
         SRC="$COPILOT_CONFIG_SRC/$config"
         DST="$PROJECT_DIR/.github/$config"
         if [ -f "$SRC" ]; then
-          cp "$SRC" "$DST"
-          echo "    + $config"
+          merge_config_file "$SRC" "$DST" "$config"
         fi
       done
 
-      # Copy asset subdirs: skills, instructions, prompts, hooks — auto-discovered
+      # Copy asset subdirs — file-by-file, skip files that already exist
       for subdir in skills instructions prompts hooks; do
         SRC_DIR="$COPILOT_CONFIG_SRC/$subdir"
         DST_DIR="$PROJECT_DIR/.github/$subdir"
         if [ -d "$SRC_DIR" ]; then
           mkdir -p "$DST_DIR"
-          cp -r "$SRC_DIR/." "$DST_DIR/"
-          echo "    + $subdir/"
+          added=0; skipped=0
+          while IFS= read -r -d '' src_file; do
+            rel="${src_file#$SRC_DIR/}"
+            dst_file="$DST_DIR/$rel"
+            mkdir -p "$(dirname "$dst_file")"
+            if [ -f "$dst_file" ]; then
+              skipped=$((skipped + 1))
+            else
+              cp "$src_file" "$dst_file"
+              added=$((added + 1))
+            fi
+          done < <(find "$SRC_DIR" -type f -print0)
+          echo "    + $subdir/ ($added new, $skipped skipped)"
         fi
       done
 
@@ -368,7 +440,8 @@ PYEOF
 # Usage: a11y-copilot-init
 #
 # Copies .agent.md files into .github/agents/ for this project.
-# Use this when you want to check agents into version control.
+# Merges copilot-instructions.md rather than overwriting it.
+# Skips any file that already exists to preserve your customisations.
 
 CENTRAL="$HOME/.a11y-agent-team/copilot-agents"
 TARGET=".github/agents"
@@ -380,27 +453,73 @@ if [ ! -d "$CENTRAL" ] || [ -z "$(ls "$CENTRAL"/*.agent.md 2>/dev/null)" ]; then
 fi
 
 mkdir -p "$TARGET"
-cp "$CENTRAL"/*.agent.md "$TARGET/"
+ADDED=0; SKIPPED=0
+for f in "$CENTRAL"/*.agent.md; do
+  [ -f "$f" ] || continue
+  dst="$TARGET/$(basename "$f")"
+  if [ -f "$dst" ]; then SKIPPED=$((SKIPPED+1))
+  else cp "$f" "$dst"; ADDED=$((ADDED+1)); fi
+done
+echo "  Agents: $ADDED added, $SKIPPED skipped (already exist)"
 
-# Copy config files
+# Merge config files using a11y-agent-team section markers — never overwrites user content
+merge_config() {
+  local src="$1" dst="$2" label="$3"
+  local start="<!-- a11y-agent-team: start -->"
+  local end="<!-- a11y-agent-team: end -->"
+  [ -f "$src" ] || return
+  if [ ! -f "$dst" ]; then
+    { printf '%s\n' "$start"; cat "$src"; printf '%s\n' "$end"; } > "$dst"
+    echo "  + $label (created)"
+    return
+  fi
+  if grep -qF "$start" "$dst" 2>/dev/null; then
+    if command -v python3 &>/dev/null; then
+      python3 - "$src" "$dst" << 'PYEOF'
+import re, sys
+src_text = open(sys.argv[1]).read().rstrip()
+dst_path = sys.argv[2]
+dst_text = open(dst_path).read()
+start = "<!-- a11y-agent-team: start -->"
+end   = "<!-- a11y-agent-team: end -->"
+block = start + "\n" + src_text + "\n" + end
+updated = re.sub(re.escape(start) + r".*?" + re.escape(end), block, dst_text, flags=re.DOTALL)
+open(dst_path, "w").write(updated)
+PYEOF
+      echo "  ~ $label (updated our existing section)"
+    else
+      echo "  ! $label (section exists; python3 unavailable to update)"
+    fi
+  else
+    { printf '\n%s\n' "$start"; cat "$src"; printf '%s\n' "$end"; echo; } >> "$dst"
+    echo "  + $label (merged into your existing file)"
+  fi
+}
+
 for config in copilot-instructions.md copilot-review-instructions.md copilot-commit-message-instructions.md; do
-  [ -f "$HOME/.a11y-agent-team/$config" ] && cp "$HOME/.a11y-agent-team/$config" ".github/$config"
+  merge_config "$HOME/.a11y-agent-team/$config" ".github/$config" "$config"
 done
 
-# Copy prompts, instructions, and skills
+# Copy prompts, instructions, and skills — skip existing files
 for pair in "copilot-prompts:prompts" "copilot-instructions-files:instructions" "copilot-skills:skills"; do
   SRC="$HOME/.a11y-agent-team/${pair%%:*}"
   DST=".github/${pair##*:}"
   if [ -d "$SRC" ] && [ -n "$(ls "$SRC" 2>/dev/null)" ]; then
     mkdir -p "$DST"
-    cp -r "$SRC/." "$DST/"
-    echo "  Copied ${pair##*:} to $DST/"
+    added=0; skipped=0
+    while IFS= read -r -d '' src_file; do
+      rel="${src_file#$SRC/}"
+      dst_file="$DST/$rel"
+      mkdir -p "$(dirname "$dst_file")"
+      if [ -f "$dst_file" ]; then skipped=$((skipped+1))
+      else cp "$src_file" "$dst_file"; added=$((added+1)); fi
+    done < <(find "$SRC" -type f -print0)
+    echo "  ${pair##*:}/: $added added, $skipped skipped"
   fi
 done
 
-echo "  Copied Copilot agents to $TARGET/"
-echo "  Copied Copilot config to .github/"
 echo ""
+echo "  Done. Your existing files were preserved."
 echo "  These are now in your project for version control."
 INITSCRIPT
       chmod +x "$INIT_SCRIPT"

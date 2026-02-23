@@ -1,6 +1,6 @@
 # audit-changed-documents
 
-Delta scan — scan only the documents that changed since the last commit. Perfect for CI/CD pipelines and incremental review workflows that do not want to re-scan an entire library on every change.
+Delta scan - scan only the documents that changed since the last commit. Perfect for CI/CD pipelines and incremental review workflows that do not want to re-scan an entire library on every change.
 
 ## When to Use It
 
@@ -12,7 +12,8 @@ Delta scan — scan only the documents that changed since the last commit. Perfe
 ## How to Launch It
 
 **In GitHub Copilot Chat:**
-```
+
+```text
 /audit-changed-documents
 ```
 
@@ -28,7 +29,7 @@ The agent runs git to find changed documents since the last commit:
 git diff --name-only HEAD~1 HEAD -- '*.docx' '*.xlsx' '*.pptx' '*.pdf'
 ```
 
-If no changed documents are found, the agent reports "No document changes detected" and stops — no wasted work.
+If no changed documents are found, the agent reports "No document changes detected" and stops - no wasted work.
 
 ### Step 2: Per-File Scan
 
@@ -45,16 +46,16 @@ If `DOCUMENT-ACCESSIBILITY-AUDIT.md` exists from a previous run, the agent compa
 | Persistent | Present in both reports |
 | Regressed | Was fixed in a prior scan but has returned |
 
-Regressions are flagged prominently — if a previously passing document now has new errors, that gets a high-priority callout.
+Regressions are flagged prominently - if a previously passing document now has new errors, that gets a high-priority callout.
 
 ### Step 4: Score Change Summary
 
-```
+```text
 Delta Scan Results: 3 documents changed
 
-  📄 policy-handbook.docx     Score: 82 → 91 (+9) ▲  [2 fixed, 0 new]
-  📄 expense-report.xlsx      Score: 74 → 74 (± 0)   [0 fixed, 0 new, 3 persistent]
-  📄 onboarding-slides.pptx   Score: 68 → 55 (-13) ▼  [0 fixed, 4 new] ⚠️ REGRESSION
+   policy-handbook.docx     Score: 82 -> 91 (+9)   [2 fixed, 0 new]
+   expense-report.xlsx      Score: 74 -> 74 (+/- 0)   [0 fixed, 0 new, 3 persistent]
+   onboarding-slides.pptx   Score: 68 -> 55 (-13)   [0 fixed, 4 new]  REGRESSION
 ```
 
 ### Step 5: Updated Report
@@ -63,7 +64,7 @@ Delta Scan Results: 3 documents changed
 
 ## Example Variations
 
-```
+```text
 /audit-changed-documents                          # Changes since HEAD~1 (default)
 /audit-changed-documents since v2.0              # Changes since a specific tag
 /audit-changed-documents since last week         # Changes in the last 7 days
@@ -85,6 +86,6 @@ Delta Scan Results: 3 documents changed
 
 ## Related Prompts
 
-- [audit-document-folder](audit-document-folder.md) — scan all files, not just changed ones
-- [compare-audits](compare-audits.md) — compare two full audit reports
-- [setup-document-cicd](setup-document-cicd.md) — automate this scan in your CI pipeline
+- [audit-document-folder](audit-document-folder.md) - scan all files, not just changed ones
+- [compare-audits](compare-audits.md) - compare two full audit reports
+- [setup-document-cicd](setup-document-cicd.md) - automate this scan in your CI pipeline

@@ -31,7 +31,7 @@ Use the **document-accessibility-wizard** agent to:
 ### Word Template Checklist
 - Document title set in File > Properties
 - Language set (File > Options > Language)
-- Built-in heading styles (Heading 1, 2, 3) used — never manual formatting
+- Built-in heading styles (Heading 1, 2, 3) used - never manual formatting
 - Table of Contents generated from headings
 - Alt text placeholder text on all image placeholders ("REPLACE: Describe this image")
 - Table header rows marked (Table Design > Header Row checked)

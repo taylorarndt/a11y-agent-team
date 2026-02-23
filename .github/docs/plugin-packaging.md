@@ -108,7 +108,7 @@ cp .claude/settings.json /path/to/project/.claude/
 Create a focused package with only the agents you need:
 
 **Web-only package** (no document agents):
-```
+```text
 .github/agents/
   accessibility-lead.agent.md
   aria-specialist.agent.md
@@ -126,7 +126,7 @@ Create a focused package with only the agents you need:
 ```
 
 **Document-only package:**
-```
+```text
 .github/agents/
   document-accessibility-wizard.agent.md
   document-inventory.agent.md

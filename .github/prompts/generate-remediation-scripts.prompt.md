@@ -34,9 +34,9 @@ Use the **document-accessibility-wizard** agent to:
    - Bash (.sh)
    - Both
 5. Generate the scripts with these safety features:
-   - **Dry-run mode** (`-WhatIf` / `--dry-run`) — preview changes without modifying files
-   - **Automatic backups** — copy originals to a `_backup/` folder before any changes
-   - **Change log** — write a summary of every modification to `remediation-log.txt`
-   - **Clear comments** — explain what each fix does and why
+   - **Dry-run mode** (`-WhatIf` / `--dry-run`) - preview changes without modifying files
+   - **Automatic backups** - copy originals to a `_backup/` folder before any changes
+   - **Change log** - write a summary of every modification to `remediation-log.txt`
+   - **Clear comments** - explain what each fix does and why
 6. Write scripts to `scripts/remediation/`
 7. Report which issues can be auto-fixed and which need manual attention

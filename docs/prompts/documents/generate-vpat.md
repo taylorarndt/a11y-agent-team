@@ -12,13 +12,14 @@ Convert a document accessibility audit report into a formal **VPAT 2.5 Accessibi
 ## How to Launch It
 
 **In GitHub Copilot Chat:**
-```
+
+```text
 /generate-vpat
 ```
 
 Then provide the audit report path when prompted. Or specify directly:
 
-```
+```text
 /generate-vpat DOCUMENT-ACCESSIBILITY-AUDIT.md
 ```
 
@@ -37,7 +38,7 @@ The agent asks which VPAT edition to generate:
 | WCAG | Private sector; WCAG 2.2 criteria only |
 | Section 508 | US federal government procurement |
 | EN 301 549 | European procurement and public sector |
-| International | All three combined — maximum coverage |
+| International | All three combined - maximum coverage |
 
 ### Step 3: Criterion Mapping
 
@@ -54,29 +55,29 @@ For each WCAG success criterion in scope, the agent determines the conformance l
 
 The VPAT is written to `VPAT-DOCUMENT-ACCESSIBILITY.md` in proper VPAT 2.5 format:
 
-- **Product information section** — name, version, description, date of evaluation
-- **Evaluation methods** — tools used, scope of testing, assumptions
-- **Table 1: Success Criteria, Level A** — with conformance level and remarks per criterion
-- **Table 2: Success Criteria, Level AA** — same format
-- **Notes** — known limitations, items not evaluated, and guidance for administrators
-- **Evaluation methodology** — reproducibility information
+- **Product information section** - name, version, description, date of evaluation
+- **Evaluation methods** - tools used, scope of testing, assumptions
+- **Table 1: Success Criteria, Level A** - with conformance level and remarks per criterion
+- **Table 2: Success Criteria, Level AA** - same format
+- **Notes** - known limitations, items not evaluated, and guidance for administrators
+- **Evaluation methodology** - reproducibility information
 
 ### Remarks Column
 
-The remarks for each criterion come directly from your audit findings — explaining specifically what works, what fails, and on which documents.
+The remarks for each criterion come directly from your audit findings - explaining specifically what works, what fails, and on which documents.
 
 ## Example Variations
 
-```
+```text
 /generate-vpat DOCUMENT-ACCESSIBILITY-AUDIT.md
-→ Edition: Section 508
+-> Edition: Section 508
 
 /generate-vpat reports/library-audit-2026.md
-→ Edition: International (WCAG + 508 + EN 301 549)
+-> Edition: International (WCAG + 508 + EN 301 549)
 
 /generate-vpat
-→ Use existing audit report in workspace
-→ Edition: EN 301 549 (European procurement)
+-> Use existing audit report in workspace
+-> Edition: EN 301 549 (European procurement)
 ```
 
 ## Output Files
@@ -94,6 +95,6 @@ The remarks for each criterion come directly from your audit findings — explai
 
 ## Related Prompts
 
-- [audit-single-document](audit-single-document.md) — generate the audit report this prompt reads
-- [audit-document-folder](audit-document-folder.md) — for VPAT covering a library of documents
-- [compare-audits](compare-audits.md) — track remediation progress before regenerating the VPAT
+- [audit-single-document](audit-single-document.md) - generate the audit report this prompt reads
+- [audit-document-folder](audit-document-folder.md) - for VPAT covering a library of documents
+- [compare-audits](compare-audits.md) - track remediation progress before regenerating the VPAT
