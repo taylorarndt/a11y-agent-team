@@ -5,73 +5,77 @@ let input = '';
 process.stdin.setEncoding('utf8');
 process.stdin.on('data', (chunk) => { input += chunk; });
 process.stdin.on('end', () => {
-  let cwd;
+  let cwd, payload;
   try {
-    const hookInput = JSON.parse(input);
-    cwd = hookInput.cwd || process.cwd();
+    payload = JSON.parse(input);
+    cwd = payload.cwd || process.cwd();
   } catch {
+    payload = {};
     cwd = process.cwd();
   }
 
-  // Look for audit reports written during this session
-  let auditFiles;
+  // Guard against infinite loop — stop hooks can re-trigger the Stop event.
+  if (payload.stop_hook_active === true) {
+    process.stdout.write(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: 'Stop' } }));
+    process.exit(0);
+  }
+
+  const incomplete = {};
+
+  // ─── Validate document accessibility audit report ──────────────────────────
   try {
-    auditFiles = fs.readdirSync(cwd).filter(f =>
-      /^DOCUMENT-ACCESSIBILITY-AUDIT.*\.md$/i.test(f)
-    );
-  } catch {
-    // No access to cwd — skip validation
-    process.stdout.write(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: 'SessionEnd' } }));
-    process.exit(0);
-  }
+    const docAudits = fs.readdirSync(cwd)
+      .filter(f => /^DOCUMENT-ACCESSIBILITY-AUDIT.*\.md$/i.test(f));
+    if (docAudits.length > 0) {
+      const latest = docAudits.sort().pop();
+      const content = fs.readFileSync(path.join(cwd, latest), 'utf8');
+      const required = [
+        'Audit Information',
+        'Executive Summary',
+        'Accessibility Scorecard',
+        'Confidence Summary',
+      ];
+      const missing = required.filter(s => !content.includes(s));
+      if (missing.length > 0) incomplete[`Document audit "${latest}"`] = missing;
+    }
+  } catch { /* no access — skip */ }
 
-  // If no audit report exists, nothing to validate — pass through silently
-  if (auditFiles.length === 0) {
-    process.stdout.write(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: 'SessionEnd' } }));
-    process.exit(0);
-  }
-
-  const latest = auditFiles.sort().pop();
-  const reportPath = path.join(cwd, latest);
-  let content;
+  // ─── Validate web accessibility audit report ───────────────────────────────
   try {
-    content = fs.readFileSync(reportPath, 'utf8');
-  } catch {
-    process.stdout.write(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: 'SessionEnd' } }));
+    const webAudits = fs.readdirSync(cwd)
+      .filter(f => /^WEB-ACCESSIBILITY-AUDIT.*\.md$/i.test(f));
+    if (webAudits.length > 0) {
+      const latest = webAudits.sort().pop();
+      const content = fs.readFileSync(path.join(cwd, latest), 'utf8');
+      const required = [
+        'Audit Information',
+        'Executive Summary',
+        'Accessibility Scorecard',
+      ];
+      const missing = required.filter(s => !content.includes(s));
+      if (missing.length > 0) incomplete[`Web audit "${latest}"`] = missing;
+    }
+  } catch { /* no access — skip */ }
+
+  if (Object.keys(incomplete).length === 0) {
+    process.stdout.write(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: 'Stop' } }));
     process.exit(0);
   }
 
-  // Validate required sections
-  const requiredSections = [
-    'Audit Information',
-    'Executive Summary',
-    'Accessibility Scorecard',
-    'Confidence Summary'
-  ];
-
-  const missing = requiredSections.filter(section =>
-    !content.includes(section)
-  );
-
-  if (missing.length === 0) {
-    // All required sections present — report is complete
-    process.stdout.write(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: 'SessionEnd' } }));
-    process.exit(0);
+  // One or more reports are incomplete — inject guidance for the agent to act on.
+  const lines = ['[A11y Quality Gate] Audit report(s) are missing required sections:'];
+  for (const [report, sections] of Object.entries(incomplete)) {
+    lines.push(`${report}:`);
+    sections.forEach(s => lines.push(`  - ${s}`));
   }
-
-  // Report incomplete — inject guidance to complete it
-  const guidance = [
-    `[Document A11y Quality Gate] Audit report "${latest}" is missing required sections:`,
-    ...missing.map(s => `  - ${s}`),
-    'Please complete these sections before finishing the audit.'
-  ].join('\n');
+  lines.push('Please complete these sections before finishing the session.');
 
   process.stdout.write(JSON.stringify({
     continue: true,
     hookSpecificOutput: {
-      hookEventName: 'SessionEnd',
-      additionalContext: guidance
-    }
+      hookEventName: 'Stop',
+      additionalContext: lines.join('\n'),
+    },
   }));
   process.exit(0);
 });

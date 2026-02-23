@@ -50,6 +50,8 @@ Base URL: `https://code.claude.com/docs/en/`
 | **Chat overview** | https://code.visualstudio.com/docs/copilot/chat/copilot-chat | Chat surfaces (Chat view, Inline chat, Quick chat, CLI). Agent picker, model picker. Context mechanisms (`#`-mentions, `@`-mentions, vision). Review and checkpoint system. |
 | **AI extensibility** | https://code.visualstudio.com/api/extension-guides/ai/ai-extensibility-overview | Extension options: Language Model Tools, MCP Tools, Chat Participants, Language Model API. Decision matrix for choosing approach. |
 | **Custom instructions** | https://code.visualstudio.com/docs/copilot/customization/custom-instructions | Instruction file types and loading behavior. |
+| **Agent skills** | https://code.visualstudio.com/docs/copilot/customization/agent-skills | Skill directories with `SKILL.md` entrypoint. Workspace paths: `.github/skills/`, `.claude/skills/`, `.agents/skills/`. Personal paths: `~/.copilot/skills/`, `~/.claude/skills/`, `~/.agents/skills/`. |
+| **Hooks** | https://code.visualstudio.com/docs/copilot/customization/hooks | Published 2026-02-09 (Preview, VS Code 1.109.3+). Eight lifecycle events: `SessionStart`, `UserPromptSubmit`, `PreToolUse`, `PostToolUse`, `PreCompact`, `SubagentStart`, `SubagentStop`, `Stop`. Hook files: workspace → `.github/hooks/*.json`; user → `~/.claude/settings.json`. JSON format: `{ "hooks": { "EventName": [{ "type": "command", "command": "...", "windows": "...", "timeout": 30 }] } }`. Exit code 0 = success, 2 = blocking error. `additionalContext` field injects text into agent conversation. |
 | **MCP servers in VS Code** | https://code.visualstudio.com/docs/copilot/customization/mcp-servers | MCP server configuration in VS Code settings. |
 | **Prompt files** | https://code.visualstudio.com/docs/copilot/customization/prompt-files | `.prompt.md` files for reusable workflows. |
 
@@ -98,7 +100,7 @@ This table maps each project feature to the documentation sources that informed 
 | **Agent frontmatter (`tools`, `model`, `handoffs`)** | VS Code Custom agents | Frontmatter fields, tool arrays, handoff configuration |
 | **Hidden helper sub-agents (`user-invokable: false`)** | VS Code Custom agents, Claude Code Sub-agents | `user-invokable: false` hides from picker; `disable-model-invocation` prevents auto-invocation |
 | **Agent Skills (`SKILL.md`)** | Claude Code Skills | Skill directories with `SKILL.md` entrypoint. Frontmatter for invocation control. Supporting files pattern. |
-| **Lifecycle hooks (SessionStart, SessionEnd)** | Claude Code Hooks | Hook events, handler types (`command`, `prompt`, `agent`). Quality gates via exit codes. |
+| **Lifecycle hooks (SessionStart, SessionEnd)** | Claude Code Hooks, VS Code Hooks | Hook events, handler types (`command`, `prompt`, `agent`). Quality gates via exit codes. **VS Code**: `.github/hooks/*.json` files, 8 events (`SessionStart`, `UserPromptSubmit`, `PreToolUse`, `PostToolUse`, `PreCompact`, `SubagentStart`, `SubagentStop`, `Stop`). Note: VS Code uses `Stop` — there is **no `SessionEnd`** event in VS Code. |
 | **Agent Teams (`AGENTS.md`)** | Claude Code Agent teams, GitHub Custom instructions | Enterprise coordination patterns. GitHub supports `AGENTS.md` for agent instructions. |
 | **Persistent memory** | Claude Code Memory | `CLAUDE.md` project memory. Auto memory with `MEMORY.md`. Memory scopes. |
 | **MCP server (document scanner tools)** | MCP specification, MCP TypeScript SDK | 11 tools + 6 prompts. `@modelcontextprotocol/sdk` with `StdioServerTransport`. |

@@ -137,6 +137,34 @@ if ($CopilotChoice -eq "y" -or $CopilotChoice -eq "Y") {
                 Write-Host "    + $Config"
             }
         }
+
+        # Copy Copilot agents (.agent.md + non-agent support files: AGENTS.md, shared-instructions.md, etc.)
+        Write-Host ""
+        Write-Host "  Copying Copilot agents..."
+        if (Test-Path $CopilotAgentsSrc) {
+            foreach ($File in Get-ChildItem -Path $CopilotAgentsSrc -File) {
+                Copy-Item -Path $File.FullName -Destination (Join-Path $CopilotDst $File.Name) -Force
+                $DisplayName = $File.BaseName -replace '\.agent$', ''
+                Write-Host "    + $DisplayName"
+            }
+        }
+
+        # Auto-sync all Copilot asset directories from .github/.
+        # New subdirs (skills, prompts, instructions, hooks) are discovered automatically —
+        # no hardcoded list to maintain. Adding any new asset to the repo makes it installable.
+        Write-Host ""
+        Write-Host "  Copying Copilot assets..."
+        foreach ($SubDir in @("skills", "instructions", "prompts", "hooks")) {
+            $SrcSubDir = Join-Path $CopilotConfigSrc $SubDir
+            $DstSubDir = Join-Path $ProjectDir ".github\$SubDir"
+            if (Test-Path $SrcSubDir) {
+                New-Item -ItemType Directory -Force -Path $DstSubDir | Out-Null
+                Copy-Item -Path "$SrcSubDir\*" -Destination $DstSubDir -Recurse -Force
+                $FileCount = (Get-ChildItem -Recurse -File $SrcSubDir).Count
+                Write-Host "    + .github\$SubDir\ ($FileCount files)"
+            }
+        }
+        $CopilotInstalled = $true
     } else {
         # Global install: store Copilot agents centrally and configure VS Code
         # to discover them via chat.agentFilesLocations setting.
@@ -153,29 +181,55 @@ if ($CopilotChoice -eq "y" -or $CopilotChoice -eq "Y") {
             }
         }
 
-        # Copy config files to central store
+        # Copy config files, prompts, instructions, and skills to central store.
+        # VS Code 1.110+ discovers *.agent.md, *.prompt.md, *.instructions.md from User/prompts/.
         $CentralRoot = Join-Path $env:USERPROFILE ".a11y-agent-team"
+        $CopilotCentralPrompts      = Join-Path $CentralRoot "copilot-prompts"
+        $CopilotCentralInstructions = Join-Path $CentralRoot "copilot-instructions-files"
+        $CopilotCentralSkills       = Join-Path $CentralRoot "copilot-skills"
+
         foreach ($Config in @("copilot-instructions.md", "copilot-review-instructions.md", "copilot-commit-message-instructions.md")) {
             $Src = Join-Path $CopilotConfigSrc $Config
             if (Test-Path $Src) {
                 Copy-Item -Path $Src -Destination (Join-Path $CentralRoot $Config) -Force
             }
         }
+        foreach ($Pair in @(
+            @{ Src = Join-Path $CopilotConfigSrc "prompts";      Dst = $CopilotCentralPrompts },
+            @{ Src = Join-Path $CopilotConfigSrc "instructions"; Dst = $CopilotCentralInstructions },
+            @{ Src = Join-Path $CopilotConfigSrc "skills";       Dst = $CopilotCentralSkills }
+        )) {
+            if (Test-Path $Pair.Src) {
+                New-Item -ItemType Directory -Force -Path $Pair.Dst | Out-Null
+                Copy-Item -Path "$($Pair.Src)\*" -Destination $Pair.Dst -Recurse -Force
+            }
+        }
 
-        # Copy .agent.md files directly into VS Code user profile folders
-        # so they appear globally in the Copilot Chat agent picker.
+        # Copy .agent.md, *.prompt.md, *.instructions.md into VS Code User profile folders.
+        # VS Code 1.110+ discovers from User/prompts/; older versions from User/ root.
+        # Both locations are populated for full compatibility.
         function Copy-ToVSCodeProfile {
             param([string]$ProfileDir, [string]$Label)
 
             if (-not (Test-Path $ProfileDir)) { return }
 
+            $PromptsDir = Join-Path $ProfileDir "prompts"
+            New-Item -ItemType Directory -Force -Path $PromptsDir | Out-Null
             Write-Host "  [found] $Label"
-            $AgentFiles = Get-ChildItem -Path $CopilotCentral -Filter "*.agent.md" -ErrorAction SilentlyContinue
-            foreach ($File in $AgentFiles) {
-                Copy-Item -Path $File.FullName -Destination (Join-Path $ProfileDir $File.Name) -Force
+
+            $AgentFiles       = Get-ChildItem -Path $CopilotCentral            -Filter "*.agent.md"       -ErrorAction SilentlyContinue
+            $PromptFiles      = Get-ChildItem -Path $CopilotCentralPrompts     -Filter "*.prompt.md"      -ErrorAction SilentlyContinue
+            $InstructionFiles = Get-ChildItem -Path $CopilotCentralInstructions -Filter "*.instructions.md" -ErrorAction SilentlyContinue
+
+            foreach ($File in @($AgentFiles) + @($PromptFiles) + @($InstructionFiles)) {
+                if ($File) {
+                    Copy-Item -Path $File.FullName -Destination (Join-Path $ProfileDir  $File.Name) -Force
+                    Copy-Item -Path $File.FullName -Destination (Join-Path $PromptsDir  $File.Name) -Force
+                }
             }
-            Write-Host "    Copied $($AgentFiles.Count) agents to profile"
-            $script:CopilotDestinations += $ProfileDir
+
+            Write-Host "    Copied $($AgentFiles.Count) agents, $($PromptFiles.Count) prompts, $($InstructionFiles.Count) instructions"
+            $script:CopilotDestinations += $PromptsDir
         }
 
         Write-Host ""
@@ -187,38 +241,56 @@ if ($CopilotChoice -eq "y" -or $CopilotChoice -eq "Y") {
         # Also create a11y-copilot-init for per-project use (repos to check into git)
         $InitScript = Join-Path $CentralRoot "a11y-copilot-init.ps1"
         @'
-# A11y Agent Team - Copy Copilot agents into the current project
-# Usage: a11y-copilot-init
+# A11y Agent Team - Copy Copilot assets into the current project
+# Usage: powershell -File a11y-copilot-init.ps1
 #
-# Copies .agent.md files into .github/agents/ for this project.
-# Use this when you want to check agents into version control.
+# Copies agents, prompts, instructions, skills, and hooks into .github/ for this project.
+# Use this when you want to check all Copilot assets into version control.
 
-$Central = Join-Path $env:USERPROFILE ".a11y-agent-team\copilot-agents"
-$Target = Join-Path (Get-Location) ".github\agents"
-$GithubDir = Join-Path (Get-Location) ".github"
+$CentralRoot   = Join-Path $env:USERPROFILE ".a11y-agent-team"
+$Central       = Join-Path $CentralRoot "copilot-agents"
+$CentralPrompts      = Join-Path $CentralRoot "copilot-prompts"
+$CentralInstructions = Join-Path $CentralRoot "copilot-instructions-files"
+$CentralSkills       = Join-Path $CentralRoot "copilot-skills"
+$GithubDir     = Join-Path (Get-Location) ".github"
 
 if (-not (Test-Path $Central)) {
     Write-Host "  Error: No Copilot agents found. Run the installer first."
     exit 1
 }
 
-New-Item -ItemType Directory -Force -Path $Target | Out-Null
-Copy-Item -Path (Join-Path $Central "*.agent.md") -Destination $Target -Force
-Write-Host "  Copied Copilot agents to $Target"
+# Agents
+$AgentDst = Join-Path $GithubDir "agents"
+New-Item -ItemType Directory -Force -Path $AgentDst | Out-Null
+Get-ChildItem -Path $Central | Copy-Item -Destination $AgentDst -Force
+Write-Host "  Copied agents to .github\agents\"
 
-# Copy config files
-$CentralRoot = Join-Path $env:USERPROFILE ".a11y-agent-team"
+# Copilot config files
 foreach ($Config in @("copilot-instructions.md", "copilot-review-instructions.md", "copilot-commit-message-instructions.md")) {
     $Src = Join-Path $CentralRoot $Config
-    $Dst = Join-Path $GithubDir $Config
     if (Test-Path $Src) {
-        Copy-Item -Path $Src -Destination $Dst -Force
+        Copy-Item -Path $Src -Destination (Join-Path $GithubDir $Config) -Force
         Write-Host "  Copied .github\$Config"
     }
 }
 
+# Auto-sync central asset stores: prompts, instructions, skills
+foreach ($Pair in @(
+    @{ Src = $CentralPrompts;      Sub = "prompts" },
+    @{ Src = $CentralInstructions; Sub = "instructions" },
+    @{ Src = $CentralSkills;       Sub = "skills" }
+)) {
+    if (Test-Path $Pair.Src) {
+        $Dst = Join-Path $GithubDir $Pair.Sub
+        New-Item -ItemType Directory -Force -Path $Dst | Out-Null
+        Copy-Item -Path "$($Pair.Src)\*" -Destination $Dst -Recurse -Force
+        $Count = (Get-ChildItem -Recurse -File $Pair.Src).Count
+        Write-Host "  Copied .github\$($Pair.Sub)\ ($Count files)"
+    }
+}
+
 Write-Host ""
-Write-Host "  These are now in your project for version control."
+Write-Host "  All Copilot assets are now in .github/ for version control."
 '@ | Out-File -FilePath $InitScript -Encoding utf8
 
         Write-Host ""
@@ -295,7 +367,8 @@ if ($CopilotInstalled) {
     }
     Write-Host ""
     Write-Host "  Copilot agents:"
-    foreach ($File in Get-ChildItem -Path $CopilotDestinations[0] -Filter "*.agent.md") {
+    $AgentSummaryDir = if ($Choice -eq "1") { Join-Path (Get-Location) ".github\agents" } else { $CopilotDestinations[0] }
+    foreach ($File in Get-ChildItem -Path $AgentSummaryDir -Filter "*.agent.md" -ErrorAction SilentlyContinue) {
         $Name = $File.BaseName -replace '\.agent$', ''
         Write-Host "    [x] $Name"
     }

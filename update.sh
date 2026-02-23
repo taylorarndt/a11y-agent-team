@@ -118,16 +118,117 @@ if [ -f "$HOOK_SRC" ] && [ -f "$HOOK_DST" ]; then
   fi
 fi
 
-# Update Copilot agents if previously installed
-COPILOT_DIRS=()
-if [ "$TARGET" = "project" ]; then
-  [ -d "$(pwd)/.github/agents" ] && COPILOT_DIRS+=("$(pwd)/.github/agents")
-else
-  # Check central store from global install
-  CENTRAL="$HOME/.a11y-agent-team/copilot-agents"
-  [ -d "$CENTRAL" ] && COPILOT_DIRS+=("$CENTRAL")
+# Helper: recursively sync a source directory into a destination directory.
+# Updates changed files, adds new files, removes files no longer in source.
+# Auto-discovered — no hardcoded file list to maintain.
+sync_github_dir() {
+  local src_dir="$1"
+  local dst_dir="$2"
+  local label="$3"
+  [ -d "$src_dir" ] || return 0
+  [ -d "$dst_dir" ] || return 0  # only sync if previously installed
+  # Update / add
+  find "$src_dir" -type f | while read -r src_file; do
+    rel="${src_file#$src_dir/}"
+    dst_file="$dst_dir/$rel"
+    mkdir -p "$(dirname "$dst_file")"
+    if ! cmp -s "$src_file" "$dst_file" 2>/dev/null; then
+      cp "$src_file" "$dst_file"
+      log "Updated $label/$rel"
+      UPDATED=$((UPDATED + 1))
+    fi
+  done
+  # Remove obsolete
+  find "$dst_dir" -type f | while read -r dst_file; do
+    rel="${dst_file#$dst_dir/}"
+    src_check="$src_dir/$rel"
+    if [ ! -f "$src_check" ]; then
+      rm "$dst_file"
+      log "Removed $label/$rel"
+      UPDATED=$((UPDATED + 1))
+    fi
+  done
+}
 
-  # Also update VS Code profile prompts folders if agents were installed there
+GITHUB_SRC="$CACHE_DIR/.github"
+
+# Update Copilot assets for project install
+if [ "$TARGET" = "project" ]; then
+  PROJECT_GITHUB="$(pwd)/.github"
+  if [ -d "$PROJECT_GITHUB" ]; then
+    # Agents (all files: *.agent.md + AGENTS.md and support files)
+    sync_github_dir "$GITHUB_SRC/agents" "$PROJECT_GITHUB/agents" "agents"
+    # Config files
+    for config in copilot-instructions.md copilot-review-instructions.md copilot-commit-message-instructions.md; do
+      SRC="$GITHUB_SRC/$config"
+      DST="$PROJECT_GITHUB/$config"
+      if [ -f "$SRC" ] && [ -f "$DST" ]; then
+        if ! cmp -s "$SRC" "$DST" 2>/dev/null; then
+          cp "$SRC" "$DST"
+          log "Updated Copilot config: $config"
+          UPDATED=$((UPDATED + 1))
+        fi
+      fi
+    done
+    # Asset subdirs: skills, instructions, prompts, hooks — auto-discovered
+    for subdir in skills instructions prompts hooks; do
+      sync_github_dir "$GITHUB_SRC/$subdir" "$PROJECT_GITHUB/$subdir" "$subdir"
+    done
+  fi
+fi
+
+# Update Copilot assets for global install
+if [ "$TARGET" = "global" ]; then
+  CENTRAL_ROOT="$HOME/.a11y-agent-team"
+  CENTRAL="$CENTRAL_ROOT/copilot-agents"
+  CENTRAL_PROMPTS="$CENTRAL_ROOT/copilot-prompts"
+  CENTRAL_INSTRUCTIONS="$CENTRAL_ROOT/copilot-instructions-files"
+  CENTRAL_SKILLS="$CENTRAL_ROOT/copilot-skills"
+
+  # Sync central agent store
+  if [ -d "$CENTRAL" ]; then
+    for SRC in "$GITHUB_SRC"/agents/*.agent.md; do
+      [ -f "$SRC" ] || continue
+      NAME="$(basename "$SRC")"
+      DST="$CENTRAL/$NAME"
+      if ! cmp -s "$SRC" "$DST" 2>/dev/null; then
+        cp "$SRC" "$DST"
+        log "Updated central agent: ${NAME%.agent.md}"
+        UPDATED=$((UPDATED + 1))
+      fi
+    done
+    # Remove central agents no longer in repo
+    for DST_FILE in "$CENTRAL"/*.agent.md; do
+      [ -f "$DST_FILE" ] || continue
+      NAME="$(basename "$DST_FILE")"
+      if [ ! -f "$GITHUB_SRC/agents/$NAME" ]; then
+        rm "$DST_FILE"
+        log "Removed central agent: ${NAME%.agent.md}"
+        UPDATED=$((UPDATED + 1))
+      fi
+    done
+  fi
+
+  # Sync central prompts, instructions, skills stores
+  sync_github_dir "$GITHUB_SRC/prompts"      "$CENTRAL_PROMPTS"      "central-prompts"
+  sync_github_dir "$GITHUB_SRC/instructions" "$CENTRAL_INSTRUCTIONS" "central-instructions"
+  sync_github_dir "$GITHUB_SRC/skills"       "$CENTRAL_SKILLS"       "central-skills"
+
+  # Config files in central store
+  for config in copilot-instructions.md copilot-review-instructions.md copilot-commit-message-instructions.md; do
+    SRC="$GITHUB_SRC/$config"
+    DST="$CENTRAL_ROOT/$config"
+    if [ -f "$SRC" ] && [ -f "$DST" ]; then
+      if ! cmp -s "$SRC" "$DST" 2>/dev/null; then
+        cp "$SRC" "$DST"
+        log "Updated Copilot config: $config"
+        UPDATED=$((UPDATED + 1))
+      fi
+    fi
+  done
+
+  # Push updated agents, prompts, and instructions to VS Code User profile folders.
+  # VS Code 1.110+ discovers from User/prompts/; older from User/ root.
   VSCODE_PROFILES=()
   case "$(uname -s)" in
     Darwin)
@@ -140,47 +241,26 @@ else
       [ -n "$APPDATA" ] && VSCODE_PROFILES=("$APPDATA/Code/User" "$APPDATA/Code - Insiders/User")
       ;;
   esac
-  for VSCODE_PROFILE in "${VSCODE_PROFILES[@]}"; do
-    PROMPTS_DIR="$VSCODE_PROFILE/prompts"
-    # Add both prompts/ (1.110+) and root User/ (1.109) if agents were installed
-    if [ -d "$PROMPTS_DIR" ] && [ -n "$(ls "$PROMPTS_DIR"/*.agent.md 2>/dev/null)" ]; then
-      COPILOT_DIRS+=("$PROMPTS_DIR")
-      COPILOT_DIRS+=("$VSCODE_PROFILE")
-    fi
+  for PROFILE in "${VSCODE_PROFILES[@]}"; do
+    PROMPTS_DIR="$PROFILE/prompts"
+    # Only update if agents were previously installed there
+    HAS_AGENTS=false
+    [ -n "$(ls "$PROFILE"/*.agent.md 2>/dev/null)" ]    && HAS_AGENTS=true
+    [ -d "$PROMPTS_DIR" ] && [ -n "$(ls "$PROMPTS_DIR"/*.agent.md 2>/dev/null)" ] && HAS_AGENTS=true
+    $HAS_AGENTS || continue
+    mkdir -p "$PROMPTS_DIR"
+    # Update agents in both locations
+    [ -d "$CENTRAL" ] && for f in "$CENTRAL"/*.agent.md; do
+      [ -f "$f" ] || continue
+      cp "$f" "$PROFILE/$(basename "$f")"
+      cp "$f" "$PROMPTS_DIR/$(basename "$f")"
+    done
+    # Update prompts and instructions
+    find "$CENTRAL_PROMPTS"      -name "*.prompt.md"      2>/dev/null -exec cp {} "$PROMPTS_DIR/" \; -exec cp {} "$PROFILE/" \;
+    find "$CENTRAL_INSTRUCTIONS" -name "*.instructions.md" 2>/dev/null -exec cp {} "$PROMPTS_DIR/" \; -exec cp {} "$PROFILE/" \;
+    log "Updated VS Code profile: $PROFILE"
   done
 fi
-
-for COPILOT_DIR in "${COPILOT_DIRS[@]}"; do
-  for SRC in "$CACHE_DIR"/.github/agents/*.agent.md; do
-    [ -f "$SRC" ] || continue
-    agent="$(basename "$SRC")"
-    DST="$COPILOT_DIR/$agent"
-    if ! cmp -s "$SRC" "$DST" 2>/dev/null; then
-      cp "$SRC" "$DST"
-      name="${agent%.agent.md}"
-      log "Updated Copilot agent: $name"
-      UPDATED=$((UPDATED + 1))
-    fi
-  done
-
-  # Update Copilot config files
-  if [ "$COPILOT_DIR" = "$HOME/.a11y-agent-team/copilot-agents" ]; then
-    CONFIG_DIR="$HOME/.a11y-agent-team"
-  else
-    CONFIG_DIR="$(dirname "$COPILOT_DIR")"
-  fi
-  for config in copilot-instructions.md copilot-review-instructions.md copilot-commit-message-instructions.md; do
-    SRC="$CACHE_DIR/.github/$config"
-    DST="$CONFIG_DIR/$config"
-    if [ -f "$SRC" ] && [ -f "$DST" ]; then
-      if ! cmp -s "$SRC" "$DST" 2>/dev/null; then
-        cp "$SRC" "$DST"
-        log "Updated Copilot config: $config"
-        UPDATED=$((UPDATED + 1))
-      fi
-    fi
-  done
-done
 
 # Save version
 echo "$NEW_HASH" > "$VERSION_FILE"
