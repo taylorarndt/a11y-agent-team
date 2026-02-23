@@ -6,14 +6,6 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/a11y-team-eval.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/swift-team-eval.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash .github/hooks/scripts/sensitive-input-guard.sh"
           }
         ]
       }
