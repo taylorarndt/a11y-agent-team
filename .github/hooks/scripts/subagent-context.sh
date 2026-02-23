@@ -2,6 +2,7 @@
 # subagent-context.sh
 # SubagentStart hook — passes established context to any spawned subagent.
 
+set -euo pipefail
 input_json=$(cat)
 agent_type=$(echo "$input_json" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('agent_type','unknown'))" 2>/dev/null || echo "unknown")
 

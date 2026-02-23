@@ -2,6 +2,8 @@
 # session-context.sh
 # SessionStart hook — injects live workspace/org context into every new agent session.
 
+set -euo pipefail
+
 branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
 remote_url=$(git remote get-url origin 2>/dev/null || echo "unknown")
 git_user=$(git config user.name 2>/dev/null || echo "unknown")

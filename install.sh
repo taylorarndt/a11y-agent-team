@@ -240,25 +240,34 @@ if [ "$install_copilot" = true ]; then
         # Add chat.agentFilesLocations to VS Code settings for older versions
         if command -v python3 &>/dev/null; then
           if [ -f "$settings_file" ]; then
+            # Pass paths via env vars to avoid Python source injection
+            SETTINGS_FILE="$settings_file" PROFILE_DIR="$profile_dir" PROMPTS_DIR="$prompts_dir" \
             python3 -c "
-import json, sys
+import json, os
+sf  = os.environ['SETTINGS_FILE']
+pd  = os.environ['PROFILE_DIR']
+prd = os.environ['PROMPTS_DIR']
 try:
-    with open('$settings_file', 'r') as f:
+    with open(sf, 'r') as f:
         s = json.load(f)
     loc = s.get('chat.agentFilesLocations', {})
-    loc['$profile_dir'] = True
-    loc['$prompts_dir'] = True
+    loc[pd]  = True
+    loc[prd] = True
     s['chat.agentFilesLocations'] = loc
-    with open('$settings_file', 'w') as f:
+    with open(sf, 'w') as f:
         json.dump(s, f, indent=4)
 except:
     pass
 " 2>/dev/null && echo "    Updated VS Code settings for agent discovery"
           else
+            SETTINGS_FILE="$settings_file" PROFILE_DIR="$profile_dir" PROMPTS_DIR="$prompts_dir" \
             python3 -c "
-import json
-s = {'chat.agentFilesLocations': {'$profile_dir': True, '$prompts_dir': True}}
-with open('$settings_file', 'w') as f:
+import json, os
+sf  = os.environ['SETTINGS_FILE']
+pd  = os.environ['PROFILE_DIR']
+prd = os.environ['PROMPTS_DIR']
+s = {'chat.agentFilesLocations': {pd: True, prd: True}}
+with open(sf, 'w') as f:
     json.dump(s, f, indent=4)
 " 2>/dev/null && echo "    Created VS Code settings for agent discovery"
           fi
@@ -388,12 +397,15 @@ if [ -f "$SETTINGS_FILE" ]; then
   else
     # Try to auto-merge with python3 (available on macOS and most Linux)
     if command -v python3 &>/dev/null; then
-      MERGED=$(python3 -c "
-import json, sys
+      # Pass paths via env vars to avoid Python source injection
+      MERGED=$(SETTINGS_FILE="$SETTINGS_FILE" HOOK_CMD="$HOOK_CMD" python3 -c "
+import json, sys, os
 try:
-    with open('$SETTINGS_FILE', 'r') as f:
+    sf       = os.environ['SETTINGS_FILE']
+    hook_cmd = os.environ['HOOK_CMD']
+    with open(sf, 'r') as f:
         settings = json.load(f)
-    hook_entry = {'type': 'command', 'command': '$HOOK_CMD'}
+    hook_entry = {'type': 'command', 'command': hook_cmd}
     new_group = {'hooks': [hook_entry]}
     if 'hooks' not in settings:
         settings['hooks'] = {}

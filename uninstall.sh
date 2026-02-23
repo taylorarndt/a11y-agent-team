@@ -100,10 +100,12 @@ fi
 echo ""
 if [ -f "$SETTINGS_FILE" ] && grep -q "a11y-team-eval" "$SETTINGS_FILE" 2>/dev/null; then
   if command -v python3 &>/dev/null; then
-    CLEANED=$(python3 -c "
-import json, sys
+    # Pass path via env var to avoid Python source injection
+    CLEANED=$(SETTINGS_FILE="$SETTINGS_FILE" python3 -c "
+import json, sys, os
 try:
-    with open('$SETTINGS_FILE', 'r') as f:
+    sf = os.environ['SETTINGS_FILE']
+    with open(sf, 'r') as f:
         settings = json.load(f)
     if 'hooks' in settings and 'UserPromptSubmit' in settings['hooks']:
         groups = settings['hooks']['UserPromptSubmit']

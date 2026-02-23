@@ -24,6 +24,7 @@ print(json.dumps({
 echo "$prompt" | grep -qE 'ghp_[A-Za-z0-9]{36,}'           && block "GitHub Personal Access Token (ghp_...)"
 echo "$prompt" | grep -qE 'gho_[A-Za-z0-9]{36,}'           && block "GitHub OAuth token (gho_...)"
 echo "$prompt" | grep -qE 'github_pat_[A-Za-z0-9_]{80,}'   && block "GitHub fine-grained PAT"
+echo "$prompt" | grep -qE 'ghsr_[A-Za-z0-9]{36,}'          && block "GitHub secret scanning token"
 # OpenAI
 echo "$prompt" | grep -qE 'sk-[A-Za-z0-9]{40,}'            && block "OpenAI API key"
 # AWS
@@ -32,6 +33,8 @@ echo "$prompt" | grep -qE 'AKIA[A-Z0-9]{16}'               && block "AWS Access 
 echo "$prompt" | grep -q 'BEGIN.*PRIVATE KEY'               && block "private key / certificate"
 # Slack
 echo "$prompt" | grep -qE 'xox[baprs]-[0-9A-Za-z-]+'       && block "Slack token"
+# Google API
+echo "$prompt" | grep -qE 'AIza[0-9A-Za-z_-]{35}'          && block "Google API key"
 
 echo '{"continue":true,"hookSpecificOutput":{"hookEventName":"UserPromptSubmit"}}'
 exit 0

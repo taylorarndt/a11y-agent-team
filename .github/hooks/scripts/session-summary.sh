@@ -30,15 +30,17 @@ owner_repo=$(echo "$remote" | sed -E 's|.*github\.com[:/](.+?)(\.git)?$|\1|' 2>/
 actions_logged=0
 [ -f "$today_log" ] && actions_logged=$(grep -c "$session" "$today_log" 2>/dev/null || echo 0)
 
-python3 -c "
-import json
+TS="$timestamp" SESSION="$session" REPO="$owner_repo" BRANCH="$branch" \
+  ACTIONS="$actions_logged" TODAY_LOG="$today_log" \
+  python3 -c "
+import json, os
 entry = {
-  'session_end': '${timestamp}',
-  'session_id': '${session}',
-  'repository': '${owner_repo}',
-  'branch': '${branch}',
-  'actions_logged': ${actions_logged},
-  'audit_log': '${today_log}'
+  'session_end':    os.environ['TS'],
+  'session_id':     os.environ['SESSION'],
+  'repository':     os.environ['REPO'],
+  'branch':         os.environ['BRANCH'],
+  'actions_logged': int(os.environ['ACTIONS']),
+  'audit_log':      os.environ['TODAY_LOG'],
 }
 print(json.dumps(entry))
 " >> "$log_file" 2>/dev/null || true

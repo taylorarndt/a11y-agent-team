@@ -39,28 +39,31 @@ tool_input_safe=$(echo "$tool_input" | sed \
   -e 's/"secret":"[^"]*"/"secret":"[REDACTED]"/g')
 
 # Build log entry as a single JSON line
-log_entry=$(python3 -c "
-import json, sys
+# Pass values via environment variables to avoid Python source injection.
+log_entry=$(TS="$timestamp" SESSION="$session" TOOL="$tool" \
+  TOOL_INPUT="$tool_input_safe" RESULT="$tool_response" \
+  python3 -c "
+import json, os
 entry = {
-  'ts': '${timestamp}',
-  'session': '${session}',
-  'tool': '${tool}',
-  'input': ${tool_input_safe},
-  'result_summary': '''${tool_response}'''
+  'ts':             os.environ['TS'],
+  'session':        os.environ['SESSION'],
+  'tool':           os.environ['TOOL'],
+  'input':          json.loads(os.environ['TOOL_INPUT']),
+  'result_summary': os.environ['RESULT'],
 }
 print(json.dumps(entry))
 " 2>/dev/null || printf '{"ts":"%s","session":"%s","tool":"%s","note":"log_parse_error"}\n' "$timestamp" "$session" "$tool")
 
 echo "$log_entry" >> "$log_file"
 
-python3 -c "
-import json
+TOOL="$tool" TS="$timestamp" python3 -c "
+import json, os
 print(json.dumps({
   'continue': True,
   'hookSpecificOutput': {
     'hookEventName': 'PostToolUse',
-    'additionalContext': 'Audit logged: ${tool} at ${timestamp}'
-  }
+    'additionalContext': 'Audit logged: ' + os.environ['TOOL'] + ' at ' + os.environ['TS'],
+  },
 }))
 " 2>/dev/null || echo '{"continue":true,"hookSpecificOutput":{"hookEventName":"PostToolUse"}}'
 

@@ -4,12 +4,27 @@ import { z } from "zod";
 import { execFile } from "node:child_process";
 import { readFile as fsReadFile, writeFile as fsWriteFile, unlink, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join, dirname, extname, basename } from "node:path";
+import { join, dirname, extname, basename, resolve } from "node:path";
 import { randomUUID } from "node:crypto";
 import { promisify } from "node:util";
 import { inflateRawSync } from "node:zlib";
 
 const execFileAsync = promisify(execFile);
+
+/**
+ * Resolve and sanitize a caller-supplied file path.
+ * Normalises the path and rejects strings containing null bytes,
+ * which could be used to truncate the path seen by the OS.
+ */
+function safeResolvePath(inputPath) {
+  if (typeof inputPath !== "string") {
+    throw new Error("File path must be a string");
+  }
+  if (inputPath.includes("\0")) {
+    throw new Error("File path contains invalid null byte character");
+  }
+  return resolve(inputPath);
+}
 
 const server = new McpServer({
   name: "a11y-agent-team",
@@ -996,8 +1011,9 @@ server.registerTool(
     let reportNote = "";
     if (reportPath) {
       try {
-        await fsWriteFile(reportPath, report, "utf-8");
-        reportNote = `\nReport written to: ${reportPath}`;
+        const resolvedReportPath = safeResolvePath(reportPath);
+        await fsWriteFile(resolvedReportPath, report, "utf-8");
+        reportNote = `\nReport written to: ${resolvedReportPath}`;
       } catch (writeErr) {
         reportNote = `\nFailed to write report to ${reportPath}: ${writeErr.message}`;
       }
@@ -1221,8 +1237,9 @@ server.registerTool(
       let reportNote = "";
       if (reportPath) {
         try {
-          await fsWriteFile(reportPath, report, "utf-8");
-          reportNote = `\nReport written to: ${reportPath}`;
+          const resolvedReportPath = safeResolvePath(reportPath);
+          await fsWriteFile(resolvedReportPath, report, "utf-8");
+          reportNote = `\nReport written to: ${resolvedReportPath}`;
         } catch (writeErr) {
           reportNote = `\nFailed to write report to ${reportPath}: ${writeErr.message}`;
         }
@@ -1899,7 +1916,13 @@ server.registerTool(
     }),
   },
   async ({ filePath, reportPath, sarifPath, configPath, disabledRules, severityFilter }) => {
-    const ext = extname(filePath).toLowerCase();
+    let resolvedFilePath;
+    try {
+      resolvedFilePath = safeResolvePath(filePath);
+    } catch {
+      return { content: [{ type: "text", text: "Invalid file path." }] };
+    }
+    const ext = extname(resolvedFilePath).toLowerCase();
     const validExts = [".docx", ".xlsx", ".pptx"];
     if (!validExts.includes(ext)) {
       return { content: [{ type: "text", text: `Unsupported file type: ${ext}. Supported: .docx, .xlsx, .pptx` }] };
@@ -1908,7 +1931,7 @@ server.registerTool(
 
     let buf;
     try {
-      buf = await fsReadFile(filePath);
+      buf = await fsReadFile(resolvedFilePath);
     } catch (err) {
       return { content: [{ type: "text", text: `Cannot read file: ${err.message}` }] };
     }
@@ -1924,13 +1947,13 @@ server.registerTool(
     let config;
     if (configPath) {
       try {
-        const raw = await fsReadFile(configPath, "utf-8");
+        const raw = await fsReadFile(safeResolvePath(configPath), "utf-8");
         config = JSON.parse(raw);
       } catch {
         config = {};
       }
     } else {
-      config = await loadOfficeConfig(filePath);
+      config = await loadOfficeConfig(resolvedFilePath);
     }
 
     const typeConfig = { ...(config[fileType] || { enabled: true, disabledRules: [], severityFilter: ["error", "warning", "tip"] }) };
@@ -1950,18 +1973,20 @@ server.registerTool(
     let reportNote = "";
     if (reportPath) {
       try {
-        const md = buildOfficeMarkdownReport(filePath, findings, fileType);
-        await fsWriteFile(reportPath, md, "utf-8");
-        reportNote += `\nReport written to: ${reportPath}`;
+        const resolvedReportPath = safeResolvePath(reportPath);
+        const md = buildOfficeMarkdownReport(resolvedFilePath, findings, fileType);
+        await fsWriteFile(resolvedReportPath, md, "utf-8");
+        reportNote += `\nReport written to: ${resolvedReportPath}`;
       } catch (err) {
         reportNote += `\nFailed to write report: ${err.message}`;
       }
     }
     if (sarifPath) {
       try {
-        const sarif = buildOfficeSarif(filePath, findings, fileType);
-        await fsWriteFile(sarifPath, JSON.stringify(sarif, null, 2), "utf-8");
-        reportNote += `\nSARIF written to: ${sarifPath}`;
+        const resolvedSarifPath = safeResolvePath(sarifPath);
+        const sarif = buildOfficeSarif(resolvedFilePath, findings, fileType);
+        await fsWriteFile(resolvedSarifPath, JSON.stringify(sarif, null, 2), "utf-8");
+        reportNote += `\nSARIF written to: ${resolvedSarifPath}`;
       } catch (err) {
         reportNote += `\nFailed to write SARIF: ${err.message}`;
       }
@@ -1973,12 +1998,12 @@ server.registerTool(
 
     if (findings.length === 0) {
       return {
-        content: [{ type: "text", text: `Office document scan complete: ${basename(filePath)}\n\nNo accessibility issues found.\n\nAutomated scanning catches common issues. Manual review with Microsoft Accessibility Checker is recommended.${reportNote}` }],
+        content: [{ type: "text", text: `Office document scan complete: ${basename(resolvedFilePath)}\n\nNo accessibility issues found.\n\nAutomated scanning catches common issues. Manual review with Microsoft Accessibility Checker is recommended.${reportNote}` }],
       };
     }
 
     const lines = [
-      `Office document scan complete: ${basename(filePath)} (${fileType.toUpperCase()})`,
+      `Office document scan complete: ${basename(resolvedFilePath)} (${fileType.toUpperCase()})`,
       `Total: ${errors.length} errors | ${warnings.length} warnings | ${tips.length} tips`,
       ``,
     ];
@@ -2403,13 +2428,19 @@ server.registerTool(
     }),
   },
   async ({ filePath, reportPath, sarifPath, configPath, disabledRules, severityFilter }) => {
-    if (!filePath.toLowerCase().endsWith(".pdf")) {
+    let resolvedFilePath;
+    try {
+      resolvedFilePath = safeResolvePath(filePath);
+    } catch {
+      return { content: [{ type: "text", text: "Invalid file path." }] };
+    }
+    if (!resolvedFilePath.toLowerCase().endsWith(".pdf")) {
       return { content: [{ type: "text", text: "File must be a .pdf file." }] };
     }
 
     let buf;
     try {
-      buf = await fsReadFile(filePath);
+      buf = await fsReadFile(resolvedFilePath);
     } catch (err) {
       return { content: [{ type: "text", text: `Cannot read file: ${err.message}` }] };
     }
@@ -2424,11 +2455,11 @@ server.registerTool(
     let config;
     if (configPath) {
       try {
-        const raw = await fsReadFile(configPath, "utf-8");
+        const raw = await fsReadFile(safeResolvePath(configPath), "utf-8");
         config = JSON.parse(raw);
       } catch { config = {}; }
     } else {
-      config = await loadPdfConfig(filePath);
+      config = await loadPdfConfig(resolvedFilePath);
     }
 
     if (config.enabled === false) {
@@ -2443,18 +2474,20 @@ server.registerTool(
     let reportNote = "";
     if (reportPath) {
       try {
-        const md = buildPdfMarkdownReport(filePath, findings, info);
-        await fsWriteFile(reportPath, md, "utf-8");
-        reportNote += `\nReport written to: ${reportPath}`;
+        const resolvedReportPath = safeResolvePath(reportPath);
+        const md = buildPdfMarkdownReport(resolvedFilePath, findings, info);
+        await fsWriteFile(resolvedReportPath, md, "utf-8");
+        reportNote += `\nReport written to: ${resolvedReportPath}`;
       } catch (err) {
         reportNote += `\nFailed to write report: ${err.message}`;
       }
     }
     if (sarifPath) {
       try {
-        const sarif = buildPdfSarif(filePath, findings);
-        await fsWriteFile(sarifPath, JSON.stringify(sarif, null, 2), "utf-8");
-        reportNote += `\nSARIF written to: ${sarifPath}`;
+        const resolvedSarifPath = safeResolvePath(sarifPath);
+        const sarif = buildPdfSarif(resolvedFilePath, findings);
+        await fsWriteFile(resolvedSarifPath, JSON.stringify(sarif, null, 2), "utf-8");
+        reportNote += `\nSARIF written to: ${resolvedSarifPath}`;
       } catch (err) {
         reportNote += `\nFailed to write SARIF: ${err.message}`;
       }
@@ -2467,12 +2500,12 @@ server.registerTool(
 
     if (findings.length === 0) {
       return {
-        content: [{ type: "text", text: `PDF scan complete: ${basename(filePath)}\n\nNo automated accessibility issues found.\nPages: ${info.pageCount} | Tagged: ${info.isTagged ? "Yes" : "No"} | Language: ${info.lang || "Not set"}\n\nFor comprehensive PDF/UA validation, run veraPDF: verapdf --flavour ua1 "${basename(filePath)}"${reportNote}` }],
+        content: [{ type: "text", text: `PDF scan complete: ${basename(resolvedFilePath)}\n\nNo automated accessibility issues found.\nPages: ${info.pageCount} | Tagged: ${info.isTagged ? "Yes" : "No"} | Language: ${info.lang || "Not set"}\n\nFor comprehensive PDF/UA validation, run veraPDF: verapdf --flavour ua1 "${basename(resolvedFilePath)}"${reportNote}` }],
       };
     }
 
     const lines = [
-      `PDF scan complete: ${basename(filePath)}`,
+      `PDF scan complete: ${basename(resolvedFilePath)}`,
       `Pages: ${info.pageCount} | Tagged: ${info.isTagged ? "Yes" : "No"} | Language: ${info.lang || "Not set"}`,
       `Total: ${errors.length} errors | ${warnings.length} warnings | ${tips.length} tips | ${humanReview.length} need human review`,
       ``,
@@ -2519,7 +2552,13 @@ server.registerTool(
     }),
   },
   async ({ filePath }) => {
-    const ext = extname(filePath).toLowerCase();
+    let resolvedFilePath;
+    try {
+      resolvedFilePath = safeResolvePath(filePath);
+    } catch {
+      return { content: [{ type: "text", text: "Invalid file path." }] };
+    }
+    const ext = extname(resolvedFilePath).toLowerCase();
     const validExts = [".docx", ".xlsx", ".pptx", ".pdf"];
     if (!validExts.includes(ext)) {
       return { content: [{ type: "text", text: `Unsupported file type: ${ext}. Supported: .docx, .xlsx, .pptx, .pdf` }] };
@@ -2527,18 +2566,18 @@ server.registerTool(
 
     let buf;
     try {
-      buf = await fsReadFile(filePath);
+      buf = await fsReadFile(resolvedFilePath);
     } catch (err) {
       return { content: [{ type: "text", text: `Cannot read file: ${err.message}` }] };
     }
 
-    const fileStat = await stat(filePath).catch(() => null);
+    const fileStat = await stat(resolvedFilePath).catch(() => null);
     const fileSize = fileStat ? fileStat.size : buf.length;
 
     if (ext === ".pdf") {
       const info = parsePdfBasics(buf);
       const meta = {
-        file: basename(filePath),
+        file: basename(resolvedFilePath),
         type: "pdf",
         fileSize,
         title: info.title || null,
@@ -2619,7 +2658,7 @@ server.registerTool(
     }
 
     const lines = [
-      `Document Metadata: ${basename(filePath)}`,
+      `Document Metadata: ${basename(resolvedFilePath)}`,
       `Type: ${ext.slice(1).toUpperCase()}`,
       `File Size: ${(fileSize / 1024).toFixed(1)} KB`,
       itemCount,
@@ -2671,18 +2710,25 @@ server.registerTool(
     const errors = [];
 
     for (const fp of filePaths) {
-      const ext = extname(fp).toLowerCase();
+      let resolvedFp;
+      try {
+        resolvedFp = safeResolvePath(fp);
+      } catch {
+        errors.push(`${fp}: invalid path`);
+        continue;
+      }
+      const ext = extname(resolvedFp).toLowerCase();
       const validExts = [".docx", ".xlsx", ".pptx", ".pdf"];
       if (!validExts.includes(ext)) {
-        errors.push(`${basename(fp)}: unsupported type ${ext}`);
+        errors.push(`${basename(resolvedFp)}: unsupported type ${ext}`);
         continue;
       }
 
       let buf;
       try {
-        buf = await fsReadFile(fp);
+        buf = await fsReadFile(resolvedFp);
       } catch (err) {
-        errors.push(`${basename(fp)}: ${err.message}`);
+        errors.push(`${basename(resolvedFp)}: ${err.message}`);
         continue;
       }
 
@@ -2692,10 +2738,10 @@ server.registerTool(
       if (ext === ".pdf") {
         const header = buf.toString("latin1", 0, 8);
         if (!header.startsWith("%PDF-")) {
-          errors.push(`${basename(fp)}: not a valid PDF`);
+          errors.push(`${basename(resolvedFp)}: not a valid PDF`);
           continue;
         }
-        const config = await loadPdfConfig(fp);
+        const config = await loadPdfConfig(resolvedFp);
         if (severityFilter) config.severityFilter = severityFilter;
         const result = scanPdf(buf, config);
         findings = result.findings;
@@ -2704,15 +2750,15 @@ server.registerTool(
         try {
           entries = readZipEntries(buf);
         } catch {
-          errors.push(`${basename(fp)}: not a valid Office file`);
+          errors.push(`${basename(resolvedFp)}: not a valid Office file`);
           continue;
         }
-        const config = await loadOfficeConfig(fp);
+        const config = await loadOfficeConfig(resolvedFp);
         const fileType = ext.slice(1);
         const typeConfig = { ...(config[fileType] || { enabled: true, disabledRules: [], severityFilter: defaultSev }) };
         if (severityFilter) typeConfig.severityFilter = severityFilter;
         if (!typeConfig.enabled) {
-          errors.push(`${basename(fp)}: scanning disabled in config`);
+          errors.push(`${basename(resolvedFp)}: scanning disabled in config`);
           continue;
         }
         if (fileType === "docx") findings = scanDocx(buf, entries, typeConfig);
@@ -2738,8 +2784,8 @@ server.registerTool(
       const grade = score >= 90 ? "A" : score >= 75 ? "B" : score >= 50 ? "C" : score >= 25 ? "D" : "F";
 
       results.push({
-        file: basename(fp),
-        path: fp,
+        file: basename(resolvedFp),
+        path: resolvedFp,
         type: ext.slice(1),
         errors: errs,
         warnings: warns,
@@ -2851,8 +2897,9 @@ server.registerTool(
         reportLines.push(``);
       }
       try {
-        await fsWriteFile(reportPath, reportLines.join("\n"), "utf-8");
-        reportNote = `\nReport written to: ${reportPath}`;
+        const resolvedReportPath = safeResolvePath(reportPath);
+        await fsWriteFile(resolvedReportPath, reportLines.join("\n"), "utf-8");
+        reportNote = `\nReport written to: ${resolvedReportPath}`;
       } catch (err) {
         reportNote = `\nFailed to write report: ${err.message}`;
       }
