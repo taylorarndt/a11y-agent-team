@@ -22,5 +22,5 @@ Safety hooks are still active — destructive operations require confirmation."
 
 context_escaped=$(printf '%s' "$context" | python3 -c "import sys,json; print(json.dumps(sys.stdin.read()))" 2>/dev/null || printf '"%s"' "$context")
 
-printf '{"hookSpecificOutput":{"hookEventName":"SubagentStart","additionalContext":%s}}\n' "$context_escaped"
+printf '{"continue":true,"hookSpecificOutput":{"hookEventName":"SubagentStart","additionalContext":%s}}\n' "$context_escaped"
 exit 0
