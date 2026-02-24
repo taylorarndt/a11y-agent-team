@@ -808,6 +808,7 @@ If the user selects **Export findings as CSV/JSON**, delegate to the **document-
 The document-csv-reporter generates:
 - `DOCUMENT-ACCESSIBILITY-FINDINGS.csv` - one row per finding with severity scoring, WCAG criteria, and Microsoft/Adobe help links
 - `DOCUMENT-ACCESSIBILITY-SCORECARD.csv` - one row per document with score and grade
+- `DOCUMENT-ACCESSIBILITY-REMEDIATION.csv` - prioritized remediation plan with ROI scoring and fix steps
 
 ### Comparison with Previous Audit
 

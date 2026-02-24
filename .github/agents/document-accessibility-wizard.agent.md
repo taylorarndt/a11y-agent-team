@@ -2,7 +2,7 @@
 name: document-accessibility-wizard
 description: Interactive document accessibility audit wizard. Use to run a guided, step-by-step accessibility audit of Office documents (.docx, .xlsx, .pptx), PDFs, and ePub documents. Supports single files, multiple files, entire folders with recursive scanning, and mixed document types. Orchestrates specialist sub-agents (word-accessibility, excel-accessibility, powerpoint-accessibility, pdf-accessibility, epub-accessibility) and produces a comprehensive markdown report. Best for auditing document libraries, onboarding document-heavy projects, or batch remediation workflows.
 tools: ['agent', 'read', 'search', 'askQuestions', 'edit', 'runInTerminal']
-agents: ['word-accessibility', 'excel-accessibility', 'powerpoint-accessibility', 'pdf-accessibility', 'epub-accessibility', 'document-inventory', 'cross-document-analyzer']
+agents: ['word-accessibility', 'excel-accessibility', 'powerpoint-accessibility', 'pdf-accessibility', 'epub-accessibility', 'document-inventory', 'cross-document-analyzer', 'document-csv-reporter']
 model: ['Claude Sonnet 4.5 (copilot)', 'GPT-5 (copilot)']
 handoffs:
   - label: "Fix Word Issues"
@@ -1013,6 +1013,7 @@ If the user selects **Export findings as CSV/JSON**, hand off to the **document-
 The document-csv-reporter generates:
 - `DOCUMENT-ACCESSIBILITY-FINDINGS.csv` - one row per finding with severity scoring, WCAG criteria, and Microsoft/Adobe help links
 - `DOCUMENT-ACCESSIBILITY-SCORECARD.csv` - one row per document with score and grade
+- `DOCUMENT-ACCESSIBILITY-REMEDIATION.csv` - prioritized remediation plan with ROI scoring and fix steps
 
 If the user selects **Compare with a previous audit**, use askQuestions:
 

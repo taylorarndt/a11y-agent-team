@@ -867,7 +867,7 @@ server.registerTool(
     const date = evaluationDate || new Date().toISOString().split("T")[0];
     const version = productVersion || "1.0";
 
-    // Standard WCAG 2.1 AA criteria
+    // Standard WCAG 2.2 AA criteria
     const WCAG_CRITERIA = {
       "1.1.1": "Non-text Content",
       "1.2.1": "Audio-only and Video-only (Prerecorded)",
@@ -913,6 +913,8 @@ server.registerTool(
       "3.1.2": "Language of Parts",
       "3.2.1": "On Focus",
       "3.2.2": "On Input",
+      "3.2.3": "Consistent Navigation",
+      "3.2.4": "Consistent Identification",
       "3.2.6": "Consistent Help",
       "3.3.1": "Error Identification",
       "3.3.2": "Labels or Instructions",
@@ -966,7 +968,7 @@ server.registerTool(
     for (const [num, name] of Object.entries(WCAG_CRITERIA)) {
       const f = findingMap[num];
       // Determine level of this criterion
-      const isAA = ["1.2.4", "1.2.5", "1.3.4", "1.3.5", "1.4.3", "1.4.4", "1.4.5", "1.4.10", "1.4.11", "1.4.12", "1.4.13", "2.4.5", "2.4.6", "2.4.7", "2.4.11", "2.5.7", "2.5.8", "3.1.2", "3.2.6", "3.3.3", "3.3.4", "3.3.7", "3.3.8"].includes(num);
+      const isAA = ["1.2.4", "1.2.5", "1.3.4", "1.3.5", "1.4.3", "1.4.4", "1.4.5", "1.4.10", "1.4.11", "1.4.12", "1.4.13", "2.4.5", "2.4.6", "2.4.7", "2.4.11", "2.5.7", "2.5.8", "3.1.2", "3.2.3", "3.2.4", "3.3.3", "3.3.4", "3.3.8", "4.1.3"].includes(num);
       if (isAA) continue; // Skip AA for this table
 
       if (f) {
@@ -982,7 +984,7 @@ server.registerTool(
     lines.push(`| Criteria | Conformance Level | Remarks and Explanations |`);
     lines.push(`|----------|------------------|--------------------------|`);
 
-    const aaCriteria = ["1.2.4", "1.2.5", "1.3.4", "1.3.5", "1.4.3", "1.4.4", "1.4.5", "1.4.10", "1.4.11", "1.4.12", "1.4.13", "2.4.5", "2.4.6", "2.4.7", "2.4.11", "2.5.7", "2.5.8", "3.1.2", "3.2.6", "3.3.3", "3.3.4", "3.3.7", "3.3.8"];
+    const aaCriteria = ["1.2.4", "1.2.5", "1.3.4", "1.3.5", "1.4.3", "1.4.4", "1.4.5", "1.4.10", "1.4.11", "1.4.12", "1.4.13", "2.4.5", "2.4.6", "2.4.7", "2.4.11", "2.5.7", "2.5.8", "3.1.2", "3.2.3", "3.2.4", "3.3.3", "3.3.4", "3.3.8", "4.1.3"];
     for (const num of aaCriteria) {
       const name = WCAG_CRITERIA[num];
       if (!name) continue;

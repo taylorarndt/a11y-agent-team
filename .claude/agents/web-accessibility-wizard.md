@@ -1241,6 +1241,7 @@ If the user selects **Export findings as CSV/JSON**, delegate to the **web-csv-r
 The web-csv-reporter generates:
 - `WEB-ACCESSIBILITY-FINDINGS.csv` - one row per finding with severity scoring, WCAG criteria, and Deque University help links
 - `WEB-ACCESSIBILITY-SCORECARD.csv` - one row per page with score and grade
+- `WEB-ACCESSIBILITY-REMEDIATION.csv` - prioritized remediation plan with ROI scoring and fix steps
 
 ### Comparison with Previous Audit
 

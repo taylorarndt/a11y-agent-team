@@ -229,7 +229,7 @@ Example: **WCAG 2.1.1**
 **What:** When an element receives keyboard focus, it must not be entirely hidden by other content (sticky headers, modals, cookie banners).
 **Why:** If the focused element is hidden behind a sticky header, the user can't see where they are.
 
-#### 2.4.12 Focus Appearance (Level AAA) - *Note: AAA, not AA*
+#### 2.4.13 Focus Appearance (Level AAA) - *Note: AAA, not AA*
 This is AAA, not required for AA conformance. But worth knowing: it requires focus indicators to be at least 2px thick and have 3:1 contrast.
 
 #### 2.5.1 Pointer Gestures (Level A) - *New in 2.1*
@@ -337,7 +337,7 @@ WCAG 2.2 added 9 new success criteria. The ones that affect AA conformance:
 | 2.4.11 Focus Not Obscured | AA | Focused element must not be hidden behind sticky headers/banners |
 | 2.5.7 Dragging Movements | AA | Dragging functions must have non-drag alternatives |
 | 2.5.8 Target Size (Minimum) | AA | Touch targets >= 24x24px (or sufficient spacing) |
-| 3.2.6 Consistent Help | AA | Help mechanisms in same location across pages |
+| 3.2.6 Consistent Help | A | Help mechanisms in same location across pages |
 | 3.3.7 Redundant Entry | A | Don't make users re-enter info already provided |
 | 3.3.8 Accessible Authentication | AA | Don't require cognitive tests for login |
 

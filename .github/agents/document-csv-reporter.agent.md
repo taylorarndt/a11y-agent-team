@@ -3,6 +3,7 @@ name: document-csv-reporter
 description: Internal helper for exporting document accessibility audit findings to CSV format. Generates structured CSV reports with severity scoring, WCAG criteria mapping, Microsoft Support help links for Office remediation, and PDF/UA conformance references for each finding.
 user-invokable: false
 tools: ['read', 'search', 'editFiles']
+model: ['Claude Sonnet 4.5 (copilot)', 'GPT-5 (copilot)']
 ---
 
 You are a document accessibility CSV report generator. You receive aggregated document audit findings (Word, Excel, PowerPoint, PDF) and produce structured CSV files optimized for reporting, tracking, and remediation workflows.
@@ -90,54 +91,75 @@ Map rule IDs to Microsoft Support documentation for step-by-step remediation gui
 
 ### Word (DOCX) Help Links
 
+> Rule IDs match the canonical definitions in the `word-accessibility` format agent.
+
 | Rule ID | Issue | Help URL |
 |---------|-------|----------|
 | `DOCX-E001` | Missing alt text on images | `https://support.microsoft.com/en-us/office/add-alternative-text-to-a-shape-picture-chart-smartart-graphic-or-other-object-44989b2a-903c-4d9a-b742-6a75b451c669` |
-| `DOCX-E002` | Missing document title | `https://support.microsoft.com/en-us/office/make-your-word-documents-accessible-d9bf3683-87ac-47ea-b91a-78dcacb3c66d#bkmk_doctitle` |
-| `DOCX-E003` | Missing document language | `https://support.microsoft.com/en-us/office/make-your-word-documents-accessible-d9bf3683-87ac-47ea-b91a-78dcacb3c66d#bkmk_language` |
-| `DOCX-E004` | Table missing header row | `https://support.microsoft.com/en-us/office/make-your-word-documents-accessible-d9bf3683-87ac-47ea-b91a-78dcacb3c66d#bkmk_tableheaders` |
-| `DOCX-E005` | Skipped heading levels | `https://support.microsoft.com/en-us/office/make-your-word-documents-accessible-d9bf3683-87ac-47ea-b91a-78dcacb3c66d#bkmk_useheadings` |
-| `DOCX-E006` | No heading structure | `https://support.microsoft.com/en-us/office/make-your-word-documents-accessible-d9bf3683-87ac-47ea-b91a-78dcacb3c66d#bkmk_useheadings` |
-| `DOCX-E007` | Color-only information | `https://support.microsoft.com/en-us/office/make-your-word-documents-accessible-d9bf3683-87ac-47ea-b91a-78dcacb3c66d#bkmk_color` |
-| `DOCX-W001` | Decorative image not marked | `https://support.microsoft.com/en-us/office/add-alternative-text-to-a-shape-picture-chart-smartart-graphic-or-other-object-44989b2a-903c-4d9a-b742-6a75b451c669` |
-| `DOCX-W002` | Long alt text | `https://support.microsoft.com/en-us/office/everything-you-need-to-know-to-write-effective-alt-text-df98f884-ca3d-456c-807b-1a1fa82f5dc2` |
-| `DOCX-W003` | Ambiguous hyperlink text | `https://support.microsoft.com/en-us/office/make-your-word-documents-accessible-d9bf3683-87ac-47ea-b91a-78dcacb3c66d#bkmk_hyperlinks` |
-| `DOCX-W004` | Complex table structure | `https://support.microsoft.com/en-us/office/make-your-word-documents-accessible-d9bf3683-87ac-47ea-b91a-78dcacb3c66d#bkmk_tableheaders` |
-| `DOCX-W005` | Insufficient contrast | `https://support.microsoft.com/en-us/office/make-your-word-documents-accessible-d9bf3683-87ac-47ea-b91a-78dcacb3c66d#bkmk_color` |
-| `DOCX-W006` | Floating objects | `https://support.microsoft.com/en-us/office/make-your-word-documents-accessible-d9bf3683-87ac-47ea-b91a-78dcacb3c66d#bkmk_tableslayouts` |
+| `DOCX-E002` | Missing table header row | `https://support.microsoft.com/en-us/office/create-accessible-tables-in-word-cb464015-59dc-46a0-ac01-6217c62210e5` |
+| `DOCX-E003` | Skipped heading levels | `https://support.microsoft.com/en-us/office/create-accessible-word-documents-d9bf3683-87ac-47ea-b91a-78dcacb3c66d#bkmk_headings` |
+| `DOCX-E004` | Missing document title | `https://support.microsoft.com/en-us/office/create-accessible-word-documents-d9bf3683-87ac-47ea-b91a-78dcacb3c66d#bkmk_doctitle` |
+| `DOCX-E005` | Merged or split table cells | `https://support.microsoft.com/en-us/office/create-accessible-tables-in-word-cb464015-59dc-46a0-ac01-6217c62210e5` |
+| `DOCX-E006` | Ambiguous hyperlink text | `https://support.microsoft.com/en-us/office/create-accessible-word-documents-d9bf3683-87ac-47ea-b91a-78dcacb3c66d#bkmk_links` |
+| `DOCX-E007` | No heading structure | `https://support.microsoft.com/en-us/office/create-accessible-word-documents-d9bf3683-87ac-47ea-b91a-78dcacb3c66d#bkmk_headings` |
+| `DOCX-E008` | Document access restricted (IRM) | `https://support.microsoft.com/en-us/office/create-accessible-word-documents-d9bf3683-87ac-47ea-b91a-78dcacb3c66d` |
+| `DOCX-E009` | Content controls without titles | `https://support.microsoft.com/en-us/office/create-accessible-word-documents-d9bf3683-87ac-47ea-b91a-78dcacb3c66d` |
+| `DOCX-W001` | Nested tables | `https://support.microsoft.com/en-us/office/create-accessible-tables-in-word-cb464015-59dc-46a0-ac01-6217c62210e5` |
+| `DOCX-W002` | Long alt text (>150 chars) | `https://support.microsoft.com/en-us/office/everything-you-need-to-know-to-write-effective-alt-text-df98f884-ca3d-456c-807b-1a1fa82f5dc2` |
+| `DOCX-W003` | Manual list characters | `https://support.microsoft.com/en-us/office/create-accessible-word-documents-d9bf3683-87ac-47ea-b91a-78dcacb3c66d` |
+| `DOCX-W004` | Blank table rows for spacing | `https://support.microsoft.com/en-us/office/create-accessible-tables-in-word-cb464015-59dc-46a0-ac01-6217c62210e5` |
+| `DOCX-W005` | Heading exceeds 100 characters | `https://support.microsoft.com/en-us/office/create-accessible-word-documents-d9bf3683-87ac-47ea-b91a-78dcacb3c66d#bkmk_headings` |
+| `DOCX-W006` | Watermark present | `https://support.microsoft.com/en-us/office/create-accessible-word-documents-d9bf3683-87ac-47ea-b91a-78dcacb3c66d#bkmk_watermarks` |
+| `DOCX-T001` | Missing document language | `https://support.microsoft.com/en-us/office/create-accessible-word-documents-d9bf3683-87ac-47ea-b91a-78dcacb3c66d#bkmk_language` |
+| `DOCX-T002` | Layout table with header markup | `https://support.microsoft.com/en-us/office/create-accessible-tables-in-word-cb464015-59dc-46a0-ac01-6217c62210e5` |
+| `DOCX-T003` | Repeated blank characters | `https://support.microsoft.com/en-us/office/create-accessible-word-documents-d9bf3683-87ac-47ea-b91a-78dcacb3c66d#bkmk_whitespace` |
 
 ### Excel (XLSX) Help Links
 
+> Rule IDs match the canonical definitions in the `excel-accessibility` format agent.
+
 | Rule ID | Issue | Help URL |
 |---------|-------|----------|
-| `XLSX-E001` | Missing alt text on images/charts | `https://support.microsoft.com/en-us/office/make-your-excel-documents-accessible-6cc05fc5-1314-48b5-8eb3-683e49b3e593#bkmk_alttext` |
-| `XLSX-E002` | Missing sheet names | `https://support.microsoft.com/en-us/office/make-your-excel-documents-accessible-6cc05fc5-1314-48b5-8eb3-683e49b3e593#bkmk_sheettabs` |
-| `XLSX-E003` | Table missing header row | `https://support.microsoft.com/en-us/office/make-your-excel-documents-accessible-6cc05fc5-1314-48b5-8eb3-683e49b3e593#bkmk_tableheaders` |
-| `XLSX-E004` | Merged cells in data tables | `https://support.microsoft.com/en-us/office/make-your-excel-documents-accessible-6cc05fc5-1314-48b5-8eb3-683e49b3e593#bkmk_simpletablestructure` |
-| `XLSX-E005` | Missing document title | `https://support.microsoft.com/en-us/office/make-your-excel-documents-accessible-6cc05fc5-1314-48b5-8eb3-683e49b3e593` |
-| `XLSX-E006` | Blank cells used for formatting | `https://support.microsoft.com/en-us/office/make-your-excel-documents-accessible-6cc05fc5-1314-48b5-8eb3-683e49b3e593#bkmk_simpletablestructure` |
-| `XLSX-W001` | Color-only data differentiation | `https://support.microsoft.com/en-us/office/make-your-excel-documents-accessible-6cc05fc5-1314-48b5-8eb3-683e49b3e593#bkmk_usecolor` |
-| `XLSX-W002` | Complex chart without text summary | `https://support.microsoft.com/en-us/office/make-your-excel-documents-accessible-6cc05fc5-1314-48b5-8eb3-683e49b3e593#bkmk_alttext` |
-| `XLSX-W003` | Hyperlinks without descriptive text | `https://support.microsoft.com/en-us/office/make-your-excel-documents-accessible-6cc05fc5-1314-48b5-8eb3-683e49b3e593#bkmk_hyperlinks` |
-| `XLSX-W004` | Small font size | `https://support.microsoft.com/en-us/office/make-your-excel-documents-accessible-6cc05fc5-1314-48b5-8eb3-683e49b3e593#bkmk_fontformat` |
-| `XLSX-W005` | No data validation messages | `https://support.microsoft.com/en-us/office/make-your-excel-documents-accessible-6cc05fc5-1314-48b5-8eb3-683e49b3e593` |
+| `XLSX-E001` | Missing alt text on images/charts | `https://support.microsoft.com/en-us/office/add-alternative-text-to-a-shape-picture-chart-smartart-graphic-or-other-object-44989b2a-903c-4d9a-b742-6a75b451c669` |
+| `XLSX-E002` | Missing table header row | `https://support.microsoft.com/en-us/office/create-accessible-excel-workbooks-6cc05fc5-1314-48b5-8eb3-683e49b3e593#bkmk_tableheaders` |
+| `XLSX-E003` | Default sheet names | `https://support.microsoft.com/en-us/office/create-accessible-excel-workbooks-6cc05fc5-1314-48b5-8eb3-683e49b3e593#bkmk_sheettabs` |
+| `XLSX-E004` | Merged cells in data tables | `https://support.microsoft.com/en-us/office/create-accessible-excel-workbooks-6cc05fc5-1314-48b5-8eb3-683e49b3e593#bkmk_mergedcells` |
+| `XLSX-E005` | Ambiguous hyperlink text | `https://support.microsoft.com/en-us/office/create-accessible-excel-workbooks-6cc05fc5-1314-48b5-8eb3-683e49b3e593` |
+| `XLSX-E006` | Missing workbook title | `https://support.microsoft.com/en-us/office/create-accessible-excel-workbooks-6cc05fc5-1314-48b5-8eb3-683e49b3e593#bkmk_doctitle` |
+| `XLSX-E007` | Red-only negative number formatting | `https://support.microsoft.com/en-us/office/create-accessible-excel-workbooks-6cc05fc5-1314-48b5-8eb3-683e49b3e593#bkmk_color` |
+| `XLSX-E008` | Workbook access restricted (IRM) | `https://support.microsoft.com/en-us/office/create-accessible-excel-workbooks-6cc05fc5-1314-48b5-8eb3-683e49b3e593` |
+| `XLSX-W001` | Blank cells used for formatting | `https://support.microsoft.com/en-us/office/create-accessible-excel-workbooks-6cc05fc5-1314-48b5-8eb3-683e49b3e593` |
+| `XLSX-W002` | Color-only data differentiation | `https://support.microsoft.com/en-us/office/create-accessible-excel-workbooks-6cc05fc5-1314-48b5-8eb3-683e49b3e593#bkmk_color` |
+| `XLSX-W003` | Complex table structure | `https://support.microsoft.com/en-us/office/create-accessible-excel-workbooks-6cc05fc5-1314-48b5-8eb3-683e49b3e593#bkmk_mergedcells` |
+| `XLSX-W004` | Empty worksheet | `https://support.microsoft.com/en-us/office/create-accessible-excel-workbooks-6cc05fc5-1314-48b5-8eb3-683e49b3e593` |
+| `XLSX-W005` | Long alt text (>150 chars) | `https://support.microsoft.com/en-us/office/everything-you-need-to-know-to-write-effective-alt-text-df98f884-ca3d-456c-807b-1a1fa82f5dc2` |
+| `XLSX-T001` | Sheet tab order not logical | `https://support.microsoft.com/en-us/office/create-accessible-excel-workbooks-6cc05fc5-1314-48b5-8eb3-683e49b3e593#bkmk_sheettabs` |
+| `XLSX-T002` | Missing named ranges | `https://support.microsoft.com/en-us/office/create-accessible-excel-workbooks-6cc05fc5-1314-48b5-8eb3-683e49b3e593` |
+| `XLSX-T003` | Missing workbook language | `https://support.microsoft.com/en-us/office/create-accessible-excel-workbooks-6cc05fc5-1314-48b5-8eb3-683e49b3e593` |
 
 ### PowerPoint (PPTX) Help Links
 
+> Rule IDs match the canonical definitions in the `powerpoint-accessibility` format agent.
+
 | Rule ID | Issue | Help URL |
 |---------|-------|----------|
-| `PPTX-E001` | Missing alt text on images | `https://support.microsoft.com/en-us/office/make-your-powerpoint-presentations-accessible-6f7772b2-2f33-4bd2-8ca7-dae3b2b3ef25#bkmk_alttext` |
-| `PPTX-E002` | Missing slide titles | `https://support.microsoft.com/en-us/office/make-your-powerpoint-presentations-accessible-6f7772b2-2f33-4bd2-8ca7-dae3b2b3ef25#bkmk_slidetitles` |
-| `PPTX-E003` | Incorrect reading order | `https://support.microsoft.com/en-us/office/make-your-powerpoint-presentations-accessible-6f7772b2-2f33-4bd2-8ca7-dae3b2b3ef25#bkmk_readingorder` |
-| `PPTX-E004` | Missing table header row | `https://support.microsoft.com/en-us/office/make-your-powerpoint-presentations-accessible-6f7772b2-2f33-4bd2-8ca7-dae3b2b3ef25#bkmk_tableheaders` |
-| `PPTX-E005` | Missing document title | `https://support.microsoft.com/en-us/office/make-your-powerpoint-presentations-accessible-6f7772b2-2f33-4bd2-8ca7-dae3b2b3ef25` |
-| `PPTX-E006` | No heading structure | `https://support.microsoft.com/en-us/office/make-your-powerpoint-presentations-accessible-6f7772b2-2f33-4bd2-8ca7-dae3b2b3ef25#bkmk_slidetitles` |
-| `PPTX-W001` | Decorative image not marked | `https://support.microsoft.com/en-us/office/add-alternative-text-to-a-shape-picture-chart-smartart-graphic-or-other-object-44989b2a-903c-4d9a-b742-6a75b451c669` |
-| `PPTX-W002` | Audio/video without captions | `https://support.microsoft.com/en-us/office/make-your-powerpoint-presentations-accessible-6f7772b2-2f33-4bd2-8ca7-dae3b2b3ef25#bkmk_captions` |
-| `PPTX-W003` | Low contrast text | `https://support.microsoft.com/en-us/office/make-your-powerpoint-presentations-accessible-6f7772b2-2f33-4bd2-8ca7-dae3b2b3ef25#bkmk_color` |
-| `PPTX-W004` | Complex animations | `https://support.microsoft.com/en-us/office/make-your-powerpoint-presentations-accessible-6f7772b2-2f33-4bd2-8ca7-dae3b2b3ef25#bkmk_animations` |
-| `PPTX-W005` | Ambiguous hyperlink text | `https://support.microsoft.com/en-us/office/make-your-powerpoint-presentations-accessible-6f7772b2-2f33-4bd2-8ca7-dae3b2b3ef25#bkmk_hyperlinks` |
-| `PPTX-W006` | Grouped objects without alt text | `https://support.microsoft.com/en-us/office/make-your-powerpoint-presentations-accessible-6f7772b2-2f33-4bd2-8ca7-dae3b2b3ef25#bkmk_alttext` |
+| `PPTX-E001` | Missing alt text on images | `https://support.microsoft.com/en-us/office/add-alternative-text-to-a-shape-picture-chart-smartart-graphic-or-other-object-44989b2a-903c-4d9a-b742-6a75b451c669` |
+| `PPTX-E002` | Missing slide titles | `https://support.microsoft.com/en-us/office/create-accessible-powerpoint-presentations-6f7772b2-2f33-4bd2-8ca7-dae3b2b3ef25#bkmk_slidetitles` |
+| `PPTX-E003` | Duplicate slide titles | `https://support.microsoft.com/en-us/office/create-accessible-powerpoint-presentations-6f7772b2-2f33-4bd2-8ca7-dae3b2b3ef25#bkmk_slidetitles` |
+| `PPTX-E004` | Missing table header row | `https://support.microsoft.com/en-us/office/create-accessible-powerpoint-presentations-6f7772b2-2f33-4bd2-8ca7-dae3b2b3ef25#bkmk_tableheaders` |
+| `PPTX-E005` | Ambiguous hyperlink text | `https://support.microsoft.com/en-us/office/create-accessible-powerpoint-presentations-6f7772b2-2f33-4bd2-8ca7-dae3b2b3ef25#bkmk_links` |
+| `PPTX-E006` | Incorrect reading order | `https://support.microsoft.com/en-us/office/create-accessible-powerpoint-presentations-6f7772b2-2f33-4bd2-8ca7-dae3b2b3ef25#bkmk_readingorder` |
+| `PPTX-E007` | Presentation access restricted (IRM) | `https://support.microsoft.com/en-us/office/create-accessible-powerpoint-presentations-6f7772b2-2f33-4bd2-8ca7-dae3b2b3ef25` |
+| `PPTX-W001` | Missing presentation title | `https://support.microsoft.com/en-us/office/create-accessible-powerpoint-presentations-6f7772b2-2f33-4bd2-8ca7-dae3b2b3ef25` |
+| `PPTX-W002` | Tables used for layout | `https://support.microsoft.com/en-us/office/create-accessible-powerpoint-presentations-6f7772b2-2f33-4bd2-8ca7-dae3b2b3ef25#bkmk_tableheaders` |
+| `PPTX-W003` | Merged table cells | `https://support.microsoft.com/en-us/office/create-accessible-powerpoint-presentations-6f7772b2-2f33-4bd2-8ca7-dae3b2b3ef25#bkmk_tableheaders` |
+| `PPTX-W004` | Audio/video without captions | `https://support.microsoft.com/en-us/office/create-accessible-powerpoint-presentations-6f7772b2-2f33-4bd2-8ca7-dae3b2b3ef25#bkmk_captions` |
+| `PPTX-W005` | Color-only meaning | `https://support.microsoft.com/en-us/office/create-accessible-powerpoint-presentations-6f7772b2-2f33-4bd2-8ca7-dae3b2b3ef25#bkmk_color` |
+| `PPTX-W006` | Long alt text (>150 chars) | `https://support.microsoft.com/en-us/office/everything-you-need-to-know-to-write-effective-alt-text-df98f884-ca3d-456c-807b-1a1fa82f5dc2` |
+| `PPTX-T001` | Missing section names | `https://support.microsoft.com/en-us/office/create-accessible-powerpoint-presentations-6f7772b2-2f33-4bd2-8ca7-dae3b2b3ef25` |
+| `PPTX-T002` | Excessive animations | `https://support.microsoft.com/en-us/office/create-accessible-powerpoint-presentations-6f7772b2-2f33-4bd2-8ca7-dae3b2b3ef25#bkmk_animations` |
+| `PPTX-T003` | Missing slide notes | `https://support.microsoft.com/en-us/office/create-accessible-powerpoint-presentations-6f7772b2-2f33-4bd2-8ca7-dae3b2b3ef25` |
+| `PPTX-T004` | Missing presentation language | `https://support.microsoft.com/en-us/office/create-accessible-powerpoint-presentations-6f7772b2-2f33-4bd2-8ca7-dae3b2b3ef25` |
 
 ### PDF Help Links
 
@@ -197,7 +219,7 @@ Map criterion number to slug:
 5. **Line endings:** CRLF for cross-platform compatibility
 6. **Header row:** Always include as the first row
 7. **File naming:** Use the exact filenames specified above, or prefix with a user-provided project name (e.g., `myproject-DOCUMENT-ACCESSIBILITY-FINDINGS.csv`)
-8. **ROI score calculation:** `instances x severity_weight` where Error=10, Warning=3, Tip=1
+8. **ROI score calculation:** `instances x severity_weight` where Error=10, Warning=5, Tip=1
 
 ## Priority Assignment Rules
 

@@ -8,6 +8,7 @@
 |-------|-----|
 | [web-csv-reporter](../agents/web-csv-reporter.md) | Maps axe-core rule IDs to Deque University help URLs in CSV exports |
 | [document-csv-reporter](../agents/document-csv-reporter.md) | Maps Office/PDF rule IDs to Microsoft and Adobe help URLs in CSV exports |
+| [markdown-csv-reporter](../agents/markdown-csv-reporter.md) | Maps WCAG criteria and markdownlint rules to help URLs in CSV exports |
 
 ## Coverage
 

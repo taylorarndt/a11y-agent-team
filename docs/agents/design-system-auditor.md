@@ -7,7 +7,7 @@ The `design-system-auditor` agent validates design tokens, CSS custom properties
 - Validating a Tailwind config before deploying a new color palette
 - Auditing a `tokens.json` or Style Dictionary file for contract compliance
 - Checking MUI, Chakra UI, Radix, or shadcn/ui theme tokens for WCAG AA
-- Verifying focus ring tokens meet WCAG 2.4.11 (new in 2.2)
+- Verifying focus ring tokens meet WCAG 2.4.13 Focus Appearance (new in 2.2)
 - Confirming spacing tokens provide adequate touch target sizes
 - Checking motion tokens for `prefers-reduced-motion` compliance
 
@@ -66,7 +66,7 @@ Every color token pair is evaluated using the WCAG relative luminance algorithm:
 - Tailwind `gray-500` (`#6B7280`) - 4.48:1 on white (near-miss, fails AA)
 - Chakra `gray.400` / shadcn `--muted-foreground` - common placeholder failures
 
-### Focus Ring Tokens (WCAG 2.4.11 - New in 2.2)
+### Focus Ring Tokens (WCAG 2.4.13 - New in 2.2)
 
 Focus indicators must:
 
@@ -123,7 +123,7 @@ This agent uses the `design-system` skill in `.github/skills/design-system/SKILL
 - Complete framework token path tables (Tailwind, shadcn/ui, MUI, Chakra, Style Dictionary)
 - High-risk token library: 15 known-failing tokens with their exact contrast ratios and compliant replacements
 - Storybook `addon-a11y` configuration reference and CI integration commands
-- WCAG 2.4.11 focus ring requirements with CSS compliant implementation examples
+- WCAG 2.4.13 focus ring requirements with CSS compliant implementation examples
 - Token file discovery commands (bash and PowerShell)
 - Severity classification table for all violation types
 

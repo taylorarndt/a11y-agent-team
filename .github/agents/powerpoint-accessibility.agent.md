@@ -49,6 +49,7 @@ PowerPoint files are ZIP archives containing XML. Key files:
 | PPTX-E004 | missing-table-header | Tables without header row designation. In Open XML, check for `<a:tbl>` with `firstRow="1"` in `<a:tblPr>`. |
 | PPTX-E005 | ambiguous-link-text | Hyperlinks with non-descriptive text ("click here", "here", raw URLs). Check `<a:hlinkClick>` and associated text runs. |
 | PPTX-E006 | reading-order | Content reading order not explicitly set or in an illogical sequence. The order of `<p:sp>` elements in `<p:spTree>` determines reading order. |
+| PPTX-E007 | presentation-access-restricted | Presentation has Information Rights Management (IRM) restrictions that prevent assistive technology from reading content. Screen readers cannot access IRM-protected presentations. |
 
 ### Warnings - Moderate accessibility issues
 

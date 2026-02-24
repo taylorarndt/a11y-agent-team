@@ -64,7 +64,7 @@ Reusable knowledge modules in `.github/skills/` that agents reference automatica
 | framework-accessibility | Framework-specific accessibility patterns and fix templates (React, Vue, Angular, Svelte, Tailwind) |
 | cognitive-accessibility | WCAG 2.2 cognitive SC reference tables, plain language analysis, COGA guidance, auth pattern detection |
 | mobile-accessibility | React Native prop reference, iOS/Android API quick reference, touch target rules, violation patterns |
-| design-system | Color token contrast computation, framework token paths (Tailwind/MUI/Chakra/shadcn), focus ring validation, WCAG 2.4.11 |
+| design-system | Color token contrast computation, framework token paths (Tailwind/MUI/Chakra/shadcn), focus ring validation, WCAG 2.4.13 Focus Appearance |
 | markdown-accessibility | Markdown rule library: ambiguous links, anchor validation, emoji modes (remove/translate), Mermaid and ASCII diagram replacement templates, heading structure, table descriptions, severity scoring |
 | github-workflow-standards | Core standards for all GitHub workflow agents: auth, discovery, dual MD+HTML output, HTML accessibility, safety rules, progress announcements, parallel execution |
 | github-scanning | GitHub search patterns by intent, date range handling, parallel stream collection, cross-repo intelligence, auto-recovery |

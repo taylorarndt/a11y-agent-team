@@ -3,6 +3,7 @@ name: web-csv-reporter
 description: Internal helper for exporting web accessibility audit findings to CSV format. Generates structured CSV reports with severity scoring, WCAG criteria mapping, Deque University help topic links, and actionable remediation guidance for each finding.
 user-invokable: false
 tools: ['read', 'search', 'editFiles']
+model: ['Claude Sonnet 4.5 (copilot)', 'GPT-5 (copilot)']
 ---
 
 You are a web accessibility CSV report generator. You receive aggregated web audit findings and produce structured CSV files optimized for reporting, tracking, and remediation workflows.

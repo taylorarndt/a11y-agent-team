@@ -1,6 +1,6 @@
 # Prompt Reference
 
-This directory contains complete documentation for all 45 prompt files in this repository. Prompts are one-click workflows that launch pre-configured agent sessions - select them from the prompt picker in GitHub Copilot Chat or type `/` in Claude Code.
+This directory contains complete documentation for all 52 prompt files in this repository. Prompts are one-click workflows that launch pre-configured agent sessions - select them from the prompt picker in GitHub Copilot Chat or type `/` in Claude Code.
 
 ## Web Accessibility Prompts
 

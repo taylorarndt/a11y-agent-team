@@ -66,7 +66,7 @@ The following knowledge domains are available across agent files. On Copilot the
 | Framework Accessibility | Framework-specific accessibility patterns and fix templates (React, Vue, Angular, Svelte, Tailwind) |
 | Cognitive Accessibility | WCAG 2.2 cognitive SC reference tables, plain language analysis, COGA guidance, auth pattern detection |
 | Mobile Accessibility | React Native prop reference, iOS/Android API quick reference, touch target rules, violation patterns |
-| Design System | Color token contrast computation, framework token paths (Tailwind/MUI/Chakra/shadcn), focus ring validation, WCAG 2.4.11 |
+| Design System | Color token contrast computation, framework token paths (Tailwind/MUI/Chakra/shadcn), focus ring validation, WCAG 2.4.13 Focus Appearance |
 | Markdown Accessibility | Ambiguous link/anchor patterns, emoji handling modes (remove/translate), Mermaid and ASCII diagram replacement templates, heading structure, severity scoring |
 | Help URL Reference | Deque University help topic URLs, Microsoft Office help URLs, Adobe PDF help URLs, WCAG understanding document URLs, application-specific fix steps |
 

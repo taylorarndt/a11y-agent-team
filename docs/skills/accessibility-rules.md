@@ -35,27 +35,74 @@
 
 ## WCAG 2.2 Criterion Mapping
 
+Complete tracking of all WCAG 2.2 Level A and AA success criteria. Criteria with document-specific rules list the rule IDs. Criteria requiring human judgment show "Manual review". Criteria that apply only to web/app contexts show a dash. See the **wcag-guide** agent for full explanations of each criterion.
+
+> **Note:** WCAG 2.2 removed 4.1.1 Parsing (it is "always satisfied" in modern user agents and no longer tested).
+
 ### Level A
 
 | WCAG | Criterion | Related Rules |
 |------|-----------|---------------|
 | 1.1.1 | Non-text Content | DOCX-E001, XLSX-E004, PPTX-E003, PDFUA.IMG.ALT, EPUB-E005 |
+| 1.2.1 | Audio-only and Video-only (Prerecorded) | Manual review (embedded media) |
+| 1.2.2 | Captions (Prerecorded) | Manual review (embedded video) |
+| 1.2.3 | Audio Description or Media Alternative (Prerecorded) | Manual review (embedded video) |
 | 1.3.1 | Info and Relationships | DOCX-E002, DOCX-E004, XLSX-E001, XLSX-E003, PPTX-E001, PDFUA.TAGGED, PDFUA.HEADINGS |
 | 1.3.2 | Meaningful Sequence | PPTX-E004, PDFUA.READING\_ORDER, EPUB-E006 |
+| 1.3.3 | Sensory Characteristics | Manual review (all formats) |
+| 1.4.1 | Use of Color | Manual review (all formats) |
+| 1.4.2 | Audio Control | Manual review (embedded audio) |
+| 2.1.1 | Keyboard | PDFUA.FORMS (interactive PDFs) |
+| 2.1.2 | No Keyboard Trap | PDFUA.FORMS (interactive PDFs) |
+| 2.1.4 | Character Key Shortcuts | --- (web/app-specific) |
+| 2.2.1 | Timing Adjustable | --- (web/app-specific) |
+| 2.2.2 | Pause, Stop, Hide | Manual review (animated content in documents) |
+| 2.3.1 | Three Flashes or Below Threshold | Manual review (animated content) |
 | 2.4.1 | Bypass Blocks | PDFUA.BOOKMARKS, PDFBP.NAV, EPUB-E004 |
 | 2.4.2 | Page Titled | DOCX-E005, PPTX-E001, PDFUA.TITLE, EPUB-E001 |
-| 2.4.6 | Headings and Labels | DOCX-E002, DOCX-E003, XLSX-E001, PDFUA.HEADINGS |
+| 2.4.3 | Focus Order | PDFUA.FORMS (interactive PDFs) |
+| 2.4.4 | Link Purpose (In Context) | Manual review (all formats with hyperlinks) |
+| 2.5.1 | Pointer Gestures | --- (web/app-specific) |
+| 2.5.2 | Pointer Cancellation | --- (web/app-specific) |
+| 2.5.3 | Label in Name | PDFUA.FORMS (interactive PDFs) |
+| 2.5.4 | Motion Actuation | --- (web/app-specific) |
 | 3.1.1 | Language of Page | DOCX-E006, PDFUA.LANG, EPUB-E003 |
+| 3.2.1 | On Focus | --- (web/app-specific) |
+| 3.2.2 | On Input | --- (web/app-specific) |
+| 3.2.6 | Consistent Help | --- (web/app-specific) |
+| 3.3.1 | Error Identification | PDFUA.FORMS (interactive PDFs) |
+| 3.3.2 | Labels or Instructions | PDFUA.FORMS (interactive PDFs) |
+| 3.3.7 | Redundant Entry | --- (web/app-specific) |
 | 4.1.2 | Name, Role, Value | PDFUA.FORMS, PDFUA.TAGS |
 
 ### Level AA
 
 | WCAG | Criterion | Related Rules |
 |------|-----------|---------------|
+| 1.2.4 | Captions (Live) | --- (web/app-specific) |
+| 1.2.5 | Audio Description (Prerecorded) | Manual review (embedded video) |
+| 1.3.4 | Orientation | --- (web/mobile-specific) |
+| 1.3.5 | Identify Input Purpose | PDFUA.FORMS (interactive PDFs) |
 | 1.4.3 | Contrast (Minimum) | DOCX-W004, PPTX-W003 |
+| 1.4.4 | Resize Text | Manual review (PDF reflow) |
 | 1.4.5 | Images of Text | PDFBP.IMG\_TEXT |
-| 2.4.7 | Focus Visible | PDFUA.FORMS |
+| 1.4.10 | Reflow | Manual review (PDF reflow) |
+| 1.4.11 | Non-text Contrast | Manual review (all formats) |
+| 1.4.12 | Text Spacing | Manual review (PDF text spacing) |
+| 1.4.13 | Content on Hover or Focus | --- (web/app-specific) |
+| 2.4.5 | Multiple Ways | Manual review (multi-page documents) |
+| 2.4.6 | Headings and Labels | DOCX-E002, DOCX-E003, XLSX-E001, PDFUA.HEADINGS |
+| 2.4.7 | Focus Visible | PDFUA.FORMS (interactive PDFs) |
+| 2.4.11 | Focus Not Obscured (Minimum) | --- (web/app-specific) |
+| 2.5.7 | Dragging Movements | --- (web/app-specific) |
+| 2.5.8 | Target Size (Minimum) | Manual review (interactive PDFs) |
 | 3.1.2 | Language of Parts | DOCX-W005, PDFUA.LANG\_PARTS |
+| 3.2.3 | Consistent Navigation | --- (web/app-specific) |
+| 3.2.4 | Consistent Identification | --- (web/app-specific) |
+| 3.3.3 | Error Suggestion | PDFUA.FORMS (interactive PDFs) |
+| 3.3.4 | Error Prevention (Legal, Financial, Data) | PDFUA.FORMS (interactive PDFs) |
+| 3.3.8 | Accessible Authentication (Minimum) | --- (web/app-specific) |
+| 4.1.3 | Status Messages | --- (web/app-specific) |
 
 ## Severity Definitions
 

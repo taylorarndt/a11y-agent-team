@@ -416,7 +416,7 @@ Audits the source of truth for visual accessibility: design tokens, CSS custom p
 - **Design token files** - `tokens.json`, `design-tokens.json`, Style Dictionary output files; validates all color token pairs
 - **Storybook `a11y` addon config** - verifies `@storybook/addon-a11y` is installed, configured with correct axe rules, and not suppressing critical violations
 - **Component library theme files** - Material UI `createTheme`, Chakra UI `extendTheme`, Radix UI CSS variable overrides; validates theme color choices
-- **Focus ring tokens** - verifies `--focus-ring-color` meets 3:1 WCAG 2.4.11 requirement
+- **Focus ring tokens** - verifies `--focus-ring-color` meets 3:1 WCAG 2.4.13 requirement
 
 **Output:**
 

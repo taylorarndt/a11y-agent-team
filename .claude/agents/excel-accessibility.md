@@ -46,6 +46,8 @@ Excel files are ZIP archives containing XML. Key files:
 | XLSX-E004 | merged-cells | Merged cells in data ranges. Check for `<mergeCells>` and `<mergeCell ref="...">` in worksheet XML. |
 | XLSX-E005 | ambiguous-link-text | Hyperlinks with non-descriptive display text. Check `<hyperlink display="...">` in worksheet XML and hyperlink relationships. |
 | XLSX-E006 | missing-workbook-title | Workbook title not set in properties. Check `<dc:title>` in `docProps/core.xml`. |
+| XLSX-E007 | red-negative-numbers | Cells use red font color as the only indicator for negative numbers. Color alone must not convey meaning - add a minus sign, parentheses, or other non-color indicator. |
+| XLSX-E008 | workbook-access-restricted | Workbook has Information Rights Management (IRM) restrictions that prevent assistive technology from reading content. Screen readers cannot access IRM-protected workbooks. |
 
 ### Warnings - Moderate accessibility issues
 

@@ -10,6 +10,11 @@
 - [VS Code / GitHub Copilot](#vs-code--github-copilot)
 - [Model Context Protocol (MCP)](#model-context-protocol-mcp)
 - [Accessibility Standards](#accessibility-standards)
+  - [WCAG and W3C](#wcag-and-w3c)
+  - [Compliance Frameworks](#compliance-frameworks)
+  - [Microsoft Office Accessibility](#microsoft-office-accessibility)
+  - [Adobe PDF Accessibility](#adobe-pdf-accessibility)
+  - [Deque University and axe-core](#deque-university-and-axe-core-web-accessibility)
 - [Feature-to-Source Mapping](#feature-to-source-mapping)
 
 ---
@@ -79,14 +84,56 @@ Base URL: `https://code.claude.com/docs/en/`
 
 ## Accessibility Standards
 
+### WCAG and W3C
+
 | Topic | URL | What We Learned |
 |-------|-----|-----------------|
-| **WCAG 2.2** | <https://www.w3.org/TR/WCAG22/> | Web Content Accessibility Guidelines version 2.2. Success criteria mapped to document accessibility rules (DOCX-*, XLSX-*, PPTX-*, PDFUA.*, PDFBP.*, PDFQ.*). |
+| **WCAG 2.2 Specification** | <https://www.w3.org/TR/WCAG22/> | Web Content Accessibility Guidelines version 2.2. Defines 31 Level A and 24 Level AA success criteria. 4.1.1 Parsing removed (always satisfied in modern user agents). New criteria: 2.4.11 Focus Not Obscured, 2.4.13 Focus Appearance (AAA), 2.5.7 Dragging, 2.5.8 Target Size, 3.2.6 Consistent Help, 3.3.7 Redundant Entry, 3.3.8 Accessible Authentication, 3.3.9 Accessible Authentication Enhanced (AAA). |
+| **WCAG 2.2 Understanding Docs** | <https://www.w3.org/WAI/WCAG22/Understanding/> | Informative companion to WCAG 2.2. Explains each success criterion with intent, benefits, examples, techniques, and test procedures. URL pattern: `{base}{slug}` where slug is the kebab-case criterion name (e.g., `non-text-content` for 1.1.1). Used by CSV reporters to generate `wcag_url` column values. |
+| **WCAG 2.2 Quick Reference** | <https://www.w3.org/WAI/WCAG22/quickref/> | Customizable quick reference to all WCAG success criteria and techniques. Allows filtering by level (A, AA, AAA), technology, and topic. Used for cross-checking criterion levels and applicability. |
+| **WCAG 2.2 Techniques** | <https://www.w3.org/WAI/WCAG22/Techniques/> | Sufficient, advisory, and failure techniques for meeting each WCAG criterion. Techniques are informative (not normative). Used to inform fix steps and remediation guidance in agent rules. |
+
+### Compliance Frameworks
+
+| Topic | URL | What We Learned |
+|-------|-----|-----------------|
 | **PDF/UA (ISO 14289-1)** | <https://pdfa.org/resource/iso-14289-pdfua/> | Universal Accessibility standard for PDF documents. Tagged PDF requirements. |
 | **Matterhorn Protocol 1.1** | <https://pdfa.org/resource/the-matterhorn-protocol/> | PDF/UA conformance testing rules. 136 failure conditions organized into 31 checkpoints. |
 | **VPAT 2.5 / ACR** | <https://www.itic.org/policy/accessibility/vpat> | Voluntary Product Accessibility Template. Accessibility Conformance Report format for compliance documentation. |
 | **Section 508** | <https://www.section508.gov/> | US federal accessibility requirements. Trusted tester methodology. |
 | **EN 301 549** | <https://www.etsi.org/deliver/etsi_en/301500_301599/301549/> | European accessibility standard for ICT products and services. |
+
+### Microsoft Office Accessibility
+
+These pages define the official Accessibility Checker rules and per-format remediation guidance. They are the authoritative source for our DOCX-\*, XLSX-\*, and PPTX-\* rule IDs, severity classifications (Error/Warning/Tip), and fix step text.
+
+| Topic | URL | What We Learned |
+|-------|-----|-----------------|
+| **Accessibility Checker Rules** | <https://support.microsoft.com/en-us/office/rules-for-the-accessibility-checker-651e08f2-0fc3-4e10-aaca-74b4a67101c1> | Complete list of every rule the built-in Accessibility Checker enforces across Word, Excel, PowerPoint, Outlook, OneNote, and Visio. Classifies each rule as Error, Warning, Tip, or Intelligent Services. Covers: alt text on all objects, table column headers, section/slide/sheet naming, document access restrictions, content control field titles, simple table structure, contrast, captions, reading order, heading styles, and unique slide titles. Also documents checker limitations (color-only info, in-band captions). This is the single most important reference for our document rule definitions. |
+| **Accessibility Guide for Microsoft 365 Apps** | <https://learn.microsoft.com/en-us/microsoft-365-apps/deploy/accessibility-guide> | Admin-oriented guidance for deploying accessible Microsoft 365 environments. Documents connected experiences for accessibility (live captions, dictation, read aloud, learning tools, automatic alt text, QuickStarter). Covers Group Policy to enable "Check for accessibility issues while editing" for Word, Excel, and PowerPoint. Lists accessibility resources organized by disability category. |
+| **Improve Accessibility with the Accessibility Checker** | <https://support.microsoft.com/en-us/office/improve-accessibility-with-the-accessibility-checker-a16f6de0-2f39-4a2b-8bd8-5ad801426c7f> | How-to for running the Accessibility Checker in each Office app. Describes results pane (Errors, Warnings, Tips, Intelligent Services categories). Used as the general fallback help URL for unmapped Office issues. |
+| **Word: Make Documents Accessible** | <https://support.microsoft.com/en-us/office/make-your-word-documents-accessible-d9bf3683-87ac-47ea-b91a-78dcacb3c66d> | Format-specific guidance for Word. Bookmark anchors for each topic: `#bkmk_doctitle`, `#bkmk_headings` (now `#bkmk_useheadings`), `#bkmk_tableheaders`, `#bkmk_hyperlinks`, `#bkmk_contrast` (now `#bkmk_color`), `#bkmk_language`, `#bkmk_layout` (now `#bkmk_tableslayouts`), `#bkmk_toc`, `#bkmk_whitespace`, `#bkmk_watermarks`. These anchors are used in `help-url-reference` SKILL to build per-rule help URLs. |
+| **Excel: Make Workbooks Accessible** | <https://support.microsoft.com/en-us/office/make-your-excel-documents-accessible-6cc05fc5-1314-48b5-8eb3-683e49b3e593> | Format-specific guidance for Excel. Bookmark anchors: `#bkmk_sheettabs`, `#bkmk_tableheaders`, `#bkmk_mergedcells` (now `#bkmk_simpletablestructure`), `#bkmk_color` (now `#bkmk_usecolor`), `#bkmk_alttext`, `#bkmk_fontformat`, `#bkmk_hyperlinks`, `#bkmk_validation`, `#bkmk_doctitle`. |
+| **PowerPoint: Make Presentations Accessible** | <https://support.microsoft.com/en-us/office/make-your-powerpoint-presentations-accessible-6f7772b2-2f33-4bd2-8ca7-dae3b2b3ef25> | Format-specific guidance for PowerPoint. Bookmark anchors: `#bkmk_slidetitles`, `#bkmk_readingorder`, `#bkmk_alttext`, `#bkmk_tableheaders`, `#bkmk_captions`, `#bkmk_contrast` (now `#bkmk_color`), `#bkmk_animations`, `#bkmk_transitions`, `#bkmk_hyperlinks` (now `#bkmk_links`). |
+| **Alt Text: Add to Objects** | <https://support.microsoft.com/en-us/office/add-alternative-text-to-a-shape-picture-chart-smartart-graphic-or-other-object-44989b2a-903c-4d9a-b742-6a75b451c669> | Cross-app alt text instructions (Word, Excel, PowerPoint, Outlook). Covers shapes, pictures, charts, SmartArt, and other objects. Used as the help URL for alt text Error rules (DOCX-E001, XLSX-E001, PPTX-E002) and decorative image Warning rules. |
+| **Alt Text: Write Effective Alt Text** | <https://support.microsoft.com/en-us/office/everything-you-need-to-know-to-write-effective-alt-text-df98f884-ca3d-456c-807b-1a1fa82f5dc2> | Guidance on writing meaningful alt text. Covers when to use alt text vs marking as decorative, length guidelines, and do/don't examples. Used as help URL for long alt text Warning rules. |
+| **Word: Accessible Tables** | <https://support.microsoft.com/en-us/office/create-accessible-tables-in-word-cb464015-59dc-46a0-ac01-6217c62210e5> | Detailed table accessibility in Word. Header row designation, simple structure requirements, avoiding nested/merged/split cells. Used as help URL for DOCX-E003 (table headers). |
+
+### Adobe PDF Accessibility
+
+| Topic | URL | What We Learned |
+|-------|-----|-----------------|
+| **Creating Accessible PDFs** | <https://helpx.adobe.com/acrobat/using/creating-accessible-pdfs.html> | Acrobat Pro guide to PDF accessibility. Anchor-based sections map to our PDFUA.\* and PDFBP.\* rule IDs: `#tag_pdf` (TaggedPDF), `#add_title` (Title), `#set_language` (Language), `#bookmarks` (BookmarksPresent), `#alt_text` (AltText), `#tables` (TableHeaders), `#reading_order` (ReadingOrder), `#headings` (Headings), `#lists` (ListTags), `#contrast` (Contrast), `#scanned` (Scanned), `#ocr` (Searchable). |
+| **PDF Accessibility Checker (PAC)** | <https://pdfua.foundation/en/pdf-accessibility-checker-pac> | Free tool for checking PDF/UA conformance. Implements Matterhorn Protocol checks. Used as reference for PDFUA rule definitions. |
+
+### Deque University and axe-core (Web Accessibility)
+
+| Topic | URL | What We Learned |
+|-------|-----|-----------------|
+| **axe-core Rules Reference** | <https://dequeuniversity.com/rules/axe/4.10/> | Complete reference for axe-core automated accessibility rules. URL pattern: `{base}{rule-id}`. Each rule maps to one or more WCAG success criteria. Used as the `help_url` source for all web CSV findings. Covers 90+ rules including `image-alt`, `color-contrast`, `label`, `button-name`, `link-name`, `html-has-lang`, `document-title`, `heading-order`, `aria-roles`, `aria-required-attr`, `bypass`, `region`, `tabindex`, `meta-viewport`, `autocomplete-valid`, and more. |
+| **axe-core GitHub Repository** | <https://github.com/dequelabs/axe-core> | Open-source accessibility testing engine. Rule definitions, checks, and metadata. Version 4.10 is the current reference version in our URL patterns. |
+| **Deque University Topic Pages** | <https://dequeuniversity.com/> | Training resources for accessibility topics not covered by axe-core rules. Used for agent-detected issues: focus management (`/class/focus-management2/focus/overview`), live regions (`/library/aria/liveregion-playground`), modal dialogs (`/library/aria/modal-dialog/sf-modal-dialog`), data tables (`/class/tables2/simple/overview`). |
+| **axe-core CLI** | <https://www.npmjs.com/package/@axe-core/cli> | CLI tool for running axe-core scans from the terminal. Used by the `A11y: Run axe-core Scan` VS Code task and the web-accessibility-wizard Phase 1 runtime scan. |
 
 ---
 
@@ -112,6 +159,12 @@ This table maps each project feature to the documentation sources that informed 
 | **Delta scanning (changed files only)** | Git diff integration | `git diff --name-only` for detecting changed documents since last commit. |
 | **Path-specific instructions** | GitHub Custom instructions | `applyTo` glob patterns in `.instructions.md` frontmatter. |
 | **Custom prompts (`.prompt.md`)** | VS Code Prompt files | 9 prompt files for one-click audit workflows. |
+| **Document rule IDs (DOCX-\*, XLSX-\*, PPTX-\*)** | Accessibility Checker Rules, Word/Excel/PowerPoint accessibility pages | Rule severity (Error/Warning/Tip) derived from Checker classification. Rule descriptions and WCAG mappings maintained in `accessibility-rules` skill. |
+| **Document help URLs** | Word/Excel/PowerPoint accessibility pages, Alt Text guidance | Bookmark-anchored URLs for per-rule fix guidance. Mapped in `help-url-reference` skill. |
+| **PDF rule IDs (PDFUA.\*, PDFBP.\*, PDFQ.\*)** | PDF/UA, Matterhorn Protocol, Creating Accessible PDFs | Rule definitions from ISO 14289-1 and Matterhorn failure conditions. Help URLs from Adobe Acrobat guide. |
+| **Web axe-core rule mapping** | axe-core Rules Reference, axe-core GitHub | Rule IDs to Deque University help URLs. WCAG criterion mapping from axe-core metadata. |
+| **WCAG criterion-to-slug mapping** | WCAG 2.2 Understanding Docs | URL pattern for linking findings to W3C Understanding documents. Used in CSV `wcag_url` column. |
+| **Fix step templates** | Word/Excel/PowerPoint/PDF accessibility pages | Application-specific step-by-step remediation instructions derived from official Microsoft and Adobe documentation. |
 
 ---
 
@@ -126,4 +179,4 @@ These documentation sources are actively maintained by their respective platform
 
 ---
 
-*Last updated: Session implementing Tier 1-3 features for document-accessibility-wizard.*
+*Last updated: 2026-02-24. Expanded Accessibility Standards with Microsoft Office Checker rules, WCAG 2.2 Understanding docs, Adobe PDF sources, and Deque/axe-core references.*

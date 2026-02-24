@@ -1,6 +1,6 @@
 # design-system Skill
 
-> Reference data for design token contrast validation, focus ring compliance, touch target audits, and spacing checks. Covers the WCAG contrast ratio computation formula, per-framework token paths (Tailwind, shadcn/ui, MUI, Chakra, Style Dictionary), a known-failing token pair table, and WCAG 2.4.11 Focus Appearance requirements.
+> Reference data for design token contrast validation, focus ring compliance, touch target audits, and spacing checks. Covers the WCAG contrast ratio computation formula, per-framework token paths (Tailwind, shadcn/ui, MUI, Chakra, Style Dictionary), a known-failing token pair table, and WCAG 2.4.13 Focus Appearance requirements.
 
 ## Agents That Use This Skill
 
@@ -16,7 +16,7 @@
 | Normal text (< 18pt / < 14pt bold) | 4.5:1 | 7:1 |
 | Large text (>= 18pt / >= 14pt bold) | 3:1 | 4.5:1 |
 | UI components (borders, icons) | 3:1 | - |
-| Focus indicators (WCAG 2.4.11, 2.2) | 3:1 change | - |
+| Focus indicators (WCAG 2.4.13, 2.2) | 3:1 change | - |
 | Placeholder text | 4.5:1 | - |
 | Disabled state | Exempt | Exempt |
 
@@ -68,7 +68,7 @@ $$\text{ratio} = \frac{L_{\text{lighter}} + 0.05}{L_{\text{darker}} + 0.05}$$
 | Chakra UI | `extendTheme()` call | `colors.*`, `semanticTokens.colors.*` |
 | Style Dictionary | `tokens.json` | `color.text.*`, `color.background.*`, `color.border.*` |
 
-## WCAG 2.4.11 Focus Appearance (AA, WCAG 2.2)
+## WCAG 2.4.13 Focus Appearance (AAA, WCAG 2.2)
 
 Requirements:
 

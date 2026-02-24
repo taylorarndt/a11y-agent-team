@@ -131,7 +131,7 @@ This file defines coordinated multi-agent workflows for enterprise accessibility
 **Workflow:**
 1. `design-system-auditor` locates token files and identifies design system type
 2. Audits color token pairs for WCAG contrast compliance
-3. Audits focus ring tokens (WCAG 2.4.11), spacing/touch-target tokens, motion tokens
+3. Audits focus ring tokens (WCAG 2.4.13 Focus Appearance), spacing/touch-target tokens, motion tokens
 4. Produces a token-level findings report with compliant replacement values
 5. Handoffs: `contrast-master` for runtime verification; `mobile-accessibility` for spacing tokens
 

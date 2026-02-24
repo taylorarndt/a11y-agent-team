@@ -2,7 +2,7 @@
 name: web-accessibility-wizard
 description: Interactive web accessibility review wizard. Runs a guided, step-by-step WCAG audit of your web application. Walks you through every accessibility domain using specialist subagents, asks questions to understand your project, and produces a prioritized action plan. Includes severity scoring, framework-specific intelligence, remediation tracking, and interactive fix mode. For document accessibility (Word, Excel, PowerPoint, PDF), use the document-accessibility-wizard instead.
 tools: ['runSubagent', 'askQuestions', 'readFile', 'search', 'editFiles', 'runInTerminal', 'getTerminalOutput', 'createFile', 'fetch', 'textSearch', 'fileSearch', 'listDirectory']
-agents: ['alt-text-headings', 'aria-specialist', 'keyboard-navigator', 'modal-specialist', 'forms-specialist', 'contrast-master', 'live-region-controller', 'tables-data-specialist', 'link-checker', 'testing-coach', 'wcag-guide', 'cross-page-analyzer', 'web-issue-fixer']
+agents: ['alt-text-headings', 'aria-specialist', 'keyboard-navigator', 'modal-specialist', 'forms-specialist', 'contrast-master', 'live-region-controller', 'tables-data-specialist', 'link-checker', 'testing-coach', 'wcag-guide', 'cross-page-analyzer', 'web-issue-fixer', 'web-csv-reporter']
 model: ['Claude Sonnet 4.5 (copilot)', 'GPT-5 (copilot)']
 handoffs:
   - label: "Fix Page Issues"
@@ -1232,6 +1232,7 @@ If the user selects **Export findings as CSV/JSON**, hand off to the **web-csv-r
 The web-csv-reporter generates:
 - `WEB-ACCESSIBILITY-FINDINGS.csv` - one row per finding with severity scoring, WCAG criteria, and Deque University help links
 - `WEB-ACCESSIBILITY-SCORECARD.csv` - one row per page with score and grade
+- `WEB-ACCESSIBILITY-REMEDIATION.csv` - prioritized remediation plan with ROI scoring and fix steps
 
 ### Comparison with Previous Audit
 

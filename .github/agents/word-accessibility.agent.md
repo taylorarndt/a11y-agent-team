@@ -48,6 +48,8 @@ Word files are ZIP archives containing XML. Key files:
 | DOCX-E005 | merged-split-cells | Tables with merged or split cells that break screen reader navigation. Check for `<w:gridSpan>`, `<w:vMerge>` in `<w:tcPr>`. |
 | DOCX-E006 | ambiguous-link-text | Hyperlinks whose visible text is "click here", "here", "link", "read more", or is a raw URL. Parse `<w:hyperlink>` and its child `<w:t>` text. |
 | DOCX-E007 | no-heading-structure | Document has zero headings. A document without headings is a wall of text to screen reader users - they cannot navigate by section. |
+| DOCX-E008 | document-access-restricted | Document has Information Rights Management (IRM) restrictions that prevent assistive technology from reading content. Screen readers cannot access IRM-protected documents. |
+| DOCX-E009 | content-controls-without-titles | Content controls (rich text, plain text, combo box, etc.) are missing Title properties. Screen readers use the Title property to identify and announce content controls to users. |
 
 ### Warnings - Moderate accessibility issues
 

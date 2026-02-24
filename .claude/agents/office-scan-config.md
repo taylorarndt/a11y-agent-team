@@ -69,6 +69,8 @@ The configuration file is `.a11y-office-config.json` placed in the project root 
 | `DOCX-E005` | merged-split-cells | Tables with merged or split cells |
 | `DOCX-E006` | ambiguous-link-text | Hyperlinks with non-descriptive text |
 | `DOCX-E007` | no-heading-structure | Document has zero headings |
+| `DOCX-E008` | document-access-restricted | IRM restrictions prevent assistive technology access |
+| `DOCX-E009` | content-controls-without-titles | Content controls missing Title properties |
 
 #### Warnings
 | Rule ID | Name | Description |
@@ -98,6 +100,8 @@ The configuration file is `.a11y-office-config.json` placed in the project root 
 | `XLSX-E004` | merged-cells | Merged cells in data ranges |
 | `XLSX-E005` | ambiguous-link-text | Hyperlinks with non-descriptive text |
 | `XLSX-E006` | missing-workbook-title | Workbook title not set in properties |
+| `XLSX-E007` | red-negative-numbers | Red-only indicator for negative numbers |
+| `XLSX-E008` | workbook-access-restricted | IRM restrictions prevent assistive technology access |
 
 #### Warnings
 | Rule ID | Name | Description |
@@ -126,6 +130,7 @@ The configuration file is `.a11y-office-config.json` placed in the project root 
 | `PPTX-E004` | missing-table-header | Tables without header rows |
 | `PPTX-E005` | ambiguous-link-text | Hyperlinks with non-descriptive text |
 | `PPTX-E006` | reading-order | Illogical content reading order |
+| `PPTX-E007` | presentation-access-restricted | IRM restrictions prevent assistive technology access |
 
 #### Warnings
 | Rule ID | Name | Description |
