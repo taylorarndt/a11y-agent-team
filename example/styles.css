@@ -1,4 +1,9 @@
-/* Example stylesheet with intentional accessibility issues */
+/*
+ * ===== INTENTIONAL ACCESSIBILITY ANTI-PATTERNS =====
+ * This file contains deliberate accessibility violations for testing
+ * and demonstration purposes. Each issue is marked with an ISSUE comment.
+ * Do NOT use this file as a template for production styles.
+ */
 
 /* ISSUE: Low contrast text — gray on white */
 body {

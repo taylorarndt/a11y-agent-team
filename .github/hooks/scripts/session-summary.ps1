@@ -19,7 +19,7 @@ if ($payload.stop_hook_active -eq $true) {
 
 $today      = Get-Date -Format "yyyy-MM-dd"
 $timestamp  = Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ"
-$session    = $payload.sessionId ?? "unknown"
+$session    = if ($null -eq $payload.sessionId) { "unknown" } else { $payload.sessionId }
 $audit_dir  = ".github/audit"
 $log_file   = Join-Path $audit_dir "sessions.log"
 $today_log  = Join-Path $audit_dir "$today.log"
@@ -34,8 +34,8 @@ if (Test-Path $today_log) {
     $session_actions = (Get-Content $today_log | Where-Object { $_ -match [regex]::Escape($session) } | Measure-Object).Count
 }
 
-$branch    = (git rev-parse --abbrev-ref HEAD 2>$null) ?? "unknown"
-$remote    = (git remote get-url origin 2>$null) ?? "unknown"
+$branch    = if ($null -eq (git rev-parse --abbrev-ref HEAD 2>$null)) { "unknown" } else { git rev-parse --abbrev-ref HEAD 2>$null }
+$remote    = if ($null -eq (git remote get-url origin 2>$null)) { "unknown" } else { git remote get-url origin 2>$null }
 $owner_repo = "unknown"
 if ($remote -match "github\.com[:/](.+?)(?:\.git)?$") {
     $owner_repo = $Matches[1]

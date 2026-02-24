@@ -303,6 +303,194 @@ Skills are reusable knowledge modules loaded by agents at runtime. Each skill de
 
 ---
 
+## Agent Tool Reference
+
+Every agent declares which tools it can use in its YAML frontmatter. This determines what capabilities each agent has at runtime - whether it can read files, edit code, run terminal commands, invoke sub-agents, or interact with GitHub APIs.
+
+### Tool Glossary
+
+| Tool Name | What It Does |
+|-----------|-------------|
+| `read` / `readFile` | Read file contents from the workspace |
+| `search` / `textSearch` | Search for text patterns across the workspace |
+| `fileSearch` | Search for files by name or glob pattern |
+| `edit` / `editFiles` | Modify existing files in the workspace |
+| `createFile` | Create new files |
+| `createDirectory` | Create new directories |
+| `listDirectory` | List directory contents |
+| `runInTerminal` / `getTerminalOutput` | Execute terminal commands and read output |
+| `runSubagent` / `agent` | Invoke sub-agents for delegation |
+| `askQuestions` / `ask_questions` | Prompt the user for clarification or input |
+| `fetch` | Fetch content from URLs |
+| `codebase` | Semantic search across the codebase |
+| `github/*` | GitHub API operations (issues, PRs, repos, teams, etc.) |
+
+### Web Accessibility Specialists
+
+<details>
+<summary>Expand tool matrix (15 agents)</summary>
+
+| Agent | read | search | edit | terminal | askQuestions | subagent |
+|-------|:----:|:------:|:----:|:--------:|:-----------:|:--------:|
+| accessibility-lead | yes | yes | yes | yes | yes | yes |
+| alt-text-headings | yes | yes | yes | yes | yes | -- |
+| aria-specialist | yes | yes | yes | yes | yes | -- |
+| cognitive-accessibility | yes | yes | yes | yes | yes | -- |
+| contrast-master | yes | yes | yes | yes | yes | -- |
+| design-system-auditor | -- | -- | -- | -- | -- | -- |
+| forms-specialist | yes | yes | yes | yes | yes | -- |
+| keyboard-navigator | yes | yes | yes | yes | yes | -- |
+| link-checker | yes | yes | yes | -- | yes | -- |
+| live-region-controller | yes | yes | yes | yes | yes | -- |
+| mobile-accessibility | yes | yes | yes | yes | yes | -- |
+| modal-specialist | yes | yes | yes | yes | yes | -- |
+| tables-data-specialist | yes | yes | yes | yes | yes | -- |
+| testing-coach | yes | yes | -- | yes | yes | -- |
+| wcag-guide | yes | yes | -- | -- | yes | -- |
+
+**Notes:**
+- **accessibility-lead** is the only web specialist with `runSubagent` - it orchestrates the others.
+- **testing-coach** has no `edit` - it teaches testing techniques but does not write product code.
+- **wcag-guide** has no `edit` or `runInTerminal` - it is a pure reference agent.
+- **link-checker** has no `runInTerminal` - it works by reading and searching source files only.
+- **design-system-auditor** has no tools declared in frontmatter (likely an omission - it references `askQuestions` in its body).
+
+</details>
+
+### Web Audit Orchestrators and Helpers
+
+<details>
+<summary>Expand tool matrix (4 agents)</summary>
+
+| Agent | read | search | edit | terminal | askQuestions | subagent | fetch | fileSearch | listDir | createFile |
+|-------|:----:|:------:|:----:|:--------:|:-----------:|:--------:|:-----:|:----------:|:-------:|:----------:|
+| web-accessibility-wizard | yes | yes | yes | yes | yes | yes | yes | yes | yes | yes |
+| cross-page-analyzer | yes | yes | -- | -- | -- | -- | -- | -- | -- | -- |
+| web-issue-fixer | yes | yes | yes | yes | -- | -- | -- | -- | -- | -- |
+| web-csv-reporter | yes | yes | yes | -- | -- | -- | -- | -- | -- | -- |
+
+**Notes:**
+- **web-accessibility-wizard** has the widest tool set of any accessibility agent - it needs full workspace access for guided audits.
+- **cross-page-analyzer** is read-only - it synthesizes data but never modifies files.
+- Internal helpers (`user-invokable: false`) are marked in the agent listing tables above.
+
+</details>
+
+### Document Accessibility Specialists
+
+<details>
+<summary>Expand tool matrix (5 agents)</summary>
+
+| Agent | read | search | edit | terminal | askQuestions |
+|-------|:----:|:------:|:----:|:--------:|:-----------:|
+| word-accessibility | yes | yes | yes | yes | yes |
+| excel-accessibility | yes | yes | yes | yes | yes |
+| powerpoint-accessibility | yes | yes | yes | yes | yes |
+| pdf-accessibility | yes | yes | yes | yes | yes |
+| epub-accessibility | yes | yes | yes | yes | yes |
+
+All five document specialists have identical tool sets.
+
+</details>
+
+### Document Audit Orchestrators and Helpers
+
+<details>
+<summary>Expand tool matrix (4 agents)</summary>
+
+| Agent | read | search | edit | terminal | askQuestions | subagent |
+|-------|:----:|:------:|:----:|:--------:|:-----------:|:--------:|
+| document-accessibility-wizard | yes | yes | yes | yes | yes | yes |
+| document-inventory | yes | yes | -- | yes | -- | -- |
+| cross-document-analyzer | yes | yes | -- | -- | -- | -- |
+| document-csv-reporter | yes | yes | yes | -- | -- | -- |
+
+**Notes:**
+- **document-inventory** needs terminal access for running file discovery commands.
+- **cross-document-analyzer** is read-only, like its web counterpart.
+
+</details>
+
+### Scan Config Managers
+
+<details>
+<summary>Expand tool matrix (3 agents)</summary>
+
+| Agent | read | edit | askQuestions |
+|-------|:----:|:----:|:-----------:|
+| office-scan-config | yes | yes | yes |
+| pdf-scan-config | yes | yes | yes |
+| epub-scan-config | yes | yes | yes |
+
+Config managers only need to read and write config files, and ask the user about scan preferences. None have `search` or `runInTerminal`.
+
+</details>
+
+### Markdown Accessibility Agents
+
+<details>
+<summary>Expand tool matrix (4 agents)</summary>
+
+| Agent | read | search | edit | terminal | askQuestions | subagent | fileSearch | listDir | createFile |
+|-------|:----:|:------:|:----:|:--------:|:-----------:|:--------:|:----------:|:-------:|:----------:|
+| markdown-a11y-assistant | yes | yes | yes | yes | yes | yes | yes | yes | yes |
+| markdown-scanner | yes | -- | -- | yes | -- | -- | -- | -- | -- |
+| markdown-fixer | yes | -- | yes | yes | -- | -- | -- | -- | -- |
+| markdown-csv-reporter | yes | yes | yes | -- | -- | -- | -- | -- | -- |
+
+**Notes:**
+- **markdown-scanner** is read-only plus terminal (for running lint checks).
+- **markdown-fixer** can edit files but cannot search - it receives file paths from the orchestrator.
+
+</details>
+
+### GitHub Workflow Agents
+
+<details>
+<summary>Expand tool matrix (12 agents)</summary>
+
+| Agent | github | read | search | edit | terminal | askQuestions | fetch | codebase | fileSearch | listDir | createFile | createDir |
+|-------|:------:|:----:|:------:|:----:|:--------:|:-----------:|:-----:|:--------:|:----------:|:-------:|:----------:|:---------:|
+| nexus | yes | yes | -- | yes | -- | yes | yes | -- | -- | yes | yes | yes |
+| github-hub | yes | yes | -- | yes | -- | yes | yes | -- | -- | yes | yes | yes |
+| daily-briefing | yes | yes | yes | yes | yes | yes | yes | yes | -- | yes | yes | yes |
+| issue-tracker | yes | yes | yes | yes | yes | yes | yes | yes | -- | yes | yes | yes |
+| pr-review | yes | yes | yes | yes | yes | yes | yes | yes | -- | yes | yes | yes |
+| analytics | yes | yes | yes | yes | yes | yes | yes | yes | -- | yes | yes | yes |
+| insiders-a11y-tracker | yes | -- | -- | yes | -- | yes | yes | -- | -- | yes | yes | yes |
+| contributions-hub | yes | yes | -- | yes | -- | yes | yes | -- | -- | yes | yes | yes |
+| repo-admin | yes | yes | -- | yes | -- | yes | yes | -- | -- | yes | yes | yes |
+| repo-manager | yes | yes | yes | yes | yes | yes | yes | yes | yes | yes | yes | yes |
+| team-manager | yes | yes | -- | yes | -- | yes | yes | -- | -- | yes | yes | yes |
+| template-builder | yes | yes | -- | yes | -- | yes | -- | -- | -- | yes | yes | yes |
+
+**Notes:**
+- All GitHub agents have `github/*` (GitHub API access), `createFile`, `createDirectory`, and `listDirectory` for report output.
+- **repo-manager** has the widest tool set - it needs full workspace access for scaffolding repos.
+- **nexus** and **github-hub** are functionally identical orchestrators (nexus is the canonical name).
+- **template-builder** is the only GitHub agent without `fetch` - it works with local template files only.
+
+</details>
+
+### Sub-Agent Delegation Map
+
+Orchestrator agents delegate work to specialist sub-agents. This map shows which agents each orchestrator can invoke:
+
+| Orchestrator | Sub-Agents |
+|-------------|-----------|
+| **accessibility-lead** | alt-text-headings, aria-specialist, contrast-master, forms-specialist, keyboard-navigator, link-checker, live-region-controller, modal-specialist, tables-data-specialist |
+| **web-accessibility-wizard** | alt-text-headings, aria-specialist, contrast-master, cross-page-analyzer, forms-specialist, keyboard-navigator, link-checker, live-region-controller, modal-specialist, tables-data-specialist, testing-coach, wcag-guide, web-csv-reporter, web-issue-fixer |
+| **document-accessibility-wizard** | cross-document-analyzer, document-csv-reporter, document-inventory, epub-accessibility, excel-accessibility, pdf-accessibility, powerpoint-accessibility, word-accessibility |
+| **markdown-a11y-assistant** | markdown-csv-reporter, markdown-fixer, markdown-scanner |
+| **nexus / github-hub** | analytics, contributions-hub, daily-briefing, insiders-a11y-tracker, issue-tracker, pr-review, repo-admin, repo-manager, team-manager, template-builder |
+| **daily-briefing** | analytics, insiders-a11y-tracker, issue-tracker, pr-review |
+| **issue-tracker** | daily-briefing, pr-review |
+| **pr-review** | daily-briefing, issue-tracker |
+| **analytics** | daily-briefing, issue-tracker, pr-review |
+| **repo-manager** | github-hub, repo-admin, template-builder |
+
+---
+
 ## Environment Parity
 
 Agents exist in two environments with identical behavior but different file formats.

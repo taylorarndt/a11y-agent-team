@@ -12,7 +12,7 @@
  *   - Tables without preceding description
  */
 
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readFileSync, readdirSync, lstatSync } from "node:fs";
 import { join, relative, extname } from "node:path";
 
 const EXTENSIONS = new Set([".md", ".mdx"]);
@@ -34,7 +34,7 @@ function walkDir(dir, extensions) {
   let entries;
   try {
     entries = readdirSync(dir);
-  } catch {
+  } catch { // Directory unreadable — skip silently
     return results;
   }
   for (const entry of entries) {
@@ -42,10 +42,11 @@ function walkDir(dir, extensions) {
     const full = join(dir, entry);
     let stat;
     try {
-      stat = statSync(full);
-    } catch {
+      stat = lstatSync(full);
+    } catch { // Stat failed (permissions, broken link) — skip
       continue;
     }
+    if (stat.isSymbolicLink()) continue;
     if (stat.isDirectory()) {
       results.push(...walkDir(full, extensions));
     } else if (extensions.has(extname(entry).toLowerCase())) {
@@ -69,7 +70,7 @@ function checkFile(filePath, root) {
   let content;
   try {
     content = readFileSync(filePath, "utf-8");
-  } catch {
+  } catch { // File unreadable — skip silently
     return;
   }
 
@@ -84,8 +85,8 @@ function checkFile(filePath, root) {
     const line = lines[i];
     const lineNum = i + 1;
 
-    // Skip YAML front matter
-    if (i === 0 && line.trim() === "---") {
+    // Skip YAML front matter (handle optional BOM at file start)
+    if (i === 0 && line.replace(/^\uFEFF/, "").trim() === "---") {
       inFrontMatter = true;
       continue;
     }
@@ -153,7 +154,7 @@ function checkFile(filePath, root) {
       // Emoji in heading
       // Match common emoji Unicode ranges
       const headingText = line.slice(headingMatch[0].length);
-      if (/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u.test(headingText)) {
+      if (/[\u{1F300}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{200D}\u{FE0F}]/u.test(headingText)) {
         addIssue(
           rel,
           lineNum,

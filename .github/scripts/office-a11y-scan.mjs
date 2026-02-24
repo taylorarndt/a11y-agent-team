@@ -6,8 +6,8 @@
  * Outputs SARIF for GitHub Code Scanning integration.
  */
 
-import { readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
-import { join, relative, extname, basename, dirname } from "node:path";
+import { readFileSync, readdirSync, lstatSync, writeFileSync } from "node:fs";
+import { join, relative, extname } from "node:path";
 import { inflateRawSync } from "node:zlib";
 
 const EXTENSIONS = new Set([".docx", ".xlsx", ".pptx"]);
@@ -39,6 +39,13 @@ function readZipEntries(buf) {
     if (buf.readUInt32LE(i) === 0x06054b50) { eocdOff = i; break; }
   }
   if (eocdOff === -1) throw new Error("Not a valid ZIP file");
+  // Detect ZIP64 (EOCD64 locator signature)
+  if (eocdOff >= 20) {
+    const zip64LocatorOff = eocdOff - 20;
+    if (buf.readUInt32LE(zip64LocatorOff) === 0x07064b50) {
+      throw new Error("ZIP64 archives are not supported");
+    }
+  }
   const cdOffset = buf.readUInt32LE(eocdOff + 16);
   const cdCount = buf.readUInt16LE(eocdOff + 10);
   const entries = new Map();
@@ -59,6 +66,8 @@ function readZipEntries(buf) {
   return entries;
 }
 
+const MAX_INFLATE_BYTES = 200 * 1024 * 1024;
+
 function extractZipEntry(buf, entry) {
   const localOff = entry.localOff;
   if (buf.readUInt32LE(localOff) !== 0x04034b50) throw new Error("Invalid local header");
@@ -67,7 +76,12 @@ function extractZipEntry(buf, entry) {
   const dataStart = localOff + 30 + nameLen + extraLen;
   const raw = buf.subarray(dataStart, dataStart + entry.cSize);
   if (entry.method === 0) return raw.toString("utf8");
-  if (entry.method === 8) return inflateRawSync(raw).toString("utf8");
+  if (entry.method === 8) {
+    if (entry.uSize > MAX_INFLATE_BYTES) {
+      throw new Error(`Entry uncompressed size ${entry.uSize} exceeds ${MAX_INFLATE_BYTES} byte limit`);
+    }
+    return inflateRawSync(raw, { maxOutputLength: MAX_INFLATE_BYTES }).toString("utf8");
+  }
   throw new Error(`Unsupported compression: ${entry.method}`);
 }
 
@@ -100,8 +114,8 @@ function xmlCount(xml, tag) { let c = 0; const re = new RegExp(`<${tag}[\\s/>]`,
 
 function scanDocx(buf, entries, config) {
   const findings = [];
-  const disabled = new Set(config.disabledRules || []);
-  const sevFilter = new Set(config.severityFilter || ["error", "warning", "tip"]);
+  const disabled = new Set(Array.isArray(config.disabledRules) ? config.disabledRules : []);
+  const sevFilter = new Set(Array.isArray(config.severityFilter) ? config.severityFilter : ["error", "warning", "tip"]);
   const doc = getZipXml(buf, entries, "word/document.xml");
   const core = getZipXml(buf, entries, "docProps/core.xml");
   function add(id, sev, msg, loc) {
@@ -131,8 +145,8 @@ function scanDocx(buf, entries, config) {
 
 function scanXlsx(buf, entries, config) {
   const findings = [];
-  const disabled = new Set(config.disabledRules || []);
-  const sevFilter = new Set(config.severityFilter || ["error", "warning", "tip"]);
+  const disabled = new Set(Array.isArray(config.disabledRules) ? config.disabledRules : []);
+  const sevFilter = new Set(Array.isArray(config.severityFilter) ? config.severityFilter : ["error", "warning", "tip"]);
   const workbook = getZipXml(buf, entries, "xl/workbook.xml");
   const core = getZipXml(buf, entries, "docProps/core.xml");
   function add(id, sev, msg, loc) {
@@ -153,8 +167,8 @@ function scanXlsx(buf, entries, config) {
 
 function scanPptx(buf, entries, config) {
   const findings = [];
-  const disabled = new Set(config.disabledRules || []);
-  const sevFilter = new Set(config.severityFilter || ["error", "warning", "tip"]);
+  const disabled = new Set(Array.isArray(config.disabledRules) ? config.disabledRules : []);
+  const sevFilter = new Set(Array.isArray(config.severityFilter) ? config.severityFilter : ["error", "warning", "tip"]);
   const core = getZipXml(buf, entries, "docProps/core.xml");
   function add(id, sev, msg, loc) {
     if (disabled.has(id) || !sevFilter.has(sev)) return;
@@ -182,7 +196,8 @@ function walkDir(dir) {
     if (IGNORED_DIRS.has(entry)) continue;
     const full = join(dir, entry);
     let s;
-    try { s = statSync(full); } catch { continue; }
+    try { s = lstatSync(full); } catch { continue; }
+    if (s.isSymbolicLink()) continue;
     if (s.isDirectory()) results.push(...walkDir(full));
     else if (EXTENSIONS.has(extname(entry).toLowerCase())) results.push(full);
   }

@@ -11,7 +11,7 @@ try {
     exit 0
 }
 
-$prompt = $payload.prompt ?? ""
+$prompt = if ($null -eq $payload.prompt) { "" } else { $payload.prompt }
 
 # ─── Patterns that look like real credentials ─────────────────────────────────
 $secret_patterns = @(

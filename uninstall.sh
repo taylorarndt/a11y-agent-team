@@ -52,16 +52,35 @@ case "$choice" in
     ;;
 esac
 
+# Load manifest to only remove files we installed
+MANIFEST_FILE="$TARGET_DIR/.a11y-agent-manifest"
+MANIFEST_ENTRIES=()
+if [ -f "$MANIFEST_FILE" ]; then
+  while IFS= read -r line; do
+    [ -n "$line" ] && MANIFEST_ENTRIES+=("$line")
+  done < "$MANIFEST_FILE"
+fi
+
 echo ""
 echo "  Removing agents..."
 AGENTS_DIR="$TARGET_DIR/agents"
 if [ -d "$AGENTS_DIR" ]; then
-  for agent in "$AGENTS_DIR"/*.md; do
-    [ -f "$agent" ] || continue
-    name="$(basename "${agent%.md}")"
-    rm "$agent"
-    echo "    - $name"
-  done
+  if [ ${#MANIFEST_ENTRIES[@]} -gt 0 ]; then
+    for entry in "${MANIFEST_ENTRIES[@]}"; do
+      case "$entry" in
+        agents/*)
+          agent_file="$TARGET_DIR/$entry"
+          if [ -f "$agent_file" ]; then
+            name="$(basename "${agent_file%.md}")"
+            rm "$agent_file"
+            echo "    - $name"
+          fi
+          ;;
+      esac
+    done
+  else
+    echo "    (no manifest found — skipping to avoid removing user-created files)"
+  fi
 fi
 
 echo ""
@@ -77,21 +96,38 @@ if [ "$choice" = "1" ]; then
   if [ -d "$COPILOT_DIR" ]; then
     echo ""
     echo "  Removing Copilot agents..."
-    for agent in "$COPILOT_DIR"/*.agent.md; do
-      [ -f "$agent" ] || continue
-      name="$(basename "${agent%.md}")"
-      rm "$agent"
-      echo "    - $name"
+    # Only remove agents listed in manifest to avoid deleting user-created files
+    has_copilot_entries=false
+    for entry in "${MANIFEST_ENTRIES[@]}"; do
+      case "$entry" in
+        copilot-agents/*)
+          has_copilot_entries=true
+          agent_name="${entry#copilot-agents/}"
+          agent_file="$COPILOT_DIR/$agent_name"
+          if [ -f "$agent_file" ]; then
+            name="$(basename "${agent_file%.md}")"
+            rm "$agent_file"
+            echo "    - $name"
+          fi
+          ;;
+      esac
     done
+    if [ "$has_copilot_entries" = false ]; then
+      echo "    (no manifest entries for copilot-agents — skipping)"
+    fi
     rmdir "$COPILOT_DIR" 2>/dev/null || true
   fi
 
-  # Remove Copilot config files
+  # Remove Copilot config files — only those with our section markers
   for config in copilot-instructions.md copilot-review-instructions.md copilot-commit-message-instructions.md; do
     CONFIG_FILE="$(pwd)/.github/$config"
     if [ -f "$CONFIG_FILE" ]; then
-      rm "$CONFIG_FILE"
-      echo "    - $config"
+      if grep -qF '<!-- a11y-agent-team: start -->' "$CONFIG_FILE" 2>/dev/null; then
+        rm "$CONFIG_FILE"
+        echo "    - $config"
+      else
+        echo "    ~ $config (has user content — skipped)"
+      fi
     fi
   done
 fi
@@ -167,12 +203,6 @@ if [ "$choice" = "2" ]; then
     echo "  Removing Copilot central store..."
     rm -rf "$COPILOT_CENTRAL"
     echo "    - $COPILOT_CENTRAL"
-  fi
-
-  # Remove a11y-copilot-init command
-  if [ -f "/usr/local/bin/a11y-copilot-init" ]; then
-    rm -f "/usr/local/bin/a11y-copilot-init"
-    echo "    - a11y-copilot-init command"
   fi
 fi
 

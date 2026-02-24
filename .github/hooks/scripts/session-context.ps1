@@ -5,10 +5,10 @@
 $input_json = $input | Out-String
 
 # ─── Gather git context ───────────────────────────────────────────────────────
-$branch      = (git rev-parse --abbrev-ref HEAD 2>$null) ?? "unknown"
-$remote_url  = (git remote get-url origin 2>$null) ?? "unknown"
-$git_user    = (git config user.name 2>$null) ?? "unknown"
-$git_email   = (git config user.email 2>$null) ?? "unknown"
+$branch      = if ($null -eq (git rev-parse --abbrev-ref HEAD 2>$null)) { "unknown" } else { git rev-parse --abbrev-ref HEAD 2>$null }
+$remote_url  = if ($null -eq (git remote get-url origin 2>$null)) { "unknown" } else { git remote get-url origin 2>$null }
+$git_user    = if ($null -eq (git config user.name 2>$null)) { "unknown" } else { git config user.name 2>$null }
+$git_email   = if ($null -eq (git config user.email 2>$null)) { "unknown" } else { git config user.email 2>$null }
 $today       = Get-Date -Format "yyyy-MM-dd"
 $time        = Get-Date -Format "HH:mm"
 

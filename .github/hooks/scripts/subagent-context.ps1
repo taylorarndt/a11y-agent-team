@@ -10,9 +10,9 @@ try {
     exit 0
 }
 
-$agent_type = $payload.agent_type ?? "unknown"
-$branch     = (git rev-parse --abbrev-ref HEAD 2>$null) ?? "unknown"
-$remote_url = (git remote get-url origin 2>$null) ?? ""
+$agent_type = if ($null -eq $payload.agent_type) { "unknown" } else { $payload.agent_type }
+$branch     = if ($null -eq (git rev-parse --abbrev-ref HEAD 2>$null)) { "unknown" } else { git rev-parse --abbrev-ref HEAD 2>$null }
+$remote_url = if ($null -eq (git remote get-url origin 2>$null)) { "" } else { git remote get-url origin 2>$null }
 $today      = Get-Date -Format "yyyy-MM-dd"
 
 $owner_repo = "unknown/unknown"

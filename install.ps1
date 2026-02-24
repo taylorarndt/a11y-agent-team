@@ -27,6 +27,10 @@ if (-not $ScriptDir -or -not (Test-Path (Join-Path $ScriptDir ".claude\agents"))
     }
 
     git clone --quiet https://github.com/community-access/accessibility-agents.git $TmpDir 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "  Error: git clone failed. Check your network connection and try again."
+        exit 1
+    }
     $ScriptDir = $TmpDir
     Write-Host "  Downloaded."
 }
@@ -486,7 +490,7 @@ if ($Choice -eq "2") {
 
         # Create a scheduled task that runs daily at 9:00 AM
         $TaskName = "A11yAgentTeamUpdate"
-        $Action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-ExecutionPolicy Bypass -WindowStyle Hidden -File `"$UpdateDst`" -Silent"
+        $Action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-ExecutionPolicy RemoteSigned -WindowStyle Hidden -File `"$UpdateDst`" -Silent"
         $Trigger = New-ScheduledTaskTrigger -Daily -At "9:00AM"
         $Settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -DontStopOnIdleEnd
 

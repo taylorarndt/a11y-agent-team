@@ -18,21 +18,32 @@ const MAX_FILE_BYTES = 100 * 1024 * 1024;
 const MAX_BATCH_FILES = 50;
 
 /**
- * Resolve a path and verify it stays within the user's home directory or
- * the current working directory. Applied to both reads and writes to prevent
- * path traversal attacks (OWASP A01 / CWE-22).
+ * Resolve a path and verify it stays within allowed boundaries.
+ * Reads: allowed under home directory or cwd.
+ * Writes: restricted to cwd only (prevents accidental writes elsewhere).
+ * Applied to both reads and writes to prevent path traversal attacks
+ * (OWASP A01 / CWE-22).
  */
-function validateFilePath(inputPath) {
+function validateFilePath(inputPath, { write = false } = {}) {
   const resolved = resolve(inputPath);
   const home = homedir();
   const cwd = process.cwd();
   const underHome = resolved === home || resolved.startsWith(home + sep);
   const underCwd  = resolved === cwd  || resolved.startsWith(cwd  + sep);
-  if (!underHome && !underCwd) {
-    throw new Error(
-      `Path must be within your home directory or current working directory. ` +
-      `Resolved: ${resolved}`
-    );
+  if (write) {
+    if (!underCwd) {
+      throw new Error(
+        `Write operations must target the current working directory. ` +
+        `Resolved: ${resolved}`
+      );
+    }
+  } else {
+    if (!underHome && !underCwd) {
+      throw new Error(
+        `Path must be within your home directory or current working directory. ` +
+        `Resolved: ${resolved}`
+      );
+    }
   }
   return resolved;
 }
@@ -329,7 +340,7 @@ return <div aria-live="polite">{status}</div>;
 - outline:none without alternative focus style
 - Focus left on removed DOM element`,
 
-  general: `# General Web Accessibility Guidelines (WCAG 2.1 AA)
+  general: `# General Web Accessibility Guidelines (WCAG 2.2 AA)
 
 ## Semantic HTML First
 - Native HTML elements before ARIA. Always.
@@ -1024,7 +1035,7 @@ server.registerTool(
     let reportNote = "";
     if (reportPath) {
       try {
-        const safeReportPath = validateFilePath(reportPath);
+        const safeReportPath = validateFilePath(reportPath, { write: true });
         await fsWriteFile(safeReportPath, report, "utf-8");
         reportNote = `\nReport written to: ${safeReportPath}`;
       } catch (writeErr) {
@@ -1064,7 +1075,7 @@ function buildMarkdownReport(url, violations, passes, incomplete, selector) {
     `| URL | ${url} |`,
     selector ? `| Scope | \`${selector}\` |` : null,
     `| Date | ${date} at ${time} |`,
-    `| Standard | WCAG 2.1 AA |`,
+    `| Standard | WCAG 2.2 AA |`,
     `| Scanner | axe-core |`,
     `| Violations | ${violations.length} |`,
     `| Rules passed | ${passes.length} |`,
@@ -1167,7 +1178,7 @@ server.registerTool(
   {
     title: "Run axe-core Accessibility Scan",
     description:
-      "Run an automated axe-core accessibility scan against a live URL (e.g., a local dev server). Returns WCAG 2.1 AA violations grouped by severity with affected elements and fix suggestions. Optionally writes a structured markdown report file. Requires @axe-core/cli to be installed (globally or in the project) and the target URL to be reachable.",
+      "Run an automated axe-core accessibility scan against a live URL (e.g., a local dev server). Returns WCAG 2.2 AA violations grouped by severity with affected elements and fix suggestions. Optionally writes a structured markdown report file. Requires @axe-core/cli to be installed (globally or in the project) and the target URL to be reachable.",
     inputSchema: z.object({
       url: z
         .string()
@@ -1255,7 +1266,7 @@ server.registerTool(
       let reportNote = "";
       if (reportPath) {
         try {
-          const safeReportPath = validateFilePath(reportPath);
+          const safeReportPath = validateFilePath(reportPath, { write: true });
           await fsWriteFile(safeReportPath, report, "utf-8");
           reportNote = `\nReport written to: ${safeReportPath}`;
         } catch (writeErr) {
@@ -1271,7 +1282,7 @@ server.registerTool(
               text: [
                 `axe-core scan complete: ${validatedUrl}`,
                 ``,
-                `No WCAG 2.1 AA violations found.`,
+                `No WCAG 2.2 AA violations found.`,
                 `${passes.length} rules passed. ${incomplete.length} rules need manual review.`,
                 ``,
                 `Automated scanning catches ~30% of accessibility issues.`,
@@ -1422,6 +1433,13 @@ function readZipEntries(buf) {
     if (buf.readUInt32LE(i) === 0x06054b50) { eocdOff = i; break; }
   }
   if (eocdOff === -1) throw new Error("Not a valid ZIP file");
+  // H-04: Detect ZIP64 (EOCD64 locator signature)
+  if (eocdOff >= 20) {
+    const zip64LocatorOff = eocdOff - 20;
+    if (buf.readUInt32LE(zip64LocatorOff) === 0x07064b50) {
+      throw new Error("ZIP64 archives are not supported");
+    }
+  }
   const cdOffset = buf.readUInt32LE(eocdOff + 16);
   const cdCount = buf.readUInt16LE(eocdOff + 10);
   const entries = new Map();
@@ -1442,6 +1460,9 @@ function readZipEntries(buf) {
   return entries;
 }
 
+/** Maximum uncompressed size for a single ZIP entry (200 MB). */
+const MAX_INFLATE_BYTES = 200 * 1024 * 1024;
+
 function extractZipEntry(buf, entry) {
   const localOff = entry.localOff;
   if (buf.readUInt32LE(localOff) !== 0x04034b50) throw new Error("Invalid local header");
@@ -1450,7 +1471,14 @@ function extractZipEntry(buf, entry) {
   const dataStart = localOff + 30 + nameLen + extraLen;
   const raw = buf.subarray(dataStart, dataStart + entry.cSize);
   if (entry.method === 0) return raw.toString("utf8");
-  if (entry.method === 8) return inflateRawSync(raw).toString("utf8");
+  if (entry.method === 8) {
+    // H-03: Guard against decompression bombs
+    if (entry.uSize > MAX_INFLATE_BYTES) {
+      throw new Error(`Entry uncompressed size ${entry.uSize} exceeds ${MAX_INFLATE_BYTES} byte limit`);
+    }
+    const result = inflateRawSync(raw, { maxOutputLength: MAX_INFLATE_BYTES });
+    return result.toString("utf8");
+  }
   throw new Error(`Unsupported compression method: ${entry.method}`);
 }
 
@@ -1500,6 +1528,10 @@ function xmlAttr(xml, tag, attr) {
 function xmlHas(xml, tag) {
   return new RegExp(`<${tag}[\\s/>]`, "i").test(xml);
 }
+// NOTE: xmlCount and getZipXml use regex-based XML parsing which is sufficient
+// for the structural checks performed here (tag counting, attribute presence)
+// but cannot handle CDATA sections, processing instructions, or deeply nested
+// structures. A full XML parser would be needed for more complex analysis.
 function xmlCount(xml, tag) {
   const re = new RegExp(`<${tag}[\\s/>]`, "gi");
   let c = 0, m;
@@ -1816,7 +1848,7 @@ function scanPptx(buf, entries, config) {
 function buildOfficeSarif(filePath, findings, fileType) {
   const rules = findings.map(f => ({
     id: f.ruleId,
-    shortDescription: { text: f.message.split(".")[0] },
+    shortDescription: { text: f.message.includes(".") ? f.message.split(".")[0] : f.message },
     fullDescription: { text: f.message },
     defaultConfiguration: {
       level: f.severity === "error" ? "error" : f.severity === "warning" ? "warning" : "note",
@@ -1883,7 +1915,7 @@ function buildOfficeMarkdownReport(filePath, findings, fileType) {
       if (items.length === 0) continue;
       lines.push(`## ${label}`, ``);
       for (const f of items) {
-        lines.push(`### ${f.ruleId}: ${f.message.split(".")[0]}`);
+        lines.push(`### ${f.ruleId}: ${f.message.includes(".") ? f.message.split(".")[0] : f.message}`);
         lines.push(``);
         lines.push(f.message);
         lines.push(``);
@@ -1993,7 +2025,7 @@ server.registerTool(
     let reportNote = "";
     if (reportPath) {
       try {
-        const safeReportPath = validateFilePath(reportPath);
+        const safeReportPath = validateFilePath(reportPath, { write: true });
         const md = buildOfficeMarkdownReport(filePath, findings, fileType);
         await fsWriteFile(safeReportPath, md, "utf-8");
         reportNote += `\nReport written to: ${safeReportPath}`;
@@ -2003,7 +2035,7 @@ server.registerTool(
     }
     if (sarifPath) {
       try {
-        const safeSarifPath = validateFilePath(sarifPath);
+        const safeSarifPath = validateFilePath(sarifPath, { write: true });
         const sarif = buildOfficeSarif(filePath, findings, fileType);
         await fsWriteFile(safeSarifPath, JSON.stringify(sarif, null, 2), "utf-8");
         reportNote += `\nSARIF written to: ${safeSarifPath}`;
@@ -2078,24 +2110,22 @@ function parsePdfBasics(buf) {
   // Check encryption
   if (/\/Encrypt\s/.test(text)) info.isEncrypted = true;
 
-  // Page count
-  const pageCountMatch = text.match(/\/Type\s*\/Pages[\s\S]*?\/Count\s+(\d+)/);
+  // Page count — search for /Pages dictionary with /Count key (bounded to 200 chars)
+  const pageCountMatch = text.match(/\/Type\s*\/Pages[^>]{0,200}\/Count\s+(\d+)/);
   if (pageCountMatch) info.pageCount = parseInt(pageCountMatch[1]);
 
-  // Check if tagged
-  if (/\/MarkInfo\s*<<[\s\S]*?\/Marked\s+true/i.test(text)) info.isTagged = true;
+  // Check if tagged (bounded to 200 chars within MarkInfo dictionary)
+  if (/\/MarkInfo\s*<<[^>]{0,200}\/Marked\s+true/i.test(text)) info.isTagged = true;
   if (/\/StructTreeRoot\s/.test(text)) info.hasStructureTree = true;
 
-  // Check for text content (vs scanned-only)
-  if (/\/Type\s*\/Page[\s\S]*?stream[\s\S]*?BT[\s\S]*?ET/i.test(text)) info.hasText = true;
-  // Also check for text via TJ/Tj operators
+  // Check for text content — look for BT/ET text blocks via Tj/TJ operators
   if (/\(.*?\)\s*Tj|<[0-9a-fA-F]+>\s*Tj|\[.*?\]\s*TJ/i.test(text)) info.hasText = true;
 
-  // Title in Info dictionary
-  const titleMatch = text.match(/\/Title\s*\(([^)]*)\)/);
+  // Title in Info dictionary (handle escaped parentheses)
+  const titleMatch = text.match(/\/Title\s*\(([^)\\]*(?:\\.[^)\\]*)*)\)/);
   if (titleMatch && titleMatch[1].trim()) {
     info.hasTitle = true;
-    info.title = titleMatch[1].trim();
+    info.title = titleMatch[1].replace(/\\(.)/g, '$1').trim();
   }
   // Title in hex
   const titleHex = text.match(/\/Title\s*<([0-9a-fA-F]+)>/);
@@ -2267,7 +2297,7 @@ function scanPdf(buf, config) {
 
   // --- Layer 3: Quality/pipeline rules ---
 
-  if (!info.hasText) {
+  if (!info.hasText && !disabled.has("PDFBP.TEXT.EXTRACTABLE")) {
     add("PDFQ.REPO.NO_SCANNED_ONLY", "error", "PDF appears to be image-only (scanned). Image-only PDFs are completely inaccessible. Provide a tagged source or apply OCR.", "page content");
   }
 
@@ -2281,7 +2311,7 @@ function scanPdf(buf, config) {
 function buildPdfSarif(filePath, findings) {
   const rules = findings.map(f => ({
     id: f.ruleId,
-    shortDescription: { text: f.message.split(".")[0] },
+    shortDescription: { text: f.message.includes(".") ? f.message.split(".")[0] : f.message },
     fullDescription: { text: f.message },
     defaultConfiguration: {
       level: f.severity === "error" ? "error" : f.severity === "warning" ? "warning" : "note",
@@ -2376,7 +2406,7 @@ function buildPdfMarkdownReport(filePath, findings, info) {
       lines.push(`## Human Review Checklist`, ``);
       lines.push(`The following items were flagged but require human verification:`, ``);
       for (const f of humanReview) {
-        lines.push(`- [ ] ${f.ruleId}: ${f.message.split(".")[0]}`);
+        lines.push(`- [ ] ${f.ruleId}: ${f.message.includes(".") ? f.message.split(".")[0] : f.message}`);
       }
       lines.push(``);
     }
@@ -2496,7 +2526,7 @@ server.registerTool(
     let reportNote = "";
     if (reportPath) {
       try {
-        const safeReportPath = validateFilePath(reportPath);
+        const safeReportPath = validateFilePath(reportPath, { write: true });
         const md = buildPdfMarkdownReport(filePath, findings, info);
         await fsWriteFile(safeReportPath, md, "utf-8");
         reportNote += `\nReport written to: ${safeReportPath}`;
@@ -2506,7 +2536,7 @@ server.registerTool(
     }
     if (sarifPath) {
       try {
-        const safeSarifPath = validateFilePath(sarifPath);
+        const safeSarifPath = validateFilePath(sarifPath, { write: true });
         const sarif = buildPdfSarif(filePath, findings);
         await fsWriteFile(safeSarifPath, JSON.stringify(sarif, null, 2), "utf-8");
         reportNote += `\nSARIF written to: ${safeSarifPath}`;
@@ -2546,7 +2576,7 @@ server.registerTool(
     if (humanReview.length > 0) {
       lines.push(`HUMAN REVIEW REQUIRED (${humanReview.length}):`);
       for (const f of humanReview) {
-        lines.push(`  ${f.ruleId}: ${f.message.split(".")[0]}`);
+        lines.push(`  ${f.ruleId}: ${f.message.includes(".") ? f.message.split(".")[0] : f.message}`);
       }
       lines.push("");
     }
@@ -2920,7 +2950,7 @@ server.registerTool(
         reportLines.push(``);
       }
       try {
-        const safeReportPath = validateFilePath(reportPath);
+        const safeReportPath = validateFilePath(reportPath, { write: true });
         await fsWriteFile(safeReportPath, reportLines.join("\n"), "utf-8");
         reportNote = `\nReport written to: ${safeReportPath}`;
       } catch (err) {
@@ -2936,7 +2966,7 @@ server.registerTool(
 
 // --- Prompts ---
 
-const AUDIT_PREAMBLE = `You are an accessibility specialist conducting a WCAG 2.1 AA compliance review. Be thorough and specific. For each issue found, report:
+const AUDIT_PREAMBLE = `You are an accessibility specialist conducting a WCAG 2.2 AA compliance review. Be thorough and specific. For each issue found, report:
 - Severity (Critical/Major/Minor)
 - File location and what is wrong
 - Impact on screen reader and keyboard users

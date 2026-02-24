@@ -88,7 +88,7 @@ fi
 
 # Clone or pull the repo
 if [ -d "$CACHE_DIR/.git" ]; then
-  cd "$CACHE_DIR"
+  cd "$CACHE_DIR" || exit 1
   git fetch origin main --quiet 2>/dev/null
   LOCAL_HASH=$(git rev-parse HEAD 2>/dev/null)
   REMOTE_HASH=$(git rev-parse origin/main 2>/dev/null)
@@ -107,7 +107,7 @@ else
   log "Repository cloned."
 fi
 
-cd "$CACHE_DIR"
+cd "$CACHE_DIR" || exit 1
 NEW_HASH=$(git rev-parse --short HEAD 2>/dev/null)
 
 # Check if install directory exists

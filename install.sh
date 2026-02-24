@@ -32,6 +32,11 @@ if [ ! -d "$SCRIPT_DIR/.claude/agents" ]; then
   fi
 
   git clone --quiet https://github.com/Community-Access/accessibility-agents.git "$TMPDIR_DL/accessibility-agents" 2>/dev/null
+  if [ $? -ne 0 ]; then
+    echo "  Error: git clone failed. Check your network connection and try again."
+    rm -rf "$TMPDIR_DL"
+    exit 1
+  fi
   SCRIPT_DIR="$TMPDIR_DL/accessibility-agents"
   echo "  Downloaded."
 fi
@@ -688,7 +693,7 @@ log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOG_FILE"; }
 command -v git &>/dev/null || { log "git not found"; exit 1; }
 
 if [ -d "$CACHE_DIR/.git" ]; then
-  cd "$CACHE_DIR"
+  cd "$CACHE_DIR" || exit 1
   git fetch origin main --quiet 2>/dev/null
   LOCAL=$(git rev-parse HEAD 2>/dev/null)
   REMOTE=$(git rev-parse origin/main 2>/dev/null)
@@ -699,7 +704,7 @@ else
   git clone --quiet "$REPO_URL" "$CACHE_DIR" 2>/dev/null
 fi
 
-cd "$CACHE_DIR"
+cd "$CACHE_DIR" || exit 1
 HASH=$(git rev-parse --short HEAD 2>/dev/null)
 UPDATED=0
 
