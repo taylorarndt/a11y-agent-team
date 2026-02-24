@@ -95,7 +95,7 @@ When routing to a specialist, GitHub Hub passes the full context (repo, org, use
 
 ### Returning Invocations
 
-If you have already established context in the session, GitHub Hub resumes without re-discovery. It acts more like a quick menu: "What do you want to do next with `taylorarndt/a11y-agent-team`?"
+If you have already established context in the session, GitHub Hub resumes without re-discovery. It acts more like a quick menu: "What do you want to do next with `community-access/accessibility-agents`?"
 
 ---
 
@@ -137,7 +137,7 @@ After completing work in one agent, GitHub Hub can bring you back and route you 
 
 ```text
 @github-hub review the PR I got assigned this morning
-@github-hub triage issues in taylorarndt/a11y-agent-team
+@github-hub triage issues in community-access/accessibility-agents
 @github-hub get me the team velocity for this month
 @github-hub add alice to the frontend team
 @github-hub set up branch protection on main

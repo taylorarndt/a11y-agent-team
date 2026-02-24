@@ -84,7 +84,7 @@ ORGANIZATIONS
   my-other-org          -- 2 repos, 3 members
 
 YOUR REPOS
-  taylorarndt/a11y-agent-team  -- last active 2 hours ago   current workspace
+  community-access/accessibility-agents  -- last active 2 hours ago   current workspace
   taylorarndt/my-portfolio     -- last active 1 day ago
   taylorarndt/design-system    -- last active 3 days ago
   my-personal-project         -- last active 1 week ago
@@ -98,7 +98,7 @@ Which of these -- or type a repo name / org name?
 - Show "and N more" rather than an overwhelming wall of repos, and offer "show all" or allow them to type a name.
 - Accept partial names: "main" should match `accesswatch/main-app`.
 
-**Scope memory:** Once the user picks a scope (e.g., "taylorarndt/a11y-agent-team"), store it as the **active context** for the rest of the conversation. All subsequent requests apply to that scope unless the user explicitly changes it.
+**Scope memory:** Once the user picks a scope (e.g., "community-access/accessibility-agents"), store it as the **active context** for the rest of the conversation. All subsequent requests apply to that scope unless the user explicitly changes it.
 
 ---
 
@@ -239,7 +239,7 @@ Track these within the conversation:
 
 | Context Key | What It Stores | Example |
 |---|---|---|
-| `active_repo` | The currently selected repo | `taylorarndt/a11y-agent-team` |
+| `active_repo` | The currently selected repo | `community-access/accessibility-agents` |
 | `active_org` | The currently selected org | `taylorarndt` |
 | `active_person` | A GitHub username in focus | `@alice` |
 | `active_pr` | A PR number in context | `#42` |

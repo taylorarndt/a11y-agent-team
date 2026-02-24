@@ -142,7 +142,7 @@ For discussions with 20+ replies, the agent generates:
 The agent scans for the presence and recency of health files, label hygiene, and contributor accessibility signals:
 
 ```text
- Scanning community health for taylorarndt/a11y-agent-team…
+ Scanning community health for community-access/accessibility-agents…
  Health score: 7/10
 ```
 

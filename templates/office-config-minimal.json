@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/taylorarndt/a11y-agent-team/main/schemas/office-scan-config.schema.json",
+  "$schema": "https://raw.githubusercontent.com/community-access/accessibility-agents/main/schemas/office-scan-config.schema.json",
   "version": "1.0",
   "description": "Minimal profile — errors only. Best for triaging large document libraries to find the worst problems first.",
   "docx": {

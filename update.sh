@@ -12,7 +12,7 @@
 
 set -e
 
-REPO_URL="https://github.com/taylorarndt/a11y-agent-team.git"
+REPO_URL="https://github.com/community-access/accessibility-agents.git"
 CACHE_DIR="$HOME/.claude/.a11y-agent-team-repo"
 VERSION_FILE="$HOME/.claude/.a11y-agent-team-version"
 LOG_FILE="$HOME/.claude/.a11y-agent-team-update.log"

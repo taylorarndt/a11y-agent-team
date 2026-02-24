@@ -265,7 +265,7 @@ Use analytics when:
 Scores are relative to threshold tables. If your team is small or in early stages, the load distribution penalty can dominate. Say: "explain the score breakdown" to see exactly which factors pulled the grade down.
 
 **"It only analyzed one repo."**
-Add `repos.discovery: all` to `preferences.md` to have it span all your repos. Or name repos explicitly: "analyze taylorarndt/a11y-agent-team and taylorarndt/my-other-repo."
+Add `repos.discovery: all` to `preferences.md` to have it span all your repos. Or name repos explicitly: "analyze community-access/accessibility-agents and taylorarndt/my-other-repo."
 
 **"The contributor list is missing someone."**
 GitHub search is commit-based. If a team member only reviewed and never committed in the window, they may not appear. Add them to `preferences.md` under `team.members` to include them explicitly.

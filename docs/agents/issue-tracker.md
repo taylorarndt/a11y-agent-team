@@ -33,7 +33,7 @@ Use issue-tracker when:
 ```text
 @issue-tracker show my open issues
 @issue-tracker triage my backlog
-@issue-tracker deep dive into taylorarndt/a11y-agent-team#42
+@issue-tracker deep dive into community-access/accessibility-agents#42
 ```
 
 ### Claude Code (Terminal)

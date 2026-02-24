@@ -16,7 +16,7 @@ Default location: `.a11y-epub-config.json` in the workspace root.
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/taylorarndt/a11y-agent-team/main/schemas/epub-scan-config.schema.json",
+  "$schema": "https://raw.githubusercontent.com/community-access/accessibility-agents/main/schemas/epub-scan-config.schema.json",
   "version": "1.0",
   "description": "Moderate profile - errors and warnings",
   "epub": {

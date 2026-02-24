@@ -85,7 +85,7 @@ This agent is for org admins and team leads who manage GitHub organization struc
    
    [ ] Add to GitHub org (invitation)
    [ ] Add to team: accessibility-reviewers
-   [ ] Grant Write access to: taylorarndt/a11y-agent-team
+   [ ] Grant Write access to: community-access/accessibility-agents
    [ ] Verify org membership is accepted
    [ ] Post welcome message in team discussion
    
@@ -97,7 +97,7 @@ This agent is for org admins and team leads who manage GitHub organization struc
    ```text
     Org invitation sent to @newdev
     Added to team: accessibility-reviewers
-    Granted Write access to: taylorarndt/a11y-agent-team
+    Granted Write access to: community-access/accessibility-agents
     Org membership pending acceptance (they must accept the email invitation)
    ```
 
@@ -148,7 +148,7 @@ This agent is for org admins and team leads who manage GitHub organization struc
 
    ```text
     Team created: a11y-reviewers (visible)
-    Granted Write access to: taylorarndt/a11y-agent-team
+    Granted Write access to: community-access/accessibility-agents
    ```
 
 4. Asks: "Add any initial members?"
