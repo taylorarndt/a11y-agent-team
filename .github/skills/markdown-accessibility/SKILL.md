@@ -1,3 +1,8 @@
+---
+name: markdown-accessibility
+description: Markdown accessibility rule library covering ambiguous links, anchor validation, emoji handling (remove or translate to English), Mermaid and ASCII diagram replacement templates, heading structure, table descriptions, and severity scoring. Use when auditing or fixing markdown documentation for accessibility.
+---
+
 # Markdown Accessibility Skill
 
 Reusable knowledge module for the `markdown-a11y-assistant`, `markdown-scanner`, and `markdown-fixer` agents and the `markdown-accessibility` always-on instructions. Provides pattern libraries, severity scoring, fix templates, emoji translation maps, diagram description templates, and GitHub anchor generation rules for comprehensive markdown accessibility auditing across 9 domains.

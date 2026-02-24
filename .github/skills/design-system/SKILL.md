@@ -1,3 +1,8 @@
+---
+name: design-system
+description: Color token contrast computation, framework token paths (Tailwind/MUI/Chakra/shadcn), focus ring validation, WCAG 2.4.13 Focus Appearance, motion tokens, and spacing tokens for touch target compliance. Use when validating design system tokens for WCAG AA/AAA contrast compliance before they reach deployed UI.
+---
+
 # Design System Accessibility Skill
 
 This skill provides reference data for design token contrast validation, focus ring compliance, and spacing audits. Used by `design-system-auditor.agent.md`.

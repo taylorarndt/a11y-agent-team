@@ -1,3 +1,8 @@
+---
+name: cognitive-accessibility
+description: WCAG 2.2 cognitive accessibility reference tables, plain language analysis, COGA guidance, auth pattern detection, and reading level analysis. Use when reviewing UI for cognitive load, plain language clarity, WCAG 2.2 new criteria (3.3.7 Redundant Entry, 3.3.8/3.3.9 Accessible Authentication), timeout warnings, and memory demands.
+---
+
 # Skill: Cognitive Accessibility
 
 **Domain:** Cognitive, learning, and neurological accessibility  
