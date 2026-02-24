@@ -38,3 +38,10 @@ Use the **web-accessibility-wizard** agent workflow:
 5. Compute page accessibility score (0-100) and letter grade
 6. Write the full report to `ACCESSIBILITY-AUDIT.md`
 7. Offer interactive fix mode for auto-fixable issues
+
+## Handoff Transparency
+
+This workflow delegates to multiple specialist sub-agents. Announce each transition:
+- **Before delegation:** "Running [phase name] using [agent name]..."
+- **After completion:** Summarize what the sub-agent found (issue count, severity breakdown)
+- **On failure:** "[Agent name] encountered an error: [reason]. Skipping this phase and continuing."

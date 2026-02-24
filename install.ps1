@@ -36,7 +36,6 @@ if (-not $ScriptDir -or -not (Test-Path (Join-Path $ScriptDir ".claude\agents"))
 }
 
 $AgentsSrc = Join-Path $ScriptDir ".claude\agents"
-$HookSrc = Join-Path $ScriptDir ".claude\hooks\a11y-team-eval.ps1"
 $CopilotAgentsSrc = Join-Path $ScriptDir ".github\agents"
 $CopilotConfigSrc = Join-Path $ScriptDir ".github"
 
@@ -71,15 +70,11 @@ $Choice = Read-Host "  Choose [1/2]"
 switch ($Choice) {
     "1" {
         $TargetDir = Join-Path (Get-Location) ".claude"
-        $SettingsFile = Join-Path $TargetDir "settings.json"
-        $HookCmd = ".claude\hooks\a11y-team-eval.ps1"
         Write-Host ""
         Write-Host "  Installing to project: $(Get-Location)"
     }
     "2" {
         $TargetDir = Join-Path $env:USERPROFILE ".claude"
-        $SettingsFile = Join-Path $TargetDir "settings.json"
-        $HookCmd = Join-Path $env:USERPROFILE ".claude\hooks\a11y-team-eval.ps1"
         Write-Host ""
         Write-Host "  Installing globally to: $TargetDir"
     }
@@ -119,7 +114,6 @@ function Merge-ConfigFile {
 
 # Create directories
 New-Item -ItemType Directory -Force -Path (Join-Path $TargetDir "agents") | Out-Null
-New-Item -ItemType Directory -Force -Path (Join-Path $TargetDir "hooks") | Out-Null
 
 # Track which files we install so updates never touch user-created files
 $ManifestPath = Join-Path $TargetDir ".a11y-agent-manifest"
@@ -149,17 +143,6 @@ if ($SkippedAgents -gt 0) {
     Write-Host "      $SkippedAgents agent(s) skipped. Use -Force flag or delete them first to reinstall."
 }
 
-# Copy hook — skip if already exists
-Write-Host ""
-Write-Host "  Copying hook..."
-$HookDst = Join-Path $TargetDir "hooks\a11y-team-eval.ps1"
-if (Test-Path $HookDst) {
-    Write-Host "    ~ a11y-team-eval.ps1 (skipped - already exists)"
-} else {
-    Copy-Item -Path $HookSrc -Destination $HookDst
-    if (-not $Manifest.Contains("hooks/a11y-team-eval.ps1")) { $Manifest.Add("hooks/a11y-team-eval.ps1") }
-    Write-Host "    + a11y-team-eval.ps1"
-}
 # Save manifest
 [IO.File]::WriteAllLines($ManifestPath, $Manifest.ToArray(), [Text.Encoding]::UTF8)
 
@@ -212,7 +195,7 @@ if ($CopilotChoice -eq "y" -or $CopilotChoice -eq "Y") {
         # Copy Copilot asset subdirs — file-by-file, skipping files that already exist
         Write-Host ""
         Write-Host "  Copying Copilot assets..."
-        foreach ($SubDir in @("skills", "instructions", "prompts", "hooks")) {
+        foreach ($SubDir in @("skills", "instructions", "prompts")) {
             $SrcSubDir = Join-Path $CopilotConfigSrc $SubDir
             $DstSubDir = Join-Path $ProjectDir ".github\$SubDir"
             if (Test-Path $SrcSubDir) {
@@ -309,7 +292,7 @@ if ($CopilotChoice -eq "y" -or $CopilotChoice -eq "Y") {
 # A11y Agent Team - Copy Copilot assets into the current project
 # Usage: powershell -File a11y-copilot-init.ps1
 #
-# Copies agents, prompts, instructions, skills, and hooks into .github/ for this project.
+# Copies agents, prompts, instructions, and skills into .github/ for this project.
 # Use this when you want to check all Copilot assets into version control.
 
 $CentralRoot   = Join-Path $env:USERPROFILE ".a11y-agent-team"
@@ -401,43 +384,7 @@ Write-Host "  Your existing files were preserved. Only new content was added."
     }
 }
 
-# Handle settings.json
-Write-Host ""
-if (Test-Path $SettingsFile) {
-    $Content = Get-Content $SettingsFile -Raw
-    if ($Content -match "a11y-team-eval") {
-        Write-Host "  Hook already configured in settings.json. Skipping."
-    } else {
-        Write-Host "  Existing settings.json found."
-        Write-Host "  You need to add the hook manually. Add this to your settings.json"
-        Write-Host "  under `"hooks`" > `"UserPromptSubmit`":`n"
-        Write-Host "    {"
-        Write-Host "      `"type`": `"command`","
-        Write-Host "      `"command`": `"powershell -File '$HookCmd'`""
-        Write-Host "    }"
-        Write-Host ""
-    }
-} else {
-    $Settings = @"
-{
-  "hooks": {
-    "UserPromptSubmit": [
-      {
-        "type": "command",
-        "command": "powershell -File '$HookCmd'"
-      }
-    ]
-  }
-}
-"@
-    $Settings | Out-File -FilePath $SettingsFile -Encoding utf8
-    Write-Host "  Created settings.json with hook configured."
-}
-
-# Done
-Write-Host ""
-Write-Host "  ========================="
-Write-Host "  Installation complete!"
+# Done\nWrite-Host \"\"\nWrite-Host \"  =========================\"\nWrite-Host \"  Installation complete!\"
 Write-Host ""
 Write-Host "  Claude Code agents installed:"
 foreach ($Agent in $Agents) {

@@ -59,3 +59,10 @@ Use the **web-accessibility-wizard** agent's remediation tracking capabilities:
 ```
 
 5. Ask: "Want to focus on fixing the persistent issues now?"
+
+## Handoff Transparency
+
+Announce audit comparison progress:
+- **Start:** "Comparing [report1] with [report2] - analyzing [N] findings..."
+- **Completion:** "Comparison complete: [N] fixed, [N] new, [N] persistent, [N] regressed"
+- **On failure:** "Could not parse [report]: [reason]. Comparison aborted."

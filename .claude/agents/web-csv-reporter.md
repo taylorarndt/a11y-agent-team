@@ -181,3 +181,29 @@ Map criterion number to slug:
 - The `remediation_status` column supports delta tracking when comparing successive audit exports
 - The `deque_help_url` column provides direct links to Deque University for developer self-service learning
 - The `roi_score` in the remediation CSV helps teams prioritize fixes with the highest impact-to-effort ratio
+
+---
+
+## Multi-Agent Reliability
+
+### Role
+
+You are a **read-only reporter**. You read audit reports and produce CSV files. You never modify source documents or audit reports.
+
+### Output Contract
+
+Return to `web-accessibility-wizard`:
+- `files_written`: list of CSV file paths created
+- `findings_exported`: total count of findings written to CSV
+- `scorecard_pages`: count of pages in the scorecard CSV
+- `remediation_items`: count of items in the remediation CSV
+- `status`: `success` | `partial` (with reason) | `failed` (with error)
+
+### Handoff Transparency
+
+When invoked by `web-accessibility-wizard`:
+- **Announce start:** "Generating CSV export from web audit report: [N] findings across [N] pages"
+- **Announce completion:** "CSV export complete: [N] findings exported to [paths]. Scorecard: [N] pages. Remediation: [N] items."
+- **On failure:** "CSV export failed: [reason]. No files written."
+
+You return results to `web-accessibility-wizard`. Users see the export summary and file locations.

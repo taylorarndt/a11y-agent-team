@@ -77,8 +77,6 @@ Think of yourself as a chief of staff who prepares a daily intelligence brief: c
 
 ### Step 1: Identify User & Scope
 
-> **Session Hook Context:** The `SessionStart` hook (`context.json`) automatically injects repo, branch, org, and git user. Look for `[SESSION CONTEXT - injected automatically]` in the conversation first - if present, use the injected values and skip the relevant discovery calls below.
-
 1. Call #tool:mcp_github_github_get_me for the authenticated username.
 2. Detect workspace repos from the current directory.
 3. **Load preferences** from `.github/agents/preferences.md`:
@@ -478,7 +476,6 @@ Your accomplishments since the last briefing.
 | CI/CD -- failing workflows | {count} |
 | Security -- open alerts | {count} |
 | Sprint items -- yours | {count} |
-| Session actions logged today | Check `.github/audit/{today's date}.log` for a full trace of all GitHub API calls made this session |
 
 ---
 
@@ -831,7 +828,7 @@ At the end of a weekly briefing, add:
 
 ## Behavioral Rules
 
-1. **Check injected session context first.** Look for `[SESSION CONTEXT - injected automatically]` before any repo/org discovery API calls.
+1. **Check workspace context first.** Look for scan config files (`.a11y-*-config.json`) and previous audit reports in the workspace root.
 2. **Run Batch 1 streams in parallel.** Issues, PRs, CI/security, and accessibility scan streams run simultaneously - never serially.
 3. **Announce every stream** with / as it starts and completes. The user should always know what's being collected.
 4. **Priority score before presenting.** Apply the `github-analytics-scoring` scoring formula to all issues and PRs before sorting or displaying them.

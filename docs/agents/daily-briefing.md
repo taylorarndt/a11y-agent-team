@@ -83,7 +83,7 @@ GitHub Hub will route you automatically.
 Collecting a full briefing takes 30 to 60 seconds for large multi-repo scopes. The agent announces progress throughout so you always know what is happening.
 
 **Step 1 - Scope detection.**
-The agent checks for a SessionStart-injected context (your repos, org, username). If present, it reads your `preferences.md` to understand which repos to include, which to exclude, and what tracking settings to apply per repo. If no preference file exists, it defaults to searching across all repos you have access to.
+The agent detects your workspace context and reads your `preferences.md` to understand which repos to include, which to exclude, and what tracking settings to apply per repo. If no preference file exists, it defaults to searching across all repos you have access to.
 
 **Step 2 - Stream collection.**
 Nine streams are collected (those enabled by your preferences):

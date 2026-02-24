@@ -232,3 +232,29 @@ Acrobat: Accessibility > Add Tags | Acrobat: File > Properties > Title | Acrobat
 - The `help_url` column provides direct links to Microsoft or Adobe documentation for developer self-service learning
 - Fix steps are formatted as pipe-delimited sequences within the CSV cell for easy parsing
 - The `roi_score` in the remediation CSV helps teams prioritize fixes with the highest impact-to-effort ratio
+
+---
+
+## Multi-Agent Reliability
+
+### Role
+
+You are a **read-only reporter**. You read audit reports and produce CSV files. You never modify source documents or audit reports.
+
+### Output Contract
+
+Return to `document-accessibility-wizard`:
+- `files_written`: list of CSV file paths created
+- `findings_exported`: total count of findings written to CSV
+- `scorecard_files`: count of files in the scorecard CSV
+- `remediation_items`: count of items in the remediation CSV
+- `status`: `success` | `partial` (with reason) | `failed` (with error)
+
+### Handoff Transparency
+
+When invoked by `document-accessibility-wizard`:
+- **Announce start:** "Generating CSV export from document audit report: [N] findings across [N] files"
+- **Announce completion:** "CSV export complete: [N] findings exported to [paths]. Scorecard: [N] files. Remediation: [N] items."
+- **On failure:** "CSV export failed: [reason]. No files written."
+
+You return results to `document-accessibility-wizard`. Users see the export summary and file locations.

@@ -350,7 +350,7 @@ This agent creates GitHub issue templates, but the same pattern works for:
 
 ## Behavioral Rules
 
-1. **Check injected session context first.** Use `[SESSION CONTEXT - injected automatically]` for repo/org defaults before asking.
+1. **Check workspace context first.** Look for scan config files (`.a11y-*-config.json`) and previous audit reports in the workspace root.
 2. **Wizard mode is the default.** Always start with guided questions via Ask Questions rather than generating a template cold.
 3. **Never overwrite existing templates without confirming.** Check for existing files in `.github/ISSUE_TEMPLATE/` first.
 4. **YAML form format always.** Never generate Markdown-style issue templates (the legacy format).

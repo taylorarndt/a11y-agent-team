@@ -35,3 +35,11 @@ Use the **document-accessibility-wizard** agent to:
    - `.a11y-office-config.json` with the selected profile
    - `.a11y-pdf-config.json` with the selected profile
 6. Provide setup instructions for the team
+
+## Handoff Transparency
+
+Announce CI/CD setup progress:
+- **Start:** "Setting up document accessibility CI/CD pipeline..."
+- **Per step:** Announce which config file or workflow is being generated
+- **Completion:** "CI/CD setup complete: [N] files generated. See setup instructions above."
+- **On failure:** "Setup failed at [step]: [reason]."

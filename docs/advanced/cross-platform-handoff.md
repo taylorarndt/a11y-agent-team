@@ -7,11 +7,10 @@ Guide for seamless handoff between Claude Code and GitHub Copilot agent environm
 | Capability | Claude Code | GitHub Copilot |
 |-----------|------------|----------------|
 | Agent format | `.claude/agents/*.md` | `.github/agents/*.agent.md` |
-| Frontmatter | `maxTurns`, `memory`, `hooks` | `tools`, `agents`, `model`, `handoffs` |
+| Frontmatter | `maxTurns`, `memory` | `tools`, `agents`, `model`, `handoffs` |
 | Sub-agents | Parallel via `Task` tool | Via `agent` tool + `agents` frontmatter |
 | Hidden helpers | N/A (all agents user-invokable) | `user-invokable: false` in frontmatter |
 | Skills | N/A | `.github/skills/*/SKILL.md` |
-| Hooks | `.claude/hooks/` (JSON) | `.github/hooks/` (JSON) |
 | Memory | `memory: project` in frontmatter | Via Agent Skills (SKILL.md files) |
 | MCP tools | Direct via `mcp_*` prefix | Via `.vscode/mcp.json` config |
 | Interactive UI | Terminal prompts | `askQuestions` tool |
@@ -108,68 +107,3 @@ The Agent Skills in `.github/skills/` serve as platform-independent knowledge:
 
 Claude Code agents access this knowledge through their agent instructions.
 Copilot agents access it through the Skills framework (auto-resolved from `SKILL.md` descriptions).
-
-## Lifecycle Hooks
-
-Both platforms support hooks, but with different mechanisms:
-
-**Unified Format** (works in both VS Code Copilot and Claude Code):
-
-Both platforms now support the same flat hook format. Place hooks in `.claude/settings.json` for Claude Code or `.github/hooks/*.json` for VS Code:
-
-```json
-{
-  "hooks": {
-    "SessionStart": [
-      {
-        "type": "command",
-        "command": "node .github/hooks/scripts/session-start.js",
-        "timeout": 15
-      }
-    ],
-    "PreToolUse": [
-      {
-        "type": "command",
-        "command": "bash .github/hooks/scripts/safety-gate.sh",
-        "windows": "powershell -ExecutionPolicy Bypass -File .github\\hooks\\scripts\\safety-gate.ps1",
-        "timeout": 15
-      }
-    ],
-    "Stop": [
-      {
-        "type": "command",
-        "command": "node .github/hooks/scripts/session-stop.js",
-        "timeout": 15
-      }
-    ]
-  }
-}
-```
-
-**Key differences:**
-- Claude Code advanced feature: `matcher` groups for filtering (e.g., only run on `Bash` tool calls)
-- VS Code reads from: `.github/hooks/*.json`, `.claude/settings.json`, `.claude/settings.local.json`
-- Claude Code reads from: `.claude/settings.json`, `~/.claude/settings.json`
-- Both support `command` + `windows`/`linux`/`osx` OS-specific overrides
-
-**Supported hook events:**
-| Event | VS Code | Claude Code | Copilot CLI |
-|-------|---------|-------------|-------------|
-| `SessionStart` | ✓ | ✓ | `sessionStart` |
-| `Stop` | ✓ | ✓ | `sessionEnd` |
-| `UserPromptSubmit` | ✓ | ✓ | `userPromptSubmitted` |
-| `PreToolUse` | ✓ | ✓ | `preToolUse` |
-| `PostToolUse` | ✓ | ✓ | `postToolUse` |
-| `PreCompact` | ✓ | ✓ | — |
-| `SubagentStart` | ✓ | ✓ | — |
-| `SubagentStop` | ✓ | ✓ | — |
-| `SessionEnd` | — | ✓ | — |
-| `errorOccurred` | — | — | ✓ |
-
-Note: Copilot CLI uses camelCase event names and requires `"version": 1` in the config. VS Code auto-converts Copilot CLI format.
-
-Both hook systems:
-
-- Auto-detect relevant configuration files
-- Inject context only when document accessibility work is detected
-- Remain silent for unrelated sessions

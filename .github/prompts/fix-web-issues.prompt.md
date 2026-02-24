@@ -59,3 +59,11 @@ Use the **web-accessibility-wizard** agent's interactive fix mode:
    ```
 
 6. Update the audit report with a "Fixes Applied" section.
+
+## Handoff Transparency
+
+This workflow delegates to the `web-issue-fixer` sub-agent. Announce transitions:
+- **Before delegation:** "Applying [N] fixes to [N] files ([N] auto-fixable, [N] need approval)"
+- **Per fix:** Show the issue, before/after code, and result
+- **After completion:** "Fix pass complete: [N] applied, [N] skipped, [N] pending approval"
+- **On failure:** "Fix failed for [file]: [reason]. File left unchanged."

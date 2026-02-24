@@ -47,3 +47,10 @@ Use the **document-csv-reporter** sub-agent workflow:
    - `document-remediation.csv` - prioritized action items
 
 6. Announce the output file paths and row counts.
+
+## Handoff Transparency
+
+This workflow delegates to the `document-csv-reporter` sub-agent:
+- **Start:** "Generating CSV export from document audit report: [N] findings across [N] files"
+- **Completion:** "CSV export complete: [file paths] with [N] rows each"
+- **On failure:** "CSV export failed: [reason]. No files written."

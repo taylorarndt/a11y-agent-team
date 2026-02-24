@@ -2,7 +2,7 @@
 
 > **Status:** Draft for review - not committed, not staged.
 > **Purpose:** Internal planning document. Covers simplification, gap analysis, and a phased expansion roadmap for the agent, prompt, skill, and instruction ecosystem.
-> **Scope:** Everything in `.github/agents/`, `.github/prompts/`, `.github/skills/`, `.github/instructions/`, and `.github/hooks/`.
+> **Scope:** Everything in `.github/agents/`, `.github/prompts/`, `.github/skills/`, and `.github/instructions/`.
 
 ---
 
@@ -87,10 +87,6 @@ Web a11y: 6, Document a11y: 11, GitHub workflow: 27
 
 `powershell-terminal-ops.instructions.md`
 
-### Hooks - 6 JSON configs, 15 scripts
-
-`context.json`, `document-a11y.json`, `safety.json`, `input-guard.json`, `audit.json`, `compact-guard.json`
-
 ---
 
 ## What Is Working Well
@@ -118,10 +114,6 @@ The `nexus`/`github-hub` orchestrators handle intent classification and routing 
 ### Document Accessibility - Parallel Architecture Works
 
 The team model (wizard -> inventory -> format specialists -> cross-document analyzer) mirrors the web architecture effectively. The scan configuration template system (strict/moderate/minimal) is reusable.
-
-### Hook Architecture - Now Fully Correct
-
-The complete lifecycle hook set (SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, PreCompact, SubagentStart, SubagentStop, Stop) is now covered and event names are verified correct. The `compact-guard.json` / `session-compact.js` addition preserves audit state across context compactions - important for long sessions.
 
 ---
 
@@ -751,7 +743,7 @@ How we measure whether the plan is achieving impact:
 
 ### Adoption Metrics (quantitative)
 
-- Number of `web-accessibility-wizard` sessions per week (tracked via hook audit logs)
+- Number of `web-accessibility-wizard` sessions per week
 - Number of auto-fixable issues corrected via `web-issue-fixer` per session
 - CI/CD configurations generated (tracked via `setup-web-cicd` prompt usage)
 - PR accessibility check invocations per week

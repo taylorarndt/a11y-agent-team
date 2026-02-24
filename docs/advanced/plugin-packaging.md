@@ -6,7 +6,7 @@ How to package, distribute, and install a11y-agent-team agents in different envi
 
 ### 1. Git Clone (Recommended)
 
-The primary distribution method. All agents, hooks, skills, and configuration are stored in the repository.
+The primary distribution method. All agents, skills, and configuration are stored in the repository.
 
 **Install:**
 
@@ -59,7 +59,6 @@ Double-click the `.mcpb` file or drag it into Claude Desktop.
 **What's NOT included:**
 
 - Agent files (Claude Desktop uses tools and prompts, not agent files)
-- Lifecycle hooks
 - Agent Skills
 
 ### 3. Per-Project Install (Copilot)
@@ -75,9 +74,6 @@ cp .github/copilot-instructions.md /path/to/project/.github/
 
 # Copy skills (optional)
 cp -r .github/skills/ /path/to/project/.github/skills/
-
-# Copy hooks (optional)
-cp -r .github/hooks/ /path/to/project/.github/hooks/
 
 # Copy prompts (optional)
 cp -r .github/prompts/ /path/to/project/.github/prompts/
@@ -100,12 +96,6 @@ Copy only the Claude Code files into an existing project:
 ```bash
 # Copy agents
 cp -r .claude/agents/ /path/to/project/.claude/agents/
-
-# Copy hooks
-cp -r .claude/hooks/ /path/to/project/.claude/hooks/
-
-# Copy settings (merge with existing if present)
-cp .claude/settings.json /path/to/project/.claude/
 ```
 
 ## Creating Custom Agent Packages
@@ -150,10 +140,6 @@ Create a focused package with only the agents you need:
   accessibility-rules/SKILL.md
   document-scanning/SKILL.md
   report-generation/SKILL.md
-.github/hooks/
-  document-a11y.json
-  scripts/session-start.js
-  scripts/session-stop.js
 ```
 
 ### Custom Agent Extensions
@@ -195,7 +181,6 @@ Approximate sizes for planning distribution:
 | Claude Code agents | 20 `.md` files | ~350 KB |
 | Copilot agents | 22 `.agent.md` files | ~400 KB |
 | Agent Skills | 3 `SKILL.md` files | ~30 KB |
-| Hooks | 3 files | ~5 KB |
 | Prompts | 9 `.prompt.md` files | ~15 KB |
 | Templates | 7 config files | ~10 KB |
 | MCP server | `server/index.js` | ~100 KB |

@@ -60,14 +60,6 @@ if (Test-Path $AgentsDir) {
     }
 }
 
-Write-Host ""
-Write-Host "  Removing hook..."
-$HookPath = Join-Path $TargetDir "hooks\a11y-team-eval.ps1"
-if (Test-Path $HookPath) {
-    Remove-Item -Path $HookPath -Force
-    Write-Host "    - a11y-team-eval.ps1"
-}
-
 # Remove Copilot agents if installed (project uninstall only)
 if ($Choice -eq "1") {
     $CopilotDir = Join-Path (Get-Location) ".github\agents"
@@ -167,10 +159,6 @@ if ($Choice -eq "2") {
     Write-Host "    - Update files cleaned up"
 }
 
-Write-Host ""
-Write-Host "  NOTE: The hook entry in settings.json was not removed."
-Write-Host "  If you want to fully clean up, remove the UserPromptSubmit"
-Write-Host "  hook referencing a11y-team-eval from your settings.json."
 Write-Host ""
 Write-Host "  Uninstall complete."
 Write-Host ""

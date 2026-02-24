@@ -16,8 +16,7 @@ The Desktop Extension uses MCP because Claude Desktop does not have an agent sys
 a11y-agent-team/
   .claude/
     agents/              # Claude Code agents (22 .md files)
-    hooks/               # UserPromptSubmit hook (sh + ps1)
-    settings.json        # Hook configuration example
+    settings.json        # Claude Code settings
   .github/
     agents/              # GitHub Copilot agents (22 .agent.md files + AGENTS.md)
     copilot-instructions.md         # Workspace-level instructions
@@ -25,7 +24,6 @@ a11y-agent-team/
     copilot-commit-message-instructions.md # Commit message guidance
     PULL_REQUEST_TEMPLATE.md        # Accessibility checklist
     prompts/             # Custom prompt workflows (9 files)
-    hooks/               # Lifecycle hooks (SessionStart, SessionEnd)
     skills/              # Reusable agent skills (3 skills)
     docs/                # Advanced documentation
     workflows/           # CI workflow (a11y-check.yml)
@@ -77,11 +75,4 @@ Reusable knowledge modules in `.github/skills/`:
 | accessibility-rules | Cross-format rule reference with WCAG 2.2 mapping |
 | report-generation | Report formatting, severity scoring, VPAT/ACR export |
 
-## Lifecycle Hooks
 
-Session hooks in `.github/hooks/`:
-
-| Hook | When | Purpose |
-|------|------|---------|
-| SessionStart | Beginning of session | Auto-detects scan configs and prior reports |
-| SessionEnd | End of session | Quality gate for report completeness |

@@ -170,7 +170,7 @@ This file defines coordinated multi-agent workflows for enterprise accessibility
 - `github-analytics-scoring` - Health scoring, priority scoring, confidence levels, delta tracking
 
 **Workflow:**
-1. `github-hub` or `nexus` receives the user request, loads hook-injected context, and discovers repos/orgs
+1. `github-hub` or `nexus` receives the user request, discovers repos/orgs
 2. The orchestrator classifies intent and routes to the appropriate specialist agent with full context
 3. Specialist agents run their workflows (data collection, analysis, reporting)
 4. Results are returned to the user; the orchestrator offers contextual follow-on actions
@@ -236,3 +236,60 @@ For Section 508, EN 301 549, or organizational compliance:
 2. Apply fixes with `fix-web-issues` prompt (auto-fixable + human-judgment items)
 3. Track progress with `compare-web-audits` prompt between audit runs
 4. Use `quick-web-check` for fast axe-core triage between full audits
+
+---
+
+## Multi-Agent Workflow Reliability Standards
+
+All teams in this workspace follow the engineering patterns from [Multi-agent workflows often fail. Here's how to engineer ones that don't.](https://github.blog/ai-and-ml/generative-ai/multi-agent-workflows-often-fail-heres-how-to-engineer-ones-that-dont/) Treat agents as distributed system components, not chat interfaces.
+
+### Structured Outputs at Every Boundary
+
+Agents MUST return structured data at handoff points. Never pass unstructured prose between agents.
+
+**Accessibility finding:**
+- Rule ID, severity (`critical`|`serious`|`moderate`|`minor`), location, description, remediation, confidence (`high`|`medium`|`low`)
+
+**Scored output:**
+- Score (0-100), grade (A-F), issue counts by severity, pass/fail verdict
+
+**Action result:**
+- Action taken, target, result (`success`|`failure`|`skipped`), reason (if not success)
+
+### Constrained Action Sets
+
+Each agent operates within explicitly defined boundaries:
+
+- **Read-only agents** (scanners, analyzers, reporters): read files, fetch data, produce findings. May NOT edit files or make state changes.
+- **State-changing agents** (fixers, admin agents): perform their defined mutations ONLY after explicit user confirmation.
+- **Orchestrators** (github-hub, nexus, accessibility-lead, wizards): route, aggregate, and present. State changes require user approval before delegation.
+
+If an agent encounters a task outside its action set, it MUST refuse, name the correct agent, and offer to hand off.
+
+### Boundary Validation
+
+At every handoff:
+
+1. **Before delegating:** Confirm all required inputs (file paths, URLs, config, scope) are available. Resolve missing inputs before delegating. Never delegate with partial context.
+2. **After receiving results:** Verify structured fields are present (findings, scores, verdicts). Retry once if incomplete. Report partial results with clear gap notes if retry fails.
+3. **Orchestrator checklist:** Intent classified, scope resolved, config loaded, sub-agent inputs complete, user confirmation obtained (for state changes).
+
+### Failure Handling
+
+- Tool call fails: report, explain, offer alternatives. Max 2 retries.
+- Partial scan results: report what succeeded, list failures with reasons, offer targeted retry.
+- Missing context: state defaults being used. Never assume unverified context.
+- Graceful degradation: full workflow, then simpler alternative, then partial results with gaps noted. Never return empty output without explanation.
+
+### Progress and Intermediate State
+
+- Phase start: announce what is starting, scope size, expected complexity.
+- Phase end: state what was found/accomplished, counts, what comes next.
+- Workflow end: recap phases, aggregate counts, present final deliverable.
+
+### Agent Isolation and Ordering
+
+- Dependent agents run sequentially. Independent agents run in parallel.
+- Each agent operates on its defined scope. Parallel groups work on distinct concerns.
+- Same inputs produce same structured outputs (idempotent).
+- Output format changes must be backward-compatible.

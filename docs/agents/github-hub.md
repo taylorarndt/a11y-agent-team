@@ -72,7 +72,7 @@ GitHub Hub is built to understand plain English at every level of specificity. Y
 When you first invoke `@github-hub` (with or without a message), this is what happens:
 
 **Step 1 - Greeting and discovery.**
-GitHub Hub checks if session context has been injected automatically by the SessionStart hook. If it has, it uses that context (your repo, branch, org, username) and skips API discovery. If not, it calls the GitHub API to detect your authenticated user and find your current workspace repo.
+GitHub Hub detects your workspace context from `.git/config` and calls the GitHub API to identify your authenticated user and current repo.
 
 **Step 2 - Show your world.**
 It presents a quick summary: your GitHub username, your org (if detected), and a list of repos you own or have access to. It shows which repos are active (recent pushes or issues).
@@ -194,7 +194,6 @@ GitHub Hub connects to every specialist in the GitHub Workflow team:
 - Always shows the repo list before asking "which repo?" - never asks cold
 - Asks one smart question at a time, never a list of questions
 - Does not expose agent names or architecture details to the user ("I'll now use the repo-admin agent" - it won't say that)
-- Trusts SessionStart hook-injected context and uses it without redundant API calls
 
 </details>
 
@@ -206,7 +205,7 @@ GitHub Hub connects to every specialist in the GitHub Workflow team:
 <summary>Show troubleshooting help</summary>
 
 **"I invoked `@github-hub` but it does not seem to know my repo."**
-The SessionStart hook injects context automatically when you open VS Code in a project directory. If that did not fire, GitHub Hub will discover context by calling the GitHub API. If your repo is not detected, make sure you are authenticated (`gh auth status`) and the workspace folder is a git repository.
+GitHub Hub discovers context by calling the GitHub API. If your repo is not detected, make sure you are authenticated (`gh auth status`) and the workspace folder is a git repository.
 
 **"It routed me to the wrong agent."**
 Tell it: "Actually I want to [X]." It will re-route immediately with no friction.

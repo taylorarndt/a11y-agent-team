@@ -33,7 +33,6 @@ Think of the A11y Agent Team as a consulting team of accessibility specialists. 
 |--------|--------|-------------|
 | Slash command | `/accessibility-lead review this page` | Direct invocation from the prompt |
 | At-mention | `@accessibility-lead review this page` | Alternative syntax, same behavior |
-| Automatic (hook) | Just type your prompt normally | The hook fires on every prompt and activates the lead for UI tasks |
 | List agents | `/agents` | See all installed agents |
 
 ### GitHub Copilot (VS Code / Editor)
@@ -244,39 +243,6 @@ Every long-running agent operation narrates its steps aloud. The pattern is univ
 ```
 
 You will always know what is happening and when each phase finishes. This is required behavior - no agent silently collects data.
-
----
-
-## Hook System & Subagent Notification
-
-### Hooks Overview
-
-| Hook | Platform | When It Fires | Purpose |
-|------|----------|---------------|---------|
-| `SessionStart` | Both | Beginning of session | Injects repo, branch, org, user, and previous audit context into the conversation |
-| `SubagentStart` | Both | When an agent is invoked | Forwards session context to the specialist so it never re-asks for what's established |
-| `SessionEnd` / Stop | Both | End of session | Quality gate - validates audit report completeness and prompts for missing sections |
-| `UserPromptSubmit` | Claude Code | Every prompt | Evaluates whether prompt involves UI code and injects accessibility-lead consideration |
-
-### How Subagent Notification Works
-
-When an orchestrator (e.g., `accessibility-lead`, `web-accessibility-wizard`, `github-hub`) calls a specialist:
-
-1. The orchestrator announces the handoff with an  step narration (e.g., ` Running aria-specialist on interactive components…`)
-2. The `SubagentStart` hook passes current session context to the specialist
-3. The specialist runs its analysis and returns findings in its **Structured Output** format
-4. The orchestrator aggregates findings and announces completion (e.g., ` ARIA scan complete - 3 findings`)
-5. All findings are logged to `.github/audit/YYYY-MM-DD.log`
-
-### Audit Log
-
-Every GitHub write action (comment, PR review, label change, merge) and every accessibility report generation is appended to a dated log:
-
-```text
-.github/audit/2025-07-01.log
-```
-
-You can ask `github-hub` to "show the audit log" for a summary of all actions taken in the current session.
 
 ---
 
@@ -504,7 +470,6 @@ Agents exist in two environments with identical behavior but different file form
 | Agent cross-calling | `agents:` frontmatter list | Agent body text describes delegation |
 | Skills path | `../skills/[skill]/SKILL.md` | `../../.github/skills/[skill]/SKILL.md` |
 | Shared instructions | `shared-instructions.md` (relative) | `../../.github/agents/shared-instructions.md` |
-| Hooks location | `.github/hooks/` (session lifecycle) | `.claude/settings.json` + `.claude/hooks/` |
 
 Both environments share:
 

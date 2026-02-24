@@ -50,3 +50,11 @@ Verdict: PASS (no Critical/Serious issues) | FAIL ([N] errors found)
 4. If no issues found: report "PASS - no Critical or Serious accessibility issues found."
 5. Do NOT generate a MARKDOWN-ACCESSIBILITY-AUDIT.md file.
 6. Offer to run a full audit if errors are found.
+
+## Handoff Transparency
+
+This workflow dispatches `markdown-scanner` sub-agents. Announce transitions:
+- **Start:** "Running quick accessibility check on [N] markdown file(s)..."
+- **Per file:** "Scanning [filename]..."
+- **Completion:** "Quick check complete: [PASS/FAIL] - [N] critical/serious issues found"
+- **On failure:** "Scan failed for [filename]: [reason]. Continuing with remaining files."

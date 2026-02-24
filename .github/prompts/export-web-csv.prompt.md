@@ -46,3 +46,10 @@ Use the **web-csv-reporter** sub-agent workflow:
    - `web-remediation.csv` - prioritized action items
 
 6. Announce the output file paths and row counts.
+
+## Handoff Transparency
+
+This workflow delegates to the `web-csv-reporter` sub-agent:
+- **Start:** "Generating CSV export from web audit report: [N] findings across [N] pages"
+- **Completion:** "CSV export complete: [file paths] with [N] rows each"
+- **On failure:** "CSV export failed: [reason]. No files written."

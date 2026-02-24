@@ -96,14 +96,26 @@ function checkFile(filePath, root) {
     }
 
     // Skip fenced code blocks
-    if (/^```/.test(line.trim())) {
-      inCodeBlock = !inCodeBlock;
+    const trimmedLine = line.trim();
+    if (/^```/.test(trimmedLine)) {
+      if (inCodeBlock) {
+        // Closing fence: must be ONLY backticks (no info string)
+        if (/^`{3,}\s*$/.test(trimmedLine)) {
+          inCodeBlock = false;
+        }
+      } else {
+        // Opening fence: may have an info string
+        inCodeBlock = true;
+      }
       continue;
     }
     if (inCodeBlock) continue;
 
+    // Strip inline code spans before running checks
+    const lineNoCode = line.replace(/`[^`]+`/g, "");
+
     // 1. Images without alt text: ![](url) or ![ ](url)
-    const imgMatches = [...line.matchAll(/!\[([^\]]*)\]\([^)]+\)/g)];
+    const imgMatches = [...lineNoCode.matchAll(/!\[([^\]]*)\]\([^)]+\)/g)];
     for (const m of imgMatches) {
       const alt = m[1].trim();
       if (alt.length === 0) {
@@ -112,7 +124,7 @@ function checkFile(filePath, root) {
     }
 
     // 2. HTML img tags without alt (in markdown files)
-    const htmlImgMatches = [...line.matchAll(/<img\b[^>]*>/gi)];
+    const htmlImgMatches = [...lineNoCode.matchAll(/<img\b[^>]*>/gi)];
     for (const m of htmlImgMatches) {
       if (!/\balt\s*=/i.test(m[0])) {
         addIssue(rel, lineNum, "md-img-alt", "<img> in markdown missing alt attribute", "error");
@@ -120,7 +132,7 @@ function checkFile(filePath, root) {
     }
 
     // 3. Heading hierarchy
-    const headingMatch = line.match(/^(#{1,6})\s+/);
+    const headingMatch = lineNoCode.match(/^(#{1,6})\s+/);
     if (headingMatch) {
       const level = headingMatch[1].length;
 
@@ -166,7 +178,7 @@ function checkFile(filePath, root) {
     }
 
     // 4. Ambiguous link text
-    const linkMatches = [...line.matchAll(/\[([^\]]+)\]\([^)]+\)/g)];
+    const linkMatches = [...lineNoCode.matchAll(/\[([^\]]+)\]\([^)]+\)/g)];
     for (const m of linkMatches) {
       const text = m[1].trim().toLowerCase();
       const ambiguous = [
@@ -197,10 +209,10 @@ function checkFile(filePath, root) {
 
     // 5. Bare URLs in prose (not inside links or code)
     // Match URLs not preceded by ( or [ or <
-    const bareUrlMatches = [...line.matchAll(/(?<![(<\[])(https?:\/\/[^\s)>\]]+)/g)];
+    const bareUrlMatches = [...lineNoCode.matchAll(/(?<![(<\[])(https?:\/\/[^\s)>\]]+)/g)];
     for (const m of bareUrlMatches) {
       // Skip if the URL is inside a markdown link
-      const before = line.slice(0, m.index);
+      const before = lineNoCode.slice(0, m.index);
       if (/\]\($/.test(before) || /\[.*$/.test(before)) continue;
       addIssue(
         rel,
@@ -212,7 +224,7 @@ function checkFile(filePath, root) {
     }
 
     // 6. Table without preceding description
-    if (/^\|/.test(line.trim()) && i > 0) {
+    if (/^\|/.test(trimmedLine) && i > 0) {
       // Check if this is the first row of a table
       const prevLine = lines[i - 1];
       if (prevLine !== undefined && !/^\|/.test(prevLine.trim())) {

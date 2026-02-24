@@ -10,11 +10,11 @@ This is for the **Claude Code CLI** (the terminal tool). If you want the Claude 
 
 ### How It Works
 
-A `UserPromptSubmit` hook fires on every prompt you send to Claude Code. If the task involves web UI code, the hook instructs Claude to delegate to the **accessibility-lead** first. The lead evaluates the task and invokes the relevant specialists. The specialists apply their focused expertise and report findings. Code does not proceed without passing review.
+The accessibility agents are installed as Claude Code agents that you invoke directly. When a task involves web UI code, invoke the **accessibility-lead** to coordinate the team. The lead evaluates the task and invokes the relevant specialists. The specialists apply their focused expertise and report findings.
 
-The team includes twenty-five agents: nine web code specialists that write and review code, six document accessibility specialists that scan Office and PDF files, one document accessibility wizard that runs guided document audits (with two hidden helper sub-agents for parallel scanning), one markdown documentation accessibility orchestrator (markdown-a11y-assistant) that audits .md files across nine accessibility domains (with two hidden helper sub-agents for parallel scanning and fix application), one orchestrator that coordinates them, one interactive wizard that runs guided web audits (with two hidden helper sub-agents for page crawling and parallel scanning), one testing coach that teaches you how to verify accessibility, and one WCAG guide that explains the standards themselves. Three reusable agent skills provide domain knowledge, and lifecycle hooks enforce quality gates at the start and end of each session.
+The team includes twenty-five agents: nine web code specialists that write and review code, six document accessibility specialists that scan Office and PDF files, one document accessibility wizard that runs guided document audits (with two hidden helper sub-agents for parallel scanning), one markdown documentation accessibility orchestrator (markdown-a11y-assistant) that audits .md files across nine accessibility domains (with two hidden helper sub-agents for parallel scanning and fix application), one orchestrator that coordinates them, one interactive wizard that runs guided web audits (with two hidden helper sub-agents for page crawling and parallel scanning), one testing coach that teaches you how to verify accessibility, and one WCAG guide that explains the standards themselves. Three reusable agent skills provide domain knowledge.
 
-For tasks that do not involve UI code (backend logic, scripts, database work), the hook is ignored and Claude proceeds normally.
+For tasks that do not involve UI code (backend logic, scripts, database work), the agents are not needed.
 
 ### Prerequisites
 
@@ -39,7 +39,7 @@ curl -fsSL https://raw.githubusercontent.com/community-access/accessibility-agen
 irm https://raw.githubusercontent.com/community-access/accessibility-agents/main/install.ps1 | iex
 ```
 
-The installer downloads the repo, copies agents and hooks, configures `settings.json`, and optionally sets up daily auto-updates and GitHub Copilot agents. It will prompt you to choose project-level or global install.
+The installer downloads the repo, copies agents, and optionally sets up daily auto-updates and GitHub Copilot agents. It will prompt you to choose project-level or global install.
 
 **Non-interactive one-liners:**
 
@@ -106,127 +106,13 @@ mkdir -p ~/.claude/agents
 cp -r path/to/a11y-agent-team/.claude/agents/*.md ~/.claude/agents/
 ```
 
-##### 2. Copy the hook
-
-macOS/Linux:
-
-```bash
-# For project install
-mkdir -p .claude/hooks
-cp path/to/a11y-agent-team/.claude/hooks/a11y-team-eval.sh .claude/hooks/
-chmod +x .claude/hooks/a11y-team-eval.sh
-
-# For global install
-mkdir -p ~/.claude/hooks
-cp path/to/a11y-agent-team/.claude/hooks/a11y-team-eval.sh ~/.claude/hooks/
-chmod +x ~/.claude/hooks/a11y-team-eval.sh
-```
-
-Windows:
-
-```powershell
-# For project install
-New-Item -ItemType Directory -Force -Path .claude\hooks
-Copy-Item path\to\a11y-agent-team\.claude\hooks\a11y-team-eval.ps1 .claude\hooks\
-
-# For global install
-New-Item -ItemType Directory -Force -Path $env:USERPROFILE\.claude\hooks
-Copy-Item path\to\a11y-agent-team\.claude\hooks\a11y-team-eval.ps1 $env:USERPROFILE\.claude\hooks\
-```
-
-##### 3. Add the hook to settings.json
-
-Merge the hook configuration into your `.claude/settings.json` (project) or `~/.claude/settings.json` (global):
-
-macOS/Linux:
-
-```json
-{
-  "hooks": {
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": ".claude/hooks/a11y-team-eval.sh"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-For global install, use the absolute path:
-
-```json
-{
-  "hooks": {
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/Users/yourname/.claude/hooks/a11y-team-eval.sh"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-Windows:
-
-```json
-{
-  "hooks": {
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "powershell -File '.claude\\hooks\\a11y-team-eval.ps1'"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-If you already have hooks configured, add the `UserPromptSubmit` entry alongside your existing hooks.
-
-##### 4. Verify
+##### 2. Verify
 
 Start Claude Code and type `/agents`. You should see all agents listed. If they all show up, you are good to go.
 
 ### Using the Agents in Claude Code
 
-#### Automatic (via hook)
-
-Just write code like you normally would. The hook fires on every prompt. If your task involves web UI code, the accessibility-lead activates automatically and brings in the right specialists.
-
-```text
-You: Build a login form with email and password fields
-
-Claude: [Hook fires, accessibility-lead activates]
-        [accessibility-lead invokes aria-specialist, keyboard-navigator, contrast-master]
-
-        The login form includes:
-        - Labeled inputs with <label> elements and matching for attributes
-        - Error messages linked via aria-describedby
-        - Focus moves to first error on invalid submit
-        - Submit button is a <button type="submit">
-        - Contrast ratios verified for all text
-        ...
-```
-
-For tasks that do not involve UI code, Claude proceeds normally.
-
-#### Manual (invoke directly)
-
-You can invoke any agent by name using the slash command or `@` mention:
+Invoke any agent by name using the slash command or `@` mention:
 
 ```text
 /accessibility-lead full audit of the checkout flow
@@ -243,7 +129,7 @@ To see all installed agents at any time, type `/agents` in Claude Code.
 
 ### Global vs Project Install
 
-**Project-level** (recommended for teams): Install to `.claude/` in each web project. Check into version control so your whole team benefits. The agents and hook travel with the repo.
+**Project-level** (recommended for teams): Install to `.claude/` in each web project. Check into version control so your whole team benefits. The agents travel with the repo.
 
 **Global** (recommended for individuals): Install to `~/.claude/` to have the team available across all your projects automatically. Nothing to configure per-project. One install covers everything.
 
@@ -295,7 +181,7 @@ GitHub Copilot supports custom agents via `.github/agents/*.agent.md` files and 
 - **CI workflow** (`.github/workflows/a11y-check.yml`) that runs automated accessibility checks on PRs
 - **VS Code configuration** (`.vscode/`) with recommended extensions, settings, tasks, and MCP server config
 
-Unlike Claude Code's hook system, Copilot does not have a pre-prompt hook. Instead, the workspace instructions in `.github/copilot-instructions.md` are automatically loaded into every Copilot Chat conversation, serving the same purpose.
+The workspace instructions in `.github/copilot-instructions.md` are automatically loaded into every Copilot Chat conversation, ensuring accessibility guidance is always present.
 
 ### Prerequisites
 
@@ -364,14 +250,14 @@ The workspace instructions in `.github/copilot-instructions.md` are loaded into 
 | Feature | Claude Code | GitHub Copilot |
 |---------|-------------|----------------|
 | Agent location | `.claude/agents/` | `.github/agents/` |
-| Hook/instructions | `UserPromptSubmit` hook | `.github/copilot-instructions.md` |
+| Activation | `.github/copilot-instructions.md` | `.github/copilot-instructions.md` |
 | PR review | N/A | `.github/copilot-review-instructions.md` |
 | Commit messages | N/A | `.github/copilot-commit-message-instructions.md` |
 | PR template | N/A | `.github/PULL_REQUEST_TEMPLATE.md` |
 | CI workflow | N/A | `.github/workflows/a11y-check.yml` |
 | VS Code config | N/A | `.vscode/` (extensions, settings, tasks, MCP) |
 | Invocation | `/agent-name` or `@agent-name` | `@agent-name` |
-| Auto-activation | Hook forces evaluation on every prompt | Workspace instructions provide guidance |
+| Auto-activation | Invoke agents directly | Workspace instructions provide guidance |
 | Global install | `~/.claude/agents/` | VS Code user profile folder or per-project |
 
 ---

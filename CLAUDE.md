@@ -10,6 +10,8 @@ Before writing or modifying any web UI code - including HTML, JSX, CSS, React co
 2. Apply the relevant specialist knowledge before generating code
 3. Verify the output against the appropriate checklists
 
+**Automatic trigger detection:** If a user prompt involves creating, editing, or reviewing any file matching `*.html`, `*.jsx`, `*.tsx`, `*.vue`, `*.svelte`, `*.astro`, or `*.css` - or if the prompt describes building UI components, pages, forms, or visual elements - treat it as a web UI task and apply the Decision Matrix below to determine which specialists are needed. Do not wait for the user to explicitly request accessibility review.
+
 ## Available Specialist Agents
 
 Invoke these agents from the Claude Code agent picker (type `/` to browse):
@@ -70,16 +72,6 @@ The following knowledge domains are available across agent files. On Copilot the
 | Markdown Accessibility | Ambiguous link/anchor patterns, emoji handling modes (remove/translate), Mermaid and ASCII diagram replacement templates, heading structure, severity scoring |
 | Help URL Reference | Deque University help topic URLs, Microsoft Office help URLs, Adobe PDF help URLs, WCAG understanding document URLs, application-specific fix steps |
 
-## Lifecycle Hooks
-
-Claude Code hooks are configured in `.claude/settings.json` and `.claude/hooks/`:
-
-| Hook | When | Purpose |
-|------|------|---------|
-| UserPromptSubmit | Every user prompt | Evaluates whether the prompt involves UI code and injects accessibility-lead consideration |
-| SessionStart | Built into wizard agent frontmatter | Auto-detects scan config files and previous audit reports; injects relevant context |
-| Stop | Built into wizard agent frontmatter | Quality gate - validates audit report completeness |
-
 ## Agent Teams
 
 Team coordination is defined in `.claude/agents/AGENTS.md`. Five defined teams:
@@ -105,6 +97,14 @@ Team coordination is defined in `.claude/agents/AGENTS.md`. Five defined teams:
 - **Testing guidance:** Use testing-coach for screen reader testing, keyboard testing, and automated testing setup.
 - **WCAG questions:** Use wcag-guide to understand specific WCAG success criteria and conformance requirements.
 
+## Context Discovery
+
+When starting any accessibility audit, review, or remediation task, proactively check the workspace for existing context before proceeding:
+
+1. **Scan configuration files:** Check the workspace root for `.a11y-office-config.json`, `.a11y-pdf-config.json`, and `.a11y-web-config.json`. If any exist, read them to determine which rules are enabled/disabled, severity filters, and custom settings. Apply these configurations to the audit - do not use defaults when a config file exists.
+2. **Previous audit reports:** Check for existing `ACCESSIBILITY-AUDIT.md`, `WEB-ACCESSIBILITY-AUDIT.md`, `DOCUMENT-ACCESSIBILITY-AUDIT.md`, and `MARKDOWN-ACCESSIBILITY-AUDIT.md` in the workspace root. If found, note the date, overall score, and issue count. Offer comparison/delta mode so the user can track remediation progress.
+3. **Scan config templates:** If no config file exists and the user is starting a new audit, mention that pre-built profiles (strict, moderate, minimal) are available in the `templates/` directory.
+
 ## Scan Configuration
 
 The `templates/` directory contains pre-built scan configuration profiles:
@@ -118,6 +118,20 @@ Copy the appropriate template to your project root:
 - `.a11y-office-config.json` for Office document scanning
 - `.a11y-pdf-config.json` for PDF scanning
 - `.a11y-web-config.json` for web accessibility scanning
+
+## Audit Report Quality Requirements
+
+When generating any accessibility audit report (web, document, or markdown), the report MUST include all of these sections to be considered complete:
+
+1. **Metadata** - audit date, tool versions, scope (URLs/files audited), scan configuration used
+2. **Executive summary** - overall score (0-100, A-F grade), total issues by severity, pass/fail verdict
+3. **Findings** - each issue with: rule ID, WCAG criterion, severity, affected element/location, description, remediation guidance
+4. **Severity breakdown** - counts by Critical/Serious/Moderate/Minor
+5. **Remediation priorities** - ordered list of what to fix first based on impact and effort
+6. **Next steps** - recommended follow-up actions, re-scan timeline
+7. **Delta tracking** (when a previous report exists) - Fixed/New/Persistent/Regressed issue counts
+
+Do not consider an audit complete until the report contains all applicable sections. If generating a quick check (not a full audit), state explicitly that it is a triage result, not a complete audit report.
 
 ## Non-Negotiable Standards
 

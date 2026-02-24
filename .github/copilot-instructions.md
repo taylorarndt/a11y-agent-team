@@ -10,6 +10,8 @@ Before writing or modifying any web UI code - including HTML, JSX, CSS, React co
 2. Apply the relevant specialist knowledge before generating code
 3. Verify the output against the appropriate checklists
 
+**Automatic trigger detection:** If a user prompt involves creating, editing, or reviewing any file matching `*.html`, `*.jsx`, `*.tsx`, `*.vue`, `*.svelte`, `*.astro`, or `*.css` - or if the prompt describes building UI components, pages, forms, or visual elements - treat it as a web UI task and apply the Decision Matrix below to determine which specialists are needed. Do not wait for the user to explicitly request accessibility review.
+
 ### Available Specialist Agents
 
 Select these agents from the agents dropdown in Copilot Chat, or type `/agents` to browse:
@@ -70,15 +72,6 @@ Reusable knowledge modules in `.github/skills/` that agents reference automatica
 | github-scanning | GitHub search patterns by intent, date range handling, parallel stream collection, cross-repo intelligence, auto-recovery |
 | github-analytics-scoring | Repo health scoring (0-100/A-F), issue/PR priority scoring, confidence levels, delta tracking, velocity metrics, bottleneck detection |
 | help-url-reference | Deque University help topic URLs, Microsoft Office help URLs, Adobe PDF help URLs, WCAG understanding document URLs, application-specific fix steps |
-
-### Lifecycle Hooks
-
-Session hooks in `.github/hooks/` that inject context automatically:
-
-| Hook | When | Purpose |
-|------|------|---------|
-| SessionStart | Beginning of session | Auto-detects scan config files and previous audit reports; injects relevant context |
-| Stop | End of session | Quality gate - validates audit report completeness and prompts for missing sections |
 
 ### Agent Teams
 
@@ -141,6 +134,14 @@ One-click workflows for web accessibility auditing tasks:
 | export-web-csv | Export web audit findings to CSV with Deque University help links |
 | export-markdown-csv | Export markdown audit findings to CSV with WCAG help links and markdownlint rule references |
 
+### Context Discovery
+
+When starting any accessibility audit, review, or remediation task, proactively check the workspace for existing context before proceeding:
+
+1. **Scan configuration files:** Check the workspace root for `.a11y-office-config.json`, `.a11y-pdf-config.json`, and `.a11y-web-config.json`. If any exist, read them to determine which rules are enabled/disabled, severity filters, and custom settings. Apply these configurations to the audit - do not use defaults when a config file exists.
+2. **Previous audit reports:** Check for existing `ACCESSIBILITY-AUDIT.md`, `WEB-ACCESSIBILITY-AUDIT.md`, `DOCUMENT-ACCESSIBILITY-AUDIT.md`, and `MARKDOWN-ACCESSIBILITY-AUDIT.md` in the workspace root. If found, note the date, overall score, and issue count. Offer comparison/delta mode so the user can track remediation progress.
+3. **Scan config templates:** If no config file exists and the user is starting a new audit, mention that pre-built profiles (strict, moderate, minimal) are available in the `templates/` directory.
+
 ### Scan Configuration Templates
 
 The `templates/` directory contains pre-built scan configuration profiles:
@@ -162,6 +163,20 @@ Three instruction files in `.github/instructions/` fire automatically on every C
 | `markdown-accessibility.instructions.md` | `**/*.md` | Ambiguous links, alt text, heading hierarchy, tables, emoji, mermaid diagrams, em-dashes, anchor link validation |
 
 These instructions are the highest-leverage accessiblity enforcement mechanism - they provide correction guidance at the point of code generation without requiring any agent to be invoked.
+
+### Audit Report Quality Requirements
+
+When generating any accessibility audit report (web, document, or markdown), the report MUST include all of these sections to be considered complete:
+
+1. **Metadata** - audit date, tool versions, scope (URLs/files audited), scan configuration used
+2. **Executive summary** - overall score (0-100, A-F grade), total issues by severity, pass/fail verdict
+3. **Findings** - each issue with: rule ID, WCAG criterion, severity, affected element/location, description, remediation guidance
+4. **Severity breakdown** - counts by Critical/Serious/Moderate/Minor
+5. **Remediation priorities** - ordered list of what to fix first based on impact and effort
+6. **Next steps** - recommended follow-up actions, re-scan timeline
+7. **Delta tracking** (when a previous report exists) - Fixed/New/Persistent/Regressed issue counts
+
+Do not consider an audit complete until the report contains all applicable sections. If generating a quick check (not a full audit), state explicitly that it is a triage result, not a complete audit report.
 
 ### Non-Negotiable Standards
 

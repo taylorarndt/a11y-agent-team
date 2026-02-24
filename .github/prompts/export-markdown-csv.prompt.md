@@ -47,3 +47,10 @@ Use the **markdown-csv-reporter** sub-agent workflow:
    - `MARKDOWN-ACCESSIBILITY-REMEDIATION.csv` - prioritized action items
 
 6. Announce the output file paths and row counts.
+
+## Handoff Transparency
+
+This workflow delegates to the `markdown-csv-reporter` sub-agent:
+- **Start:** "Generating CSV export from markdown audit report: [N] findings across [N] files"
+- **Completion:** "CSV export complete: [file paths] with [N] rows each"
+- **On failure:** "CSV export failed: [reason]. No files written."

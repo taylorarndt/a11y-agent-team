@@ -19,6 +19,7 @@ const IGNORED_DIRS = new Set([
   ".nuxt",
   "coverage",
   "vendor",
+  "example",
 ]);
 
 // ── File discovery ──────────────────────────────────────────────

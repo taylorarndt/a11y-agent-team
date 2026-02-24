@@ -8,9 +8,8 @@ All 11 GitHub workflow agents: [github-hub](../agents/github-hub.md), [daily-bri
 
 ## Authentication
 
-1. Check for `[SESSION CONTEXT - injected automatically]` first. If the `SessionStart` hook injected repo, branch, org, and git user, use those values - skip API discovery calls.
-2. If no session context: call `github_get_me` to identify the authenticated user. Cache for the session.
-3. Detect workspace context from `.git/config` or `package.json` - use as smart default for repo scope.
+1. Call `github_get_me` to identify the authenticated user. Cache for the session.
+2. Detect workspace context from `.git/config` or `package.json` - use as smart default for repo scope.
 
 ## Smart Defaults
 

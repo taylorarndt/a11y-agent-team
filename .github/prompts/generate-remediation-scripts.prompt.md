@@ -40,3 +40,10 @@ Use the **document-accessibility-wizard** agent to:
    - **Clear comments** - explain what each fix does and why
 6. Write scripts to `scripts/remediation/`
 7. Report which issues can be auto-fixed and which need manual attention
+
+## Handoff Transparency
+
+Announce script generation progress:
+- **Start:** "Generating remediation scripts from audit findings..."
+- **Completion:** "Scripts written to scripts/remediation/ - [N] auto-fixable, [N] manual"
+- **On failure:** "Script generation failed: [reason]. Check that the audit report exists."
