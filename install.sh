@@ -202,7 +202,7 @@ install_copilot=false
 
 if [ "$COPILOT_FLAG" = true ]; then
   install_copilot=true
-elif [ -t 0 ]; then
+elif [ -e /dev/tty ]; then
   echo ""
   echo "  Would you also like to install GitHub Copilot agents?"
   echo "  This adds accessibility agents for Copilot Chat in VS Code/GitHub."
@@ -404,7 +404,7 @@ PYEOF
 
       # If both editions are found, ask which ones to install to
       if [ -n "$VSCODE_STABLE" ] && [ -n "$VSCODE_INSIDERS" ]; then
-        if [ -t 0 ]; then
+        if [ -e /dev/tty ]; then
           echo "  Found both VS Code and VS Code Insiders."
           echo ""
           echo "  Install Copilot agents to:"
@@ -684,7 +684,7 @@ if command -v git &>/dev/null && [ -d "$SCRIPT_DIR/.git" ]; then
 fi
 
 # Auto-update setup (global install only, interactive only)
-if [ "$choice" = "2" ] && [ -t 0 ]; then
+if [ "$choice" = "2" ] && [ -e /dev/tty ]; then
   echo ""
   echo "  Would you like to enable auto-updates?"
   echo "  This checks GitHub daily for new agents and improvements."
