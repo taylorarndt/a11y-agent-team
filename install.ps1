@@ -2,7 +2,7 @@
 # Built by Taylor Arndt - https://github.com/taylorarndt
 #
 # One-liner:
-#   irm https://raw.githubusercontent.com/community-access/accessibility-agents/main/install.ps1 | iex
+#   irm https://raw.githubusercontent.com/Community-Access/accessibility-agents/main/install.ps1 | iex
 
 $ErrorActionPreference = "Stop"
 
@@ -26,7 +26,7 @@ if (-not $ScriptDir -or -not (Test-Path (Join-Path $ScriptDir ".claude\agents"))
         exit 1
     }
 
-    git clone --quiet https://github.com/community-access/accessibility-agents.git $TmpDir 2>$null
+    git clone --quiet https://github.com/Community-Access/accessibility-agents.git $TmpDir 2>$null
     if ($LASTEXITCODE -ne 0) {
         Write-Host "  Error: git clone failed. Check your network connection and try again."
         exit 1

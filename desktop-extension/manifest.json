@@ -11,10 +11,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/community-access/accessibility-agents"
+    "url": "https://github.com/Community-Access/accessibility-agents"
   },
-  "homepage": "https://github.com/community-access/accessibility-agents",
-  "support": "https://github.com/community-access/accessibility-agents/issues",
+  "homepage": "https://github.com/Community-Access/accessibility-agents",
+  "support": "https://github.com/Community-Access/accessibility-agents/issues",
   "keywords": [
     "accessibility",
     "a11y",

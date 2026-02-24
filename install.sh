@@ -10,7 +10,7 @@
 #   bash install.sh --project --copilot Also install Copilot agents to project
 #
 # One-liner:
-#   curl -fsSL https://raw.githubusercontent.com/community-access/accessibility-agents/main/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/Community-Access/accessibility-agents/main/install.sh | bash
 
 set -e
 
@@ -557,7 +557,7 @@ if [ "$choice" = "2" ] && { true < /dev/tty; } 2>/dev/null; then
     cat > "$UPDATE_SCRIPT" << 'UPDATESCRIPT'
 #!/bin/bash
 set -e
-REPO_URL="https://github.com/community-access/accessibility-agents.git"
+REPO_URL="https://github.com/Community-Access/accessibility-agents.git"
 CACHE_DIR="$HOME/.claude/.a11y-agent-team-repo"
 INSTALL_DIR="$HOME/.claude"
 LOG_FILE="$HOME/.claude/.a11y-agent-team-update.log"

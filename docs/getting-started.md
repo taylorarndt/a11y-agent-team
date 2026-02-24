@@ -30,13 +30,13 @@ For tasks that do not involve UI code (backend logic, scripts, database work), t
 **macOS / Linux:**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/community-access/accessibility-agents/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Community-Access/accessibility-agents/main/install.sh | bash
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
-irm https://raw.githubusercontent.com/community-access/accessibility-agents/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/Community-Access/accessibility-agents/main/install.ps1 | iex
 ```
 
 The installer downloads the repo, copies agents, and optionally sets up daily auto-updates and GitHub Copilot agents. It will prompt you to choose project-level or global install.
@@ -45,13 +45,13 @@ The installer downloads the repo, copies agents, and optionally sets up daily au
 
 ```bash
 # macOS/Linux - install globally, no prompts
-curl -fsSL https://raw.githubusercontent.com/community-access/accessibility-agents/main/install.sh | bash -s -- --global
+curl -fsSL https://raw.githubusercontent.com/Community-Access/accessibility-agents/main/install.sh | bash -s -- --global
 
 # macOS/Linux - install to current project, no prompts
-curl -fsSL https://raw.githubusercontent.com/community-access/accessibility-agents/main/install.sh | bash -s -- --project
+curl -fsSL https://raw.githubusercontent.com/Community-Access/accessibility-agents/main/install.sh | bash -s -- --project
 
 # macOS/Linux - install globally with Copilot agents
-curl -fsSL https://raw.githubusercontent.com/community-access/accessibility-agents/main/install.sh | bash -s -- --global --copilot
+curl -fsSL https://raw.githubusercontent.com/Community-Access/accessibility-agents/main/install.sh | bash -s -- --global --copilot
 ```
 
 #### From Cloned Repo
@@ -61,7 +61,7 @@ If you prefer to clone first:
 **macOS / Linux:**
 
 ```bash
-git clone https://github.com/community-access/accessibility-agents.git
+git clone https://github.com/Community-Access/accessibility-agents.git
 cd a11y-agent-team
 bash install.sh
 ```
@@ -71,7 +71,7 @@ Pass flags to skip prompts: `--global`, `--project`, `--copilot`.
 **Windows (PowerShell):**
 
 ```powershell
-git clone https://github.com/community-access/accessibility-agents.git
+git clone https://github.com/Community-Access/accessibility-agents.git
 cd a11y-agent-team
 powershell -ExecutionPolicy Bypass -File install.ps1
 ```
@@ -196,7 +196,7 @@ The workspace instructions in `.github/copilot-instructions.md` are automaticall
 The easiest way to get Copilot agents in every workspace.
 
 ```bash
-git clone https://github.com/community-access/accessibility-agents.git
+git clone https://github.com/Community-Access/accessibility-agents.git
 cd a11y-agent-team
 bash install.sh --global --copilot
 ```
@@ -208,7 +208,7 @@ This installs Copilot agents to your VS Code user profile folder. After installi
 Copy the `.github` directory into your project so the agents travel with the repo.
 
 ```bash
-git clone https://github.com/community-access/accessibility-agents.git
+git clone https://github.com/Community-Access/accessibility-agents.git
 cd a11y-agent-team
 cp -r .github /path/to/your/project/
 ```
@@ -297,7 +297,7 @@ The A11y Agent Team extension adds:
 
 ### How to Install
 
-1. Go to the [Releases page](https://github.com/community-access/accessibility-agents/releases)
+1. Go to the [Releases page](https://github.com/Community-Access/accessibility-agents/releases)
 2. Download the latest `a11y-agent-team.mcpb` file
 3. Double-click the file (or drag it into Claude Desktop)
 4. Claude Desktop will open an install dialog. Click Install
@@ -313,7 +313,7 @@ The A11y Agent Team extension adds:
 
 ```bash
 npm install -g @anthropic-ai/mcpb
-git clone https://github.com/community-access/accessibility-agents.git
+git clone https://github.com/Community-Access/accessibility-agents.git
 cd a11y-agent-team/desktop-extension
 npm install
 mcpb validate .

@@ -24,7 +24,7 @@ The configuration file is `.a11y-office-config.json` placed in the project root 
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/community-access/accessibility-agents/main/schemas/office-scan-config.schema.json",
+  "$schema": "https://raw.githubusercontent.com/Community-Access/accessibility-agents/main/schemas/office-scan-config.schema.json",
   "version": "1.0",
   "docx": {
     "enabled": true,

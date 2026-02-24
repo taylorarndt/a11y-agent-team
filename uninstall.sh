@@ -8,7 +8,7 @@
 #   bash uninstall.sh --project  Uninstall from .claude/ in the current directory
 #
 # One-liner:
-#   curl -fsSL https://raw.githubusercontent.com/community-access/accessibility-agents/main/uninstall.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/Community-Access/accessibility-agents/main/uninstall.sh | bash
 #   curl -fsSL ... | bash -s -- --global   (non-interactive)
 
 set -e

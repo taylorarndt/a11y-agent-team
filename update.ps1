@@ -16,7 +16,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$RepoUrl = "https://github.com/community-access/accessibility-agents.git"
+$RepoUrl = "https://github.com/Community-Access/accessibility-agents.git"
 $CacheDir = Join-Path $env:USERPROFILE ".claude\.a11y-agent-team-repo"
 $VersionFile = Join-Path $env:USERPROFILE ".claude\.a11y-agent-team-version"
 $LogFile = Join-Path $env:USERPROFILE ".claude\.a11y-agent-team-update.log"

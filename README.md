@@ -1,9 +1,9 @@
 # Accessibility Agents
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![GitHub release](https://img.shields.io/github/v/release/community-access/accessibility-agents?include_prereleases)](https://github.com/community-access/accessibility-agents/releases)
-[![GitHub stars](https://img.shields.io/github/stars/community-access/accessibility-agents)](https://github.com/community-access/accessibility-agents/stargazers)
-[![GitHub contributors](https://img.shields.io/github/contributors/community-access/accessibility-agents)](https://github.com/community-access/accessibility-agents/graphs/contributors)
+[![GitHub release](https://img.shields.io/github/v/release/community-access/accessibility-agents?include_prereleases)](https://github.com/Community-Access/accessibility-agents/releases)
+[![GitHub stars](https://img.shields.io/github/stars/community-access/accessibility-agents)](https://github.com/Community-Access/accessibility-agents/stargazers)
+[![GitHub contributors](https://img.shields.io/github/contributors/community-access/accessibility-agents)](https://github.com/Community-Access/accessibility-agents/graphs/contributors)
 [![WCAG 2.2 AA](https://img.shields.io/badge/WCAG-2.2_AA-green.svg)](https://www.w3.org/TR/WCAG22/)
 
 > **AI and automated tools are not perfect.** They miss things, make mistakes, and cannot replace testing with real screen readers and assistive technology. Always verify with VoiceOver, NVDA, JAWS, and keyboard-only navigation. This tooling is a helpful starting point, not a substitute for real accessibility testing.
@@ -40,13 +40,13 @@ All agents run on:
 **macOS / Linux:**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/community-access/accessibility-agents/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Community-Access/accessibility-agents/main/install.sh | bash
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
-irm https://raw.githubusercontent.com/community-access/accessibility-agents/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/Community-Access/accessibility-agents/main/install.ps1 | iex
 ```
 
 See the full [Getting Started Guide](docs/getting-started.md) for all installation options, manual setup, global vs project install, auto-updates, and platform-specific details.
@@ -56,13 +56,13 @@ See the full [Getting Started Guide](docs/getting-started.md) for all installati
 **macOS / Linux:**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/community-access/accessibility-agents/main/uninstall.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Community-Access/accessibility-agents/main/uninstall.sh | bash
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
-irm https://raw.githubusercontent.com/community-access/accessibility-agents/main/uninstall.ps1 | iex
+irm https://raw.githubusercontent.com/Community-Access/accessibility-agents/main/uninstall.ps1 | iex
 ```
 
 ### Safe installation — your files are never overwritten
@@ -188,12 +188,12 @@ The following guides cover advanced configuration, cross-platform handoff, and d
 
 ## Roadmap
 
-See [ROADMAP.md](ROADMAP.md) for what is planned, in progress, and shipped. Track individual items on the [roadmap issues board](https://github.com/community-access/accessibility-agents/issues?q=label%3Aroadmap).
+See [ROADMAP.md](ROADMAP.md) for what is planned, in progress, and shipped. Track individual items on the [roadmap issues board](https://github.com/Community-Access/accessibility-agents/issues?q=label%3Aroadmap).
 
 ## What This Does Not Cover
 
-- Mobile native accessibility (iOS/Android). A separate agent team for that is [planned](https://github.com/community-access/accessibility-agents/issues/8).
-- WCAG AAA compliance (agents target AA as the standard). An AAA agent is [planned](https://github.com/community-access/accessibility-agents/issues/12).
+- Mobile native accessibility (iOS/Android). A separate agent team for that is [planned](https://github.com/Community-Access/accessibility-agents/issues/8).
+- WCAG AAA compliance (agents target AA as the standard). An AAA agent is [planned](https://github.com/Community-Access/accessibility-agents/issues/12).
 
 ## Example Project
 
@@ -203,19 +203,19 @@ The `example/` directory contains a deliberately broken web page with 20+ intent
 
 This project thrives on community participation. Whether you are a developer, accessibility specialist, screen reader user, or just someone who cares about inclusive software - there is a place for you here.
 
-- **Found an agent gap?** [Open an issue](https://github.com/community-access/accessibility-agents/issues/new?template=agent_gap.yml) describing what the agent missed or got wrong.
+- **Found an agent gap?** [Open an issue](https://github.com/Community-Access/accessibility-agents/issues/new?template=agent_gap.yml) describing what the agent missed or got wrong.
 - **Know a pattern we should catch?** Open a PR. Agent files are plain Markdown - no special tooling required.
 - **Building for the blind and low vision community?** Your lived experience and domain knowledge are exactly what makes these agents better. We would love your involvement.
 
 See the [Contributing Guide](CONTRIBUTING.md) for full details, guidelines, and how to get started.
 
-If you find this project useful, please [star the repo](https://github.com/community-access/accessibility-agents) and watch for releases so you know when updates drop.
+If you find this project useful, please [star the repo](https://github.com/Community-Access/accessibility-agents) and watch for releases so you know when updates drop.
 
 ## Contributors
 
 A sincere thanks to [Taylor Arndt](https://github.com/taylorarndt) and [Jeff Bishop](https://github.com/jeffreybishop) for leading the charge, and to every community member who has contributed to making AI coding tools more accessible.
 
-<a href="https://github.com/community-access/accessibility-agents/graphs/contributors">
+<a href="https://github.com/Community-Access/accessibility-agents/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=community-access/accessibility-agents" alt="Contributors to Accessibility Agents" />
 </a>
 

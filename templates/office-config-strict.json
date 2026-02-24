@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/community-access/accessibility-agents/main/schemas/office-scan-config.schema.json",
+  "$schema": "https://raw.githubusercontent.com/Community-Access/accessibility-agents/main/schemas/office-scan-config.schema.json",
   "version": "1.0",
   "description": "Strict profile — all rules, all severities. Use for public-facing or legally required documents (Section 508, EN 301 549, AODA).",
   "docx": {

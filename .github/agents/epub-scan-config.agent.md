@@ -12,7 +12,7 @@ You manage `.a11y-epub-config.json` - the scan configuration file for ePub acces
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/community-access/accessibility-agents/main/schemas/epub-scan-config.schema.json",
+  "$schema": "https://raw.githubusercontent.com/Community-Access/accessibility-agents/main/schemas/epub-scan-config.schema.json",
   "version": "1.0",
   "description": "Profile description",
   "epub": {
