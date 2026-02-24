@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   sync-docs:
@@ -172,15 +172,15 @@ jobs:
           # Validate JSON
           python3 -m json.tool manifest.json > /dev/null
 
-      - name: Push manifest to site repo
-        uses: dmnemec/copy_file_to_another_repo_action@main
-        env:
-          API_TOKEN_GITHUB: ${{ secrets.SITE_DEPLOY_TOKEN }}
-        with:
-          source_file: 'manifest.json'
-          destination_repo: 'Community-Access/community-access.github.io'
-          destination_folder: '.'
-          destination_branch: 'main'
-          user_email: 'github-actions[bot]@users.noreply.github.com'
-          user_name: 'github-actions[bot]'
-          commit_message: 'Update docs manifest from accessibility-agents'
+      - name: Commit manifest to repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add manifest.json
+          if git diff --cached --quiet; then
+            echo "Manifest unchanged — nothing to commit."
+          else
+            git commit -m "chore: update docs manifest [skip ci]"
+            git push
+          fi
