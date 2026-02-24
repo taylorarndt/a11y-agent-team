@@ -30,7 +30,7 @@ Invoke these agents from the Claude Code agent picker (type `/` to browse):
 | mobile-accessibility | React Native, Expo, iOS, Android - touch targets, screen reader compatibility |
 | design-system-auditor | Color token contrast, focus ring tokens, spacing tokens, Tailwind/MUI/Chakra/shadcn |
 | web-accessibility-wizard | Full guided web accessibility audit with step-by-step walkthrough |
-| document-accessibility-wizard | Document accessibility audit for .docx, .xlsx, .pptx, .pdf - single files, folders, recursive scanning, delta scanning, severity scoring, remediation tracking, compliance export (VPAT/ACR), CI/CD integration |
+| document-accessibility-wizard | Document accessibility audit for .docx, .xlsx, .pptx, .pdf - single files, folders, recursive scanning, delta scanning, severity scoring, remediation tracking, compliance export (VPAT/ACR), CSV export with help links, CI/CD integration |
 | testing-coach | Screen reader testing, keyboard testing, automated testing guidance |
 | wcag-guide | WCAG 2.2 criteria explanations, conformance levels, what changed |
 
@@ -48,6 +48,9 @@ These agents are not meant to be invoked directly by users. They are used intern
 | pdf-scan-config | PDF scan config management - invoked internally by document-accessibility-wizard Phase 0 |
 | markdown-scanner | Per-file markdown scanning across all 9 accessibility domains - invoked in parallel by markdown-a11y-assistant |
 | markdown-fixer | Applies approved markdown fixes and presents human-judgment items - invoked by markdown-a11y-assistant |
+| markdown-csv-reporter | Exports markdown audit findings to CSV with WCAG help links and markdownlint rule references - invoked by markdown-a11y-assistant |
+| web-csv-reporter | Exports web audit findings to CSV with Deque University help links - invoked by web-accessibility-wizard |
+| document-csv-reporter | Exports document audit findings to CSV with Microsoft Office and Adobe PDF help links - invoked by document-accessibility-wizard |
 
 ## Knowledge Domains
 
@@ -65,6 +68,7 @@ The following knowledge domains are available across agent files. On Copilot the
 | Mobile Accessibility | React Native prop reference, iOS/Android API quick reference, touch target rules, violation patterns |
 | Design System | Color token contrast computation, framework token paths (Tailwind/MUI/Chakra/shadcn), focus ring validation, WCAG 2.4.11 |
 | Markdown Accessibility | Ambiguous link/anchor patterns, emoji handling modes (remove/translate), Mermaid and ASCII diagram replacement templates, heading structure, severity scoring |
+| Help URL Reference | Deque University help topic URLs, Microsoft Office help URLs, Adobe PDF help URLs, WCAG understanding document URLs, application-specific fix steps |
 
 ## Lifecycle Hooks
 
@@ -91,7 +95,7 @@ Team coordination is defined in `.claude/agents/AGENTS.md`. Five defined teams:
 - **New component or page:** Always apply aria-specialist + keyboard-navigator + alt-text-headings guidance. Add forms-specialist for any inputs, contrast-master for styling, modal-specialist for overlays, live-region-controller for dynamic updates, tables-data-specialist for any data tables.
 - **Modifying existing UI:** At minimum apply keyboard-navigator (tab order breaks easily). Add others based on what changed.
 - **Code review/audit:** Apply all specialist checklists. Use web-accessibility-wizard for guided web audits.
-- **Document audit:** Use document-accessibility-wizard for Office and PDF accessibility audits. Supports single files, folders, recursive scanning, delta scanning (changed files only), severity scoring, template analysis, remediation tracking across re-scans, compliance format export (VPAT/ACR), batch remediation scripts, and CI/CD integration guides.
+- **Document audit:** Use document-accessibility-wizard for Office and PDF accessibility audits. Supports single files, folders, recursive scanning, delta scanning (changed files only), severity scoring, template analysis, remediation tracking across re-scans, compliance format export (VPAT/ACR), CSV export with help links, batch remediation scripts, and CI/CD integration guides.
 - **Mobile app (React Native / Expo / iOS / Android):** Apply cognitive-accessibility guidance. Use mobile-accessibility for touch target checks, accessibilityLabel/Role/State audits, and platform-specific screen reader testing.
 - **Cognitive / UX clarity / plain language:** Use cognitive-accessibility for WCAG 2.2 SC 3.3.7, 3.3.8, 3.3.9, COGA guidance, error message quality, and reading level analysis.
 - **Design system / tokens:** Use design-system-auditor to validate color token pairs, focus ring tokens, spacing tokens, and motion tokens before they propagate to UI.

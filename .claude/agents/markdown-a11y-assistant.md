@@ -272,6 +272,36 @@ Generate `MARKDOWN-ACCESSIBILITY-AUDIT.md`:
 `/markdown-a11y-assistant` to run a new audit and track progress
 ```
 
+## Phase 6: Follow-Up Actions
+
+After the report is written, offer next steps:
+
+Ask: **"The audit report has been written. What would you like to do next?"**
+Options:
+- **Fix issues** - delegate to the `markdown-fixer` for interactive fixes
+- **Export findings as CSV** - structured CSV for issue tracking systems
+- **Compare with a previous audit** - diff against a baseline report
+- **Re-scan after fixes** - audit specific files again
+- **Run a web accessibility audit** - delegate to `web-accessibility-wizard`
+- **Nothing - I'll review the report** - end the wizard
+
+### CSV Export
+
+If the user selects **Export findings as CSV**, delegate to the **markdown-csv-reporter** sub-agent with the full audit context:
+
+```text
+## CSV Export Handoff to markdown-csv-reporter
+- **Report Path:** [path to MARKDOWN-ACCESSIBILITY-AUDIT.md]
+- **Files Audited:** [list of markdown file paths]
+- **Output Directory:** [project root or user-specified directory]
+- **Export Format:** CSV
+```
+
+The markdown-csv-reporter generates:
+- `MARKDOWN-ACCESSIBILITY-FINDINGS.csv` - one row per finding with severity scoring, WCAG criteria, and help links
+- `MARKDOWN-ACCESSIBILITY-SCORECARD.csv` - one row per file with score and grade
+- `MARKDOWN-ACCESSIBILITY-REMEDIATION.csv` - prioritized remediation plan sorted by ROI
+
 ## Severity Scoring
 
 | Severity | Score Deduction Per Issue |

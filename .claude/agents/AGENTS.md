@@ -9,6 +9,7 @@ This file defines coordinated multi-agent workflows for enterprise accessibility
 **Members:**
 - `markdown-scanner` *(hidden helper)* - Per-file scanning across all 9 accessibility domains; returns structured findings
 - `markdown-fixer` *(hidden helper)* - Applies auto-fixes and presents human-judgment items for approval
+- `markdown-csv-reporter` *(hidden helper)* - Exports findings to CSV with WCAG help links and markdownlint rule references
 
 **Workflow:**
 1. `markdown-a11y-assistant` receives the user request and runs Phase 0 (discovery + configuration)
@@ -19,6 +20,7 @@ This file defines coordinated multi-agent workflows for enterprise accessibility
 6. Final `MARKDOWN-ACCESSIBILITY-AUDIT.md` report is generated with per-file scores and grades
 
 **Handoffs:**
+- `markdown-csv-reporter` for CSV export with WCAG help links
 - `web-accessibility-wizard` after markdown audit is complete for HTML/JSX/TSX files
 - `document-accessibility-wizard` for Office/PDF documents after markdown audit
 
@@ -35,6 +37,11 @@ This file defines coordinated multi-agent workflows for enterprise accessibility
 - `pdf-accessibility` - PDF scanning and remediation (PDFUA.*, PDFBP.*, PDFQ.* rules)
 - `office-scan-config` - Office scan configuration management
 - `pdf-scan-config` - PDF scan configuration management
+- `epub-scan-config` - ePub scan configuration management
+- `document-csv-reporter` - Exports document audit findings to CSV with Microsoft Office and Adobe PDF help links
+
+**Members (ePub):**
+- `epub-accessibility` - EPUB scanning and remediation (EPUB-E*, EPUB-W*, EPUB-T* rules)
 
 **Workflow:**
 1. `document-accessibility-wizard` receives the user request and runs Phase 0 (discovery)
@@ -46,6 +53,23 @@ This file defines coordinated multi-agent workflows for enterprise accessibility
 **Handoffs:**
 - After audit, user can hand off to any format specialist for targeted remediation
 - `web-accessibility-wizard` handles web audit handoff when document audit is complete
+
+## Team: ePub Document Accessibility
+
+**Lead:** `epub-accessibility`
+
+**Internal Helpers:**
+- `epub-scan-config` - ePub scan configuration management (invoked via document-accessibility-wizard Phase 0)
+
+**Workflow:**
+1. `document-accessibility-wizard` detects `.epub` files in scope and invokes `epub-scan-config` to locate or create `.a11y-epub-config.json`
+2. `epub-accessibility` unpacks the EPUB archive, locates the OPF package document, audits metadata, navigation, and content documents
+3. Findings are reported using EPUB-E*, EPUB-W*, EPUB-T* rule IDs with WCAG mappings
+4. Results feed into `document-accessibility-wizard` for the unified document audit report
+
+**Handoffs:**
+- `document-accessibility-wizard` orchestrates EPUB scanning as part of the broader document audit
+- `pdf-accessibility` if the user also has PDF documents to scan
 
 ## Team: Web Accessibility Audit
 
@@ -63,10 +87,12 @@ This file defines coordinated multi-agent workflows for enterprise accessibility
 - `tables-data-specialist` - Data tables, grids
 - `link-checker` - Link text quality
 - `testing-coach` - Testing guidance
+- `cognitive-accessibility` - WCAG 2.2 cognitive SC, COGA guidance, plain language analysis
 
 **Hidden Helpers:**
 - `cross-page-analyzer` - Cross-page pattern detection, severity scoring, remediation tracking
 - `web-issue-fixer` - Automated and guided accessibility fix application
+- `web-csv-reporter` - Exports web audit findings to CSV with Deque University help links
 
 **Workflow:**
 1. `web-accessibility-wizard` receives the user request and runs Phase 0 (discovery)
@@ -83,6 +109,31 @@ This file defines coordinated multi-agent workflows for enterprise accessibility
 - After audit, user can ask for interactive fix mode to apply corrections from the report
 - Remediation tracking is available by comparing audit reports across runs
 - Multi-page comparison audits scan multiple pages and detect cross-cutting patterns
+
+## Team: Mobile Accessibility
+
+**Lead:** `mobile-accessibility`
+
+**Scope:** React Native, Expo, iOS (SwiftUI/UIKit), Android (Jetpack Compose/Views). Invoked standalone for any mobile code review or as a handoff from `accessibility-lead`.
+
+**Workflow:**
+1. `mobile-accessibility` identifies platform (React Native / iOS / Android)
+2. Audits accessibility props, touch target sizes, screen reader compatibility, focus order
+3. Produces a findings report with platform-specific rule IDs and fix code
+4. Handoffs: `design-system-auditor` for token-level issues; `accessibility-lead` for web companion audits
+
+## Team: Design System Accessibility
+
+**Lead:** `design-system-auditor`
+
+**Scope:** Tailwind config, CSS custom properties, Style Dictionary token files, MUI/Chakra/Radix themes. Invoked standalone or as a Phase 0 step before web or mobile audits.
+
+**Workflow:**
+1. `design-system-auditor` locates token files and identifies design system type
+2. Audits color token pairs for WCAG contrast compliance
+3. Audits focus ring tokens (WCAG 2.4.11), spacing/touch-target tokens, motion tokens
+4. Produces a token-level findings report with compliant replacement values
+5. Handoffs: `contrast-master` for runtime verification; `mobile-accessibility` for spacing tokens
 
 ## Team: Full Audit (Web + Documents)
 

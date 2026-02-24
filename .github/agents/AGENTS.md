@@ -9,6 +9,7 @@ This file defines coordinated multi-agent workflows for enterprise accessibility
 **Members:**
 - `markdown-scanner` *(hidden helper)* - Per-file scanning across all 9 accessibility domains
 - `markdown-fixer` *(hidden helper)* - Applies auto-fixes and presents human-judgment items for approval
+- `markdown-csv-reporter` *(hidden helper)* - Exports findings to CSV with WCAG help links and markdownlint rule references
 
 **Workflow:**
 1. `markdown-a11y-assistant` receives the user request and runs Phase 0 (discovery + configuration)
@@ -22,6 +23,7 @@ This file defines coordinated multi-agent workflows for enterprise accessibility
 - `fix-markdown-issues` prompt for interactive fix mode from a saved report
 - `compare-markdown-audits` prompt for tracking progress between audit runs
 - `quick-markdown-check` prompt for fast triage without a full report
+- `export-markdown-csv` prompt for CSV export with WCAG help links
 - `web-accessibility-wizard` for web UI after markdown audit is complete
 
 ## Team: Document Accessibility Audit
@@ -39,6 +41,11 @@ This file defines coordinated multi-agent workflows for enterprise accessibility
 **Internal Helpers (not user-invokable):**
 - `office-scan-config` - Office scan config management (invoked via document-accessibility-wizard Phase 0)
 - `pdf-scan-config` - PDF scan config management (invoked via document-accessibility-wizard Phase 0)
+- `epub-scan-config` - ePub scan config management (invoked via document-accessibility-wizard Phase 0)
+- `document-csv-reporter` - Exports document audit findings to CSV with Microsoft Office and Adobe PDF help links
+
+**Members (ePub):**
+- `epub-accessibility` - EPUB scanning and remediation (EPUB-E*, EPUB-W*, EPUB-T* rules)
 
 **Workflow:**
 1. `document-accessibility-wizard` receives the user request and runs Phase 0 (discovery)
@@ -50,6 +57,23 @@ This file defines coordinated multi-agent workflows for enterprise accessibility
 **Handoffs:**
 - After audit, user can hand off to any format specialist for targeted remediation
 - `accessibility-wizard` handles web audit handoff when document audit is complete
+
+## Team: ePub Document Accessibility
+
+**Lead:** `epub-accessibility`
+
+**Internal Helpers (not user-invokable):**
+- `epub-scan-config` - ePub scan configuration management (invoked via document-accessibility-wizard Phase 0)
+
+**Workflow:**
+1. `document-accessibility-wizard` detects `.epub` files in scope and invokes `epub-scan-config` to locate or create `.a11y-epub-config.json`
+2. `epub-accessibility` unpacks the EPUB archive, locates the OPF package document, audits metadata, navigation, and content documents
+3. Findings are reported using EPUB-E*, EPUB-W*, EPUB-T* rule IDs with WCAG mappings
+4. Results feed into `document-accessibility-wizard` for the unified document audit report
+
+**Handoffs:**
+- `document-accessibility-wizard` orchestrates EPUB scanning as part of the broader document audit
+- `pdf-accessibility` if the user also has PDF documents to scan
 
 ## Team: Web Accessibility Audit
 
@@ -72,6 +96,7 @@ This file defines coordinated multi-agent workflows for enterprise accessibility
 **Hidden Helpers:**
 - `cross-page-analyzer` - Cross-page pattern detection, severity scoring, remediation tracking
 - `web-issue-fixer` - Automated and guided accessibility fix application
+- `web-csv-reporter` - Exports web audit findings to CSV with Deque University help links
 
 **Workflow:**
 1. `web-accessibility-wizard` receives the user request and runs Phase 0 (discovery)

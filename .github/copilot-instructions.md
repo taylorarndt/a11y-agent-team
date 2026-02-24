@@ -28,7 +28,7 @@ Select these agents from the agents dropdown in Copilot Chat, or type `/agents` 
 | link-checker | Ambiguous link text, "click here"/"read more" detection, link purpose |
 | markdown-a11y-assistant | Markdown document accessibility - links, alt text, headings, tables, emoji, mermaid diagrams, dashes, anchors |
 | accessibility-wizard | Full guided web accessibility audit with step-by-step walkthrough |
-| document-accessibility-wizard | Document accessibility audit for .docx, .xlsx, .pptx, .pdf - single files, folders, recursive scanning, delta scanning, severity scoring, remediation tracking, compliance export (VPAT/ACR), CI/CD integration |
+| document-accessibility-wizard | Document accessibility audit for .docx, .xlsx, .pptx, .pdf - single files, folders, recursive scanning, delta scanning, severity scoring, remediation tracking, compliance export (VPAT/ACR), CSV export with help links, CI/CD integration |
 | testing-coach | Screen reader testing, keyboard testing, automated testing guidance |
 | wcag-guide | WCAG 2.2 criteria explanations, conformance levels, what changed |
 
@@ -46,6 +46,9 @@ These agents are not user-invokable. They are used internally by the document-ac
 | pdf-scan-config | PDF scan config management - invoked internally by document-accessibility-wizard Phase 0 |
 | markdown-scanner | Per-file markdown scanning across all 9 accessibility domains - invoked in parallel by markdown-a11y-assistant |
 | markdown-fixer | Applies approved markdown fixes and presents human-judgment items - invoked by markdown-a11y-assistant |
+| markdown-csv-reporter | Exports markdown audit findings to CSV with WCAG help links and markdownlint rule references - invoked by markdown-a11y-assistant |
+| web-csv-reporter | Exports web audit findings to CSV with Deque University help links - invoked by web-accessibility-wizard |
+| document-csv-reporter | Exports document audit findings to CSV with Microsoft Office and Adobe PDF help links - invoked by document-accessibility-wizard |
 
 ### Agent Skills
 
@@ -66,6 +69,7 @@ Reusable knowledge modules in `.github/skills/` that agents reference automatica
 | github-workflow-standards | Core standards for all GitHub workflow agents: auth, discovery, dual MD+HTML output, HTML accessibility, safety rules, progress announcements, parallel execution |
 | github-scanning | GitHub search patterns by intent, date range handling, parallel stream collection, cross-repo intelligence, auto-recovery |
 | github-analytics-scoring | Repo health scoring (0-100/A-F), issue/PR priority scoring, confidence levels, delta tracking, velocity metrics, bottleneck detection |
+| help-url-reference | Deque University help topic URLs, Microsoft Office help URLs, Adobe PDF help URLs, WCAG understanding document URLs, application-specific fix steps |
 
 ### Lifecycle Hooks
 
@@ -90,7 +94,7 @@ Team coordination is defined in `.github/agents/AGENTS.md`. Four defined teams:
 - **New component or page:** Always apply aria-specialist + keyboard-navigator + alt-text-headings guidance. Add forms-specialist for any inputs, contrast-master for styling, modal-specialist for overlays, live-region-controller for dynamic updates, tables-data-specialist for any data tables.
 - **Modifying existing UI:** At minimum apply keyboard-navigator (tab order breaks easily). Add others based on what changed.
 - **Code review/audit:** Apply all specialist checklists. Use accessibility-wizard for guided web audits. Use `audit-web-page` prompt for one-click full audits.
-- **Document audit:** Use document-accessibility-wizard for Office and PDF accessibility audits. Supports single files, folders, recursive scanning, delta scanning (changed files only), severity scoring, template analysis, remediation tracking across re-scans, compliance format export (VPAT/ACR), batch remediation scripts, and CI/CD integration guides.
+- **Document audit:** Use document-accessibility-wizard for Office and PDF accessibility audits. Supports single files, folders, recursive scanning, delta scanning (changed files only), severity scoring, template analysis, remediation tracking across re-scans, compliance format export (VPAT/ACR), CSV export with help links, batch remediation scripts, and CI/CD integration guides.
 - **Web remediation:** Use `fix-web-issues` prompt to interactively apply fixes from an audit report. Use `compare-web-audits` to track progress between audits.
 - **Mobile app (React Native / Expo / iOS / Android):** Apply cognitive-accessibility guidance. Use mobile-accessibility for touch target checks, accessibilityLabel/Role/State audits, and platform-specific screen reader testing.
 - **Cognitive / UX clarity / plain language:** Use cognitive-accessibility for WCAG 2.2 SC 3.3.7, 3.3.8, 3.3.9, COGA guidance, error message quality, and reading level analysis.
@@ -117,6 +121,7 @@ The following prompt files in `.github/prompts/` provide one-click workflows for
 | setup-document-cicd | Set up CI/CD pipelines for automated document scanning |
 | quick-document-check | Fast triage - errors only, pass/fail verdict |
 | create-accessible-template | Guidance for creating accessible document templates |
+| export-document-csv | Export document audit findings to CSV with Microsoft Office and Adobe PDF help links |
 
 ### Custom Prompts for Web Accessibility
 
@@ -133,6 +138,8 @@ One-click workflows for web accessibility auditing tasks:
 | quick-markdown-check | Fast markdown triage - errors only, inline pass/fail verdict, no report file |
 | fix-markdown-issues | Interactive fix mode - auto-fix table and human-judgment items from saved report |
 | compare-markdown-audits | Track markdown remediation progress between two audit snapshots |
+| export-web-csv | Export web audit findings to CSV with Deque University help links |
+| export-markdown-csv | Export markdown audit findings to CSV with WCAG help links and markdownlint rule references |
 
 ### Scan Configuration Templates
 

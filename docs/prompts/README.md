@@ -11,6 +11,8 @@ This directory contains complete documentation for all 45 prompt files in this r
 | [audit-web-multi-page](web/audit-web-multi-page.md) | Multi-page comparison audit with systemic vs page-specific classification |
 | [compare-web-audits](web/compare-web-audits.md) | Track remediation progress between two audit snapshots |
 | [fix-web-issues](web/fix-web-issues.md) | Interactive fix mode with auto-fix + human-judgment workflow |
+| [export-web-csv](web/export-web-csv.md) | Export web audit findings to CSV with Deque University help links |
+| [export-markdown-csv](web/export-markdown-csv.md) | Export markdown audit findings to CSV with WCAG help links and markdownlint rule references |
 
 ## Document Accessibility Prompts
 
@@ -25,6 +27,7 @@ This directory contains complete documentation for all 45 prompt files in this r
 | [compare-audits](documents/compare-audits.md) | Compare two document audit reports and track progress |
 | [setup-document-cicd](documents/setup-document-cicd.md) | Set up CI/CD pipeline for automated document scanning |
 | [create-accessible-template](documents/create-accessible-template.md) | Create an accessible Office document template from scratch |
+| [export-document-csv](documents/export-document-csv.md) | Export document audit findings to CSV with Microsoft Office and Adobe PDF help links |
 
 ## GitHub Workflow Prompts
 

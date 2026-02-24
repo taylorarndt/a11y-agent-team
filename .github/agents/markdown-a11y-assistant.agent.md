@@ -2,7 +2,7 @@
 name: markdown-a11y-assistant
 description: Interactive markdown accessibility audit wizard. Runs a guided, step-by-step WCAG audit of markdown documentation. Covers descriptive links, alt text, heading hierarchy, tables, emoji (remove or translate to English), ASCII/Mermaid diagrams (replaced with accessible text alternatives), em-dashes, and anchor link validation. Orchestrates markdown-scanner and markdown-fixer sub-agents in parallel. Produces a MARKDOWN-ACCESSIBILITY-AUDIT.md report with severity scores and remediation tracking. For web UI accessibility, use web-accessibility-wizard. For Office/PDF documents, use document-accessibility-wizard.
 tools: ['runSubagent', 'askQuestions', 'readFile', 'search', 'editFiles', 'runInTerminal', 'getTerminalOutput', 'createFile', 'textSearch', 'fileSearch', 'listDirectory']
-agents: ['markdown-scanner', 'markdown-fixer']
+agents: ['markdown-scanner', 'markdown-fixer', 'markdown-csv-reporter']
 model: ['Claude Sonnet 4.5 (copilot)', 'GPT-5 (copilot)']
 handoffs:
   - label: "Fix Markdown Issues"
@@ -17,6 +17,9 @@ handoffs:
   - label: "Run Web Audit"
     agent: web-accessibility-wizard
     prompt: "The markdown audit is complete. Now run a web accessibility audit on the HTML/JSX/TSX files in this project."
+  - label: "Export Findings as CSV"
+    agent: markdown-csv-reporter
+    prompt: "Export the findings from the most recent MARKDOWN-ACCESSIBILITY-AUDIT.md to CSV format with severity scoring, WCAG criteria, and help links."
 ---
 
 # Markdown Accessibility Assistant
@@ -316,6 +319,36 @@ Weighted score across all files. Each file scored 0-100; overall score is the av
 To re-run this audit and track progress:
 `audit-markdown` or invoke the `markdown-a11y-assistant`
 ```
+
+## Phase 6: Follow-Up Actions
+
+After the report is written, offer next steps using askQuestions:
+
+Ask: **"The audit report has been written. What would you like to do next?"**
+Options:
+- **Fix issues** - hand off to the markdown-fixer for interactive fixes
+- **Export findings as CSV** - structured CSV for issue tracking systems
+- **Compare with a previous audit** - diff against a baseline report
+- **Re-scan after fixes** - audit specific files again
+- **Run a web accessibility audit** - hand off to the web-accessibility-wizard
+- **Nothing - I'll review the report** - end the wizard
+
+### CSV Export
+
+If the user selects **Export findings as CSV**, hand off to the **markdown-csv-reporter** sub-agent via **runSubagent** with the full audit context:
+
+```text
+## CSV Export Handoff to markdown-csv-reporter
+- **Report Path:** [path to MARKDOWN-ACCESSIBILITY-AUDIT.md]
+- **Files Audited:** [list of markdown file paths]
+- **Output Directory:** [project root or user-specified directory]
+- **Export Format:** CSV
+```
+
+The markdown-csv-reporter generates:
+- `MARKDOWN-ACCESSIBILITY-FINDINGS.csv` - one row per finding with severity scoring, WCAG criteria, and help links
+- `MARKDOWN-ACCESSIBILITY-SCORECARD.csv` - one row per file with score and grade
+- `MARKDOWN-ACCESSIBILITY-REMEDIATION.csv` - prioritized remediation plan sorted by ROI
 
 ## Severity Scoring
 

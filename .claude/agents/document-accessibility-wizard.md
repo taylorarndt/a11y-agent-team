@@ -793,6 +793,22 @@ Conformance levels:
 - **Does Not Support** - All or most documents fail
 - **Not Applicable** - Criterion does not apply to the document types scanned
 
+### CSV/JSON Export
+
+If the user selects **Export findings as CSV/JSON**, delegate to the **document-csv-reporter** sub-agent with the full audit context:
+
+```text
+## CSV Export Handoff to document-csv-reporter
+- **Report Path:** [path to DOCUMENT-ACCESSIBILITY-AUDIT.md]
+- **Files Audited:** [list of file paths with types]
+- **Output Directory:** [project root or user-specified directory]
+- **Export Format:** CSV (and optionally JSON)
+```
+
+The document-csv-reporter generates:
+- `DOCUMENT-ACCESSIBILITY-FINDINGS.csv` - one row per finding with severity scoring, WCAG criteria, and Microsoft/Adobe help links
+- `DOCUMENT-ACCESSIBILITY-SCORECARD.csv` - one row per document with score and grade
+
 ### Comparison with Previous Audit
 
 If the user selects **Compare with a previous audit**, ask for the path to the previous report. Then run the comparison analysis from Phase 3's Remediation Tracking section and present the diff report.

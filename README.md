@@ -89,7 +89,7 @@ The following agents make up the accessibility enforcement team, each owning one
 | **office-scan-config** | Office scan rule configuration and preset profiles. |
 | **pdf-accessibility** | PDF conformance per PDF/UA and the Matterhorn Protocol. |
 | **pdf-scan-config** | PDF scan rule configuration and preset profiles. |
-| **document-accessibility-wizard** | Guided document audit with cross-document analysis and VPAT export. |
+| **document-accessibility-wizard** | Guided document audit with cross-document analysis, VPAT export, and CSV export with help links. |
 | **markdown-a11y-assistant** | Markdown documentation audit — links, alt text, headings, tables, emoji, diagrams, em-dashes, anchors. |
 
 ### GitHub Workflow Agents
@@ -169,6 +169,7 @@ The following guides cover advanced configuration, cross-platform handoff, and d
 - PDF document accessibility scanning per PDF/UA and the Matterhorn Protocol with 56 built-in rules
 - Markdown documentation accessibility scanning across 9 domains (links, alt text, headings, tables, emoji, diagrams, em-dashes, anchors, plain language)
 - SARIF 2.1.0 output for CI/CD integration
+- CSV export with help documentation links for web and document audit findings
 - Common framework pitfalls (React conditional rendering, Tailwind contrast failures)
 
 ## Roadmap

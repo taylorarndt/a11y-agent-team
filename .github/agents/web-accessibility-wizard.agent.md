@@ -1219,9 +1219,19 @@ The generated script MUST include:
 
 ### CSV/JSON Export
 
-If the user selects **Export findings as CSV/JSON**, generate:
-- `ACCESSIBILITY-FINDINGS.csv` - one row per finding with columns: Page, Issue, Severity, WCAG, Confidence, Source, Location
-- `ACCESSIBILITY-FINDINGS.json` - structured JSON with full finding details for import into issue trackers
+If the user selects **Export findings as CSV/JSON**, hand off to the **web-csv-reporter** sub-agent via **runSubagent** with the full audit context:
+
+```text
+## CSV Export Handoff to web-csv-reporter
+- **Report Path:** [path to WEB-ACCESSIBILITY-AUDIT.md]
+- **Pages Audited:** [list of page URLs]
+- **Output Directory:** [project root or user-specified directory]
+- **Export Format:** CSV (and optionally JSON)
+```
+
+The web-csv-reporter generates:
+- `WEB-ACCESSIBILITY-FINDINGS.csv` - one row per finding with severity scoring, WCAG criteria, and Deque University help links
+- `WEB-ACCESSIBILITY-SCORECARD.csv` - one row per page with score and grade
 
 ### Comparison with Previous Audit
 

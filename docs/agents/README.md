@@ -64,6 +64,7 @@ Think of the A11y Agent Team as a consulting team of accessibility specialists. 
 | [tables-data-specialist](tables-data-specialist.md) | Data tables, grids, sortable columns | [Full docs](tables-data-specialist.md) |
 | [link-checker](link-checker.md) | Ambiguous link text detection | [Full docs](link-checker.md) |
 | [web-accessibility-wizard](web-accessibility-wizard.md) | Guided web accessibility audit | [Full docs](web-accessibility-wizard.md) |
+| web-csv-reporter | CSV export with Deque University help links (hidden - invoked by orchestrator) | [Full docs](web-csv-reporter.md) |
 | [cognitive-accessibility](cognitive-accessibility.md) | Cognitive accessibility, plain language, COGA, WCAG 2.2 new criteria | [Full docs](cognitive-accessibility.md) |
 | [mobile-accessibility](mobile-accessibility.md) | React Native, iOS/Android accessibility, touch targets | [Full docs](mobile-accessibility.md) |
 | [design-system-auditor](design-system-auditor.md) | Design token contrast, focus ring compliance, Tailwind/MUI/shadcn audits | [Full docs](design-system-auditor.md) |
@@ -88,6 +89,7 @@ Think of the A11y Agent Team as a consulting team of accessibility specialists. 
 | [epub-accessibility](epub-accessibility.md) | ePub (EPUB 2/3) scanning | [Full docs](epub-accessibility.md) |
 | [epub-scan-config](epub-scan-config.md) | ePub scan configuration | [Full docs](epub-scan-config.md) |
 | [document-accessibility-wizard](document-accessibility-wizard.md) | Guided document audit | [Full docs](document-accessibility-wizard.md) |
+| document-csv-reporter | CSV export with Microsoft Office and Adobe PDF help links (hidden - invoked by orchestrator) | [Full docs](document-csv-reporter.md) |
 
 </details>
 
@@ -101,6 +103,7 @@ Think of the A11y Agent Team as a consulting team of accessibility specialists. 
 | [markdown-a11y-assistant](markdown-a11y-assistant.md) | Orchestrator — links, alt text, headings, tables, emoji, diagrams, em-dashes, anchors | [Full docs](markdown-a11y-assistant.md) |
 | markdown-scanner | Per-file parallel scanning across all 9 domains (hidden — invoked by orchestrator) | Internal |
 | markdown-fixer | Applies auto-fixes and presents human-judgment items (hidden — invoked by orchestrator) | Internal |
+| [markdown-csv-reporter](markdown-csv-reporter.md) | Exports findings to CSV with WCAG help links and markdownlint rule references (hidden — invoked by orchestrator) | [Full docs](markdown-csv-reporter.md) |
 
 </details>
 
@@ -296,6 +299,7 @@ Skills are reusable knowledge modules loaded by agents at runtime. Each skill de
 | [`github-scanning`](../skills/github-scanning.md) | Search query construction, date ranges, cross-repo parallel streams, auto-recovery | github-hub, daily-briefing, issue-tracker, pr-review, analytics, insiders-a11y-tracker |
 | [`github-analytics-scoring`](../skills/github-analytics-scoring.md) | Repo health 0-100/A-F, priority scoring, bottleneck detection, velocity metrics | daily-briefing, issue-tracker, pr-review, analytics, repo-admin, insiders-a11y-tracker |
 | [`markdown-accessibility`](../skills/markdown-accessibility.md) | Ambiguous link/anchor patterns, emoji handling (remove/translate), Mermaid/ASCII diagram replacement, heading rules, severity scoring | markdown-a11y-assistant, markdown-scanner, markdown-fixer |
+| [`help-url-reference`](../skills/help-url-reference.md) | Deque University, Microsoft Office, Adobe PDF, and WCAG Understanding document URL mappings | web-csv-reporter, document-csv-reporter |
 
 ---
 
