@@ -9,6 +9,7 @@ on:
 jobs:
   sync-wiki:
     runs-on: ubuntu-latest
+    if: github.repository == 'Community-Access/accessibility-agents'
     permissions:
       contents: write
 

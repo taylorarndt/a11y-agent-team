@@ -14,16 +14,27 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   sync-docs:
     runs-on: ubuntu-latest
+    if: github.repository == 'Community-Access/accessibility-agents'
     steps:
       - name: Checkout accessibility-agents
         uses: actions/checkout@v4
+        with:
+          path: accessibility-agents
+
+      - name: Checkout community-access.github.io
+        uses: actions/checkout@v4
+        with:
+          repository: Community-Access/community-access.github.io
+          path: pages-site
+          token: ${{ secrets.DOCS_DEPLOY_TOKEN }}
 
       - name: Build docs manifest
+        working-directory: accessibility-agents
         run: |
           echo '{ "generated": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'", "sections": [' > manifest.json
 
@@ -172,15 +183,27 @@ jobs:
           # Validate JSON
           python3 -m json.tool manifest.json > /dev/null
 
-      - name: Commit manifest to repo
+      - name: Sync docs to community-access.github.io
         run: |
+          # Ensure the docs directory exists in the pages repo
+          mkdir -p pages-site/docs
+
+          # Sync docs/ tree; --delete removes stale files from the mirror
+          rsync -av --delete \
+            accessibility-agents/docs/ \
+            pages-site/docs/
+
+          # Copy the generated manifest
+          cp accessibility-agents/manifest.json pages-site/manifest.json
+
+          cd pages-site
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add manifest.json
+          git add docs/ manifest.json
           if git diff --cached --quiet; then
-            echo "Manifest unchanged — nothing to commit."
+            echo "Documentation unchanged — nothing to commit."
           else
-            git commit -m "chore: update docs manifest [skip ci]"
+            git commit -m "chore: sync docs from accessibility-agents [skip ci]"
             git push
           fi
