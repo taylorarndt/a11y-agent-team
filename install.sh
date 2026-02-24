@@ -1,6 +1,6 @@
 #!/bin/bash
-# A11y Agent Team Installer
-# Built by Taylor Arndt - https://github.com/taylorarndt
+# Accessibility Agents Installer
+# Started by Taylor Arndt - https://github.com/taylorarndt
 #
 # Usage:
 #   bash install.sh                    Interactive mode (prompts for project or global)
@@ -23,7 +23,7 @@ if [ ! -d "$SCRIPT_DIR/.claude/agents" ]; then
   DOWNLOADED=true
   TMPDIR_DL="$(mktemp -d)"
   echo ""
-  echo "  Downloading A11y Agent Team..."
+  echo "  Downloading Accessibility Agents..."
 
   if ! command -v git &>/dev/null; then
     echo "  Error: git is required. Install git and try again."
@@ -74,9 +74,9 @@ done
 
 if [ -z "$choice" ]; then
   echo ""
-  echo "  A11y Agent Team Installer"
-  echo "  Built by Taylor Arndt"
-  echo "  ========================="
+  echo "  Accessibility Agents Installer"
+  echo "  Started by Taylor Arndt"
+  echo "  ================================"
   echo ""
   echo "  Where would you like to install?"
   echo ""
@@ -396,7 +396,7 @@ PYEOF
       INIT_SCRIPT="$HOME/.a11y-agent-team/a11y-copilot-init"
       cat > "$INIT_SCRIPT" << 'INITSCRIPT'
 #!/bin/bash
-# A11y Agent Team - Copy Copilot agents into the current project
+# Accessibility Agents - Copy Copilot agents into the current project
 # Usage: a11y-copilot-init
 #
 # Copies .agent.md files into .github/agents/ for this project.
@@ -495,7 +495,7 @@ INITSCRIPT
       if [ -n "$SHELL_RC" ]; then
         if ! grep -q "a11y-copilot-init" "$SHELL_RC" 2>/dev/null; then
           echo "" >> "$SHELL_RC"
-          echo "# A11y Agent Team - Copilot init command" >> "$SHELL_RC"
+          echo "# Accessibility Agents - Copilot init command" >> "$SHELL_RC"
           echo "export PATH=\"\$HOME/.a11y-agent-team:\$PATH\"" >> "$SHELL_RC"
           echo "  Added 'a11y-copilot-init' command to your PATH via $SHELL_RC"
         else
