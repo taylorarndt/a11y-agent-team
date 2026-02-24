@@ -1,6 +1,6 @@
 #!/bin/bash
-# A11y Agent Team Uninstaller
-# Built by Taylor Arndt - https://github.com/taylorarndt
+# Accessibility Agents Uninstaller
+# Started by Taylor Arndt - https://github.com/taylorarndt
 #
 # Usage:
 #   bash uninstall.sh            Interactive mode
@@ -32,8 +32,8 @@ if [ -z "$choice" ]; then
     exit 1
   fi
   echo ""
-  echo "  A11y Agent Team Uninstaller"
-  echo "  ==========================="
+  echo "  Accessibility Agents Uninstaller"
+  echo "  ================================"
   echo ""
   echo "  Where would you like to uninstall from?"
   echo ""
