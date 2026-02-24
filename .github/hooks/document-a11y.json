@@ -4,14 +4,14 @@
       {
         "type": "command",
         "command": "node .github/hooks/scripts/session-start.js",
-        "timeout": 10
+        "timeout": 15
       }
     ],
     "Stop": [
       {
         "type": "command",
         "command": "node .github/hooks/scripts/session-stop.js",
-        "timeout": 10
+        "timeout": 15
       }
     ]
   }

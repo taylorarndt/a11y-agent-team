@@ -113,35 +113,60 @@ Copilot agents access it through the Skills framework (auto-resolved from `SKILL
 
 Both platforms support hooks, but with different mechanisms:
 
-**Claude Code** (`.claude/settings.json`):
+**Unified Format** (works in both VS Code Copilot and Claude Code):
+
+Both platforms now support the same flat hook format. Place hooks in `.claude/settings.json` for Claude Code or `.github/hooks/*.json` for VS Code:
 
 ```json
 {
   "hooks": {
-    "UserPromptSubmit": [{
-      "type": "command",
-      "command": "bash .claude/hooks/a11y-team-eval.sh"
-    }]
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "node .github/hooks/scripts/session-start.js",
+        "timeout": 15
+      }
+    ],
+    "PreToolUse": [
+      {
+        "type": "command",
+        "command": "bash .github/hooks/scripts/safety-gate.sh",
+        "windows": "powershell -ExecutionPolicy Bypass -File .github\\hooks\\scripts\\safety-gate.ps1",
+        "timeout": 15
+      }
+    ],
+    "Stop": [
+      {
+        "type": "command",
+        "command": "node .github/hooks/scripts/session-stop.js",
+        "timeout": 15
+      }
+    ]
   }
 }
 ```
 
-**GitHub Copilot** (`.github/hooks/document-a11y.json`):
+**Key differences:**
+- Claude Code advanced feature: `matcher` groups for filtering (e.g., only run on `Bash` tool calls)
+- VS Code reads from: `.github/hooks/*.json`, `.claude/settings.json`, `.claude/settings.local.json`
+- Claude Code reads from: `.claude/settings.json`, `~/.claude/settings.json`
+- Both support `command` + `windows`/`linux`/`osx` OS-specific overrides
 
-```json
-{
-  "hooks": {
-    "SessionStart": [{
-      "type": "command",
-      "command": "node .github/hooks/scripts/session-start.js"
-    }],
-    "SessionEnd": [{
-      "type": "command",
-      "command": "node .github/hooks/scripts/session-stop.js"
-    }]
-  }
-}
-```
+**Supported hook events:**
+| Event | VS Code | Claude Code | Copilot CLI |
+|-------|---------|-------------|-------------|
+| `SessionStart` | ✓ | ✓ | `sessionStart` |
+| `Stop` | ✓ | ✓ | `sessionEnd` |
+| `UserPromptSubmit` | ✓ | ✓ | `userPromptSubmitted` |
+| `PreToolUse` | ✓ | ✓ | `preToolUse` |
+| `PostToolUse` | ✓ | ✓ | `postToolUse` |
+| `PreCompact` | ✓ | ✓ | — |
+| `SubagentStart` | ✓ | ✓ | — |
+| `SubagentStop` | ✓ | ✓ | — |
+| `SessionEnd` | — | ✓ | — |
+| `errorOccurred` | — | — | ✓ |
+
+Note: Copilot CLI uses camelCase event names and requires `"version": 1` in the config. VS Code auto-converts Copilot CLI format.
 
 Both hook systems:
 

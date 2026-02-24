@@ -10,7 +10,7 @@ $input_json = $input | Out-String
 try {
     $payload = $input_json | ConvertFrom-Json
 } catch {
-    @{ continue = $true } | ConvertTo-Json -Compress
+    @{ continue = $true; hookSpecificOutput = @{ hookEventName = "PostToolUse" } } | ConvertTo-Json -Depth 3 -Compress
     exit 0
 }
 
@@ -27,7 +27,7 @@ $tool = $payload.tool_name ?? ""
 $should_audit = $audit_tools | Where-Object { $tool.StartsWith($_) }
 
 if (-not $should_audit) {
-    @{ continue = $true } | ConvertTo-Json -Compress
+    @{ continue = $true; hookSpecificOutput = @{ hookEventName = "PostToolUse" } } | ConvertTo-Json -Depth 3 -Compress
     exit 0
 }
 

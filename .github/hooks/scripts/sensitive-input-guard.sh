@@ -11,8 +11,10 @@ block() {
 import json
 print(json.dumps({
   'continue': False,
-  'stopReason': 'Potential credential detected in prompt',
-  'systemMessage': 'SECURITY: Your prompt appears to contain a ${label}. This has been blocked to prevent accidental secret exposure. Please remove the credential and try again. Never paste secrets or tokens directly into the chat.'
+  'hookSpecificOutput': {
+    'hookEventName': 'UserPromptSubmit',
+    'additionalContext': 'SECURITY: Your prompt appears to contain a ${label}. This has been blocked to prevent accidental secret exposure. Please remove the credential and try again. Never paste secrets or tokens directly into the chat.'
+  }
 }))
 "
   exit 2

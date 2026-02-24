@@ -98,6 +98,9 @@ process.stdin.on('end', () => {
 
   // Only inject context if something relevant was found
   if (context.length === 0) {
+    process.stdout.write(JSON.stringify({
+      hookSpecificOutput: { hookEventName: 'SessionStart' },
+    }));
     process.exit(0);
   }
 

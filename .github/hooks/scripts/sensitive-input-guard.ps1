@@ -7,7 +7,7 @@ $input_json = $input | Out-String
 try {
     $payload = $input_json | ConvertFrom-Json
 } catch {
-    @{ continue = $true } | ConvertTo-Json -Compress
+    @{ continue = $true; hookSpecificOutput = @{ hookEventName = "UserPromptSubmit" } } | ConvertTo-Json -Depth 3 -Compress
     exit 0
 }
 
@@ -34,13 +34,15 @@ foreach ($entry in $secret_patterns) {
     if ($prompt -match $entry.pattern) {
         @{
             continue    = $false
-            stopReason  = "Potential credential detected in prompt"
-            systemMessage = "SECURITY: Your prompt appears to contain a $($entry.label). This has been blocked to prevent accidental secret exposure. Please remove the credential and try again. Never paste secrets or tokens directly into the chat."
-        } | ConvertTo-Json -Compress
+            hookSpecificOutput = @{
+                hookEventName = "UserPromptSubmit"
+                additionalContext = "SECURITY: Your prompt appears to contain a $($entry.label). This has been blocked to prevent accidental secret exposure. Please remove the credential and try again. Never paste secrets or tokens directly into the chat."
+            }
+        } | ConvertTo-Json -Depth 3 -Compress
         exit 2
     }
 }
 
 # ─── Safe — allow through ─────────────────────────────────────────────────────
-@{ continue = $true } | ConvertTo-Json -Compress
+@{ continue = $true; hookSpecificOutput = @{ hookEventName = "UserPromptSubmit" } } | ConvertTo-Json -Depth 3 -Compress
 exit 0

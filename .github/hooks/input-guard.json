@@ -5,7 +5,7 @@
         "type": "command",
         "command": "bash .github/hooks/scripts/sensitive-input-guard.sh",
         "windows": "powershell -ExecutionPolicy Bypass -File .github\\hooks\\scripts\\sensitive-input-guard.ps1",
-        "timeout": 5
+        "timeout": 10
       }
     ]
   }

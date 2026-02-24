@@ -16,6 +16,9 @@ process.stdin.on('end', () => {
 
   // Guard against infinite loop — stop hooks can re-trigger the Stop event.
   if (payload.stop_hook_active === true) {
+    process.stdout.write(JSON.stringify({
+      hookSpecificOutput: { hookEventName: 'Stop' },
+    }));
     process.exit(0);
   }
 
@@ -76,6 +79,9 @@ process.stdin.on('end', () => {
 
   // All reports complete or none present — allow stop.
   if (Object.keys(incomplete).length === 0) {
+    process.stdout.write(JSON.stringify({
+      hookSpecificOutput: { hookEventName: 'Stop' },
+    }));
     process.exit(0);
   }
 
@@ -88,8 +94,11 @@ process.stdin.on('end', () => {
   lines.push('Please complete these sections before finishing the session.');
 
   process.stdout.write(JSON.stringify({
-    decision: 'block',
-    reason: lines.join('\n'),
+    continue: false,
+    hookSpecificOutput: {
+      hookEventName: 'Stop',
+      additionalContext: lines.join('\n'),
+    },
   }));
-  process.exit(0);
+  process.exit(2);
 });

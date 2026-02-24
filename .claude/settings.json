@@ -2,61 +2,46 @@
   "hooks": {
     "UserPromptSubmit": [
       {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/a11y-team-eval.sh"
-          }
-        ]
+        "type": "command",
+        "command": "bash .claude/hooks/a11y-team-eval.sh",
+        "windows": "powershell -ExecutionPolicy Bypass -File .claude\\hooks\\a11y-team-eval.ps1",
+        "timeout": 10
       },
       {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash .github/hooks/scripts/sensitive-input-guard.sh"
-          }
-        ]
+        "type": "command",
+        "command": "bash .github/hooks/scripts/sensitive-input-guard.sh",
+        "windows": "powershell -ExecutionPolicy Bypass -File .github\\hooks\\scripts\\sensitive-input-guard.ps1",
+        "timeout": 10
       }
     ],
     "SessionStart": [
       {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node .github/hooks/scripts/session-start.js"
-          }
-        ]
+        "type": "command",
+        "command": "node .github/hooks/scripts/session-start.js",
+        "timeout": 15
       }
     ],
     "PreToolUse": [
       {
-        "matcher": "Bash|mcp_github",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash .github/hooks/scripts/safety-gate.sh"
-          }
-        ]
+        "type": "command",
+        "command": "bash .github/hooks/scripts/safety-gate.sh",
+        "windows": "powershell -ExecutionPolicy Bypass -File .github\\hooks\\scripts\\safety-gate.ps1",
+        "timeout": 15
       }
     ],
     "PostToolUse": [
       {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash .github/hooks/scripts/audit-log.sh"
-          }
-        ]
+        "type": "command",
+        "command": "bash .github/hooks/scripts/audit-log.sh",
+        "windows": "powershell -ExecutionPolicy Bypass -File .github\\hooks\\scripts\\audit-log.ps1",
+        "timeout": 15
       }
     ],
     "Stop": [
       {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node .github/hooks/scripts/session-stop.js"
-          }
-        ]
+        "type": "command",
+        "command": "node .github/hooks/scripts/session-stop.js",
+        "timeout": 15
       }
     ]
   }
