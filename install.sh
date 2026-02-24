@@ -310,15 +310,11 @@ if [ "$install_copilot" = true ]; then
       done
 
       # Copy .agent.md files into VS Code user profile folders.
-      # VS Code 1.110+ discovers agents from User/prompts/.
-      # VS Code 1.109 and older need agents in User/ root plus
-      # the chat.agentFilesLocations setting pointing there.
-      # We install to both locations for full compatibility.
+      # VS Code discovers agents from User/prompts/.
       copy_to_vscode_profile() {
         local profile_dir="$1"
         local label="$2"
         local prompts_dir="$profile_dir/prompts"
-        local settings_file="$profile_dir/settings.json"
 
         if [ ! -d "$profile_dir" ]; then
           return
@@ -327,55 +323,38 @@ if [ "$install_copilot" = true ]; then
         mkdir -p "$prompts_dir"
         echo "  [found] $label"
 
-        # Copy to prompts/ (VS Code 1.110+)
+        # Copy agents to prompts/
         for f in "$COPILOT_CENTRAL"/*.agent.md; do
           [ -f "$f" ] || continue
           cp "$f" "$prompts_dir/"
         done
 
-        # Copy to root User/ (VS Code 1.109 and older)
-        for f in "$COPILOT_CENTRAL"/*.agent.md; do
-          [ -f "$f" ] || continue
-          cp "$f" "$profile_dir/"
-        done
-
-        # Copy prompts and instructions to profile (both root and prompts/ for full compatibility)
+        # Copy prompts and instructions to prompts/
         [ -d "$COPILOT_CENTRAL_PROMPTS" ]      && cp -r "$COPILOT_CENTRAL_PROMPTS/."      "$prompts_dir/"
         [ -d "$COPILOT_CENTRAL_INSTRUCTIONS" ] && cp -r "$COPILOT_CENTRAL_INSTRUCTIONS/." "$prompts_dir/"
-        # Flat copies to root User/ for older VS Code versions
-        find "$COPILOT_CENTRAL_PROMPTS"      -name "*.prompt.md"      2>/dev/null -exec cp {} "$profile_dir/" \;
-        find "$COPILOT_CENTRAL_INSTRUCTIONS" -name "*.instructions.md" 2>/dev/null -exec cp {} "$profile_dir/" \;
 
         echo "    Copied $(ls "$COPILOT_CENTRAL"/*.agent.md 2>/dev/null | wc -l | tr -d ' ') agents"
 
-        # Add chat.agentFilesLocations to VS Code settings for older versions
+        # Disable .claude/agents in VS Code so Claude Code agents
+        # don't appear in the Copilot agent picker
+        local settings_file="$profile_dir/settings.json"
         if command -v python3 &>/dev/null; then
-          if [ -f "$settings_file" ]; then
-            A11Y_SF="$settings_file" A11Y_PD="$profile_dir" A11Y_PMD="$prompts_dir" \
-            python3 - << 'PYEOF' 2>/dev/null && echo "    Updated VS Code settings for agent discovery"
+          A11Y_SF="$settings_file" \
+          python3 - << 'PYEOF' 2>/dev/null && echo "    Configured agent discovery (disabled .claude/agents)"
 import json, os
+sf = os.environ['A11Y_SF']
 try:
-    sf = os.environ['A11Y_SF']
     with open(sf, 'r') as f:
         s = json.load(f)
-    loc = s.get('chat.agentFilesLocations', {})
-    loc[os.environ['A11Y_PD']] = True
-    loc[os.environ['A11Y_PMD']] = True
-    s['chat.agentFilesLocations'] = loc
-    with open(sf, 'w') as f:
-        json.dump(s, f, indent=4)
 except:
-    pass
-PYEOF
-          else
-            A11Y_SF="$settings_file" A11Y_PD="$profile_dir" A11Y_PMD="$prompts_dir" \
-            python3 - << 'PYEOF' 2>/dev/null && echo "    Created VS Code settings for agent discovery"
-import json, os
-s = {'chat.agentFilesLocations': {os.environ['A11Y_PD']: True, os.environ['A11Y_PMD']: True}}
-with open(os.environ['A11Y_SF'], 'w') as f:
+    s = {}
+loc = s.get('chat.agentFilesLocations', {})
+loc['.github/agents'] = True
+loc['.claude/agents'] = False
+s['chat.agentFilesLocations'] = loc
+with open(sf, 'w') as f:
     json.dump(s, f, indent=4)
 PYEOF
-          fi
         fi
 
         COPILOT_DESTINATIONS+=("$prompts_dir")
@@ -791,7 +770,6 @@ for PROFILE in "${PROFILES[@]}"; do
   for SRC in "$CENTRAL"/*.agent.md; do
     [ -f "$SRC" ] || continue
     cp "$SRC" "$PROMPTS_DIR/"
-    cp "$SRC" "$PROFILE/"
   done
   log "Updated VS Code profile: $PROFILE"
 done
