@@ -31,8 +31,8 @@ if [ ! -d "$SCRIPT_DIR/.claude/agents" ]; then
     exit 1
   fi
 
-  git clone --quiet https://github.com/taylorarndt/a11y-agent-team.git "$TMPDIR_DL/a11y-agent-team" 2>/dev/null
-  SCRIPT_DIR="$TMPDIR_DL/a11y-agent-team"
+  git clone --quiet https://github.com/Community-Access/accessibility-agents.git "$TMPDIR_DL/accessibility-agents" 2>/dev/null
+  SCRIPT_DIR="$TMPDIR_DL/accessibility-agents"
   echo "  Downloaded."
 fi
 
