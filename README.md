@@ -6,6 +6,8 @@
 [![GitHub contributors](https://img.shields.io/github/contributors/taylorarndt/a11y-agent-team)](https://github.com/taylorarndt/a11y-agent-team/graphs/contributors)
 [![WCAG 2.2 AA](https://img.shields.io/badge/WCAG-2.2_AA-green.svg)](https://www.w3.org/TR/WCAG22/)
 
+> **AI and automated tools are not perfect.** They miss things, make mistakes, and cannot replace testing with real screen readers and assistive technology. Always verify with VoiceOver, NVDA, JAWS, and keyboard-only navigation. This tooling is a helpful starting point, not a substitute for real accessibility testing.
+
 **A community-driven open-source project automating accessibility, efficiency, and productivity through AI-based agents, skills, custom instructions, and prompts.**
 
 A sincere thanks goes out to [Taylor Arndt](https://github.com/taylorarndt) and [Jeff Bishop](https://github.com/jeffreybishop) for leading the charge in building this community project. It started because LLMs consistently forget accessibility - skills get ignored, instructions drift out of context, ARIA gets misused, focus management gets skipped, color contrast fails silently. They got tired of fighting it and built an agent team that will not let it slide. Now we want to make more magic together.
