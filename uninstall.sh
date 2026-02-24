@@ -6,6 +6,10 @@
 #   bash uninstall.sh            Interactive mode
 #   bash uninstall.sh --global   Uninstall from ~/.claude/
 #   bash uninstall.sh --project  Uninstall from .claude/ in the current directory
+#
+# One-liner:
+#   curl -fsSL https://raw.githubusercontent.com/community-access/accessibility-agents/main/uninstall.sh | bash
+#   curl -fsSL ... | bash -s -- --global   (non-interactive)
 
 set -e
 
@@ -20,6 +24,13 @@ elif [ "$1" = "--project" ]; then
 fi
 
 if [ -z "$choice" ]; then
+  # Verify terminal is available (required when piped via curl)
+  if ! { true < /dev/tty; } 2>/dev/null; then
+    echo "  Error: No terminal available for interactive mode."
+    echo "  Use: curl ... | bash -s -- --global"
+    echo "    or: curl ... | bash -s -- --project"
+    exit 1
+  fi
   echo ""
   echo "  A11y Agent Team Uninstaller"
   echo "  ==========================="
@@ -30,7 +41,7 @@ if [ -z "$choice" ]; then
   echo "  2) Global    - Remove from ~/.claude/"
   echo ""
   printf "  Choose [1/2]: "
-  read -r choice
+  read -r choice < /dev/tty
 fi
 
 case "$choice" in
@@ -187,7 +198,8 @@ if [ "$choice" = "2" ]; then
   echo "    - Update files cleaned up"
 fi
 
-# Clean up empty directories
+# Clean up manifest and empty directories
+rm -f "$TARGET_DIR/.a11y-agent-manifest"
 rmdir "$TARGET_DIR/agents" 2>/dev/null || true
 
 echo ""
