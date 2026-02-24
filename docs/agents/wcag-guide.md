@@ -58,9 +58,9 @@ WCAG 2.2 added several criteria not present in 2.1. These are the ones teams mos
 
 | Criterion | Level | What it requires |
 |-----------|-------|------------------|
-| 2.4.11 Focus Appearance | AA | Focus indicator must have minimum 2px outline, 3:1 contrast from unfocused state |
-| 2.4.12 Focus Appearance (Enhanced) | AAA | Stricter version of 2.4.11 |
-| 2.4.13 Focus Appearance (moved from 2.4.7 intent) | AA | Combined with 2.4.11 in final spec |
+| 2.4.11 Focus Not Obscured (Minimum) | AA | Focused element must not be entirely hidden by sticky headers, banners, or other content |
+| 2.4.12 Focus Not Obscured (Enhanced) | AAA | No part of the focused element may be hidden by author-created content |
+| 2.4.13 Focus Appearance | AAA | Focus indicator must have minimum 2px outline, 3:1 contrast from unfocused state |
 | 2.5.7 Dragging Movements | AA | Any dragging action must have a single-pointer alternative |
 | 2.5.8 Target Size (Minimum) | AA | Interactive targets must be at least 24x24 CSS pixels |
 | 3.2.6 Consistent Help | A | Help mechanisms in same location across pages |

@@ -55,3 +55,12 @@ At the end of the audit you receive:
 2. Applied fixes with before/after diffs for each change
 3. Handoff options: `fix-markdown-issues`, `compare-markdown-audits`, or `quick-markdown-check`
 
+## Handoff Transparency
+
+This workflow orchestrates `markdown-scanner` and `markdown-fixer` sub-agents. Announce each transition:
+- **Scanner dispatch:** "Scanning [filename] for accessibility issues ([N/total])..."
+- **Scanner complete:** "[filename]: [N] issues found, score [score]/100 ([grade])"
+- **Fixer dispatch:** "Applying [N] approved fixes to [filename]..."
+- **Fixer complete:** "[filename]: [N] fixed, [N] skipped, [N] need review"
+- **On failure:** "[Agent] failed on [filename]: [reason]. Continuing with remaining files."
+

@@ -32,12 +32,16 @@ if [ ! -d "$SCRIPT_DIR/.claude/agents" ]; then
   fi
 
   git clone --quiet https://github.com/Community-Access/accessibility-agents.git "$TMPDIR_DL/accessibility-agents" 2>/dev/null
+  if [ $? -ne 0 ]; then
+    echo "  Error: git clone failed. Check your network connection and try again."
+    rm -rf "$TMPDIR_DL"
+    exit 1
+  fi
   SCRIPT_DIR="$TMPDIR_DL/accessibility-agents"
   echo "  Downloaded."
 fi
 
 AGENTS_SRC="$SCRIPT_DIR/.claude/agents"
-HOOK_SRC="$SCRIPT_DIR/.claude/hooks/a11y-team-eval.sh"
 COPILOT_AGENTS_SRC="$SCRIPT_DIR/.github/agents"
 COPILOT_CONFIG_SRC="$SCRIPT_DIR/.github"
 
@@ -53,12 +57,6 @@ fi
 if [ ${#AGENTS[@]} -eq 0 ]; then
   echo "  Error: No agents found in $AGENTS_SRC"
   echo "  Make sure you are running this script from the a11y-agent-team directory."
-  [ "$DOWNLOADED" = true ] && rm -rf "$TMPDIR_DL"
-  exit 1
-fi
-
-if [ ! -f "$HOOK_SRC" ]; then
-  echo "  Error: Hook script not found at $HOOK_SRC"
   [ "$DOWNLOADED" = true ] && rm -rf "$TMPDIR_DL"
   exit 1
 fi
@@ -95,15 +93,11 @@ fi
 case "$choice" in
   1)
     TARGET_DIR="$(pwd)/.claude"
-    SETTINGS_FILE="$TARGET_DIR/settings.json"
-    HOOK_CMD=".claude/hooks/a11y-team-eval.sh"
     echo ""
     echo "  Installing to project: $(pwd)"
     ;;
   2)
     TARGET_DIR="$HOME/.claude"
-    SETTINGS_FILE="$TARGET_DIR/settings.json"
-    HOOK_CMD="$HOME/.claude/hooks/a11y-team-eval.sh"
     echo ""
     echo "  Installing globally to: $TARGET_DIR"
     ;;
@@ -153,7 +147,6 @@ PYEOF
 
 # Create directories
 mkdir -p "$TARGET_DIR/agents"
-mkdir -p "$TARGET_DIR/hooks"
 
 # Manifest: track which files we install so updates never touch user-created files
 MANIFEST_FILE="$TARGET_DIR/.a11y-agent-manifest"
@@ -181,18 +174,6 @@ for agent in "${AGENTS[@]}"; do
 done
 if [ "$SKIPPED_AGENTS" -gt 0 ]; then
   echo "      $SKIPPED_AGENTS agent(s) skipped. Delete them first to reinstall."
-fi
-
-# Copy hook — skip if already exists
-echo ""
-echo "  Copying hook..."
-if [ -f "$TARGET_DIR/hooks/a11y-team-eval.sh" ]; then
-  echo "    ~ a11y-team-eval.sh (skipped - already exists)"
-else
-  cp "$HOOK_SRC" "$TARGET_DIR/hooks/a11y-team-eval.sh"
-  chmod +x "$TARGET_DIR/hooks/a11y-team-eval.sh"
-  grep -qxF "hooks/a11y-team-eval.sh" "$MANIFEST_FILE" 2>/dev/null || echo "hooks/a11y-team-eval.sh" >> "$MANIFEST_FILE"
-  echo "    + a11y-team-eval.sh"
 fi
 
 # Copilot agents
@@ -251,7 +232,7 @@ if [ "$install_copilot" = true ]; then
       done
 
       # Copy asset subdirs — file-by-file, skip files that already exist
-      for subdir in skills instructions prompts hooks; do
+      for subdir in skills instructions prompts; do
         SRC_DIR="$COPILOT_CONFIG_SRC/$subdir"
         DST_DIR="$PROJECT_DIR/.github/$subdir"
         if [ -d "$SRC_DIR" ]; then
@@ -527,94 +508,6 @@ INITSCRIPT
     fi
 fi
 
-# Handle settings.json
-echo ""
-
-HOOK_ENTRY="{\"type\":\"command\",\"command\":\"$HOOK_CMD\"}"
-
-if [ -f "$SETTINGS_FILE" ]; then
-  # Check if hook already exists
-  if grep -q "a11y-team-eval" "$SETTINGS_FILE" 2>/dev/null; then
-    echo "  Hook already configured in settings.json. Skipping."
-  else
-    # Try to auto-merge with python3 (available on macOS and most Linux)
-    if command -v python3 &>/dev/null; then
-      MERGED=$(A11Y_SF="$SETTINGS_FILE" A11Y_HC="$HOOK_CMD" \
-        python3 - << 'PYEOF' 2>/dev/null
-import json, sys, os
-try:
-    with open(os.environ['A11Y_SF'], 'r') as f:
-        settings = json.load(f)
-    hook_entry = {'type': 'command', 'command': os.environ['A11Y_HC']}
-    new_group = {'hooks': [hook_entry]}
-    if 'hooks' not in settings:
-        settings['hooks'] = {}
-    if 'UserPromptSubmit' not in settings['hooks']:
-        settings['hooks']['UserPromptSubmit'] = []
-    settings['hooks']['UserPromptSubmit'].append(new_group)
-    print(json.dumps(settings, indent=2))
-except Exception as e:
-    print('MERGE_FAILED', file=sys.stderr)
-    sys.exit(1)
-PYEOF
-) && {
-        echo "$MERGED" > "$SETTINGS_FILE"
-        echo "  Updated existing settings.json with hook."
-      } || {
-        echo "  Existing settings.json found but could not auto-merge."
-        echo "  Add this hook entry to your settings.json manually:"
-        echo ""
-        echo "  In the \"hooks\" > \"UserPromptSubmit\" array, add:"
-        echo ""
-        echo "    {"
-        echo "      \"hooks\": ["
-        echo "        {"
-        echo "          \"type\": \"command\","
-        echo "          \"command\": \"$HOOK_CMD\""
-        echo "        }"
-        echo "      ]"
-        echo "    }"
-        echo ""
-      }
-    else
-      echo "  Existing settings.json found."
-      echo "  python3 not available for auto-merge."
-      echo "  Add this hook entry to your settings.json manually:"
-      echo ""
-      echo "  In the \"hooks\" > \"UserPromptSubmit\" array, add:"
-      echo ""
-      echo "    {"
-      echo "      \"hooks\": ["
-      echo "        {"
-      echo "          \"type\": \"command\","
-      echo "          \"command\": \"$HOOK_CMD\""
-      echo "        }"
-      echo "      ]"
-      echo "    }"
-      echo ""
-    fi
-  fi
-else
-  # Create settings.json with hook
-  cat > "$SETTINGS_FILE" << SETTINGS
-{
-  "hooks": {
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$HOOK_CMD"
-          }
-        ]
-      }
-    ]
-  }
-}
-SETTINGS
-  echo "  Created settings.json with hook configured."
-fi
-
 # Verify installation
 echo ""
 echo "  ========================="
@@ -629,20 +522,6 @@ for agent in "${AGENTS[@]}"; do
     echo "    [ ] $name (missing)"
   fi
 done
-echo ""
-echo "  Hook installed:"
-if [ -f "$TARGET_DIR/hooks/a11y-team-eval.sh" ]; then
-  echo "    [x] a11y-team-eval.sh"
-else
-  echo "    [ ] a11y-team-eval.sh (missing)"
-fi
-echo ""
-echo "  Settings:"
-if grep -q "a11y-team-eval" "$SETTINGS_FILE" 2>/dev/null; then
-  echo "    [x] Hook configured in settings.json"
-else
-  echo "    [ ] Hook NOT configured -- add it manually (see above)"
-fi
 if [ "$COPILOT_INSTALLED" = true ]; then
   echo ""
   echo "  Copilot agents installed to:"
@@ -688,7 +567,7 @@ log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOG_FILE"; }
 command -v git &>/dev/null || { log "git not found"; exit 1; }
 
 if [ -d "$CACHE_DIR/.git" ]; then
-  cd "$CACHE_DIR"
+  cd "$CACHE_DIR" || exit 1
   git fetch origin main --quiet 2>/dev/null
   LOCAL=$(git rev-parse HEAD 2>/dev/null)
   REMOTE=$(git rev-parse origin/main 2>/dev/null)
@@ -699,7 +578,7 @@ else
   git clone --quiet "$REPO_URL" "$CACHE_DIR" 2>/dev/null
 fi
 
-cd "$CACHE_DIR"
+cd "$CACHE_DIR" || exit 1
 HASH=$(git rev-parse --short HEAD 2>/dev/null)
 UPDATED=0
 
@@ -725,15 +604,6 @@ for DST in "$INSTALL_DIR"/agents/*.md; do
     UPDATED=$((UPDATED + 1))
   }
 done
-
-SRC="$CACHE_DIR/.claude/hooks/a11y-team-eval.sh"
-DST="$INSTALL_DIR/hooks/a11y-team-eval.sh"
-[ -f "$SRC" ] && [ -f "$DST" ] && ! cmp -s "$SRC" "$DST" && {
-  cp "$SRC" "$DST"
-  chmod +x "$DST"
-  log "Updated: hook script"
-  UPDATED=$((UPDATED + 1))
-}
 
 # Update Copilot agents in central store and VS Code profile folders
 CENTRAL="$HOME/.a11y-agent-team/copilot-agents"

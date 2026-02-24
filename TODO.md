@@ -34,7 +34,7 @@ Enhance both `.claude/agents/web-accessibility-wizard.md` AND `.github/agents/we
 
 - [x] **E12: Report Enhancements** - Add: (1) Organization Modes (by page, by issue type, by severity) honoring Phase 0 preference, (2) Findings by Rule Cross-Reference table (rule -> pages affected -> count), (3) Configuration Recommendations section (suggest scan profiles and CI config based on findings), (4) What Passed section expansion with specific WCAG criteria that passed.
 
-- [x] **E13: Web Scan Config (.a11y-web-config.json)** - Add support for a `.a11y-web-config.json` configuration file with: enabled rules, disabled rules, severity filter, excluded URL patterns, page timeout, viewport settings, authentication config. Update SessionStart hook to check for this file. Add config resolution (check project root, then parent directories).
+- [x] **E13: Web Scan Config (.a11y-web-config.json)** - Add support for a `.a11y-web-config.json` configuration file with: enabled rules, disabled rules, severity filter, excluded URL patterns, page timeout, viewport settings, authentication config. Update workspace context discovery to check for this file. Add config resolution (check project root, then parent directories).
 
 ---
 

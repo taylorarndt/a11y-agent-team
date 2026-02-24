@@ -25,7 +25,6 @@
 - [Prompts and Skills](#prompts-and-skills)
   - [Custom Prompts (14)](#custom-prompts-14)
   - [Reusable Skills (9)](#reusable-skills-9)
-  - [Lifecycle Hooks (2)](#lifecycle-hooks-2)
   - [Agent Teams (AGENTS.md)](#agent-teams-agentsmd)
 - [MCP Tool Specifications](#mcp-tool-specifications)
   - [Web Accessibility Tools (7)](#web-accessibility-tools-7)
@@ -50,7 +49,7 @@
 
 A11y Agent Team is an accessibility enforcement system for AI-powered coding and authoring tools. It deploys specialized agents across three platforms - Claude Code (terminal), GitHub Copilot (VS Code), and Claude Desktop (app) - to ensure that web code, Office documents, and PDF files meet accessibility standards. The system intercepts the developer workflow at code-generation time, applying WCAG 2.2 AA standards for web content, format-specific rules for Office documents (DOCX/XLSX/PPTX), and PDF/UA conformance with Matterhorn Protocol alignment for PDF files.
 
-The project includes eleven MCP tools (zero external dependencies for document scanning), fourteen custom prompts, nine reusable skills, lifecycle hooks, agent team coordination (AGENTS.md), three CI scripts, automated installer/uninstaller scripts for all platforms, auto-update capability, an example project with 20+ intentional violations, and SARIF 2.1.0 output for GitHub Code Scanning integration.
+The project includes eleven MCP tools (zero external dependencies for document scanning), fourteen custom prompts, nine reusable skills, agent team coordination (AGENTS.md), three CI scripts, automated installer/uninstaller scripts for all platforms, auto-update capability, an example project with 20+ intentional violations, and SARIF 2.1.0 output for GitHub Code Scanning integration.
 
 Key capabilities added since v1.0: document accessibility wizard with delta scanning, severity scoring (0-100 with A-F grades), template analysis, remediation tracking, VPAT/ACR export, batch remediation scripts, CI/CD integration guides; web accessibility wizard with sub-agent delegation, page metadata dashboard, component/template analysis, framework intelligence (React, Vue, Angular, Svelte, Tailwind), large crawl handling, interactive fix mode, and web scan configuration files; hidden helper sub-agents for parallel workload distribution; **GitHub Workflow Management** team (10 agents: github-hub, daily-briefing, pr-review, issue-tracker, analytics, insiders-a11y-tracker, repo-admin, team-manager, contributions-hub, template-builder) with three new skills (github-workflow-standards, github-scanning, github-analytics-scoring) providing priority scoring, health scoring, delta tracking, confidence levels, and progress announcements; and comprehensive documentation in `docs/`.
 
@@ -97,7 +96,7 @@ A11y Agent Team makes accessibility enforcement automatic, comprehensive, and un
 
 1. **Zero tolerance for silent failures** - Accessibility issues are caught at generation time, not after deployment
 2. **Single responsibility per agent** - Each agent owns one domain completely and cannot be distracted
-3. **Native platform integration** - Works within each platform's architecture (hooks for Claude Code, workspace instructions for Copilot, MCP for Desktop)
+3. **Native platform integration** - Works within each platform's architecture (agents for Claude Code, workspace instructions for Copilot, MCP for Desktop)
 4. **Zero external dependencies for core features** - Document scanning uses only Node.js built-ins
 5. **Standards-first** - All rules trace back to specific WCAG criteria, PDF/UA checkpoints, or Matterhorn Protocol requirements
 6. **Progressive enforcement** - Configurable rule sets with preset profiles (strict/moderate/minimal)
@@ -124,8 +123,7 @@ The following table describes the primary user types and how each uses the syste
 ### Claude Code (Terminal)
 
 - **Agent format:** Markdown files with YAML frontmatter (`tools`, `model`, `description`) in `.claude/agents/`
-- **Activation mechanism:** `UserPromptSubmit` hook fires on every prompt; evaluates whether UI code is involved
-- **Hook scripts:** Bash (macOS/Linux) and PowerShell (Windows)
+- **Activation mechanism:** Agents invoked directly via `/agent-name` or `@agent-name`
 - **Install scope:** Project-level (`.claude/`) or global (`~/.claude/`)
 - **Auto-updates:** LaunchAgent (macOS), cron (Linux), Task Scheduler (Windows) - daily at 9:00 AM
 
@@ -156,7 +154,7 @@ The following diagram shows the agent activation flow, from user prompt through 
 
 ```mermaid
 flowchart TD
-    A["User Prompt"] --> B["Activation Layer:<br>UserPromptSubmit Hook (Claude Code)<br>Workspace Instructions (Copilot)<br>Direct Invocation (all platforms)"]
+    A["User Prompt"] --> B["Activation Layer:<br>Direct Invocation (Claude Code)<br>Workspace Instructions (Copilot)<br>Direct Invocation (all platforms)"]
     B --> C["accessibility-lead (orchestrator)<br>Evaluates task, selects specialists, compiles findings"]
 
     C --> S1["aria-specialist"]
@@ -370,15 +368,6 @@ Domain-specific knowledge modules in `.github/skills/` that agents reference aut
 | github-workflow-standards | Core standards for all GitHub workflow agents: auth, dual MD+HTML output, HTML accessibility, safety rules, progress announcements, parallel execution |
 | github-scanning | GitHub search patterns by intent, date range handling, parallel stream collection model, cross-repo intelligence, auto-recovery |
 | github-analytics-scoring | Repo health scoring (0-100/A-F), issue/PR priority scoring, confidence levels (High/Medium/Low), delta tracking (Fixed/New/Persistent/Regressed), velocity metrics, bottleneck detection |
-
-### Lifecycle Hooks (2)
-
-The following hooks fire automatically at session boundaries to inject context and enforce quality gates.
-
-| Hook | When | Purpose |
-|------|------|--------|
-| SessionStart | Beginning of session | Auto-detects scan config files and previous audit reports; injects relevant context |
-| SessionEnd | End of session | Quality gate - validates audit report completeness and prompts for missing sections |
 
 ### Agent Teams (AGENTS.md)
 
@@ -1001,9 +990,6 @@ The following table lists all infrastructure and configuration files with their 
 
 | File | Purpose |
 |------|---------|
-| `.claude/hooks/a11y-team-eval.sh`| UserPromptSubmit hook (macOS/Linux) |
-| `.claude/hooks/a11y-team-eval.ps1` | UserPromptSubmit hook (Windows) |
-| `.claude/settings.json` | Example hook configuration |
 | `.github/copilot-instructions.md` | Workspace accessibility instructions |
 | `.github/copilot-review-instructions.md` | PR review accessibility rules |
 | `.github/copilot-commit-message-instructions.md` | Commit message accessibility guidance |
@@ -1064,14 +1050,12 @@ The following table lists all prompt and skill files with their purposes.
 | `.github/skills/github-scanning/SKILL.md` | GitHub search by intent, date ranges, parallel streams, auto-recovery |
 | `.github/skills/github-analytics-scoring/SKILL.md` | Repo health scoring, issue/PR priority, confidence levels, delta tracking, velocity metrics |
 
-### Hooks and Config Templates
+### Config Templates
 
-The following table lists all lifecycle hook files and scan configuration templates.
+The following table lists all scan configuration templates.
 
 | File | Purpose |
 |------|--------|
-| `.github/hooks/session-start.md`| SessionStart lifecycle hook |
-| `.github/hooks/session-end.md` | SessionEnd quality gate hook |
 | `templates/a11y-office-config-strict.json` | Office strict profile |
 | `templates/a11y-office-config-moderate.json` | Office moderate profile |
 | `templates/a11y-office-config-minimal.json` | Office minimal profile |
@@ -1091,7 +1075,7 @@ The following table lists the documentation directories and their contents.
 | `docs/scanning/` | Office scanning, PDF scanning, config, custom prompts |
 | `docs/advanced/` | Cross-platform handoff, advanced scanning, plugin packaging, platform references |
 | `docs/getting-started.md` | Installation guide for all 3 platforms |
-| `docs/configuration.md` | Character budget, hook management, troubleshooting |
+| `docs/configuration.md` | Character budget, scan configuration, troubleshooting |
 | `docs/architecture.md` | Project structure, design philosophy |
 
 ### Example Project
@@ -1127,7 +1111,7 @@ The following table identifies key project risks and the mitigations in place fo
 
 | Risk | Impact | Mitigation |
 |------|--------|-----------|
-| AI model ignores agent instructions | Accessibility issues slip through | Hook-based enforcement (Claude Code), workspace instructions (Copilot), multiple specialist layers |
+| AI model ignores agent instructions | Accessibility issues slip through | Agent-based enforcement (Claude Code), workspace instructions (Copilot), multiple specialist layers |
 | PDF parsing limitations | Missed issues in complex PDFs | Document limitations clearly; recommend veraPDF for production audits; three-layer rule system catches structural issues |
 | Office XML format changes | Scanning breaks on new Office versions | XML parsing is namespace-aware; tag names are stable across versions |
 | Agent context window limits | Character budget exceeded with many agents | Configurable `SLASH_COMMAND_TOOL_CHAR_BUDGET`; documented in troubleshooting |
@@ -1150,7 +1134,7 @@ The following table summarizes the key quantitative metrics for the project.
 | Document/web wizards | 2 (1 web + 1 document, x 2 platforms each) |
 | Custom prompts | 14 (9 document + 5 web) |
 | Reusable skills | 9 (6 accessibility + 3 GitHub workflow) |
-| Lifecycle hooks | 2 (SessionStart + SessionEnd) |
+| Lifecycle hooks | 0 (removed - redundant with instructions/skills) |
 | Agent teams | 4 (Document, Web, Full, GitHub Workflow) |
 | MCP tools | 11 (7 web + 4 document) |
 | MCP prompts | 6 |

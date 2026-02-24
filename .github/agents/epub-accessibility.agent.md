@@ -363,3 +363,35 @@ findings:
       wcag: "2.4.6 Headings and Labels (Level AA)"
       confidence: "high"
 ```
+
+---
+
+## Multi-Agent Reliability
+
+### Role
+
+You are a **read-only scanner**. You analyze ePub documents and produce structured findings. You do NOT modify documents.
+
+### Output Contract
+
+Every finding MUST include these fields:
+- `rule_id`: EPUB-prefixed rule ID
+- `severity`: `critical` | `serious` | `moderate` | `minor`
+- `location`: file path, content document (e.g., chapter01.xhtml), element
+- `description`: what is wrong
+- `remediation`: how to fix it
+- `wcag_criterion`: mapped WCAG 2.2 success criterion
+- `confidence`: `high` | `medium` | `low`
+
+Findings missing required fields will be rejected by the orchestrator.
+
+### Handoff Transparency
+
+When you are invoked by `document-accessibility-wizard`:
+- **Announce start:** "Scanning [filename] for ePub accessibility issues ([N] rules active)"
+- **Announce completion:** "ePub scan complete: [N] issues found ([critical]/[serious]/[moderate]/[minor])"
+- **On failure:** "ePub scan failed for [filename]: [reason]. Returning partial results."
+
+When handing off:
+- State what you found and where the results are going
+- Example: "Found [N] issues in [filename]. Handing to cross-document-analyzer for pattern detection."

@@ -9,6 +9,7 @@ This file defines coordinated multi-agent workflows for enterprise accessibility
 **Members:**
 - `markdown-scanner` *(hidden helper)* - Per-file scanning across all 9 accessibility domains; returns structured findings
 - `markdown-fixer` *(hidden helper)* - Applies auto-fixes and presents human-judgment items for approval
+- `markdown-csv-reporter` *(hidden helper)* - Exports findings to CSV with WCAG help links and markdownlint rule references
 
 **Workflow:**
 1. `markdown-a11y-assistant` receives the user request and runs Phase 0 (discovery + configuration)
@@ -19,6 +20,7 @@ This file defines coordinated multi-agent workflows for enterprise accessibility
 6. Final `MARKDOWN-ACCESSIBILITY-AUDIT.md` report is generated with per-file scores and grades
 
 **Handoffs:**
+- `markdown-csv-reporter` for CSV export with WCAG help links
 - `web-accessibility-wizard` after markdown audit is complete for HTML/JSX/TSX files
 - `document-accessibility-wizard` for Office/PDF documents after markdown audit
 
@@ -35,6 +37,11 @@ This file defines coordinated multi-agent workflows for enterprise accessibility
 - `pdf-accessibility` - PDF scanning and remediation (PDFUA.*, PDFBP.*, PDFQ.* rules)
 - `office-scan-config` - Office scan configuration management
 - `pdf-scan-config` - PDF scan configuration management
+- `epub-scan-config` - ePub scan configuration management
+- `document-csv-reporter` - Exports document audit findings to CSV with Microsoft Office and Adobe PDF help links
+
+**Members (ePub):**
+- `epub-accessibility` - EPUB scanning and remediation (EPUB-E*, EPUB-W*, EPUB-T* rules)
 
 **Workflow:**
 1. `document-accessibility-wizard` receives the user request and runs Phase 0 (discovery)
@@ -46,6 +53,23 @@ This file defines coordinated multi-agent workflows for enterprise accessibility
 **Handoffs:**
 - After audit, user can hand off to any format specialist for targeted remediation
 - `web-accessibility-wizard` handles web audit handoff when document audit is complete
+
+## Team: ePub Document Accessibility
+
+**Lead:** `epub-accessibility`
+
+**Internal Helpers:**
+- `epub-scan-config` - ePub scan configuration management (invoked via document-accessibility-wizard Phase 0)
+
+**Workflow:**
+1. `document-accessibility-wizard` detects `.epub` files in scope and invokes `epub-scan-config` to locate or create `.a11y-epub-config.json`
+2. `epub-accessibility` unpacks the EPUB archive, locates the OPF package document, audits metadata, navigation, and content documents
+3. Findings are reported using EPUB-E*, EPUB-W*, EPUB-T* rule IDs with WCAG mappings
+4. Results feed into `document-accessibility-wizard` for the unified document audit report
+
+**Handoffs:**
+- `document-accessibility-wizard` orchestrates EPUB scanning as part of the broader document audit
+- `pdf-accessibility` if the user also has PDF documents to scan
 
 ## Team: Web Accessibility Audit
 
@@ -63,10 +87,12 @@ This file defines coordinated multi-agent workflows for enterprise accessibility
 - `tables-data-specialist` - Data tables, grids
 - `link-checker` - Link text quality
 - `testing-coach` - Testing guidance
+- `cognitive-accessibility` - WCAG 2.2 cognitive SC, COGA guidance, plain language analysis
 
 **Hidden Helpers:**
 - `cross-page-analyzer` - Cross-page pattern detection, severity scoring, remediation tracking
 - `web-issue-fixer` - Automated and guided accessibility fix application
+- `web-csv-reporter` - Exports web audit findings to CSV with Deque University help links
 
 **Workflow:**
 1. `web-accessibility-wizard` receives the user request and runs Phase 0 (discovery)
@@ -83,6 +109,31 @@ This file defines coordinated multi-agent workflows for enterprise accessibility
 - After audit, user can ask for interactive fix mode to apply corrections from the report
 - Remediation tracking is available by comparing audit reports across runs
 - Multi-page comparison audits scan multiple pages and detect cross-cutting patterns
+
+## Team: Mobile Accessibility
+
+**Lead:** `mobile-accessibility`
+
+**Scope:** React Native, Expo, iOS (SwiftUI/UIKit), Android (Jetpack Compose/Views). Invoked standalone for any mobile code review or as a handoff from `accessibility-lead`.
+
+**Workflow:**
+1. `mobile-accessibility` identifies platform (React Native / iOS / Android)
+2. Audits accessibility props, touch target sizes, screen reader compatibility, focus order
+3. Produces a findings report with platform-specific rule IDs and fix code
+4. Handoffs: `design-system-auditor` for token-level issues; `accessibility-lead` for web companion audits
+
+## Team: Design System Accessibility
+
+**Lead:** `design-system-auditor`
+
+**Scope:** Tailwind config, CSS custom properties, Style Dictionary token files, MUI/Chakra/Radix themes. Invoked standalone or as a Phase 0 step before web or mobile audits.
+
+**Workflow:**
+1. `design-system-auditor` locates token files and identifies design system type
+2. Audits color token pairs for WCAG contrast compliance
+3. Audits focus ring tokens (WCAG 2.4.13 Focus Appearance), spacing/touch-target tokens, motion tokens
+4. Produces a token-level findings report with compliant replacement values
+5. Handoffs: `contrast-master` for runtime verification; `mobile-accessibility` for spacing tokens
 
 ## Team: Full Audit (Web + Documents)
 
@@ -164,7 +215,7 @@ For Section 508, EN 301 549, or organizational compliance:
 
 **Workflow:**
 1. User invokes `github-hub` or `nexus` with any natural language request about GitHub
-2. The orchestrator reads injected session context (`SessionStart` hook), identifies the authenticated user, discovers repos/orgs, and loads `preferences.md`
+2. The orchestrator identifies the authenticated user, discovers repos/orgs, and loads `preferences.md`
 3. The orchestrator classifies user intent and routes to the appropriate specialist agent
 4. Specialist agents run their workflow, announce steps with / pattern, collect data in parallel
 5. All reports saved as dual `.md` + `.html` outputs to `.github/reviews/` subdirectories
@@ -186,3 +237,60 @@ For Section 508, EN 301 549, or organizational compliance:
 - `daily-briefing` -> `issue-tracker` (deep dive on issue), `pr-review` (full review), `analytics` (team metrics), `insiders-a11y-tracker` (a11y detail)
 - `issue-tracker` <-> `pr-review` (bidirectional: linked PRs/issues)
 - Any agent -> `github-hub` or `nexus` for scope changes or re-routing
+
+---
+
+## Multi-Agent Workflow Reliability Standards
+
+All teams in this workspace follow the engineering patterns from [Multi-agent workflows often fail. Here's how to engineer ones that don't.](https://github.blog/ai-and-ml/generative-ai/multi-agent-workflows-often-fail-heres-how-to-engineer-ones-that-dont/) Treat agents as distributed system components, not chat interfaces.
+
+### Structured Outputs at Every Boundary
+
+Agents MUST return structured data at handoff points. Never pass unstructured prose between agents.
+
+**Accessibility finding:**
+- Rule ID, severity (`critical`|`serious`|`moderate`|`minor`), location, description, remediation, confidence (`high`|`medium`|`low`)
+
+**Scored output:**
+- Score (0-100), grade (A-F), issue counts by severity, pass/fail verdict
+
+**Action result:**
+- Action taken, target, result (`success`|`failure`|`skipped`), reason (if not success)
+
+### Constrained Action Sets
+
+Each agent operates within explicitly defined boundaries:
+
+- **Read-only agents** (scanners, analyzers, reporters): read files, fetch data, produce findings. May NOT edit files or make state changes.
+- **State-changing agents** (fixers, admin agents): perform their defined mutations ONLY after explicit user confirmation.
+- **Orchestrators** (github-hub, nexus, accessibility-lead, wizards): route, aggregate, and present. State changes require user approval before delegation.
+
+If an agent encounters a task outside its action set, it MUST refuse, name the correct agent, and offer to hand off.
+
+### Boundary Validation
+
+At every handoff:
+
+1. **Before delegating:** Confirm all required inputs (file paths, URLs, config, scope) are available. Resolve missing inputs before delegating. Never delegate with partial context.
+2. **After receiving results:** Verify structured fields are present (findings, scores, verdicts). Retry once if incomplete. Report partial results with clear gap notes if retry fails.
+3. **Orchestrator checklist:** Intent classified, scope resolved, config loaded, sub-agent inputs complete, user confirmation obtained (for state changes).
+
+### Failure Handling
+
+- Tool call fails: report, explain, offer alternatives. Max 2 retries.
+- Partial scan results: report what succeeded, list failures with reasons, offer targeted retry.
+- Missing context: state defaults being used. Never assume unverified context.
+- Graceful degradation: full workflow, then simpler alternative, then partial results with gaps noted. Never return empty output without explanation.
+
+### Progress and Intermediate State
+
+- Phase start: announce what is starting, scope size, expected complexity.
+- Phase end: state what was found/accomplished, counts, what comes next.
+- Workflow end: recap phases, aggregate counts, present final deliverable.
+
+### Agent Isolation and Ordering
+
+- Dependent agents run sequentially. Independent agents run in parallel.
+- Each agent operates on its defined scope. Parallel groups work on distinct concerns.
+- Same inputs produce same structured outputs (idempotent).
+- Output format changes must be backward-compatible.

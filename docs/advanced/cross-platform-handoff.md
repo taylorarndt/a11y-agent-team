@@ -7,11 +7,10 @@ Guide for seamless handoff between Claude Code and GitHub Copilot agent environm
 | Capability | Claude Code | GitHub Copilot |
 |-----------|------------|----------------|
 | Agent format | `.claude/agents/*.md` | `.github/agents/*.agent.md` |
-| Frontmatter | `maxTurns`, `memory`, `hooks` | `tools`, `agents`, `model`, `handoffs` |
+| Frontmatter | `maxTurns`, `memory` | `tools`, `agents`, `model`, `handoffs` |
 | Sub-agents | Parallel via `Task` tool | Via `agent` tool + `agents` frontmatter |
 | Hidden helpers | N/A (all agents user-invokable) | `user-invokable: false` in frontmatter |
 | Skills | N/A | `.github/skills/*/SKILL.md` |
-| Hooks | `.claude/hooks/` (JSON) | `.github/hooks/` (JSON) |
 | Memory | `memory: project` in frontmatter | Via Agent Skills (SKILL.md files) |
 | MCP tools | Direct via `mcp_*` prefix | Via `.vscode/mcp.json` config |
 | Interactive UI | Terminal prompts | `askQuestions` tool |
@@ -108,43 +107,3 @@ The Agent Skills in `.github/skills/` serve as platform-independent knowledge:
 
 Claude Code agents access this knowledge through their agent instructions.
 Copilot agents access it through the Skills framework (auto-resolved from `SKILL.md` descriptions).
-
-## Lifecycle Hooks
-
-Both platforms support hooks, but with different mechanisms:
-
-**Claude Code** (`.claude/settings.json`):
-
-```json
-{
-  "hooks": {
-    "UserPromptSubmit": [{
-      "type": "command",
-      "command": "bash .claude/hooks/a11y-team-eval.sh"
-    }]
-  }
-}
-```
-
-**GitHub Copilot** (`.github/hooks/document-a11y.json`):
-
-```json
-{
-  "hooks": {
-    "SessionStart": [{
-      "type": "command",
-      "command": "node .github/hooks/scripts/session-start.js"
-    }],
-    "SessionEnd": [{
-      "type": "command",
-      "command": "node .github/hooks/scripts/session-stop.js"
-    }]
-  }
-}
-```
-
-Both hook systems:
-
-- Auto-detect relevant configuration files
-- Inject context only when document accessibility work is detected
-- Remain silent for unrelated sessions

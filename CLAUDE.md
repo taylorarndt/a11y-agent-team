@@ -10,6 +10,8 @@ Before writing or modifying any web UI code - including HTML, JSX, CSS, React co
 2. Apply the relevant specialist knowledge before generating code
 3. Verify the output against the appropriate checklists
 
+**Automatic trigger detection:** If a user prompt involves creating, editing, or reviewing any file matching `*.html`, `*.jsx`, `*.tsx`, `*.vue`, `*.svelte`, `*.astro`, or `*.css` - or if the prompt describes building UI components, pages, forms, or visual elements - treat it as a web UI task and apply the Decision Matrix below to determine which specialists are needed. Do not wait for the user to explicitly request accessibility review.
+
 ## Available Specialist Agents
 
 Invoke these agents from the Claude Code agent picker (type `/` to browse):
@@ -30,7 +32,7 @@ Invoke these agents from the Claude Code agent picker (type `/` to browse):
 | mobile-accessibility | React Native, Expo, iOS, Android - touch targets, screen reader compatibility |
 | design-system-auditor | Color token contrast, focus ring tokens, spacing tokens, Tailwind/MUI/Chakra/shadcn |
 | web-accessibility-wizard | Full guided web accessibility audit with step-by-step walkthrough |
-| document-accessibility-wizard | Document accessibility audit for .docx, .xlsx, .pptx, .pdf - single files, folders, recursive scanning, delta scanning, severity scoring, remediation tracking, compliance export (VPAT/ACR), CI/CD integration |
+| document-accessibility-wizard | Document accessibility audit for .docx, .xlsx, .pptx, .pdf - single files, folders, recursive scanning, delta scanning, severity scoring, remediation tracking, compliance export (VPAT/ACR), CSV export with help links, CI/CD integration |
 | testing-coach | Screen reader testing, keyboard testing, automated testing guidance |
 | wcag-guide | WCAG 2.2 criteria explanations, conformance levels, what changed |
 
@@ -48,6 +50,9 @@ These agents are not meant to be invoked directly by users. They are used intern
 | pdf-scan-config | PDF scan config management - invoked internally by document-accessibility-wizard Phase 0 |
 | markdown-scanner | Per-file markdown scanning across all 9 accessibility domains - invoked in parallel by markdown-a11y-assistant |
 | markdown-fixer | Applies approved markdown fixes and presents human-judgment items - invoked by markdown-a11y-assistant |
+| markdown-csv-reporter | Exports markdown audit findings to CSV with WCAG help links and markdownlint rule references - invoked by markdown-a11y-assistant |
+| web-csv-reporter | Exports web audit findings to CSV with Deque University help links - invoked by web-accessibility-wizard |
+| document-csv-reporter | Exports document audit findings to CSV with Microsoft Office and Adobe PDF help links - invoked by document-accessibility-wizard |
 
 ## Knowledge Domains
 
@@ -63,18 +68,9 @@ The following knowledge domains are available across agent files. On Copilot the
 | Framework Accessibility | Framework-specific accessibility patterns and fix templates (React, Vue, Angular, Svelte, Tailwind) |
 | Cognitive Accessibility | WCAG 2.2 cognitive SC reference tables, plain language analysis, COGA guidance, auth pattern detection |
 | Mobile Accessibility | React Native prop reference, iOS/Android API quick reference, touch target rules, violation patterns |
-| Design System | Color token contrast computation, framework token paths (Tailwind/MUI/Chakra/shadcn), focus ring validation, WCAG 2.4.11 |
+| Design System | Color token contrast computation, framework token paths (Tailwind/MUI/Chakra/shadcn), focus ring validation, WCAG 2.4.13 Focus Appearance (AAA) |
 | Markdown Accessibility | Ambiguous link/anchor patterns, emoji handling modes (remove/translate), Mermaid and ASCII diagram replacement templates, heading structure, severity scoring |
-
-## Lifecycle Hooks
-
-Claude Code hooks are configured in `.claude/settings.json` and `.claude/hooks/`:
-
-| Hook | When | Purpose |
-|------|------|---------|
-| UserPromptSubmit | Every user prompt | Evaluates whether the prompt involves UI code and injects accessibility-lead consideration |
-| SessionStart | Built into wizard agent frontmatter | Auto-detects scan config files and previous audit reports; injects relevant context |
-| Stop | Built into wizard agent frontmatter | Quality gate - validates audit report completeness |
+| Help URL Reference | Deque University help topic URLs, Microsoft Office help URLs, Adobe PDF help URLs, WCAG understanding document URLs, application-specific fix steps |
 
 ## Agent Teams
 
@@ -91,7 +87,7 @@ Team coordination is defined in `.claude/agents/AGENTS.md`. Five defined teams:
 - **New component or page:** Always apply aria-specialist + keyboard-navigator + alt-text-headings guidance. Add forms-specialist for any inputs, contrast-master for styling, modal-specialist for overlays, live-region-controller for dynamic updates, tables-data-specialist for any data tables.
 - **Modifying existing UI:** At minimum apply keyboard-navigator (tab order breaks easily). Add others based on what changed.
 - **Code review/audit:** Apply all specialist checklists. Use web-accessibility-wizard for guided web audits.
-- **Document audit:** Use document-accessibility-wizard for Office and PDF accessibility audits. Supports single files, folders, recursive scanning, delta scanning (changed files only), severity scoring, template analysis, remediation tracking across re-scans, compliance format export (VPAT/ACR), batch remediation scripts, and CI/CD integration guides.
+- **Document audit:** Use document-accessibility-wizard for Office and PDF accessibility audits. Supports single files, folders, recursive scanning, delta scanning (changed files only), severity scoring, template analysis, remediation tracking across re-scans, compliance format export (VPAT/ACR), CSV export with help links, batch remediation scripts, and CI/CD integration guides.
 - **Mobile app (React Native / Expo / iOS / Android):** Apply cognitive-accessibility guidance. Use mobile-accessibility for touch target checks, accessibilityLabel/Role/State audits, and platform-specific screen reader testing.
 - **Cognitive / UX clarity / plain language:** Use cognitive-accessibility for WCAG 2.2 SC 3.3.7, 3.3.8, 3.3.9, COGA guidance, error message quality, and reading level analysis.
 - **Design system / tokens:** Use design-system-auditor to validate color token pairs, focus ring tokens, spacing tokens, and motion tokens before they propagate to UI.
@@ -100,6 +96,14 @@ Team coordination is defined in `.claude/agents/AGENTS.md`. Five defined teams:
 - **Images or media:** Always apply alt-text-headings.
 - **Testing guidance:** Use testing-coach for screen reader testing, keyboard testing, and automated testing setup.
 - **WCAG questions:** Use wcag-guide to understand specific WCAG success criteria and conformance requirements.
+
+## Context Discovery
+
+When starting any accessibility audit, review, or remediation task, proactively check the workspace for existing context before proceeding:
+
+1. **Scan configuration files:** Check the workspace root for `.a11y-office-config.json`, `.a11y-pdf-config.json`, and `.a11y-web-config.json`. If any exist, read them to determine which rules are enabled/disabled, severity filters, and custom settings. Apply these configurations to the audit - do not use defaults when a config file exists.
+2. **Previous audit reports:** Check for existing `ACCESSIBILITY-AUDIT.md`, `WEB-ACCESSIBILITY-AUDIT.md`, `DOCUMENT-ACCESSIBILITY-AUDIT.md`, and `MARKDOWN-ACCESSIBILITY-AUDIT.md` in the workspace root. If found, note the date, overall score, and issue count. Offer comparison/delta mode so the user can track remediation progress.
+3. **Scan config templates:** If no config file exists and the user is starting a new audit, mention that pre-built profiles (strict, moderate, minimal) are available in the `templates/` directory.
 
 ## Scan Configuration
 
@@ -114,6 +118,20 @@ Copy the appropriate template to your project root:
 - `.a11y-office-config.json` for Office document scanning
 - `.a11y-pdf-config.json` for PDF scanning
 - `.a11y-web-config.json` for web accessibility scanning
+
+## Audit Report Quality Requirements
+
+When generating any accessibility audit report (web, document, or markdown), the report MUST include all of these sections to be considered complete:
+
+1. **Metadata** - audit date, tool versions, scope (URLs/files audited), scan configuration used
+2. **Executive summary** - overall score (0-100, A-F grade), total issues by severity, pass/fail verdict
+3. **Findings** - each issue with: rule ID, WCAG criterion, severity, affected element/location, description, remediation guidance
+4. **Severity breakdown** - counts by Critical/Serious/Moderate/Minor
+5. **Remediation priorities** - ordered list of what to fix first based on impact and effort
+6. **Next steps** - recommended follow-up actions, re-scan timeline
+7. **Delta tracking** (when a previous report exists) - Fixed/New/Persistent/Regressed issue counts
+
+Do not consider an audit complete until the report contains all applicable sections. If generating a quick check (not a full audit), state explicitly that it is a triage result, not a complete audit report.
 
 ## Non-Negotiable Standards
 

@@ -2,7 +2,7 @@
 name: document-accessibility-wizard
 description: Interactive document accessibility audit wizard. Use to run a guided, step-by-step accessibility audit of Office documents (.docx, .xlsx, .pptx), PDFs, and ePub documents. Supports single files, multiple files, entire folders with recursive scanning, and mixed document types. Orchestrates specialist sub-agents (word-accessibility, excel-accessibility, powerpoint-accessibility, pdf-accessibility, epub-accessibility) and produces a comprehensive markdown report. Best for auditing document libraries, onboarding document-heavy projects, or batch remediation workflows.
 tools: ['agent', 'read', 'search', 'askQuestions', 'edit', 'runInTerminal']
-agents: ['word-accessibility', 'excel-accessibility', 'powerpoint-accessibility', 'pdf-accessibility', 'epub-accessibility', 'document-inventory', 'cross-document-analyzer']
+agents: ['word-accessibility', 'excel-accessibility', 'powerpoint-accessibility', 'pdf-accessibility', 'epub-accessibility', 'document-inventory', 'cross-document-analyzer', 'document-csv-reporter']
 model: ['Claude Sonnet 4.5 (copilot)', 'GPT-5 (copilot)']
 handoffs:
   - label: "Fix Word Issues"
@@ -998,6 +998,23 @@ Conformance levels:
 - **Does Not Support** - All or most documents fail for this criterion
 - **Not Applicable** - Criterion does not apply to the document types scanned
 
+### CSV/JSON Export
+
+If the user selects **Export findings as CSV/JSON**, hand off to the **document-csv-reporter** sub-agent via **runSubagent** with the full audit context:
+
+```text
+## CSV Export Handoff to document-csv-reporter
+- **Report Path:** [path to DOCUMENT-ACCESSIBILITY-AUDIT.md]
+- **Files Audited:** [list of file paths with types]
+- **Output Directory:** [project root or user-specified directory]
+- **Export Format:** CSV (and optionally JSON)
+```
+
+The document-csv-reporter generates:
+- `DOCUMENT-ACCESSIBILITY-FINDINGS.csv` - one row per finding with severity scoring, WCAG criteria, and Microsoft/Adobe help links
+- `DOCUMENT-ACCESSIBILITY-SCORECARD.csv` - one row per document with score and grade
+- `DOCUMENT-ACCESSIBILITY-REMEDIATION.csv` - prioritized remediation plan with ROI scoring and fix steps
+
 If the user selects **Compare with a previous audit**, use askQuestions:
 
 **Question:** "What is the path to the previous audit report?"
@@ -1273,3 +1290,45 @@ Skip files matching these patterns during folder scans:
 
 ### Mixed Results
 When a folder has some passing and some failing files, organize the report to show clean files separately from problem files. This helps teams focus remediation.
+
+---
+
+## Multi-Agent Reliability
+
+### Action Constraints
+
+You are an **orchestrator** (read-only + report generation). You may:
+- Discover and inventory document files
+- Delegate format-specific scanning to sub-agents (word, excel, powerpoint, pdf, epub)
+- Aggregate findings with severity scoring
+- Generate reports, CSV exports, and compliance documents
+
+You may NOT:
+- Directly modify scanned documents
+- Skip the Phase 0 configuration step
+- Generate batch remediation scripts without user confirmation
+
+### Sub-Agent Output Contract
+
+Every format-specific scanner MUST return findings in this format:
+- `rule_id`: format-specific rule ID (DOCX-*, XLSX-*, PPTX-*, PDFUA.*, PDFBP.*, EPUB-*)
+- `severity`: `critical` | `serious` | `moderate` | `minor`
+- `location`: file path, page/slide/sheet number, element description
+- `description`: what is wrong
+- `remediation`: how to fix it
+- `wcag_criterion`: mapped WCAG 2.2 success criterion
+
+Findings missing required fields are rejected. The wizard re-requests with explicit field requirements.
+
+### Boundary Validation
+
+**Before Phase 2 (parallel scanning):** Verify file inventory is complete, config is loaded, format-specific sub-agents are matched to file types.
+**After Phase 2:** Verify each sub-agent returned structured findings. Log file count scanned vs. file count in inventory. Report any files that were skipped with reasons.
+**Before Phase 4 (report):** Verify cross-document analysis completed (Phase 3). Verify severity scoring inputs are complete.
+
+### Failure Handling
+
+- File cannot be opened (locked, corrupted, password-protected): log the failure per Edge Cases, continue with remaining files.
+- Sub-agent scan fails for a format: report which format was not scanned, continue with others. Offer targeted retry.
+- Partial results: aggregate what succeeded, clearly mark failed files in the report.
+- Delta scan with no baseline: state that this is a first scan, no comparison available. Never fabricate delta data.

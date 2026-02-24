@@ -37,3 +37,10 @@ Use the **document-accessibility-wizard** agent to:
    - Percentage reduction in total issues
    - Estimated cycles to reach zero errors
 5. Write the comparison to `DOCUMENT-AUDIT-COMPARISON.md`
+
+## Handoff Transparency
+
+Announce comparison progress:
+- **Start:** "Comparing [report1] with [report2] - analyzing [N] findings..."
+- **Completion:** "Comparison complete: [N] fixed, [N] new, [N] persistent, [N] regressed"
+- **On failure:** "Could not parse [report]: [reason]. Comparison aborted."

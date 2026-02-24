@@ -3,8 +3,8 @@
   "name": "a11y-agent-team",
   "display_name": "A11y Agent Team",
   "version": "1.0.0",
-  "description": "Accessibility review tools for Claude Desktop. Check contrast ratios, audit ARIA usage, review modals, keyboard navigation, live regions, scan Office documents and PDFs. Enforces WCAG 2.1 AA and PDF/UA compliance.",
-  "long_description": "A team of accessibility specialists that review your web UI code and documents for WCAG 2.1 AA compliance. Includes a contrast ratio calculator, static analysis tools, Office document scanner (.docx/.xlsx/.pptx), PDF scanner (PDF/UA / Matterhorn Protocol), VPAT generator, and specialist review prompts. Built by a screen reader user who got tired of AI tools forgetting accessibility.",
+  "description": "Accessibility review tools for Claude Desktop. Check contrast ratios, audit ARIA usage, review modals, keyboard navigation, live regions, scan Office documents and PDFs. Enforces WCAG 2.2 AA and PDF/UA compliance.",
+  "long_description": "A team of accessibility specialists that review your web UI code and documents for WCAG 2.2 AA compliance. Includes a contrast ratio calculator, static analysis tools, Office document scanner (.docx/.xlsx/.pptx), PDF scanner (PDF/UA / Matterhorn Protocol), VPAT generator, and specialist review prompts. Built by a screen reader user who got tired of AI tools forgetting accessibility.",
   "author": {
     "name": "Taylor Arndt"
   },
@@ -88,7 +88,7 @@
     {
       "name": "accessibility-audit",
       "description": "Run a full accessibility audit on code. Checks structure, ARIA, keyboard navigation, contrast, focus management, and live regions.",
-      "text": "Run a comprehensive WCAG 2.1 AA accessibility audit on this code: {{code}}",
+      "text": "Run a comprehensive WCAG 2.2 AA accessibility audit on this code: {{code}}",
       "arguments": ["code"]
     },
     {

@@ -59,3 +59,10 @@ Use the **document-accessibility-wizard** agent to:
 
 4. Offer to generate a starter config file that enforces these standards:
    - `.a11y-office-config.json` with strict profile
+
+## Handoff Transparency
+
+Announce template creation progress:
+- **Start:** "Creating accessible document template with [format]-specific guidance..."
+- **Completion:** "Template guidance generated. Config file written to [path]."
+- **On failure:** "Template generation failed: [reason]."

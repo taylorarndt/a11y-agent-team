@@ -6,8 +6,8 @@
  * Outputs SARIF for GitHub Code Scanning integration.
  */
 
-import { readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
-import { join, relative, extname, basename, dirname } from "node:path";
+import { readFileSync, readdirSync, lstatSync, writeFileSync } from "node:fs";
+import { join, relative, extname } from "node:path";
 
 const IGNORED_DIRS = new Set([
   "node_modules", ".git", "dist", "build", ".next", ".nuxt",
@@ -42,13 +42,13 @@ function parsePdfBasics(buf) {
     isEncrypted: false,
   };
   if (/\/Encrypt\s/.test(text)) info.isEncrypted = true;
-  const pageCountMatch = text.match(/\/Type\s*\/Pages[\s\S]*?\/Count\s+(\d+)/);
+  const pageCountMatch = text.match(/\/Type\s*\/Pages[^>]{0,200}\/Count\s+(\d+)/);
   if (pageCountMatch) info.pageCount = parseInt(pageCountMatch[1]);
-  if (/\/MarkInfo\s*<<[\s\S]*?\/Marked\s+true/i.test(text)) info.isTagged = true;
+  if (/\/MarkInfo\s*<<[^>]{0,200}\/Marked\s+true/i.test(text)) info.isTagged = true;
   if (/\/StructTreeRoot\s/.test(text)) info.hasStructureTree = true;
   if (/\(.*?\)\s*Tj|<[0-9a-fA-F]+>\s*Tj|\[.*?\]\s*TJ/i.test(text)) info.hasText = true;
-  const titleMatch = text.match(/\/Title\s*\(([^)]*)\)/);
-  if (titleMatch && titleMatch[1].trim()) { info.hasTitle = true; info.title = titleMatch[1].trim(); }
+  const titleMatch = text.match(/\/Title\s*\(([^)\\]*(?:\\.[^)\\]*)*)\)/);
+  if (titleMatch && titleMatch[1].trim()) { info.hasTitle = true; info.title = titleMatch[1].replace(/\\(.)/g, '$1').trim(); }
   const titleHex = text.match(/\/Title\s*<([0-9a-fA-F]+)>/);
   if (titleHex && titleHex[1].length > 0) info.hasTitle = true;
   const langMatch = text.match(/\/Lang\s*\(([^)]*)\)/);
@@ -92,7 +92,9 @@ function scanPdf(buf, config) {
   if (!info.hasText) add("PDFBP.TEXT.EXTRACTABLE", "error", "No extractable text — likely image-only PDF", "page content");
   if (info.hasText && !info.hasUnicodeMap) add("PDFBP.TEXT.UNICODE_MAP", "warning", "No ToUnicode maps for fonts", "font resources");
   if (info.pageCount > 10 && !info.hasBookmarks) add("PDFBP.NAV.BOOKMARKS_FOR_LONG_DOCS", "warning", `${info.pageCount} pages without bookmarks`, "document outlines");
-  if (!info.hasText) add("PDFQ.REPO.NO_SCANNED_ONLY", "error", "Image-only PDF in repository", "page content");
+  if (!info.hasText && !disabled.has("PDFBP.TEXT.EXTRACTABLE")) {
+    add("PDFQ.REPO.NO_SCANNED_ONLY", "error", "Image-only PDF in repository", "page content");
+  }
   if (info.isEncrypted) add("PDFQ.REPO.ENCRYPTED", "warning", "PDF is encrypted — may block AT access", "encryption dictionary");
 
   return { findings, info };
@@ -108,7 +110,8 @@ function walkDir(dir) {
     if (IGNORED_DIRS.has(entry)) continue;
     const full = join(dir, entry);
     let s;
-    try { s = statSync(full); } catch { continue; }
+    try { s = lstatSync(full); } catch { continue; }
+    if (s.isSymbolicLink()) continue;
     if (s.isDirectory()) results.push(...walkDir(full));
     else if (extname(entry).toLowerCase() === ".pdf") results.push(full);
   }

@@ -61,7 +61,7 @@ These rules apply automatically to every HTML and component file. They represent
 - Normal text contrast: minimum **4.5:1** against its background.
 - Large text contrast (18pt / 14pt bold or larger): minimum **3:1**.
 - UI component contrast (input borders, focus rings, icon buttons, chart lines): minimum **3:1** against adjacent background.
-- Focus indicators: minimum **3:1** between focused and unfocused appearance (WCAG 2.4.11, AA).
+- Focus indicators: minimum **3:1** between focused and unfocused appearance (WCAG 2.4.7, AA).
 
 ---
 
@@ -96,3 +96,16 @@ These rules apply automatically to every HTML and component file. They represent
   ```
 - Auto-playing carousels and animations must provide a visible pause control.
 - No content may flash more than 3 times per second (WCAG 2.3.1, Level A).
+
+---
+
+## WCAG 2.2 New Criteria (AA)
+
+These six success criteria were added in WCAG 2.2. Apply them to all new and updated web content.
+
+- **Focus Not Obscured (2.4.11):** When an element receives keyboard focus, it must not be entirely hidden by sticky headers, footers, cookie banners, or other fixed-position content. Ensure `scroll-padding` or dynamic offsets account for sticky elements.
+- **Dragging Movements (2.5.7):** Any function that uses dragging (drag-to-reorder, sliders, drag-and-drop) must also be operable with a single pointer without dragging. Provide click-to-move, arrow key controls, or alternative UI.
+- **Target Size - Minimum (2.5.8):** Interactive targets must be at least 24x24 CSS pixels, or have sufficient spacing from adjacent targets. Inline text links are exempt. Apply `min-width: 24px; min-height: 24px` to icon buttons and small controls.
+- **Consistent Help (3.2.6):** If help mechanisms (contact info, chat widget, FAQ link) appear on multiple pages, they must be in the same relative location on each page.
+- **Redundant Entry (3.3.7, Level A):** Information previously entered by the user in a multi-step process must be auto-populated or available for selection. Do not force re-entry of address, email, or payment data already provided.
+- **Accessible Authentication - Minimum (3.3.8):** Authentication must not require cognitive function tests (memorizing passwords, solving puzzles) unless an alternative method is available. Support password managers (never block paste), passkeys, biometrics, or email/SMS codes.

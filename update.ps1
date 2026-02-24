@@ -149,18 +149,6 @@ if (Test-Path $AgentsSrcDir) {
         # Files not in manifest and already present are skipped (user files)
     }
 }
-$HookSrc = Join-Path $CacheDir ".claude\hooks\a11y-team-eval.ps1"
-$HookDst = Join-Path $InstallDir "hooks\a11y-team-eval.ps1"
-if ((Test-Path $HookSrc) -and (Test-Path $HookDst)) {
-    $SrcContent = Get-Content $HookSrc -Raw -ErrorAction SilentlyContinue
-    $DstContent = Get-Content $HookDst -Raw -ErrorAction SilentlyContinue
-    if ($SrcContent -ne $DstContent) {
-        Copy-Item -Path $HookSrc -Destination $HookDst -Force
-        Write-Log "Updated: hook script"
-        $Updated++
-    }
-}
-
 # Save manifest — new agents contributed to the repo are tracked for future updates
 [IO.File]::WriteAllLines($ManifestPath, ($Manifest.Keys | Sort-Object), [Text.Encoding]::UTF8)
 
@@ -202,8 +190,8 @@ if ($Project) {
                 Merge-ConfigFile -SrcFile $Src -DstFile $Dst -Label "Copilot config: $Config"
             }
         }
-        # Asset subdirs: skills, instructions, prompts, hooks
-        foreach ($SubDir in @("skills", "instructions", "prompts", "hooks")) {
+        # Asset subdirs: skills, instructions, prompts
+        foreach ($SubDir in @("skills", "instructions", "prompts")) {
             Sync-GitHubDir -SrcDir (Join-Path $GitHubSrc $SubDir) -DstDir (Join-Path $ProjectGitHub $SubDir) -Label $SubDir
         }
     }

@@ -33,22 +33,31 @@ switch ($Choice) {
     }
 }
 
+# Load manifest to only remove files we installed
+$ManifestFile = Join-Path $TargetDir ".a11y-agent-manifest"
+$ManifestEntries = @()
+if (Test-Path $ManifestFile) {
+    $ManifestEntries = Get-Content $ManifestFile | Where-Object { $_.Trim() -ne "" }
+}
+
 Write-Host ""
 Write-Host "  Removing agents..."
 $AgentsDir = Join-Path $TargetDir "agents"
 if (Test-Path $AgentsDir) {
-    foreach ($File in Get-ChildItem -Path $AgentsDir -Filter "*.md" -ErrorAction SilentlyContinue) {
-        Remove-Item -Path $File.FullName -Force
-        Write-Host "    - $($File.BaseName)"
+    if ($ManifestEntries.Count -gt 0) {
+        foreach ($Entry in $ManifestEntries) {
+            if ($Entry -like "agents/*") {
+                $FileName = $Entry -replace '^agents/', ''
+                $FilePath = Join-Path $AgentsDir $FileName
+                if (Test-Path $FilePath) {
+                    Remove-Item -Path $FilePath -Force
+                    Write-Host "    - $([IO.Path]::GetFileNameWithoutExtension($FileName))"
+                }
+            }
+        }
+    } else {
+        Write-Host "    (no manifest found — skipping to avoid removing user-created files)"
     }
-}
-
-Write-Host ""
-Write-Host "  Removing hook..."
-$HookPath = Join-Path $TargetDir "hooks\a11y-team-eval.ps1"
-if (Test-Path $HookPath) {
-    Remove-Item -Path $HookPath -Force
-    Write-Host "    - a11y-team-eval.ps1"
 }
 
 # Remove Copilot agents if installed (project uninstall only)
@@ -57,22 +66,37 @@ if ($Choice -eq "1") {
     if (Test-Path $CopilotDir) {
         Write-Host ""
         Write-Host "  Removing Copilot agents..."
-        foreach ($File in Get-ChildItem -Path $CopilotDir -Filter "*.agent.md" -ErrorAction SilentlyContinue) {
-            Remove-Item -Path $File.FullName -Force
-            Write-Host "    - $($File.BaseName)"
+        # Only remove agents listed in manifest to avoid deleting user-created files
+        $CopilotManifestEntries = $ManifestEntries | Where-Object { $_ -like "copilot-agents/*" }
+        if ($CopilotManifestEntries.Count -gt 0) {
+            foreach ($Entry in $CopilotManifestEntries) {
+                $FileName = $Entry -replace '^copilot-agents/', ''
+                $FilePath = Join-Path $CopilotDir $FileName
+                if (Test-Path $FilePath) {
+                    Remove-Item -Path $FilePath -Force
+                    Write-Host "    - $([IO.Path]::GetFileNameWithoutExtension($FileName))"
+                }
+            }
+        } else {
+            Write-Host "    (no manifest entries for copilot-agents — skipping)"
         }
         if ((Get-ChildItem -Path $CopilotDir -ErrorAction SilentlyContinue | Measure-Object).Count -eq 0) {
             Remove-Item -Path $CopilotDir -Force -ErrorAction SilentlyContinue
         }
     }
 
-    # Remove Copilot config files
+    # Remove Copilot config files — only those with our section markers
     $GithubDir = Join-Path (Get-Location) ".github"
     foreach ($Config in @("copilot-instructions.md", "copilot-review-instructions.md", "copilot-commit-message-instructions.md")) {
         $ConfigPath = Join-Path $GithubDir $Config
         if (Test-Path $ConfigPath) {
-            Remove-Item -Path $ConfigPath -Force
-            Write-Host "    - $Config"
+            $content = [IO.File]::ReadAllText($ConfigPath, [Text.Encoding]::UTF8)
+            if ($content -match '<!-- a11y-agent-team: start -->') {
+                Remove-Item -Path $ConfigPath -Force
+                Write-Host "    - $Config"
+            } else {
+                Write-Host "    ~ $Config (has user content — skipped)"
+            }
         }
     }
 }
@@ -135,10 +159,6 @@ if ($Choice -eq "2") {
     Write-Host "    - Update files cleaned up"
 }
 
-Write-Host ""
-Write-Host "  NOTE: The hook entry in settings.json was not removed."
-Write-Host "  If you want to fully clean up, remove the UserPromptSubmit"
-Write-Host "  hook referencing a11y-team-eval from your settings.json."
 Write-Host ""
 Write-Host "  Uninstall complete."
 Write-Host ""

@@ -49,7 +49,7 @@ See the [changelog](https://github.com/community-access/accessibility-agents/rel
 
 | Feature | Description |
 |---------|-------------|
-| Markdown Accessibility Agents | `markdown-a11y-assistant` orchestrator with parallel `markdown-scanner` and `markdown-fixer` sub-agents. Covers 9 domains: links, alt text, headings, tables, emoji, diagrams, em-dashes, anchor links, and plain language. Includes 4 custom prompts, a `markdown-accessibility` skill, lifecycle hook integration, and full Copilot/Claude Code parity. |
+| Markdown Accessibility Agents | `markdown-a11y-assistant` orchestrator with parallel `markdown-scanner` and `markdown-fixer` sub-agents. Covers 9 domains: links, alt text, headings, tables, emoji, diagrams, em-dashes, anchor links, and plain language. Includes 4 custom prompts, a `markdown-accessibility` skill, and full Copilot/Claude Code parity. |
 
 ---
 

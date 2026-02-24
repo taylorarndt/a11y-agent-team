@@ -35,3 +35,10 @@ Use the **web-accessibility-wizard** agent workflow:
    - **Remediation Priority** - ordered by ROI (systemic fixes first)
 
 5. Ask: "Would you like me to fix the systemic issues that affect all pages?"
+
+## Handoff Transparency
+
+This workflow delegates to multiple specialist sub-agents across multiple pages. Announce each transition:
+- **Before delegation:** "Auditing page [N/total]: [URL] - running [phase name]..."
+- **After completion:** Summarize per-page results before moving to cross-page analysis
+- **On failure:** "[Agent name] failed on [URL]: [reason]. Continuing with remaining pages."

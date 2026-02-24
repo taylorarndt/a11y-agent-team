@@ -1,3 +1,8 @@
+---
+name: mobile-accessibility
+description: Mobile accessibility reference data for React Native, Expo, iOS, and Android auditing. Covers accessibilityLabel, accessibilityRole, accessibilityHint, touch target sizes (44x44pt minimum), screen reader compatibility, and platform-specific semantics. Use when reviewing any React Native or native mobile code for accessibility.
+---
+
 # Mobile Accessibility Skill
 
 This skill provides mobile accessibility reference data for React Native, Expo, iOS, and Android auditing. Used by `mobile-accessibility.agent.md`.

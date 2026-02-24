@@ -88,7 +88,7 @@ fi
 
 # Clone or pull the repo
 if [ -d "$CACHE_DIR/.git" ]; then
-  cd "$CACHE_DIR"
+  cd "$CACHE_DIR" || exit 1
   git fetch origin main --quiet 2>/dev/null
   LOCAL_HASH=$(git rev-parse HEAD 2>/dev/null)
   REMOTE_HASH=$(git rev-parse origin/main 2>/dev/null)
@@ -107,7 +107,7 @@ else
   log "Repository cloned."
 fi
 
-cd "$CACHE_DIR"
+cd "$CACHE_DIR" || exit 1
 NEW_HASH=$(git rev-parse --short HEAD 2>/dev/null)
 
 # Check if install directory exists
@@ -158,18 +158,6 @@ for SRC in "$CACHE_DIR/.claude/agents/"*.md; do
   # Files not in manifest and already on disk are skipped (user-created agents)
 done
 
-# Copy updated hook
-HOOK_SRC="$CACHE_DIR/.claude/hooks/a11y-team-eval.sh"
-HOOK_DST="$INSTALL_DIR/hooks/a11y-team-eval.sh"
-if [ -f "$HOOK_SRC" ] && [ -f "$HOOK_DST" ]; then
-  if ! cmp -s "$HOOK_SRC" "$HOOK_DST" 2>/dev/null; then
-    cp "$HOOK_SRC" "$HOOK_DST"
-    chmod +x "$HOOK_DST"
-    log "Updated: hook script"
-    UPDATED=$((UPDATED + 1))
-  fi
-fi
-
 # Helper: recursively sync a source directory into a destination directory.
 # Updates changed files and adds new files.
 # Does NOT remove files: they may be user-created files in the same directory.
@@ -206,8 +194,8 @@ if [ "$TARGET" = "project" ]; then
       DST="$PROJECT_GITHUB/$config"
       [ -f "$SRC" ] && merge_config_file "$SRC" "$DST" "$config"
     done
-    # Asset subdirs: skills, instructions, prompts, hooks — auto-discovered
-    for subdir in skills instructions prompts hooks; do
+    # Asset subdirs: skills, instructions, prompts — auto-discovered
+    for subdir in skills instructions prompts; do
       sync_github_dir "$GITHUB_SRC/$subdir" "$PROJECT_GITHUB/$subdir" "$subdir"
     done
   fi

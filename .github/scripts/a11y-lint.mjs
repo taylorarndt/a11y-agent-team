@@ -5,7 +5,7 @@
  * Scans HTML/JSX/TSX/Vue/Svelte files for common accessibility issues.
  */
 
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readFileSync, readdirSync, lstatSync } from "node:fs";
 import { join, relative, extname } from "node:path";
 
 const EXTENSIONS = new Set([".html", ".htm", ".jsx", ".tsx", ".vue", ".svelte"]);
@@ -19,6 +19,7 @@ const IGNORED_DIRS = new Set([
   ".nuxt",
   "coverage",
   "vendor",
+  "example",
 ]);
 
 // ── File discovery ──────────────────────────────────────────────
@@ -28,7 +29,7 @@ function walkDir(dir, extensions) {
   let entries;
   try {
     entries = readdirSync(dir);
-  } catch {
+  } catch { // Directory unreadable — skip silently
     return results;
   }
   for (const entry of entries) {
@@ -36,10 +37,11 @@ function walkDir(dir, extensions) {
     const full = join(dir, entry);
     let stat;
     try {
-      stat = statSync(full);
-    } catch {
+      stat = lstatSync(full);
+    } catch { // Stat failed (permissions, broken link) — skip
       continue;
     }
+    if (stat.isSymbolicLink()) continue;
     if (stat.isDirectory()) {
       results.push(...walkDir(full, extensions));
     } else if (extensions.has(extname(entry).toLowerCase())) {
@@ -63,7 +65,7 @@ function checkFile(filePath, root) {
   let content;
   try {
     content = readFileSync(filePath, "utf-8");
-  } catch {
+  } catch { // File unreadable — skip silently
     return;
   }
 
@@ -75,6 +77,8 @@ function checkFile(filePath, root) {
     const lineNum = i + 1;
 
     // 1. Images without alt
+    // NOTE: This regex only matches <img> tags on a single line.
+    // Multi-line HTML tags (e.g., <img\n  src="...">) are not detected.
     const imgMatches = [...line.matchAll(/<img\b[^>]*>/gi)];
     for (const m of imgMatches) {
       const tag = m[0];
@@ -130,10 +134,10 @@ function checkFile(filePath, root) {
 
     // 6. Ambiguous link text
     const linkMatches = [
-      ...line.matchAll(/<a\b[^>]*>([^<]*)<\/a>/gi),
+      ...line.matchAll(/<a\b[^>]*>([\s\S]*?)<\/a>/gi),
     ];
     for (const m of linkMatches) {
-      const text = m[1].trim().toLowerCase();
+      const text = m[1].replace(/<[^>]*>/g, "").trim().toLowerCase();
       const ambiguous = [
         "click here",
         "here",
@@ -242,7 +246,7 @@ function checkCSSFile(filePath, root) {
   let content;
   try {
     content = readFileSync(filePath, "utf-8");
-  } catch {
+  } catch { // File unreadable — skip silently
     return;
   }
 
@@ -282,6 +286,8 @@ console.log(
   `Scanning ${htmlFiles.length} markup files and ${cssFiles.length} stylesheet files...\n`
 );
 
+// NOTE: walkDir is intentionally duplicated in markdown-a11y-lint.mjs.
+// Each linter is designed to be zero-dependency and standalone for CI use.
 for (const f of htmlFiles) checkFile(f, root);
 for (const f of cssFiles) checkCSSFile(f, root);
 

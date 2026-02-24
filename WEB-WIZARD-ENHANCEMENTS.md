@@ -1152,9 +1152,9 @@ The wizard resolves configuration in this order (later sources override earlier)
 3. **Phase 0 user answers** - interactive choices override config file settings
 4. **CLI arguments** - if invoked from CI scripts with explicit arguments
 
-### Config Detection in SessionStart Hook
+### Config Detection
 
-The `SessionStart` hook checks for `.a11y-web-config.json`. If found, it reports:
+The wizard checks for `.a11y-web-config.json` at startup. If found, it reports:
 
 ```text
  Found .a11y-web-config.json:

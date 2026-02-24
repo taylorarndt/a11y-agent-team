@@ -215,11 +215,6 @@
 			"description": "Folder path to scan for documents (e.g., ./docs or C:\\Documents)"
 		},
 		{
-			"id": "documentPath",
-			"type": "promptString",
-			"description": "Path to the document file (.docx, .xlsx, .pptx, or .pdf)"
-		},
-		{
 			"id": "auditReportPath",
 			"type": "promptString",
 			"description": "Path to an existing audit report (e.g., DOCUMENT-ACCESSIBILITY-AUDIT.md)"

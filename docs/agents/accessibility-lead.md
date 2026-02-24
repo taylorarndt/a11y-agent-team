@@ -35,7 +35,7 @@ Deep-dive into a single domain on its own. It delegates. If you ask it about ARI
 @accessibility-lead I'm building a dashboard with charts and tables
 ```
 
-**Automatic invocation:** When working in Copilot, the workspace instructions ensure the lead is always available as a first-line coordinator. In Claude Code, the UserPromptSubmit hook evaluates every UI-related prompt and injects the lead's context.
+**Automatic invocation:** When working in Copilot, the workspace instructions ensure the lead is always available as a first-line coordinator. In Claude Code, invoke the lead directly with `/accessibility-lead` or `@accessibility-lead`.
 
 ## Step-by-Step: How a Full Audit Works
 

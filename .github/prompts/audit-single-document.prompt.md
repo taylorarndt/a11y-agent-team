@@ -28,3 +28,10 @@ Run a full accessibility audit on the document at the path below. Use the **docu
 4. Compute the severity score (0-100) and letter grade
 5. Generate the full audit report
 6. Offer follow-up actions (fix, re-scan, export)
+
+## Handoff Transparency
+
+This workflow delegates to a format-specific sub-agent. Announce transitions:
+- **Before delegation:** "Scanning [filename] using [word/excel/powerpoint/pdf]-accessibility agent..."
+- **After completion:** "Scan complete: [N] findings ([N] critical, [N] serious). Score: [score]/100 ([grade])"
+- **On failure:** "Scan failed for [filename]: [reason]. Check the file path and format."

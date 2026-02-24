@@ -12,6 +12,7 @@ on:
       - "**/*.svelte"
       - "**/*.css"
       - "**/*.scss"
+      - "**/*.md"
 
 jobs:
   a11y-lint:
@@ -87,3 +88,17 @@ jobs:
             --rule '{"jsx-a11y/alt-text": "error", "jsx-a11y/anchor-has-content": "error", "jsx-a11y/aria-props": "error", "jsx-a11y/aria-role": "error", "jsx-a11y/click-events-have-key-events": "warn", "jsx-a11y/heading-has-content": "error", "jsx-a11y/label-has-associated-control": "error", "jsx-a11y/no-noninteractive-element-interactions": "warn", "jsx-a11y/tabindex-no-positive": "error"}' \
             --ext .jsx,.tsx .
         continue-on-error: true
+
+  markdown-lint:
+    name: Markdown Accessibility Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Run markdown accessibility lint
+        run: node .github/scripts/markdown-a11y-lint.mjs .

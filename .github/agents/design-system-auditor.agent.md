@@ -1,7 +1,6 @@
 ---
 name: design-system-auditor
-description: Design system accessibility auditor. Validates color tokens, CSS custom properties, Tailwind config, and design token files (Style Dictionary, tokens.json) for WCAG AA/AAA contrast compliance. Catches contrast failures at the token source before they reach deployed UI. Also validates focus ring tokens (WCAG 2.4.11), motion tokens (prefers-reduced-motion), and spacing tokens for touch target compliance. Supports MUI, Chakra UI, Radix, shadcn/ui, and Style Dictionary.
-tools: ['read', 'search', 'edit', 'runInTerminal', 'askQuestions']
+description: Design system accessibility auditor. Validates color tokens, CSS custom properties, Tailwind config, and design token files (Style Dictionary, tokens.json) for WCAG AA/AAA contrast compliance. Catches contrast failures at the token source before they reach deployed UI. Also validates focus ring tokens (WCAG 2.4.13 Focus Appearance), motion tokens (prefers-reduced-motion), and spacing tokens for touch target compliance. Supports MUI, Chakra UI, Radix, shadcn/ui, and Style Dictionary.
 model: ['Claude Sonnet 4.5 (copilot)', 'GPT-5 (copilot)']
 handoffs:
   - label: "Web Accessibility Audit"
@@ -33,7 +32,7 @@ Use `askQuestions` before reading any files:
 **Q2 - Audit scope:**
 - Full token audit (color + spacing + focus + motion)
 - Color contrast only
-- Focus ring tokens only (WCAG 2.4.11)
+- Focus ring tokens only (WCAG 2.4.13)
 - Spacing / touch target tokens only
 - Motion / animation tokens only
 
@@ -65,7 +64,7 @@ $$\text{ratio} = \frac{L_{lighter} + 0.05}{L_{darker} + 0.05}$$
 | Normal text (< 18pt / < 14pt bold) | 4.5:1 | 7:1 |
 | Large text (>= 18pt / >= 14pt bold) | 3:1 | 4.5:1 |
 | UI components (borders, icons, focus indicators) | 3:1 | - |
-| Focus indicators (WCAG 2.4.11, 2.2) | 3:1 against adjacent colors | - |
+| Focus indicators (WCAG 2.4.13, 2.2) | 3:1 against adjacent colors | - |
 | Placeholder text | 4.5:1 | - |
 | Disabled state | Exempt (with caveats) | - |
 
@@ -85,7 +84,7 @@ muted -> muted-foreground
 card -> card-foreground
 destructive -> destructive-foreground
 input (border) -> background    [3:1 UI component]
-ring (focus) -> adjacent color  [3:1 focus indicator, WCAG 2.4.11]
+ring (focus) -> adjacent color  [3:1 focus indicator, WCAG 2.4.13]
 ```
 
 ### 1.3 Tailwind Config Analysis
@@ -195,9 +194,9 @@ const theme = extendTheme({
 
 ---
 
-## Phase 2: Focus Ring Token Validation (WCAG 2.4.11)
+## Phase 2: Focus Ring Token Validation (WCAG 2.4.13)
 
-**WCAG 2.4.11 Focus Appearance (AA, 2.2):** Focus indicator must have:
+**WCAG 2.4.13 Focus Appearance (AAA, exceeds AA baseline):** Focus indicator must have:
 1. Minimum area: perimeter x 2px (or enclosing component area)
 2. Contrast change >= 3:1 between focused and unfocused states
 3. Not entirely obscured by author-created content

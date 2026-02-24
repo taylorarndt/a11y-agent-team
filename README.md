@@ -29,7 +29,7 @@ AI coding tools generate inaccessible code by default. They forget ARIA rules, s
 
 All agents run on:
 
-- **Claude Code** - Agents + a hook that forces accessibility evaluation on every prompt
+- **Claude Code** - Agents you invoke directly for accessibility evaluation
 - **GitHub Copilot** - Agents + workspace instructions that ensure accessibility guidance in every conversation
 - **Claude Desktop** - An MCP extension (.mcpb) with tools and prompts for accessibility review
 
@@ -51,13 +51,27 @@ irm https://raw.githubusercontent.com/community-access/accessibility-agents/main
 
 See the full [Getting Started Guide](docs/getting-started.md) for all installation options, manual setup, global vs project install, auto-updates, and platform-specific details.
 
+### One-liner uninstall
+
+**macOS / Linux:**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/community-access/accessibility-agents/main/uninstall.sh | bash
+```
+
+**Windows (PowerShell):**
+
+```powershell
+irm https://raw.githubusercontent.com/community-access/accessibility-agents/main/uninstall.ps1 | iex
+```
+
 ### Safe installation — your files are never overwritten
 
 The installer is designed to be additive and non-destructive:
 
 - **Agent files** (`~/.claude/agents/`, `.github/agents/`) - existing files are skipped, not replaced. A message tells you which agents were skipped so you know what you already have.
 - **Config files** (`copilot-instructions.md`, `copilot-review-instructions.md`, `copilot-commit-message-instructions.md`) - our content is wrapped in `<!-- a11y-agent-team: start/end -->` markers and merged into your existing file. Your content above and below the markers is always preserved. If the file does not exist, it is created.
-- **Asset directories** (`skills/`, `instructions/`, `prompts/`, `hooks/`) - copied file-by-file; files that already exist are skipped.
+- **Asset directories** (`skills/`, `instructions/`, `prompts/`) - copied file-by-file; files that already exist are skipped.
 - **Manifest file** (`.a11y-agent-manifest`) - tracks every file we installed. The update script uses this list to ensure it only touches files we own, never user-created agents. When contributors add new agents to the repo, those files are automatically installed on next update and added to the manifest.
 
 **Updates are equally safe** - the update script never deletes agent files. If a file is not in the manifest (meaning you created it yourself), it will not be modified or removed.
@@ -89,7 +103,7 @@ The following agents make up the accessibility enforcement team, each owning one
 | **office-scan-config** | Office scan rule configuration and preset profiles. |
 | **pdf-accessibility** | PDF conformance per PDF/UA and the Matterhorn Protocol. |
 | **pdf-scan-config** | PDF scan rule configuration and preset profiles. |
-| **document-accessibility-wizard** | Guided document audit with cross-document analysis and VPAT export. |
+| **document-accessibility-wizard** | Guided document audit with cross-document analysis, VPAT export, and CSV export with help links. |
 | **markdown-a11y-assistant** | Markdown documentation audit — links, alt text, headings, tables, emoji, diagrams, em-dashes, anchors. |
 
 ### GitHub Workflow Agents
@@ -130,7 +144,7 @@ The following guides cover web and document accessibility features.
 | [Scan Configuration](docs/scanning/scan-configuration.md) | Config files, preset profiles, CI/CD templates |
 | [Custom Prompts](docs/scanning/custom-prompts.md) | Nine pre-built prompts for one-click document workflows |
 | [Markdown Accessibility](docs/prompts/README.md#markdown-accessibility-prompts) | Four prompts for markdown auditing, quick checks, fix mode, and audit comparison |
-| [Configuration](docs/configuration.md) | Character budget, hook management, troubleshooting |
+| [Configuration](docs/configuration.md) | Character budget, troubleshooting |
 | [Architecture](docs/architecture.md) | Project structure, why agents over skills/MCP, design philosophy |
 
 ### GitHub Workflow Docs
@@ -169,6 +183,7 @@ The following guides cover advanced configuration, cross-platform handoff, and d
 - PDF document accessibility scanning per PDF/UA and the Matterhorn Protocol with 56 built-in rules
 - Markdown documentation accessibility scanning across 9 domains (links, alt text, headings, tables, emoji, diagrams, em-dashes, anchors, plain language)
 - SARIF 2.1.0 output for CI/CD integration
+- CSV export with help documentation links for web and document audit findings
 - Common framework pitfalls (React conditional rendering, Tailwind contrast failures)
 
 ## Roadmap

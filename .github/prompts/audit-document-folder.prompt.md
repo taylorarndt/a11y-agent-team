@@ -35,3 +35,11 @@ Run a comprehensive recursive accessibility audit on all documents in the folder
 9. Build the metadata dashboard
 10. Generate the full report with scorecard
 11. Offer follow-up actions
+
+## Handoff Transparency
+
+This workflow delegates to format-specific sub-agents for each document. Announce transitions:
+- **Per file:** "Scanning file [N/total]: [filename] using [agent-name]..."
+- **Per completion:** "[filename]: [N] findings, score [score]/100"
+- **Cross-analysis:** "Running cross-document analysis on [N] files..."
+- **On failure:** "Scan failed for [filename]: [reason]. Continuing with remaining files."

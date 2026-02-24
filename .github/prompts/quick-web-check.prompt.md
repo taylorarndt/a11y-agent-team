@@ -54,3 +54,10 @@ Verdict: [PASS if 0 critical/serious | NEEDS WORK if 1-3 serious | FAIL if 4+ se
 ```
 
 4. If issues are found, ask: "Want to run a full audit with code review and remediation steps?"
+
+## Handoff Transparency
+
+Announce scan progress:
+- **Start:** "Running axe-core quick scan on [URL]..."
+- **Completion:** "Quick scan complete: [PASS/FAIL] - [N] issues found ([N] critical, [N] serious)"
+- **On failure:** "axe-core scan failed: [reason]. Check the URL and try again."

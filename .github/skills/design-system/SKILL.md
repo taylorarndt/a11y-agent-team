@@ -1,3 +1,8 @@
+---
+name: design-system
+description: Color token contrast computation, framework token paths (Tailwind/MUI/Chakra/shadcn), focus ring validation, WCAG 2.4.13 Focus Appearance, motion tokens, and spacing tokens for touch target compliance. Use when validating design system tokens for WCAG AA/AAA contrast compliance before they reach deployed UI.
+---
+
 # Design System Accessibility Skill
 
 This skill provides reference data for design token contrast validation, focus ring compliance, and spacing audits. Used by `design-system-auditor.agent.md`.
@@ -81,7 +86,7 @@ hslToHex(215.4, 16.3, 46.9); // -> approximately #6B7280
 | Normal text (< 18pt / < 14pt bold) | 4.5:1 | 7:1 | Most body text |
 | Large text (>= 18pt / >= 14pt bold) | 3:1 | 4.5:1 | Headings, display text |
 | UI components (borders, icons) | 3:1 | - | Input borders, icon buttons |
-| Focus indicators (WCAG 2.4.11, 2.2) | 3:1 | - | Against adjacent colors |
+| Focus indicators (WCAG 2.4.13, 2.2) | 3:1 | - | Against adjacent colors |
 | Placeholder text | 4.5:1 | - | Counts as normal text |
 | Disabled state | Exempt | Exempt | Documented exemption |
 | Logo / brand | Exempt | Exempt | No requirement |
@@ -129,7 +134,7 @@ module.exports = {
         'secondary-foreground': '#...',
       },
       ringColor: { DEFAULT: '...' },  // Focus state
-      ringWidth: { DEFAULT: '2px' },  // Must be >= 2px for WCAG 2.4.11
+      ringWidth: { DEFAULT: '2px' },  // Must be >= 2px for WCAG 2.4.13
     }
   }
 }
@@ -381,9 +386,9 @@ npx test-storybook --ci
 
 ---
 
-## WCAG 2.4.11 Focus Appearance Requirements (AA, 2.2)
+## WCAG 2.4.13 Focus Appearance Requirements (AAA, exceeds AA baseline)
 
-**WCAG 2.4.11 Focus Appearance (Level AA in WCAG 2.2):**
+**WCAG 2.4.13 Focus Appearance (Level AAA in WCAG 2.2)** - exceeds the 2.4.7 Focus Visible (AA) baseline, but recommended as best practice:
 
 1. **Area:** Focus indicator encloses the component OR has a perimeter >= component's perimeter x 2px
 2. **Contrast change:** The focus indicator area must change contrast by >= 3:1 between focused and unfocused states
@@ -392,7 +397,7 @@ npx test-storybook --ci
 ### Minimum Compliant Focus Ring Implementation
 
 ```css
-/* Minimum WCAG 2.4.11 compliant focus ring */
+/* Minimum WCAG 2.4.13 compliant focus ring */
 :focus-visible {
   outline: 2px solid #0054B3;      /* >= 2px width */
   outline-offset: 2px;             /* Separates from component edge */
@@ -419,7 +424,7 @@ button:focus { outline: none; }                     /* Hard fail */
 
 | Check | Requirement | Tool |
 |-------|------------|------|
-| `outline-width` >= 2px | WCAG 2.4.11 area requirement | CSS audit |
+| `outline-width` >= 2px | WCAG 2.4.13 area requirement | CSS audit |
 | Focus color contrast >= 3:1 | Against adjacent background | Contrast calculator |
 | Focus state differs from unfocused | Visible change required | Visual inspection |
 | No `outline: none` without replacement | N/A | grep / CSS audit |
