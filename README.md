@@ -51,6 +51,20 @@ irm https://raw.githubusercontent.com/community-access/accessibility-agents/main
 
 See the full [Getting Started Guide](docs/getting-started.md) for all installation options, manual setup, global vs project install, auto-updates, and platform-specific details.
 
+### One-liner uninstall
+
+**macOS / Linux:**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/community-access/accessibility-agents/main/uninstall.sh | bash
+```
+
+**Windows (PowerShell):**
+
+```powershell
+irm https://raw.githubusercontent.com/community-access/accessibility-agents/main/uninstall.ps1 | iex
+```
+
 ### Safe installation — your files are never overwritten
 
 The installer is designed to be additive and non-destructive:
