@@ -26,6 +26,7 @@
         "type": "command",
         "command": "bash .github/hooks/scripts/safety-gate.sh",
         "windows": "powershell -ExecutionPolicy Bypass -File .github\\hooks\\scripts\\safety-gate.ps1",
+        "matcher": "Bash|mcp_github",
         "timeout": 15
       }
     ],

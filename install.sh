@@ -551,12 +551,11 @@ try:
     with open(os.environ['A11Y_SF'], 'r') as f:
         settings = json.load(f)
     hook_entry = {'type': 'command', 'command': os.environ['A11Y_HC']}
-    new_group = {'hooks': [hook_entry]}
     if 'hooks' not in settings:
         settings['hooks'] = {}
     if 'UserPromptSubmit' not in settings['hooks']:
         settings['hooks']['UserPromptSubmit'] = []
-    settings['hooks']['UserPromptSubmit'].append(new_group)
+    settings['hooks']['UserPromptSubmit'].append(hook_entry)
     print(json.dumps(settings, indent=2))
 except Exception as e:
     print('MERGE_FAILED', file=sys.stderr)
@@ -572,12 +571,8 @@ PYEOF
         echo "  In the \"hooks\" > \"UserPromptSubmit\" array, add:"
         echo ""
         echo "    {"
-        echo "      \"hooks\": ["
-        echo "        {"
-        echo "          \"type\": \"command\","
-        echo "          \"command\": \"$HOOK_CMD\""
-        echo "        }"
-        echo "      ]"
+        echo "      \"type\": \"command\","
+        echo "      \"command\": \"$HOOK_CMD\""
         echo "    }"
         echo ""
       }
@@ -589,12 +584,8 @@ PYEOF
       echo "  In the \"hooks\" > \"UserPromptSubmit\" array, add:"
       echo ""
       echo "    {"
-      echo "      \"hooks\": ["
-      echo "        {"
-      echo "          \"type\": \"command\","
-      echo "          \"command\": \"$HOOK_CMD\""
-      echo "        }"
-      echo "      ]"
+      echo "      \"type\": \"command\","
+      echo "      \"command\": \"$HOOK_CMD\""
       echo "    }"
       echo ""
     fi
@@ -606,12 +597,8 @@ else
   "hooks": {
     "UserPromptSubmit": [
       {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$HOOK_CMD"
-          }
-        ]
+        "type": "command",
+        "command": "$HOOK_CMD"
       }
     ]
   }

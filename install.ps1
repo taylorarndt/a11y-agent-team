@@ -412,12 +412,8 @@ if (Test-Path $SettingsFile) {
         Write-Host "  You need to add the hook manually. Add this to your settings.json"
         Write-Host "  under `"hooks`" > `"UserPromptSubmit`":`n"
         Write-Host "    {"
-        Write-Host "      `"hooks`": ["
-        Write-Host "        {"
-        Write-Host "          `"type`": `"command`","
-        Write-Host "          `"command`": `"powershell -File '$HookCmd'`""
-        Write-Host "        }"
-        Write-Host "      ]"
+        Write-Host "      `"type`": `"command`","
+        Write-Host "      `"command`": `"powershell -File '$HookCmd'`""
         Write-Host "    }"
         Write-Host ""
     }
@@ -427,12 +423,8 @@ if (Test-Path $SettingsFile) {
   "hooks": {
     "UserPromptSubmit": [
       {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "powershell -File '$HookCmd'"
-          }
-        ]
+        "type": "command",
+        "command": "powershell -File '$HookCmd'"
       }
     ]
   }

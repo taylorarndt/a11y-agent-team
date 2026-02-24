@@ -142,10 +142,11 @@ try:
     with open('$SETTINGS_FILE', 'r') as f:
         settings = json.load(f)
     if 'hooks' in settings and 'UserPromptSubmit' in settings['hooks']:
-        groups = settings['hooks']['UserPromptSubmit']
+        entries = settings['hooks']['UserPromptSubmit']
         settings['hooks']['UserPromptSubmit'] = [
-            g for g in groups
-            if not any('a11y-team-eval' in h.get('command', '') for h in g.get('hooks', []))
+            e for e in entries
+            if not ('a11y-team-eval' in e.get('command', ''))
+            and not any('a11y-team-eval' in h.get('command', '') for h in e.get('hooks', []))
         ]
         if not settings['hooks']['UserPromptSubmit']:
             del settings['hooks']['UserPromptSubmit']
