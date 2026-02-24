@@ -1,0 +1,186 @@
+name: Sync Documentation to Site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'README.md'
+      - 'CONTRIBUTING.md'
+      - 'CODE_OF_CONDUCT.md'
+      - 'ROADMAP.md'
+      - 'SECURITY.md'
+
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout accessibility-agents
+        uses: actions/checkout@v4
+
+      - name: Build docs manifest
+        run: |
+          echo '{ "generated": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'", "sections": [' > manifest.json
+
+          # Getting Started
+          echo '{"name":"Getting Started","id":"getting-started","items":[' >> manifest.json
+          first=true
+          for f in docs/getting-started.md docs/configuration.md docs/architecture.md; do
+            if [ -f "$f" ]; then
+              title=$(head -5 "$f" | grep -m1 '^#' | sed 's/^#\+ //')
+              [ -z "$title" ] && title=$(basename "$f" .md | sed 's/-/ /g')
+              $first || echo ',' >> manifest.json
+              echo "{\"path\":\"$f\",\"title\":\"$title\"}" >> manifest.json
+              first=false
+            fi
+          done
+          echo ']},' >> manifest.json
+
+          # Agents
+          echo '{"name":"Agents","id":"agents","items":[' >> manifest.json
+          first=true
+          for f in docs/agents/README.md $(find docs/agents -name '*.md' ! -name 'README.md' | sort); do
+            if [ -f "$f" ]; then
+              title=$(head -5 "$f" | grep -m1 '^#' | sed 's/^#\+ //')
+              [ -z "$title" ] && title=$(basename "$f" .md | sed 's/-/ /g')
+              $first || echo ',' >> manifest.json
+              echo "{\"path\":\"$f\",\"title\":\"$title\"}" >> manifest.json
+              first=false
+            fi
+          done
+          echo ']},' >> manifest.json
+
+          # Skills
+          echo '{"name":"Skills","id":"skills","items":[' >> manifest.json
+          first=true
+          for f in $(find docs/skills -name '*.md' | sort); do
+            if [ -f "$f" ]; then
+              title=$(head -5 "$f" | grep -m1 '^#' | sed 's/^#\+ //')
+              [ -z "$title" ] && title=$(basename "$f" .md | sed 's/-/ /g')
+              $first || echo ',' >> manifest.json
+              echo "{\"path\":\"$f\",\"title\":\"$title\"}" >> manifest.json
+              first=false
+            fi
+          done
+          echo ']},' >> manifest.json
+
+          # Tools
+          echo '{"name":"Tools","id":"tools","items":[' >> manifest.json
+          first=true
+          for f in $(find docs/tools -name '*.md' | sort); do
+            if [ -f "$f" ]; then
+              title=$(head -5 "$f" | grep -m1 '^#' | sed 's/^#\+ //')
+              [ -z "$title" ] && title=$(basename "$f" .md | sed 's/-/ /g')
+              $first || echo ',' >> manifest.json
+              echo "{\"path\":\"$f\",\"title\":\"$title\"}" >> manifest.json
+              first=false
+            fi
+          done
+          echo ']},' >> manifest.json
+
+          # Scanning
+          echo '{"name":"Scanning","id":"scanning","items":[' >> manifest.json
+          first=true
+          for f in $(find docs/scanning -name '*.md' | sort); do
+            if [ -f "$f" ]; then
+              title=$(head -5 "$f" | grep -m1 '^#' | sed 's/^#\+ //')
+              [ -z "$title" ] && title=$(basename "$f" .md | sed 's/-/ /g')
+              $first || echo ',' >> manifest.json
+              echo "{\"path\":\"$f\",\"title\":\"$title\"}" >> manifest.json
+              first=false
+            fi
+          done
+          echo ']},' >> manifest.json
+
+          # Prompts: Web
+          echo '{"name":"Prompts: Web","id":"prompts-web","items":[' >> manifest.json
+          first=true
+          for f in $(find docs/prompts/web -name '*.md' | sort); do
+            if [ -f "$f" ]; then
+              title=$(head -5 "$f" | grep -m1 '^#' | sed 's/^#\+ //')
+              [ -z "$title" ] && title=$(basename "$f" .md | sed 's/-/ /g')
+              $first || echo ',' >> manifest.json
+              echo "{\"path\":\"$f\",\"title\":\"$title\"}" >> manifest.json
+              first=false
+            fi
+          done
+          echo ']},' >> manifest.json
+
+          # Prompts: Documents
+          echo '{"name":"Prompts: Documents","id":"prompts-docs","items":[' >> manifest.json
+          first=true
+          for f in $(find docs/prompts/documents -name '*.md' | sort); do
+            if [ -f "$f" ]; then
+              title=$(head -5 "$f" | grep -m1 '^#' | sed 's/^#\+ //')
+              [ -z "$title" ] && title=$(basename "$f" .md | sed 's/-/ /g')
+              $first || echo ',' >> manifest.json
+              echo "{\"path\":\"$f\",\"title\":\"$title\"}" >> manifest.json
+              first=false
+            fi
+          done
+          echo ']},' >> manifest.json
+
+          # Prompts: GitHub
+          echo '{"name":"Prompts: GitHub","id":"prompts-github","items":[' >> manifest.json
+          first=true
+          for f in $(find docs/prompts/github -name '*.md' | sort); do
+            if [ -f "$f" ]; then
+              title=$(head -5 "$f" | grep -m1 '^#' | sed 's/^#\+ //')
+              [ -z "$title" ] && title=$(basename "$f" .md | sed 's/-/ /g')
+              $first || echo ',' >> manifest.json
+              echo "{\"path\":\"$f\",\"title\":\"$title\"}" >> manifest.json
+              first=false
+            fi
+          done
+          echo ']},' >> manifest.json
+
+          # Advanced
+          echo '{"name":"Advanced","id":"advanced","items":[' >> manifest.json
+          first=true
+          for f in $(find docs/advanced -name '*.md' | sort); do
+            if [ -f "$f" ]; then
+              title=$(head -5 "$f" | grep -m1 '^#' | sed 's/^#\+ //')
+              [ -z "$title" ] && title=$(basename "$f" .md | sed 's/-/ /g')
+              $first || echo ',' >> manifest.json
+              echo "{\"path\":\"$f\",\"title\":\"$title\"}" >> manifest.json
+              first=false
+            fi
+          done
+          echo ']},' >> manifest.json
+
+          # Project root files
+          echo '{"name":"Project","id":"project","items":[' >> manifest.json
+          first=true
+          for f in README.md CONTRIBUTING.md CODE_OF_CONDUCT.md ROADMAP.md SECURITY.md; do
+            if [ -f "$f" ]; then
+              title=$(head -5 "$f" | grep -m1 '^#' | sed 's/^#\+ //')
+              [ -z "$title" ] && title=$(basename "$f" .md)
+              $first || echo ',' >> manifest.json
+              echo "{\"path\":\"$f\",\"title\":\"$title\"}" >> manifest.json
+              first=false
+            fi
+          done
+          echo ']}' >> manifest.json
+
+          echo ']}' >> manifest.json
+
+          # Validate JSON
+          python3 -m json.tool manifest.json > /dev/null
+
+      - name: Commit manifest to repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add manifest.json
+          if git diff --cached --quiet; then
+            echo "Manifest unchanged — nothing to commit."
+          else
+            git commit -m "chore: update docs manifest [skip ci]"
+            git push
+          fi
