@@ -1831,7 +1831,7 @@ function buildOfficeSarif(filePath, findings, fileType) {
         driver: {
           name: "a11y-office-scanner",
           version: "1.0.0",
-          informationUri: "https://github.com/taylorarndt/a11y-agent-team",
+          informationUri: "https://github.com/community-access/accessibility-agents",
           rules: uniqueRules,
         },
       },
@@ -2299,7 +2299,7 @@ function buildPdfSarif(filePath, findings) {
         driver: {
           name: "a11y-pdf-scanner",
           version: "1.0.0",
-          informationUri: "https://github.com/taylorarndt/a11y-agent-team",
+          informationUri: "https://github.com/community-access/accessibility-agents",
           rules: uniqueRules,
         },
       },

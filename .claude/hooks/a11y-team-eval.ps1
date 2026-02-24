@@ -1,5 +1,5 @@
 # A11y Agent Team - Forced evaluation hook (Windows PowerShell)
-# https://github.com/taylorarndt/a11y-agent-team
+# https://github.com/community-access/accessibility-agents
 # Built by Taylor Arndt - https://github.com/taylorarndt
 #
 # Place in .claude\hooks\ and reference from .claude\settings.json

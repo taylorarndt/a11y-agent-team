@@ -173,7 +173,7 @@ Delta tracking compares the current scan against the previous review document sa
 ### Review Flows
 
 ```text
-@pr-review review taylorarndt/a11y-agent-team#143
+@pr-review review community-access/accessibility-agents#143
 @pr-review show me the diff for PR #143
 @pr-review full review with action items for PR #143
 @pr-review what has changed since my last review of PR #143

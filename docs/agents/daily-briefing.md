@@ -69,7 +69,7 @@ GitHub Hub will route you automatically.
 | `weekly report` | Last 7 days, all repos |
 | `what happened since yesterday` | Since yesterday 9 AM |
 | `just PRs and issues` | Filtered to those two streams only |
-| `briefing for taylorarndt/a11y-agent-team` | Scoped to that single repo |
+| `briefing for community-access/accessibility-agents` | Scoped to that single repo |
 | `what needs my attention?` | Only action-required items, no monitoring section |
 | `full briefing` | All 9 streams, full detail |
 | `quick briefing` | High-priority items only, terse format |
@@ -181,7 +181,7 @@ Create `.github/agents/preferences.md` in your workspace to control briefing beh
 
 discovery: all          # search all repos you can access
 include:
-  - taylorarndt/a11y-agent-team
+  - community-access/accessibility-agents
   - taylorarndt/swift-agent-team
 exclude:
   - taylorarndt/archived-project
@@ -220,7 +220,7 @@ sections:
 ### Scoped Briefings
 
 ```text
-@daily-briefing briefing for taylorarndt/a11y-agent-team only
+@daily-briefing briefing for community-access/accessibility-agents only
 @daily-briefing just show me PRs waiting for my review
 @daily-briefing only show items that need action
 @daily-briefing weekly summary for the team meeting

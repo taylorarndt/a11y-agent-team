@@ -11,10 +11,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/taylorarndt/a11y-agent-team"
+    "url": "https://github.com/community-access/accessibility-agents"
   },
-  "homepage": "https://github.com/taylorarndt/a11y-agent-team",
-  "support": "https://github.com/taylorarndt/a11y-agent-team/issues",
+  "homepage": "https://github.com/community-access/accessibility-agents",
+  "support": "https://github.com/community-access/accessibility-agents/issues",
   "keywords": [
     "accessibility",
     "a11y",

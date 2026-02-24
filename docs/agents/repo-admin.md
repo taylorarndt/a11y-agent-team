@@ -26,7 +26,7 @@ This is the agent for when you need to:
 ### GitHub Copilot (VS Code)
 
 ```text
-@repo-admin add @alice to taylorarndt/a11y-agent-team as maintainer
+@repo-admin add @alice to community-access/accessibility-agents as maintainer
 @repo-admin audit access on all my repos
 @repo-admin configure branch protection for main
 @repo-admin sync labels from my template repo
@@ -107,7 +107,7 @@ Before using this agent, understand the five GitHub permission levels:
    ```text
     Looking up @alice on GitHub...
     Found user: alice (Alice Johnson)
-    Target repo: taylorarndt/a11y-agent-team
+    Target repo: community-access/accessibility-agents
    ```
 
 3. Checks for existing access:
@@ -136,7 +136,7 @@ Before using this agent, understand the five GitHub permission levels:
 
    ```text
     Auditing 4 repositories...
-    Loaded collaborators for taylorarndt/a11y-agent-team (6 collaborators)
+    Loaded collaborators for community-access/accessibility-agents (6 collaborators)
     Loaded collaborators for taylorarndt/my-app (3 collaborators)
    ```
 

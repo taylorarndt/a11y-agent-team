@@ -10,7 +10,7 @@
 #   bash install.sh --project --copilot Also install Copilot agents to project
 #
 # One-liner:
-#   curl -fsSL https://raw.githubusercontent.com/taylorarndt/a11y-agent-team/main/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/community-access/accessibility-agents/main/install.sh | bash
 
 set -e
 
@@ -31,7 +31,7 @@ if [ ! -d "$SCRIPT_DIR/.claude/agents" ]; then
     exit 1
   fi
 
-  git clone --quiet https://github.com/taylorarndt/a11y-agent-team.git "$TMPDIR_DL/a11y-agent-team" 2>/dev/null
+  git clone --quiet https://github.com/community-access/accessibility-agents.git "$TMPDIR_DL/a11y-agent-team" 2>/dev/null
   SCRIPT_DIR="$TMPDIR_DL/a11y-agent-team"
   echo "  Downloaded."
 fi
@@ -699,7 +699,7 @@ if [ "$choice" = "2" ] && [ -t 0 ]; then
     cat > "$UPDATE_SCRIPT" << 'UPDATESCRIPT'
 #!/bin/bash
 set -e
-REPO_URL="https://github.com/taylorarndt/a11y-agent-team.git"
+REPO_URL="https://github.com/community-access/accessibility-agents.git"
 CACHE_DIR="$HOME/.claude/.a11y-agent-team-repo"
 INSTALL_DIR="$HOME/.claude"
 LOG_FILE="$HOME/.claude/.a11y-agent-team-update.log"
@@ -805,7 +805,7 @@ UPDATESCRIPT
     if [ "$(uname)" = "Darwin" ]; then
       # macOS: LaunchAgent
       PLIST_DIR="$HOME/Library/LaunchAgents"
-      PLIST_FILE="$PLIST_DIR/com.taylorarndt.a11y-agent-team-update.plist"
+      PLIST_FILE="$PLIST_DIR/com.community-access.accessibility-agents-update.plist"
       mkdir -p "$PLIST_DIR"
       cat > "$PLIST_FILE" << PLIST
 <?xml version="1.0" encoding="UTF-8"?>
@@ -813,7 +813,7 @@ UPDATESCRIPT
 <plist version="1.0">
 <dict>
   <key>Label</key>
-  <string>com.taylorarndt.a11y-agent-team-update</string>
+  <string>com.community-access.accessibility-agents-update</string>
   <key>ProgramArguments</key>
   <array>
     <string>/bin/bash</string>

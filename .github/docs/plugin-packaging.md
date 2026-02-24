@@ -11,10 +11,10 @@ The primary distribution method. All agents, hooks, skills, and configuration ar
 **Install:**
 ```bash
 # macOS/Linux
-curl -fsSL https://raw.githubusercontent.com/taylorarndt/a11y-agent-team/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/community-access/accessibility-agents/main/install.sh | bash
 
 # Windows (PowerShell)
-irm https://raw.githubusercontent.com/taylorarndt/a11y-agent-team/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/community-access/accessibility-agents/main/install.ps1 | iex
 ```
 
 **Update:**
@@ -164,7 +164,7 @@ To add organization-specific rules or agents:
 Use git tags for specific versions:
 
 ```bash
-git clone --branch v1.0.0 https://github.com/taylorarndt/a11y-agent-team.git
+git clone --branch v1.0.0 https://github.com/community-access/accessibility-agents.git
 ```
 
 ### Auto-Update

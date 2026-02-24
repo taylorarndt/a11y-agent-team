@@ -8,7 +8,7 @@ A sincere thanks goes out to [Taylor Arndt](https://github.com/taylorarndt) and 
 
 ### Report agent gaps
 
-The most valuable contributions are **agent gap reports** - cases where an agent missed something, gave wrong advice, or suggested unnecessary ARIA. These reports directly improve agent instructions. Use the [Agent Gap](https://github.com/taylorarndt/a11y-agent-team/issues/new?template=agent_gap.yml) issue template.
+The most valuable contributions are **agent gap reports** - cases where an agent missed something, gave wrong advice, or suggested unnecessary ARIA. These reports directly improve agent instructions. Use the [Agent Gap](https://github.com/community-access/accessibility-agents/issues/new?template=agent_gap.yml) issue template.
 
 ### Improve agent instructions
 
@@ -53,4 +53,4 @@ This project follows a [Code of Conduct](CODE_OF_CONDUCT.md). By participating, 
 
 ## Questions?
 
-Open a [discussion](https://github.com/taylorarndt/a11y-agent-team/discussions) or file an issue. No question is too basic. We especially welcome questions and feedback from blind and low vision users, screen reader users, and others with direct experience of accessibility barriers - your perspective makes these agents more effective for the people who need them most.
+Open a [discussion](https://github.com/community-access/accessibility-agents/discussions) or file an issue. No question is too basic. We especially welcome questions and feedback from blind and low vision users, screen reader users, and others with direct experience of accessibility barriers - your perspective makes these agents more effective for the people who need them most.

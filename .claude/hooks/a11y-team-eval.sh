@@ -1,6 +1,6 @@
 #!/bin/bash
 # A11y Agent Team - Forced evaluation hook
-# https://github.com/taylorarndt/a11y-agent-team
+# https://github.com/community-access/accessibility-agents
 #
 # Place in .claude/hooks/ and reference from .claude/settings.json
 # Fires on every UserPromptSubmit to ensure the accessibility-lead

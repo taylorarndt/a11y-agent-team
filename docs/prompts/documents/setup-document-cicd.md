@@ -73,7 +73,7 @@ jobs:
         run: git diff --name-only HEAD~1 HEAD -- '*.docx' '*.xlsx' '*.pptx' '*.pdf' > changed-docs.txt
 
       - name: Run accessibility scan
-        uses: taylorarndt/a11y-agent-team@main
+        uses: community-access/accessibility-agents@main
 
       - name: Upload report
         uses: actions/upload-artifact@v4

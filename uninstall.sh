@@ -182,7 +182,7 @@ if [ "$choice" = "2" ]; then
   echo "  Removing auto-update..."
 
   # Remove LaunchAgent (macOS)
-  PLIST_FILE="$HOME/Library/LaunchAgents/com.taylorarndt.a11y-agent-team-update.plist"
+  PLIST_FILE="$HOME/Library/LaunchAgents/com.community-access.accessibility-agents-update.plist"
   if [ -f "$PLIST_FILE" ]; then
     launchctl bootout "gui/$(id -u)" "$PLIST_FILE" 2>/dev/null || true
     rm "$PLIST_FILE"
