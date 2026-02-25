@@ -22,7 +22,7 @@ AI coding tools generate inaccessible code by default. They forget ARIA rules, s
 
 ## The Solution
 
-**Accessibility Agents** provides thirty-five specialized agents across two teams and three platforms:
+**Accessibility Agents** provides thirty-five specialized agents across two teams and four platforms:
 
 - **Accessibility team** - twenty-five agents that enforce WCAG AA standards for web code, Office/PDF documents, and Markdown documentation
 - **GitHub Workflow team** - ten agents that manage repositories, triage issues, review PRs, and keep your team informed

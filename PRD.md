@@ -1142,7 +1142,7 @@ The following table summarizes the key quantitative metrics for the project.
 | PDF document rules | 56 (30 PDFUA + 22 PDFBP + 4 PDFQ) |
 | CI scripts | 3 |
 | Config template profiles | 7 (3 office + 3 PDF + 1 web) |
-| Supported platforms | 3 (Claude Code, GitHub Copilot, Claude Desktop) |
+| Supported platforms | 4 (Claude Code, GitHub Copilot, Claude Desktop, Codex CLI) |
 | External runtime dependencies | 2 (`@modelcontextprotocol/sdk`, `zod`) |
 | Optional external dependencies | 1 (`@axe-core/cli`) |
 | WCAG criteria covered (VPAT) | 50 (30 Level A + 20 Level AA) |

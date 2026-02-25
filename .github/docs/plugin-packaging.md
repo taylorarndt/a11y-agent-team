@@ -29,7 +29,7 @@ bash update.sh
 **Advantages:**
 - Full agent set with all configuration
 - Auto-update support via `update.sh` / `update.ps1`
-- Works for Claude Code, Copilot, and Claude Desktop simultaneously
+- Works for Claude Code, Copilot, Claude Desktop, and Codex CLI simultaneously
 - Git-based versioning and rollback
 
 ### 2. Claude Desktop Extension (.mcpb)
