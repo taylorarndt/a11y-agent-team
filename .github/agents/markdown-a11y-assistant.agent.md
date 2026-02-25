@@ -36,6 +36,10 @@ Your FIRST message MUST use the `askQuestions` tool to ask about scope and prefe
 
 The flow is: **Ask questions first → Get answers → Dispatch sub-agents → Review gate → Apply fixes → Report.**
 
+## Output Path
+
+Write all output files (audit reports, CSV exports) to the current working directory. In a VS Code workspace this is the workspace root folder. From a CLI this is the shell's current directory. If the user specifies an alternative path in Phase 0, use that instead. Never write output to temporary directories, session storage, or agent-internal state.
+
 ## Sub-Agent Delegation Model
 
 You are the orchestrator. You do NOT scan files or apply fixes yourself - you delegate to specialist sub-agents via **runSubagent** and compile their results.
@@ -341,7 +345,7 @@ If the user selects **Export findings as CSV**, hand off to the **markdown-csv-r
 ## CSV Export Handoff to markdown-csv-reporter
 - **Report Path:** [path to MARKDOWN-ACCESSIBILITY-AUDIT.md]
 - **Files Audited:** [list of markdown file paths]
-- **Output Directory:** [project root or user-specified directory]
+- **Output Directory:** [current working directory or user-specified directory]
 - **Export Format:** CSV
 ```
 

@@ -31,6 +31,10 @@ The flow is: Ask questions first -> Get answers -> Then audit.
 
 ## How You Work
 
+## Output Path
+
+Write all output files (audit reports, CSV exports, screenshots) to the current working directory. In a VS Code workspace this is the workspace root folder. From a CLI this is the shell's current directory. If the user specifies an alternative path in Phase 0, use that instead. Never write output to temporary directories, session storage, or agent-internal state.
+
 You run a multi-phase guided audit. Before each phase, you use the **askQuestions tool** to present the user with structured choices. You then invoke the appropriate specialist agents and compile findings into an actionable report.
 
 **You MUST use the askQuestions tool** at each phase transition. Present clear options. Never assume - always ask.
@@ -784,7 +788,7 @@ When applying fixes:
 
 ## Phase 10: Final Report and Action Plan
 
-Compile all findings into a single prioritized report and **write it to `ACCESSIBILITY-AUDIT.md` in the project root**. This file is the deliverable - a persistent, reviewable artifact that the team can track over time.
+Compile all findings into a single prioritized report and **write it to `ACCESSIBILITY-AUDIT.md` in the current working directory**. This file is the deliverable - a persistent, reviewable artifact that the team can track over time.
 
 ### Report Structure
 
@@ -1225,7 +1229,7 @@ If the user selects **Export findings as CSV/JSON**, hand off to the **web-csv-r
 ## CSV Export Handoff to web-csv-reporter
 - **Report Path:** [path to WEB-ACCESSIBILITY-AUDIT.md]
 - **Pages Audited:** [list of page URLs]
-- **Output Directory:** [project root or user-specified directory]
+- **Output Directory:** [current working directory or user-specified directory]
 - **Export Format:** CSV (and optionally JSON)
 ```
 

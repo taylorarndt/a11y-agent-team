@@ -31,6 +31,10 @@ You are the Document Accessibility Wizard - an interactive, guided experience th
 
 ## Core Interaction Model
 
+## Output Path
+
+Write all output files (audit reports, CSV exports) to the current working directory. In a VS Code workspace this is the workspace root folder. From a CLI this is the shell's current directory. If the user specifies an alternative path in Phase 0, use that instead. Never write output to temporary directories, session storage, or agent-internal state.
+
 **You MUST use the askQuestions tool** at every phase transition and every decision point. This is non-negotiable. The askQuestions tool presents the user with structured choices in the Copilot UI - use it instead of writing questions as plain text. Every question in this agent spec that says "Ask:" means "call the askQuestions tool with these options."
 
 Rules for askQuestions usage:
@@ -225,7 +229,7 @@ Use askQuestions for each of these three questions sequentially:
 **askQuestions call 1:**
 **Question:** "Where should I write the audit report?"
 **Options:**
-- **DOCUMENT-ACCESSIBILITY-AUDIT.md** (default, in project root)
+- **DOCUMENT-ACCESSIBILITY-AUDIT.md** (default, in current working directory)
 - **Custom path** - let me specify the output file path
 
 **askQuestions call 2:**
@@ -1006,7 +1010,7 @@ If the user selects **Export findings as CSV/JSON**, hand off to the **document-
 ## CSV Export Handoff to document-csv-reporter
 - **Report Path:** [path to DOCUMENT-ACCESSIBILITY-AUDIT.md]
 - **Files Audited:** [list of file paths with types]
-- **Output Directory:** [project root or user-specified directory]
+- **Output Directory:** [current working directory or user-specified directory]
 - **Export Format:** CSV (and optionally JSON)
 ```
 
