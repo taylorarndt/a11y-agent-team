@@ -134,6 +134,27 @@ if [ "$choice" = "1" ]; then
   done
 fi
 
+# Remove Codex CLI support
+if [ "$choice" = "1" ]; then
+  CODEX_DIR="$(pwd)/.codex"
+else
+  CODEX_DIR="$HOME/.codex"
+fi
+
+CODEX_FILE="$CODEX_DIR/AGENTS.md"
+if [ -f "$CODEX_FILE" ]; then
+  if grep -qF '<!-- a11y-agent-team: start -->' "$CODEX_FILE" 2>/dev/null; then
+    echo ""
+    echo "  Removing Codex CLI support..."
+    rm "$CODEX_FILE"
+    rmdir "$CODEX_DIR" 2>/dev/null || true
+    echo "    - AGENTS.md (Codex)"
+  else
+    echo ""
+    echo "    ~ .codex/AGENTS.md (has user content — skipped)"
+  fi
+fi
+
 # Remove Copilot agents from VS Code profile folders (global uninstall only)
 if [ "$choice" = "2" ]; then
   if [ "$(uname)" = "Darwin" ]; then

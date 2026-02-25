@@ -1,6 +1,6 @@
 # Getting Started
 
-This guide covers installation and setup for all three platforms: Claude Code, GitHub Copilot, and Claude Desktop.
+This guide covers installation and setup for all four platforms: Claude Code, GitHub Copilot, Claude Desktop, and Codex CLI.
 
 ---
 
@@ -66,7 +66,7 @@ cd a11y-agent-team
 bash install.sh
 ```
 
-Pass flags to skip prompts: `--global`, `--project`, `--copilot`.
+Pass flags to skip prompts: `--global`, `--project`, `--copilot`, `--codex`.
 
 **Windows (PowerShell):**
 
@@ -325,3 +325,75 @@ mcpb pack . ../a11y-agent-team.mcpb
 ```
 
 The output file can be double-clicked to install in Claude Desktop.
+
+---
+
+## Codex CLI Setup
+
+This is for **OpenAI Codex CLI** (the terminal coding agent).
+
+### How It Works
+
+Codex CLI reads `AGENTS.md` files from the project directory tree automatically. The accessibility rules are loaded into every session — no extra flags or configuration needed. When Codex works on any UI task, it applies the WCAG 2.2 AA rules from the AGENTS.md file before considering the work done.
+
+Unlike Claude Code, Codex does not have a sub-agent concept. All accessibility rules are condensed into a single document that covers all nine domains: ARIA, keyboard navigation, modals, forms, color contrast, live regions, headings and landmarks, images, and tables.
+
+### Prerequisites
+
+- [Codex CLI](https://github.com/openai/codex) installed and working
+- An OpenAI API key configured
+
+### Installation
+
+#### Via the Installer (Recommended)
+
+```bash
+# Project install with Codex support
+bash install.sh --project --codex
+
+# Global install with Codex support
+bash install.sh --global --codex
+```
+
+The interactive installer also prompts for Codex support if you do not pass the flag.
+
+#### One-Liner
+
+```bash
+# Install globally with Codex support
+curl -fsSL https://raw.githubusercontent.com/Community-Access/accessibility-agents/main/install.sh | bash -s -- --global --codex
+```
+
+#### Manual Setup
+
+```bash
+# For project install
+mkdir -p .codex
+cp path/to/accessibility-agents/.codex/AGENTS.md .codex/AGENTS.md
+
+# For global install
+mkdir -p ~/.codex
+cp path/to/accessibility-agents/.codex/AGENTS.md ~/.codex/AGENTS.md
+```
+
+For project installs, commit `.codex/AGENTS.md` to your repo so the rules travel with the project.
+
+### Using Codex with Accessibility Rules
+
+Once installed, the rules apply automatically. Just use Codex normally:
+
+```bash
+codex "Build a login form"
+codex "Add a modal dialog to the settings page"
+codex "Create a data table for the analytics dashboard"
+```
+
+Codex will apply the accessibility rules from AGENTS.md to all UI code it generates. A pre-commit checklist at the end of the rules file ensures nothing gets missed.
+
+### Removing
+
+```bash
+bash uninstall.sh          # Interactive — detects and removes Codex support
+bash uninstall.sh --project  # Non-interactive project uninstall
+bash uninstall.sh --global   # Non-interactive global uninstall
+```
