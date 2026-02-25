@@ -32,6 +32,7 @@ All agents run on:
 - **Claude Code** - Agents you invoke directly for accessibility evaluation
 - **GitHub Copilot** - Agents + workspace instructions that ensure accessibility guidance in every conversation
 - **Claude Desktop** - An MCP extension (.mcpb) with tools and prompts for accessibility review
+- **Codex CLI** - Condensed WCAG AA rules loaded via `.codex/AGENTS.md` — accessibility enforced automatically on every UI task
 
 ## Quick Start
 
@@ -134,7 +135,7 @@ The following guides cover web and document accessibility features.
 
 | Guide | What It Covers |
 |-------|---------------|
-| [Getting Started](docs/getting-started.md) | Installation for Claude Code, Copilot, and Claude Desktop |
+| [Getting Started](docs/getting-started.md) | Installation for Claude Code, Copilot, Claude Desktop, and Codex CLI |
 | [Agent Reference](docs/agents/README.md) | All 22 agents with invocation syntax, examples, and deep dives |
 | [MCP Tools](docs/tools/mcp-tools.md) | Static analysis tools: heading structure, link text, form labels |
 | [axe-core Integration](docs/tools/axe-core-integration.md) | Runtime scanning, agent workflow, CI/CD setup |

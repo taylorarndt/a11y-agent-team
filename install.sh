@@ -6,8 +6,10 @@
 #   bash install.sh                    Interactive mode (prompts for project or global)
 #   bash install.sh --global           Install globally to ~/.claude/
 #   bash install.sh --global --copilot Also install Copilot agents to VS Code
+#   bash install.sh --global --codex   Also install Codex CLI support to ~/.codex/
 #   bash install.sh --project          Install to .claude/ in the current directory
 #   bash install.sh --project --copilot Also install Copilot agents to project
+#   bash install.sh --project --codex  Also install Codex CLI support to .codex/
 #
 # One-liner:
 #   curl -fsSL https://raw.githubusercontent.com/Community-Access/accessibility-agents/main/install.sh | bash
@@ -64,11 +66,13 @@ fi
 # Parse flags for non-interactive install
 choice=""
 COPILOT_FLAG=false
+CODEX_FLAG=false
 for arg in "$@"; do
   case "$arg" in
     --global) choice="2" ;;
     --project) choice="1" ;;
     --copilot) COPILOT_FLAG=true ;;
+    --codex) CODEX_FLAG=true ;;
   esac
 done
 
@@ -508,6 +512,52 @@ INITSCRIPT
     fi
 fi
 
+# ---------------------------------------------------------------------------
+# Codex CLI support
+# ---------------------------------------------------------------------------
+CODEX_SRC="$SCRIPT_DIR/.codex/AGENTS.md"
+CODEX_INSTALLED=false
+
+install_codex=false
+if [ "$CODEX_FLAG" = true ]; then
+  install_codex=true
+elif [ -f "$CODEX_SRC" ] && { true < /dev/tty; } 2>/dev/null; then
+  echo ""
+  echo "  Would you also like to install Codex CLI support?"
+  echo "  This merges accessibility rules into your project's AGENTS.md"
+  echo "  so Codex automatically applies them to all UI code."
+  echo ""
+  printf "  Install Codex CLI support? [y/N]: "
+  read -r codex_choice < /dev/tty
+  if [ "$codex_choice" = "y" ] || [ "$codex_choice" = "Y" ]; then
+    install_codex=true
+  fi
+fi
+
+if [ "$install_codex" = true ] && [ -f "$CODEX_SRC" ]; then
+  echo ""
+  echo "  Installing Codex CLI support..."
+
+  if [ "$choice" = "1" ]; then
+    # Project install: copy to .codex/AGENTS.md in the current project
+    CODEX_TARGET_DIR="$(pwd)/.codex"
+    mkdir -p "$CODEX_TARGET_DIR"
+    CODEX_DST="$CODEX_TARGET_DIR/AGENTS.md"
+  else
+    # Global install: copy to ~/.codex/AGENTS.md
+    CODEX_TARGET_DIR="$HOME/.codex"
+    mkdir -p "$CODEX_TARGET_DIR"
+    CODEX_DST="$CODEX_TARGET_DIR/AGENTS.md"
+  fi
+
+  merge_config_file "$CODEX_SRC" "$CODEX_DST" "AGENTS.md (Codex)"
+  CODEX_INSTALLED=true
+
+  echo ""
+  echo "  Codex will now enforce WCAG AA rules on all UI code in this project."
+  echo "  Run: codex \"Build a login form\" — accessibility rules apply automatically."
+fi
+
 # Verify installation
 echo ""
 echo "  ========================="
@@ -535,6 +585,11 @@ if [ "$COPILOT_INSTALLED" = true ]; then
     name="$(basename "${f%.agent.md}")"
     echo "    [x] $name"
   done
+fi
+if [ "$CODEX_INSTALLED" = true ]; then
+  echo ""
+  echo "  Codex CLI support installed to:"
+  echo "    -> $CODEX_DST"
 fi
 # Save current version hash
 if command -v git &>/dev/null && [ -d "$SCRIPT_DIR/.git" ]; then
