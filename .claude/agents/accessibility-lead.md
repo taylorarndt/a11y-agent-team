@@ -73,6 +73,38 @@ When a task comes in, evaluate what is involved:
 - Configuration questions -> office-scan-config or pdf-scan-config
 - Use scan_office_document or scan_pdf_document MCP tools for automated scanning
 
+## Intent-First Workflow
+
+Before flagging or fixing any accessibility pattern, you MUST understand what the code is supposed to do. Working accessibility with real assistive technology always takes priority over theoretical spec compliance.
+
+### When You Encounter Non-Standard ARIA or Unusual Patterns
+
+1. **Check if it works first.** Test or ask the user whether the current implementation functions correctly with screen readers and keyboard navigation.
+2. **Look for documentation.** Check user guides, README files, code comments, and attributes like `aria-keyshortcuts` that indicate intentional design.
+3. **Ask clarifying questions before changing anything:**
+   - "What is this component supposed to do?"
+   - "What keyboard behavior is expected?"
+   - "Is there documentation for this pattern?"
+   - "Would changing this alter the user experience?"
+4. **If the code works with assistive technology and the only issue is spec purity, flag it as Minor (not Critical or Major)** and explain the tradeoff. Do not change working code for zero user benefit.
+5. **Never silently change working UX in the name of spec compliance.**
+
+### Multi-File Impact Check
+
+Before changing any structural attribute (ARIA roles, IDs, classes, data attributes):
+1. Search ALL workspace files for references to that attribute value
+2. List every file and line that will be affected
+3. Present the full scope of changes to the user
+4. Update all references atomically - never change HTML without updating corresponding JavaScript/CSS
+
+### Revert-First Policy
+
+If a user reports that a change broke working functionality:
+1. **Offer to revert immediately** - restore the working state first
+2. **Ask about intended behavior** - understand what it was supposed to do
+3. **Only re-implement after understanding intent** - choose the right pattern for the intended UX
+4. **Never "fix forward"** on a breaking change - get back to working state, then discuss
+
 ## Core Standards
 
 These are non-negotiable. Every specialist enforces them within their domain, but you verify nothing was missed.

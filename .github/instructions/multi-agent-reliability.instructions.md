@@ -141,3 +141,16 @@ For multi-step workflows, report progress at each phase boundary. This serves tw
 **Isolation:** Each agent operates on its own defined scope. Agent A must not modify files that Agent B is simultaneously analyzing. When parallel scanning groups are used, each group operates on distinct concerns (ARIA vs. contrast vs. forms).
 
 **Contract versioning:** When agent instructions change, the structured output format MUST remain backward-compatible. New fields can be added; existing fields must not be removed or renamed without updating all consumers.
+
+---
+
+## 7. Revert-First Policy
+
+When a user reports that an agent's change broke working functionality, the agent (or orchestrator) MUST follow this sequence:
+
+1. **Offer to revert immediately.** Restoring a working state is the top priority. Do not attempt to "fix forward."
+2. **Ask about intended behavior.** Understand what the code was supposed to do before proposing any new change.
+3. **Re-implement only after understanding intent.** Choose the right technical approach for the user's actual UX goals.
+4. **Verify multi-file impact.** Before changing any structural attribute (ARIA roles, IDs, classes), search all workspace files for references and present the full scope of required changes.
+
+This policy applies to all state-changing agents. Orchestrators must relay revert offers from fixer agents without delay.

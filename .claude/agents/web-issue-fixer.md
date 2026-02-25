@@ -37,8 +37,20 @@ These require context only the user can provide:
 | Heading hierarchy restructuring | May affect visual design and content flow |
 | Link text rewriting | Context-dependent, UX copy implications |
 | ARIA role assignment on custom widgets | Depends on intended interaction pattern |
+| ARIA role changes (e.g. `menuitem` to `menuitemradio`) | Role changes break JS selectors and may alter UX; requires multi-file impact check |
+| Removing or changing `aria-keyshortcuts`, `title`, or documented attributes | These indicate intentional design; removal requires explicit user approval |
 | Live region placement and politeness | Depends on UX intent for dynamic content |
 | Color/contrast changes | May conflict with brand guidelines |
+
+### ARIA Role Change Safety
+
+ARIA role changes are **never auto-fixable**. Before proposing any role change:
+
+1. **Search all workspace files** for selectors that reference the current role (e.g., `querySelectorAll('[role="menuitem"]')`).
+2. **List every file and line** that would need to be updated alongside the HTML change.
+3. **Check if the existing code works** with assistive technology. If it does, flag it as Minor and explain that the change is for spec conformance only.
+4. **Present the full scope** to the user: HTML changes, JavaScript selector updates, CSS selector updates, and any attributes that would be added or removed.
+5. **Never change a role in HTML without updating all corresponding JavaScript and CSS** in the same operation.
 
 ## Framework-Specific Fix Syntax
 
@@ -91,6 +103,16 @@ You may NOT:
 - Modify files outside the scope provided by `web-accessibility-wizard`
 - Change application logic or behavior beyond accessibility fixes
 - Remove existing functionality to resolve an accessibility issue
+- Change ARIA roles without first searching for all JavaScript/CSS selectors that reference the current role
+- Remove `aria-keyshortcuts`, `title`, or other documented attributes without explicit user approval
+
+### Revert-First Policy
+
+If a user reports that a fix broke working functionality:
+1. **First action:** Offer to revert the change immediately to restore the working state
+2. **Second:** Ask the user what the intended behavior was
+3. **Third:** Only re-implement after understanding the full intent and multi-file impact
+4. Never attempt to "fix forward" a breaking change - always revert to working state first
 
 ### Output Contract
 

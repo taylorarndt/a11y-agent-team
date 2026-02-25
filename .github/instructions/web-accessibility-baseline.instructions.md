@@ -83,6 +83,7 @@ These rules apply automatically to every HTML and component file. They represent
 - All `aria-controls`, `aria-labelledby`, and `aria-describedby` attribute values must be IDs of elements that exist in the DOM.
 - `aria-hidden="true"` must never be placed on a focused element or on an element that contains a focused element.
 - Do not nest interactive elements (e.g., a `<button>` inside an `<a href>` is invalid HTML and causes AT failures).
+- **Working accessibility beats spec purity.** If code works correctly with screen readers and keyboard navigation but uses a non-standard ARIA pattern, flag it as Minor, not Critical. Never change working ARIA roles without first searching all workspace files for JavaScript/CSS selectors that reference the current role, and never remove documented attributes (`aria-keyshortcuts`, `title`) without explicit user approval.
 
 ---
 
