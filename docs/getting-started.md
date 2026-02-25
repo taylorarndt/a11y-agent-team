@@ -203,6 +203,8 @@ bash install.sh --global --copilot
 
 This installs Copilot agents to your VS Code user profile folder. After installing, reload VS Code and open Copilot Chat. The agents will appear in the agent picker dropdown across all workspaces.
 
+> **First use:** After installation, open the agent picker dropdown (the model/agent selector at the top of the Copilot Chat panel) and select the agent you want to use. Custom agents do not appear in `@` autocomplete until you have selected them from the picker at least once.
+
 #### Option 2: Per-project
 
 Copy the `.github` directory into your project so the agents travel with the repo.
@@ -231,7 +233,9 @@ a11y-copilot-init
 
 ### Using the Agents in Copilot Chat
 
-In Copilot Chat, mention an agent to invoke it:
+> **Important:** Custom agents must first be selected from the **agent picker dropdown** at the top of the Copilot Chat panel. They will not appear when typing `@` in the chat input until you have selected them from the picker at least once. This is standard VS Code behavior for custom agents, not specific to this project.
+
+Once an agent has been picked, you can mention it by name to invoke it:
 
 ```text
 @accessibility-lead full audit of the checkout flow

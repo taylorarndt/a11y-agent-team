@@ -37,9 +37,12 @@ Think of the A11y Agent Team as a consulting team of accessibility specialists. 
 
 ### GitHub Copilot (VS Code / Editor)
 
+> **Note:** Custom agents must first be selected from the **agent picker dropdown** (the model/agent selector at the top of the Chat panel). After selecting an agent from the picker once, it will appear in `@` autocomplete for future use.
+
 | Method | Syntax | When to Use |
 |--------|--------|-------------|
-| At-mention in Chat | `@accessibility-lead review this page` | Direct invocation in Copilot Chat panel |
+| Agent picker | Select from dropdown at top of Chat panel | First-time activation of any custom agent |
+| At-mention in Chat | `@accessibility-lead review this page` | Direct invocation after first picker selection |
 | With file context | Select code, then `@aria-specialist check this` | Review selected code |
 | Workspace instructions | Automatic - loaded on every conversation | Ensures accessibility guidance is always present |
 
