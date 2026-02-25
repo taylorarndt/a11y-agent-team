@@ -35,6 +35,14 @@ Think of the A11y Agent Team as a consulting team of accessibility specialists. 
 | At-mention | `@accessibility-lead review this page` | Alternative syntax, same behavior |
 | List agents | `/agents` | See all installed agents |
 
+### Codex CLI (Terminal)
+
+| Method | Syntax | When to Use |
+|--------|--------|-------------|
+| Automatic | Rules apply to every UI task | No invocation needed — Codex reads `.codex/AGENTS.md` automatically |
+
+Codex CLI does not have named agents or sub-agents. All accessibility rules are condensed into a single `AGENTS.md` file that Codex loads on every run. There is nothing to invoke — the rules are always active.
+
 ### GitHub Copilot (VS Code / Editor)
 
 > **Note:** Custom agents must first be selected from the **agent picker dropdown** (the model/agent selector at the top of the Chat panel). After selecting an agent from the picker once, it will appear in `@` autocomplete for future use.
@@ -462,17 +470,17 @@ Orchestrator agents delegate work to specialist sub-agents. This map shows which
 
 ## Environment Parity
 
-Agents exist in two environments with identical behavior but different file formats.
+Agents exist in three environments. Claude Code and Copilot have full multi-agent support. Codex CLI uses a single condensed ruleset.
 
-| Property | GitHub Copilot | Claude Code |
-|----------|---------------|-------------|
-| Agent directory | `.github/agents/*.agent.md` | `.claude/agents/*.md` |
-| Team config | `.github/agents/AGENTS.md` | `.claude/agents/AGENTS.md` |
-| Frontmatter model | `model: [Claude Sonnet 4 (copilot)]` | `model: inherit` |
-| Handoffs declaration | `handoffs:` block in frontmatter | Described in agent body text |
-| Agent cross-calling | `agents:` frontmatter list | Agent body text describes delegation |
-| Skills path | `../skills/[skill]/SKILL.md` | `../../.github/skills/[skill]/SKILL.md` |
-| Shared instructions | `shared-instructions.md` (relative) | `../../.github/agents/shared-instructions.md` |
+| Property | GitHub Copilot | Claude Code | Codex CLI |
+|----------|---------------|-------------|-----------|
+| Agent directory | `.github/agents/*.agent.md` | `.claude/agents/*.md` | `.codex/AGENTS.md` (single file) |
+| Team config | `.github/agents/AGENTS.md` | `.claude/agents/AGENTS.md` | N/A |
+| Frontmatter model | `model: [Claude Sonnet 4 (copilot)]` | `model: inherit` | N/A |
+| Handoffs declaration | `handoffs:` block in frontmatter | Described in agent body text | N/A (no sub-agents) |
+| Agent cross-calling | `agents:` frontmatter list | Agent body text describes delegation | N/A (no sub-agents) |
+| Skills path | `../skills/[skill]/SKILL.md` | `../../.github/skills/[skill]/SKILL.md` | N/A |
+| Shared instructions | `shared-instructions.md` (relative) | `../../.github/agents/shared-instructions.md` | N/A |
 
 Both environments share:
 
