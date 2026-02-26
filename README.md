@@ -166,6 +166,7 @@ The following guides cover advanced configuration, cross-platform handoff, and d
 | [Advanced Scanning Patterns](docs/advanced/advanced-scanning-patterns.md) | Background scanning, worktree isolation, large libraries |
 | [Plugin Packaging](docs/advanced/plugin-packaging.md) | Packaging and distributing agents for different environments |
 | [Platform References](docs/advanced/platform-references.md) | External documentation sources with feature-to-source mapping |
+| [Research Sources](docs/RESEARCH-SOURCES.md) | Authoritative sources (W3C APG, WebAIM, WCAG 2.2, Deque) that informed every agent rule |
 
 ## What This Covers
 
@@ -233,6 +234,7 @@ A sincere thanks to [Taylor Arndt](https://github.com/taylorarndt) and [Jeff Bis
 - [WebAIM Screen Reader User Survey](https://webaim.org/projects/screenreadersurvey10/)
 - [A11y Project Checklist](https://www.a11yproject.com/checklist/)
 - [Inclusive Components](https://inclusive-components.design/)
+- [Research Sources and Attribution](docs/RESEARCH-SOURCES.md) - All authoritative sources consulted to build and strengthen agent rules
 
 ## Related Projects
 

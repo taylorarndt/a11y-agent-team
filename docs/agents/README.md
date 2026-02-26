@@ -75,6 +75,8 @@ Codex CLI does not have named agents or sub-agents. All accessibility rules are 
 | [link-checker](link-checker.md) | Ambiguous link text detection | [Full docs](link-checker.md) |
 | [web-accessibility-wizard](web-accessibility-wizard.md) | Guided web accessibility audit | [Full docs](web-accessibility-wizard.md) |
 | web-csv-reporter | CSV export with Deque University help links (hidden - invoked by orchestrator) | [Full docs](web-csv-reporter.md) |
+| scanner-bridge | Bridges GitHub Accessibility Scanner CI data into agent ecosystem (hidden - invoked by orchestrator) | [Full docs](scanner-bridge.md) |
+| lighthouse-bridge | Bridges Lighthouse CI accessibility audit data into agent ecosystem (hidden - invoked by orchestrator) | [Full docs](lighthouse-bridge.md) |
 | [cognitive-accessibility](cognitive-accessibility.md) | Cognitive accessibility, plain language, COGA, WCAG 2.2 new criteria | [Full docs](cognitive-accessibility.md) |
 | [mobile-accessibility](mobile-accessibility.md) | React Native, iOS/Android accessibility, touch targets | [Full docs](mobile-accessibility.md) |
 | [design-system-auditor](design-system-auditor.md) | Design token contrast, focus ring compliance, Tailwind/MUI/shadcn audits | [Full docs](design-system-auditor.md) |
@@ -277,6 +279,8 @@ Skills are reusable knowledge modules loaded by agents at runtime. Each skill de
 | [`github-analytics-scoring`](../skills/github-analytics-scoring.md) | Repo health 0-100/A-F, priority scoring, bottleneck detection, velocity metrics | daily-briefing, issue-tracker, pr-review, analytics, repo-admin, insiders-a11y-tracker |
 | [`markdown-accessibility`](../skills/markdown-accessibility.md) | Ambiguous link/anchor patterns, emoji handling (remove/translate), Mermaid/ASCII diagram replacement, heading rules, severity scoring | markdown-a11y-assistant, markdown-scanner, markdown-fixer |
 | [`help-url-reference`](../skills/help-url-reference.md) | Deque University, Microsoft Office, Adobe PDF, and WCAG Understanding document URL mappings | web-csv-reporter, document-csv-reporter |
+| [`github-a11y-scanner`](../skills/github-a11y-scanner.md) | GitHub Accessibility Scanner detection, issue parsing, severity mapping, axe-core correlation, Copilot fix tracking | scanner-bridge, web-accessibility-wizard, insiders-a11y-tracker, daily-briefing, issue-tracker |
+| [`lighthouse-scanner`](../skills/lighthouse-scanner.md) | Lighthouse CI accessibility audit detection, score interpretation, weight-to-severity mapping, score regression tracking | lighthouse-bridge, web-accessibility-wizard, insiders-a11y-tracker, daily-briefing, issue-tracker |
 
 ---
 
@@ -456,12 +460,12 @@ Orchestrator agents delegate work to specialist sub-agents. This map shows which
 | Orchestrator | Sub-Agents |
 |-------------|-----------|
 | **accessibility-lead** | alt-text-headings, aria-specialist, contrast-master, forms-specialist, keyboard-navigator, link-checker, live-region-controller, modal-specialist, tables-data-specialist |
-| **web-accessibility-wizard** | alt-text-headings, aria-specialist, contrast-master, cross-page-analyzer, forms-specialist, keyboard-navigator, link-checker, live-region-controller, modal-specialist, tables-data-specialist, testing-coach, wcag-guide, web-csv-reporter, web-issue-fixer |
+| **web-accessibility-wizard** | alt-text-headings, aria-specialist, contrast-master, cross-page-analyzer, forms-specialist, keyboard-navigator, lighthouse-bridge, link-checker, live-region-controller, modal-specialist, scanner-bridge, tables-data-specialist, testing-coach, wcag-guide, web-csv-reporter, web-issue-fixer |
 | **document-accessibility-wizard** | cross-document-analyzer, document-csv-reporter, document-inventory, epub-accessibility, excel-accessibility, pdf-accessibility, powerpoint-accessibility, word-accessibility |
 | **markdown-a11y-assistant** | markdown-csv-reporter, markdown-fixer, markdown-scanner |
 | **nexus / github-hub** | analytics, contributions-hub, daily-briefing, insiders-a11y-tracker, issue-tracker, pr-review, repo-admin, repo-manager, team-manager, template-builder |
-| **daily-briefing** | analytics, insiders-a11y-tracker, issue-tracker, pr-review |
-| **issue-tracker** | daily-briefing, pr-review |
+| **daily-briefing** | analytics, insiders-a11y-tracker, issue-tracker, pr-review, scanner-bridge, lighthouse-bridge |
+| **issue-tracker** | daily-briefing, pr-review, scanner-bridge, lighthouse-bridge |
 | **pr-review** | daily-briefing, issue-tracker |
 | **analytics** | daily-briefing, issue-tracker, pr-review |
 | **repo-manager** | github-hub, repo-admin, template-builder |
