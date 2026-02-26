@@ -88,7 +88,7 @@ Missing or empty `descr` is a violation.
 **Remediation:**
 1. Right-click the image -> Edit Alt Text
 2. Describe the content and purpose
-3. For decorative images, check "Mark as decorative"
+3. For decorative images, check "Mark as decorative" (the scanner detects the Office decorative flag and skips these)
 
 ### PPTX-E002: Missing Slide Title
 

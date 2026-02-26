@@ -1547,6 +1547,13 @@ function xmlCount(xml, tag) {
   return c;
 }
 
+// Detect Office 2019+/365 decorative image marker.
+// When "Mark as decorative" is used, Office adds an extension element with this UUID.
+// Decorative images intentionally have empty alt text and should not be flagged.
+function isDecorativeElement(xmlBlock) {
+  return /C183D7F6-B498-43B3-948B-1728B52AA6E4/i.test(xmlBlock);
+}
+
 function scanDocx(buf, entries, config) {
   const findings = [];
   const disabled = new Set(config.disabledRules || []);
@@ -1586,10 +1593,11 @@ function scanDocx(buf, entries, config) {
     }
   }
 
-  // E001: missing alt text on images
+  // E001: missing alt text on images (skip images marked decorative)
   const drawings = doc.match(/<w:drawing>[\s\S]*?<\/w:drawing>/gi) || [];
   let imgNoAlt = 0;
   for (const d of drawings) {
+    if (isDecorativeElement(d)) continue;
     const descrs = xmlAttr(d, "wp:docPr", "descr");
     const descrs2 = xmlAttr(d, "pic:cNvPr", "descr");
     const allDescr = [...descrs, ...descrs2];
@@ -1737,14 +1745,20 @@ function scanXlsx(buf, entries, config) {
     }
   }
 
+  // E001: missing alt text (skip images marked decorative)
   const drawingFiles = [...entries.keys()].filter(k => /^xl\/drawings\//.test(k));
   let chartNoAlt = 0;
   for (const df of drawingFiles) {
     const dXml = getZipXml(buf, entries, df);
-    const cNvPrs = dXml.match(/<xdr:cNvPr[^>]*>/gi) || [];
-    for (const el of cNvPrs) {
-      const descr = el.match(/descr="([^"]*)"/i);
-      if (!descr || !descr[1].trim()) chartNoAlt++;
+    // Match non-visual property containers (each wraps exactly one cNvPr)
+    const nvPrBlocks = dXml.match(/<xdr:nv\w+Pr\b[\s\S]*?<\/xdr:nv\w+Pr>/gi) || [];
+    for (const block of nvPrBlocks) {
+      if (isDecorativeElement(block)) continue;
+      const el = block.match(/<xdr:cNvPr[^>]*>/i);
+      if (el) {
+        const descr = el[0].match(/descr="([^"]*)"/i);
+        if (!descr || !descr[1].trim()) chartNoAlt++;
+      }
     }
   }
   if (chartNoAlt > 0) add("XLSX-E001", "error", `${chartNoAlt} chart/image(s) missing alt text.`, "xl/drawings");
@@ -1800,12 +1814,16 @@ function scanPptx(buf, entries, config) {
       slideTitles.push({ slideNum, title: titleText });
     }
 
-    // E001: missing alt text
-    const cNvPrs = slideXml.match(/<p:cNvPr[^>]*>/gi) || [];
-    for (const el of cNvPrs) {
-      if (/ph\s+type=/i.test(slideXml.substring(slideXml.indexOf(el)))) continue; // skip placeholders
-      const descr = el.match(/descr="([^"]*)"/i);
-      if (!descr || !descr[1].trim()) noAltCount++;
+    // E001: missing alt text (skip placeholders and decorative images)
+    const nvPrBlocks = slideXml.match(/<p:nv\w+Pr\b[\s\S]*?<\/p:nv\w+Pr>/gi) || [];
+    for (const block of nvPrBlocks) {
+      if (/<p:ph\b/i.test(block)) continue; // skip placeholders
+      if (isDecorativeElement(block)) continue;
+      const el = block.match(/<p:cNvPr[^>]*>/i);
+      if (el) {
+        const descr = el[0].match(/descr="([^"]*)"/i);
+        if (!descr || !descr[1].trim()) noAltCount++;
+      }
     }
 
     // E004: tables without headers

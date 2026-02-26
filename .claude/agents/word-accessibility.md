@@ -37,7 +37,7 @@ Word files are ZIP archives containing XML. Key files:
 
 | Rule ID | Name | What It Checks |
 |---------|------|----------------|
-| DOCX-E001 | missing-alt-text | Images, shapes, SmartArt, charts, embedded objects without alternative text. Look for `<wp:docPr>` or `<pic:cNvPr>` elements missing `descr` attribute, or `descr=""`. |
+| DOCX-E001 | missing-alt-text | Images, shapes, SmartArt, charts, embedded objects without alternative text. Look for `<wp:docPr>` or `<pic:cNvPr>` elements missing `descr` attribute, or `descr=""`. Images marked decorative via Office's "Mark as decorative" feature (UUID `C183D7F6-B498-43B3-948B-1728B52AA6E4` in `<a:extLst>`) are automatically skipped. |
 | DOCX-E002 | missing-table-header | Tables without a designated header row. In Open XML, check `<w:tblHeader/>` inside `<w:trPr>` of the first `<w:tr>`. |
 | DOCX-E003 | skipped-heading-level | Heading levels that skip (e.g., Heading 1 -> Heading 3). Parse `<w:pStyle w:val="Heading1"/>` etc. in `<w:pPr>` and verify sequential ordering. |
 | DOCX-E004 | missing-document-title | Document properties missing title. Check `<dc:title>` in `docProps/core.xml` - must be non-empty. |
@@ -82,7 +82,7 @@ Missing or empty `descr` is a violation. Also check `<pic:cNvPr>` for inline ima
 **Remediation:**
 1. Right-click the image in Word -> Edit Alt Text
 2. Write a concise description of the image's content and purpose
-3. For decorative images, mark as "decorative" (this sets `descr` to empty and adds `<a:extLst>` with decorative flag)
+3. For decorative images, mark as "decorative" (this sets `descr` to empty and adds `<a:extLst>` with decorative flag — the scanner detects this and skips the image)
 
 ### DOCX-E002: Missing Table Header
 
