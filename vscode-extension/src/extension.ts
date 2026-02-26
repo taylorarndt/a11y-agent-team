@@ -23,14 +23,36 @@ const COMMAND_AGENT_MAP: Record<string, string[]> = {
   "design-system": ["design-system-auditor"],
 };
 
-/** The default agent used when no slash command is given. */
-const DEFAULT_AGENT = "accessibility-lead";
+/** Read extension settings. */
+function getConfig() {
+  const cfg = vscode.workspace.getConfiguration("a11y");
+  return {
+    agentsPath: cfg.get<string>("agentsPath", "").trim(),
+    defaultAgent: cfg.get<string>("defaultAgent", "accessibility-lead"),
+    conformanceLevel: cfg.get<string>("conformanceLevel", "AA"),
+  };
+}
 
 /**
- * Try to locate the `.github/agents/` folder by walking up from likely roots.
- * Returns the first path that exists, or undefined.
+ * Try to locate the agents directory.
+ * Checks the `a11y.agentsPath` setting first, then auto-discovers
+ * `.github/agents/` in workspace folders.
  */
 async function findAgentsDir(): Promise<string | undefined> {
+  const { agentsPath } = getConfig();
+
+  // Honour explicit setting
+  if (agentsPath) {
+    try {
+      const info = await fs.stat(agentsPath);
+      if (info.isDirectory()) {
+        return agentsPath;
+      }
+    } catch {
+      // configured path doesn't exist, fall through to auto-discovery
+    }
+  }
+
   const folders = vscode.workspace.workspaceFolders;
   if (!folders) {
     return undefined;
@@ -109,6 +131,9 @@ const handler: vscode.ChatRequestHandler = async (
   stream,
   token
 ) => {
+  // Read settings
+  const config = getConfig();
+
   // Determine which agent file(s) to load based on slash command
   const command = request.command;
   let stems: string[];
@@ -117,11 +142,11 @@ const handler: vscode.ChatRequestHandler = async (
     stems = COMMAND_AGENT_MAP[command];
   } else if (command) {
     stream.markdown(
-      `> Unknown command \`/${command}\`. Routing to the Accessibility Lead.\n\n`
+      `> Unknown command \`/${command}\`. Routing to ${config.defaultAgent}.\n\n`
     );
-    stems = [DEFAULT_AGENT];
+    stems = [config.defaultAgent];
   } else {
-    stems = [DEFAULT_AGENT];
+    stems = [config.defaultAgent];
   }
 
   // Locate agent definitions in the workspace
@@ -151,7 +176,7 @@ const handler: vscode.ChatRequestHandler = async (
   if (systemPrompt) {
     messages.push(
       vscode.LanguageModelChatMessage.User(
-        `You are an accessibility specialist. Apply these instructions:\n\n${systemPrompt}`
+        `You are an accessibility specialist. Target conformance level: WCAG ${config.conformanceLevel}. Apply these instructions:\n\n${systemPrompt}`
       )
     );
   }

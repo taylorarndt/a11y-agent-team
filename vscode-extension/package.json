@@ -103,7 +103,29 @@
           }
         ]
       }
-    ]
+    ],
+    "configuration": {
+      "title": "A11y Agent Team",
+      "properties": {
+        "a11y.agentsPath": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Custom path to the directory containing `.agent.md` files. Leave empty to auto-discover `.github/agents/` in the workspace."
+        },
+        "a11y.defaultAgent": {
+          "type": "string",
+          "default": "accessibility-lead",
+          "markdownDescription": "Agent file stem used when `@a11y` is invoked without a slash command. Must match a `<name>.agent.md` file.",
+          "examples": ["accessibility-lead", "web-accessibility-wizard", "aria-specialist"]
+        },
+        "a11y.conformanceLevel": {
+          "type": "string",
+          "default": "AA",
+          "enum": ["A", "AA", "AAA"],
+          "markdownDescription": "Target WCAG conformance level. Agents will tailor their advice to this level."
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
