@@ -14,7 +14,7 @@ $ScriptDir = if ($MyInvocation.MyCommand.Path) {
     $null
 }
 
-if (-not $ScriptDir -or -not (Test-Path (Join-Path $ScriptDir ".claude\agents"))) {
+if (-not $ScriptDir -or (-not (Test-Path (Join-Path $ScriptDir "claude-code-plugin\agents")) -and -not (Test-Path (Join-Path $ScriptDir ".claude\agents")))) {
     # Running from irm pipe or without repo — download first
     $Downloaded = $true
     $TmpDir = Join-Path $env:TEMP "a11y-agent-team-install-$(Get-Random)"
@@ -35,7 +35,38 @@ if (-not $ScriptDir -or -not (Test-Path (Join-Path $ScriptDir ".claude\agents"))
     Write-Host "  Downloaded."
 }
 
-$AgentsSrc = Join-Path $ScriptDir ".claude\agents"
+# Prefer claude-code-plugin/ as distribution source, fall back to .claude/agents/
+$PluginAgentsDir = Join-Path $ScriptDir "claude-code-plugin\agents"
+if (Test-Path $PluginAgentsDir) {
+    $AgentsSrc = $PluginAgentsDir
+} else {
+    $AgentsSrc = Join-Path $ScriptDir ".claude\agents"
+}
+
+$CommandsSrc = $null
+$PluginCommandsDir = Join-Path $ScriptDir "claude-code-plugin\commands"
+if (Test-Path $PluginCommandsDir) {
+    $CommandsSrc = $PluginCommandsDir
+}
+
+$PluginClaudeMd = $null
+$PluginClaudeMdPath = Join-Path $ScriptDir "claude-code-plugin\CLAUDE.md"
+if (Test-Path $PluginClaudeMdPath) {
+    $PluginClaudeMd = $PluginClaudeMdPath
+}
+
+# Plugin source for global installs
+$PluginSrc = $null
+$PluginVersion = "1.0.0"
+$PluginSrcDir = Join-Path $ScriptDir "claude-code-plugin\.claude-plugin"
+if (Test-Path $PluginSrcDir) {
+    $PluginSrc = Join-Path $ScriptDir "claude-code-plugin"
+    $PluginJsonPath = Join-Path $PluginSrcDir "plugin.json"
+    if (Test-Path $PluginJsonPath) {
+        try { $PluginVersion = (Get-Content $PluginJsonPath | ConvertFrom-Json).version } catch {}
+    }
+}
+
 $CopilotAgentsSrc = Join-Path $ScriptDir ".github\agents"
 $CopilotConfigSrc = Join-Path $ScriptDir ".github"
 
@@ -43,6 +74,12 @@ $CopilotConfigSrc = Join-Path $ScriptDir ".github"
 $Agents = @()
 if (Test-Path $AgentsSrc) {
     $Agents = Get-ChildItem -Path $AgentsSrc -Filter "*.md" | Select-Object -ExpandProperty Name
+}
+
+# Auto-detect commands from source directory
+$Commands = @()
+if ($CommandsSrc -and (Test-Path $CommandsSrc)) {
+    $Commands = Get-ChildItem -Path $CommandsSrc -Filter "*.md" | Select-Object -ExpandProperty Name
 }
 
 if ($Agents.Count -eq 0) {
@@ -112,8 +149,108 @@ function Merge-ConfigFile {
     }
 }
 
+# ---------------------------------------------------------------------------
+# Register-A11yPlugin: Registers a11y-agent-team as a Claude Code plugin.
+# ---------------------------------------------------------------------------
+function Register-A11yPlugin {
+    param([string]$SrcDir)
+    $Namespace = "community-access"
+    $PluginName = "a11y-agent-team"
+    $DefaultKey = "$PluginName@$Namespace"
+    $PluginsJson = Join-Path $env:USERPROFILE ".claude\plugins\installed_plugins.json"
+    $SettingsJson = Join-Path $env:USERPROFILE ".claude\settings.json"
+
+    Write-Host ""
+    Write-Host "  Registering Claude Code plugin..."
+
+    # Ensure plugins directory exists
+    New-Item -ItemType Directory -Force -Path (Join-Path $env:USERPROFILE ".claude\plugins") | Out-Null
+
+    # Detect existing registration
+    $ActualKey = $DefaultKey
+    if (Test-Path $PluginsJson) {
+        try {
+            $data = Get-Content $PluginsJson | ConvertFrom-Json
+            foreach ($prop in $data.plugins.PSObject.Properties) {
+                if ($prop.Name -match "^a11y-agent-team@") {
+                    $ActualKey = $prop.Name
+                    $Namespace = $ActualKey -replace '^a11y-agent-team@', ''
+                    break
+                }
+            }
+        } catch {}
+    }
+
+    $CacheDir = Join-Path $env:USERPROFILE ".claude\plugins\cache\$Namespace\$PluginName\$PluginVersion"
+
+    # Copy plugin to cache
+    New-Item -ItemType Directory -Force -Path $CacheDir | Out-Null
+    Copy-Item -Path "$SrcDir\*" -Destination $CacheDir -Recurse -Force
+    Write-Host "    + Plugin cached"
+
+    # Update installed_plugins.json
+    if (-not (Test-Path $PluginsJson)) {
+        @{ version = 2; plugins = @{} } | ConvertTo-Json -Depth 10 | Out-File -FilePath $PluginsJson -Encoding utf8
+    }
+    $data = Get-Content $PluginsJson | ConvertFrom-Json
+    $now = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.000Z")
+    $entry = @{ scope = "user"; installPath = $CacheDir; version = $PluginVersion; installedAt = $now; lastUpdated = $now }
+    if (-not $data.plugins) { $data | Add-Member -NotePropertyName plugins -NotePropertyValue @{} }
+    $data.plugins | Add-Member -NotePropertyName $ActualKey -NotePropertyValue @($entry) -Force
+    $data | ConvertTo-Json -Depth 10 | Out-File -FilePath $PluginsJson -Encoding utf8
+    Write-Host "    + Registered in installed_plugins.json ($ActualKey)"
+
+    # Update settings.json enabledPlugins
+    if (-not (Test-Path $SettingsJson)) {
+        @{} | ConvertTo-Json | Out-File -FilePath $SettingsJson -Encoding utf8
+    }
+    $settings = Get-Content $SettingsJson | ConvertFrom-Json
+    if (-not $settings.enabledPlugins) { $settings | Add-Member -NotePropertyName enabledPlugins -NotePropertyValue @{} }
+    $settings.enabledPlugins | Add-Member -NotePropertyName $ActualKey -NotePropertyValue $true -Force
+    $settings | ConvertTo-Json -Depth 10 | Out-File -FilePath $SettingsJson -Encoding utf8
+    Write-Host "    + Enabled in settings.json"
+
+    $agentCount = (Get-ChildItem -Path "$CacheDir\agents" -Filter "*.md" -ErrorAction SilentlyContinue).Count
+    $cmdCount = (Get-ChildItem -Path "$CacheDir\commands" -Filter "*.md" -ErrorAction SilentlyContinue).Count
+    Write-Host ""
+    Write-Host "  Plugin registered: $ActualKey (v$PluginVersion)"
+    Write-Host "    $agentCount agents"
+    Write-Host "    $cmdCount slash commands"
+    Write-Host "    4 enforcement hooks"
+    return $CacheDir
+}
+
+# ---------------------------------------------------------------------------
+# Installation: plugin (global) vs file-copy (project)
+# ---------------------------------------------------------------------------
+$PluginInstall = $false
+
+if ($Choice -eq "2" -and $PluginSrc) {
+    # Global install: register as Claude Code plugin
+    $PluginCacheDir = Register-A11yPlugin -SrcDir $PluginSrc
+    $PluginInstall = $true
+
+    # Clean up previous non-plugin install
+    $OldManifest = Join-Path $TargetDir ".a11y-agent-manifest"
+    if (Test-Path $OldManifest) {
+        Write-Host ""
+        Write-Host "  Cleaning up previous non-plugin install..."
+        $removed = 0
+        Get-Content $OldManifest | ForEach-Object {
+            $file = Join-Path $TargetDir $_
+            if (Test-Path $file) { Remove-Item $file; $removed++ }
+        }
+        Remove-Item $OldManifest -ErrorAction SilentlyContinue
+        if ($removed -gt 0) { Write-Host "    Removed $removed files" }
+    }
+} else {
+    # Project install (or global without plugin support): copy agents/commands directly
+
 # Create directories
 New-Item -ItemType Directory -Force -Path (Join-Path $TargetDir "agents") | Out-Null
+if ($Commands.Count -gt 0) {
+    New-Item -ItemType Directory -Force -Path (Join-Path $TargetDir "commands") | Out-Null
+}
 
 # Track which files we install so updates never touch user-created files
 $ManifestPath = Join-Path $TargetDir ".a11y-agent-manifest"
@@ -141,6 +278,48 @@ foreach ($Agent in $Agents) {
 }
 if ($SkippedAgents -gt 0) {
     Write-Host "      $SkippedAgents agent(s) skipped. Use -Force flag or delete them first to reinstall."
+}
+
+# Copy commands — skip any file that already exists (preserves user customisations)
+if ($Commands.Count -gt 0) {
+    Write-Host ""
+    Write-Host "  Copying commands..."
+    $SkippedCommands = 0
+    foreach ($Cmd in $Commands) {
+        $Src = Join-Path $CommandsSrc $Cmd
+        $Dst = Join-Path $TargetDir "commands\$Cmd"
+        $Name = $Cmd -replace '\.md$', ''
+        if (Test-Path $Dst) {
+            Write-Host "    ~ /$Name (skipped - already exists)"
+            $SkippedCommands++
+        } else {
+            Copy-Item -Path $Src -Destination $Dst
+            if (-not $Manifest.Contains("commands/$Cmd")) { $Manifest.Add("commands/$Cmd") }
+            Write-Host "    + /$Name"
+        }
+    }
+    if ($SkippedCommands -gt 0) {
+        Write-Host "      $SkippedCommands command(s) skipped. Delete them first to reinstall."
+    }
+}
+
+}  # end of project/fallback install path
+
+# Merge CLAUDE.md snippet (optional)
+if ($PluginClaudeMd) {
+    Write-Host ""
+    Write-Host "  Would you like to merge accessibility rules into your project CLAUDE.md?"
+    Write-Host "  This adds the decision matrix and non-negotiable standards."
+    Write-Host ""
+    $ClaudeChoice = Read-Host "  Merge CLAUDE.md rules? [y/N]"
+    if ($ClaudeChoice -eq "y" -or $ClaudeChoice -eq "Y") {
+        if ($Choice -eq "1") {
+            $ClaudeDst = Join-Path (Get-Location) "CLAUDE.md"
+        } else {
+            $ClaudeDst = Join-Path $env:USERPROFILE "CLAUDE.md"
+        }
+        Merge-ConfigFile -SrcFile $PluginClaudeMd -DstFile $ClaudeDst -Label "CLAUDE.md (accessibility rules)"
+    }
 }
 
 # Save manifest
@@ -384,16 +563,54 @@ Write-Host "  Your existing files were preserved. Only new content was added."
     }
 }
 
-# Done\nWrite-Host \"\"\nWrite-Host \"  =========================\"\nWrite-Host \"  Installation complete!\"
+# Verify installation
 Write-Host ""
-Write-Host "  Claude Code agents installed:"
-foreach ($Agent in $Agents) {
-    $Name = $Agent -replace '\.md$', ''
-    $AgentPath = Join-Path $TargetDir "agents\$Agent"
-    if (Test-Path $AgentPath) {
-        Write-Host "    [x] $Name"
-    } else {
-        Write-Host "    [ ] $Name (missing)"
+Write-Host "  ========================="
+Write-Host "  Installation complete!"
+
+if ($PluginInstall) {
+    Write-Host ""
+    Write-Host "  Claude Code plugin installed:"
+    Write-Host ""
+    Write-Host "  Agents:"
+    foreach ($f in Get-ChildItem -Path "$PluginCacheDir\agents" -Filter "*.md" -ErrorAction SilentlyContinue) {
+        Write-Host "    [x] $($f.BaseName)"
+    }
+    Write-Host ""
+    Write-Host "  Slash commands:"
+    foreach ($f in Get-ChildItem -Path "$PluginCacheDir\commands" -Filter "*.md" -ErrorAction SilentlyContinue) {
+        Write-Host "    [x] /$($f.BaseName)"
+    }
+    Write-Host ""
+    Write-Host "  Enforcement hooks:"
+    Write-Host "    [x] UserPromptSubmit  - Injects accessibility-lead instruction"
+    Write-Host "    [x] PreToolUse        - Blocks UI file edits without a11y review"
+    Write-Host "    [x] SubagentStart     - Creates session marker"
+    Write-Host "    [x] SubagentStop      - Logs agent activity"
+} else {
+    Write-Host ""
+    Write-Host "  Claude Code agents installed:"
+    foreach ($Agent in $Agents) {
+        $Name = $Agent -replace '\.md$', ''
+        $AgentPath = Join-Path $TargetDir "agents\$Agent"
+        if (Test-Path $AgentPath) {
+            Write-Host "    [x] $Name"
+        } else {
+            Write-Host "    [ ] $Name (missing)"
+        }
+    }
+    if ($Commands.Count -gt 0) {
+        Write-Host ""
+        Write-Host "  Slash commands installed:"
+        foreach ($Cmd in $Commands) {
+            $Name = $Cmd -replace '\.md$', ''
+            $CmdPath = Join-Path $TargetDir "commands\$Cmd"
+            if (Test-Path $CmdPath) {
+                Write-Host "    [x] /$Name"
+            } else {
+                Write-Host "    [ ] /$Name (missing)"
+            }
+        }
     }
 }
 if ($CopilotInstalled) {
@@ -453,8 +670,17 @@ if ($Choice -eq "2") {
 if ($Downloaded) { Remove-Item -Recurse -Force $TmpDir -ErrorAction SilentlyContinue }
 
 Write-Host ""
-Write-Host "  If agents stop loading, increase the character budget:"
-Write-Host "    `$env:SLASH_COMMAND_TOOL_CHAR_BUDGET = '30000'"
+if ($PluginInstall) {
+    Write-Host "  Restart Claude Code for the plugin to take effect."
+    Write-Host ""
+    Write-Host "  The plugin will:"
+    Write-Host "    - Inject accessibility instructions into every prompt"
+    Write-Host "    - Block UI file edits until accessibility-lead reviews"
+    Write-Host "    - Log all agent activity"
+} else {
+    Write-Host "  If agents stop loading, increase the character budget:"
+    Write-Host "    `$env:SLASH_COMMAND_TOOL_CHAR_BUDGET = '30000'"
+}
 Write-Host ""
 Write-Host "  Start Claude Code and try: `"Build a login form`""
 Write-Host "  The accessibility-lead should activate automatically."

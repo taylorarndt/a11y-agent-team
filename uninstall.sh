@@ -61,6 +61,65 @@ case "$choice" in
     ;;
 esac
 
+# ---------------------------------------------------------------------------
+# unregister_plugin
+# Removes a11y-agent-team from Claude Code plugin system.
+# ---------------------------------------------------------------------------
+unregister_plugin() {
+  local plugins_json="$HOME/.claude/plugins/installed_plugins.json"
+  local settings_json="$HOME/.claude/settings.json"
+
+  # Find and remove plugin registration under any namespace
+  if [ -f "$plugins_json" ] && command -v python3 &>/dev/null; then
+    local removed_key
+    removed_key=$(python3 - "$plugins_json" << 'PYEOF'
+import json, sys
+path = sys.argv[1]
+with open(path) as f:
+    data = json.load(f)
+removed = None
+for k in list(data.get('plugins', {})):
+    if k.startswith('a11y-agent-team@'):
+        removed = k
+        del data['plugins'][k]
+        break
+with open(path, 'w') as f:
+    json.dump(data, f, indent=2)
+if removed:
+    print(removed)
+PYEOF
+    )
+    if [ -n "$removed_key" ]; then
+      echo "    - Removed from installed_plugins.json ($removed_key)"
+
+      # Remove from enabledPlugins in settings.json
+      if [ -f "$settings_json" ]; then
+        python3 - "$settings_json" "$removed_key" << 'PYEOF'
+import json, sys
+path, key = sys.argv[1:3]
+with open(path) as f:
+    data = json.load(f)
+data.get('enabledPlugins', {}).pop(key, None)
+with open(path, 'w') as f:
+    json.dump(data, f, indent=2)
+PYEOF
+        echo "    - Removed from settings.json enabledPlugins"
+      fi
+
+      # Remove plugin cache
+      local namespace="${removed_key#a11y-agent-team@}"
+      local cache_dir="$HOME/.claude/plugins/cache/${namespace}/a11y-agent-team"
+      if [ -d "$cache_dir" ]; then
+        rm -rf "$cache_dir"
+        echo "    - Removed plugin cache"
+      fi
+      # Clean up empty namespace directory
+      local ns_dir="$HOME/.claude/plugins/cache/${namespace}"
+      rmdir "$ns_dir" 2>/dev/null || true
+    fi
+  fi
+}
+
 # Load manifest to only remove files we installed
 MANIFEST_FILE="$TARGET_DIR/.a11y-agent-manifest"
 MANIFEST_ENTRIES=()
@@ -68,6 +127,13 @@ if [ -f "$MANIFEST_FILE" ]; then
   while IFS= read -r line; do
     [ -n "$line" ] && MANIFEST_ENTRIES+=("$line")
   done < "$MANIFEST_FILE"
+fi
+
+# Unregister plugin (global uninstall only)
+if [ "$choice" = "2" ]; then
+  echo ""
+  echo "  Removing Claude Code plugin..."
+  unregister_plugin
 fi
 
 echo ""
@@ -90,6 +156,30 @@ if [ -d "$AGENTS_DIR" ]; then
   else
     echo "    (no manifest found — skipping to avoid removing user-created files)"
   fi
+fi
+
+# Remove commands
+echo ""
+echo "  Removing commands..."
+COMMANDS_DIR="$TARGET_DIR/commands"
+if [ -d "$COMMANDS_DIR" ]; then
+  if [ ${#MANIFEST_ENTRIES[@]} -gt 0 ]; then
+    for entry in "${MANIFEST_ENTRIES[@]}"; do
+      case "$entry" in
+        commands/*)
+          cmd_file="$TARGET_DIR/$entry"
+          if [ -f "$cmd_file" ]; then
+            name="$(basename "${cmd_file%.md}")"
+            rm "$cmd_file"
+            echo "    - /$name"
+          fi
+          ;;
+      esac
+    done
+  else
+    echo "    (no manifest found — skipping to avoid removing user-created files)"
+  fi
+  rmdir "$COMMANDS_DIR" 2>/dev/null || true
 fi
 
 # Remove Copilot agents if installed (project uninstall only)
@@ -222,6 +312,7 @@ fi
 # Clean up manifest and empty directories
 rm -f "$TARGET_DIR/.a11y-agent-manifest"
 rmdir "$TARGET_DIR/agents" 2>/dev/null || true
+rmdir "$TARGET_DIR/commands" 2>/dev/null || true
 
 echo ""
 echo "  Uninstall complete."

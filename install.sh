@@ -20,7 +20,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd)"
 DOWNLOADED=false
 
-if [ ! -d "$SCRIPT_DIR/.claude/agents" ]; then
+if [ ! -d "$SCRIPT_DIR/claude-code-plugin/agents" ] && [ ! -d "$SCRIPT_DIR/.claude/agents" ]; then
   # Running from curl pipe or without repo — download first
   DOWNLOADED=true
   TMPDIR_DL="$(mktemp -d)"
@@ -43,7 +43,34 @@ if [ ! -d "$SCRIPT_DIR/.claude/agents" ]; then
   echo "  Downloaded."
 fi
 
-AGENTS_SRC="$SCRIPT_DIR/.claude/agents"
+# Prefer claude-code-plugin/ as distribution source, fall back to .claude/agents/
+if [ -d "$SCRIPT_DIR/claude-code-plugin/agents" ]; then
+  AGENTS_SRC="$SCRIPT_DIR/claude-code-plugin/agents"
+else
+  AGENTS_SRC="$SCRIPT_DIR/.claude/agents"
+fi
+
+if [ -d "$SCRIPT_DIR/claude-code-plugin/commands" ]; then
+  COMMANDS_SRC="$SCRIPT_DIR/claude-code-plugin/commands"
+else
+  COMMANDS_SRC=""
+fi
+
+PLUGIN_CLAUDE_MD=""
+if [ -f "$SCRIPT_DIR/claude-code-plugin/CLAUDE.md" ]; then
+  PLUGIN_CLAUDE_MD="$SCRIPT_DIR/claude-code-plugin/CLAUDE.md"
+fi
+
+# Plugin source and version for global installs
+PLUGIN_SRC=""
+PLUGIN_VERSION="1.0.0"
+if [ -d "$SCRIPT_DIR/claude-code-plugin/.claude-plugin" ]; then
+  PLUGIN_SRC="$SCRIPT_DIR/claude-code-plugin"
+  if command -v python3 &>/dev/null && [ -f "$PLUGIN_SRC/.claude-plugin/plugin.json" ]; then
+    PLUGIN_VERSION=$(python3 -c "import json; print(json.load(open('$PLUGIN_SRC/.claude-plugin/plugin.json'))['version'])" 2>/dev/null || echo "1.0.0")
+  fi
+fi
+
 COPILOT_AGENTS_SRC="$SCRIPT_DIR/.github/agents"
 COPILOT_CONFIG_SRC="$SCRIPT_DIR/.github"
 
@@ -52,6 +79,14 @@ AGENTS=()
 if [ -d "$AGENTS_SRC" ]; then
   for f in "$AGENTS_SRC"/*.md; do
     [ -f "$f" ] && AGENTS+=("$(basename "$f")")
+  done
+fi
+
+# Auto-detect commands from source directory
+COMMANDS=()
+if [ -n "$COMMANDS_SRC" ] && [ -d "$COMMANDS_SRC" ]; then
+  for f in "$COMMANDS_SRC"/*.md; do
+    [ -f "$f" ] && COMMANDS+=("$(basename "$f")")
   done
 fi
 
@@ -149,8 +184,148 @@ PYEOF
   fi
 }
 
+# ---------------------------------------------------------------------------
+# register_plugin src_dir
+# Registers a11y-agent-team as a Claude Code plugin for global installs.
+# Copies to plugin cache, updates installed_plugins.json and settings.json.
+# ---------------------------------------------------------------------------
+register_plugin() {
+  local src="$1"
+  local namespace="community-access"
+  local name="a11y-agent-team"
+  local default_key="${name}@${namespace}"
+  local plugins_json="$HOME/.claude/plugins/installed_plugins.json"
+  local settings_json="$HOME/.claude/settings.json"
+
+  echo ""
+  echo "  Registering Claude Code plugin..."
+
+  # Ensure plugins directory exists
+  mkdir -p "$HOME/.claude/plugins"
+
+  # Detect existing registration under any namespace
+  local actual_key="$default_key"
+  if [ -f "$plugins_json" ] && command -v python3 &>/dev/null; then
+    local found_key
+    found_key=$(python3 -c "
+import json
+data = json.load(open('$plugins_json'))
+for k in data.get('plugins', {}):
+    if k.startswith('a11y-agent-team@'):
+        print(k)
+        break
+" 2>/dev/null)
+    if [ -n "$found_key" ]; then
+      actual_key="$found_key"
+      namespace="${actual_key#a11y-agent-team@}"
+    fi
+  fi
+
+  local cache="$HOME/.claude/plugins/cache/${namespace}/${name}/${PLUGIN_VERSION}"
+
+  # Copy plugin to cache
+  mkdir -p "$cache"
+  cp -R "$src/." "$cache/"
+  chmod +x "$cache/scripts/"*.sh 2>/dev/null || true
+  echo "    + Plugin cached"
+
+  # Update installed_plugins.json
+  if [ ! -f "$plugins_json" ]; then
+    echo '{"version": 2, "plugins": {}}' > "$plugins_json"
+  fi
+
+  python3 - "$plugins_json" "$actual_key" "$cache" "$PLUGIN_VERSION" << 'PYEOF'
+import json, sys, datetime
+path, key, install_path, version = sys.argv[1:5]
+with open(path) as f:
+    data = json.load(f)
+now = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.000Z')
+data.setdefault('version', 2)
+data.setdefault('plugins', {})[key] = [{
+    "scope": "user",
+    "installPath": install_path,
+    "version": version,
+    "installedAt": now,
+    "lastUpdated": now
+}]
+with open(path, 'w') as f:
+    json.dump(data, f, indent=2)
+PYEOF
+  echo "    + Registered in installed_plugins.json ($actual_key)"
+
+  # Update settings.json enabledPlugins
+  if [ ! -f "$settings_json" ]; then
+    echo '{}' > "$settings_json"
+  fi
+
+  python3 - "$settings_json" "$actual_key" << 'PYEOF'
+import json, sys
+path, key = sys.argv[1:3]
+with open(path) as f:
+    data = json.load(f)
+data.setdefault('enabledPlugins', {})[key] = True
+with open(path, 'w') as f:
+    json.dump(data, f, indent=2)
+PYEOF
+  echo "    + Enabled in settings.json"
+
+  # Summary
+  local agent_count cmd_count
+  agent_count=$(ls "$cache/agents/"*.md 2>/dev/null | wc -l | tr -d ' ')
+  cmd_count=$(ls "$cache/commands/"*.md 2>/dev/null | wc -l | tr -d ' ')
+  echo ""
+  echo "  Plugin registered: $actual_key (v${PLUGIN_VERSION})"
+  echo "    $agent_count agents"
+  echo "    $cmd_count slash commands"
+  echo "    4 enforcement hooks (UserPromptSubmit, PreToolUse, SubagentStart, SubagentStop)"
+}
+
+# ---------------------------------------------------------------------------
+# cleanup_old_install
+# Removes agents/commands from ~/.claude/ that were installed by a previous
+# non-plugin install (using the manifest file).
+# ---------------------------------------------------------------------------
+cleanup_old_install() {
+  local manifest="$HOME/.claude/.a11y-agent-manifest"
+  [ -f "$manifest" ] || return 0
+
+  echo ""
+  echo "  Cleaning up previous non-plugin install..."
+  local removed=0
+  while IFS= read -r entry; do
+    [ -n "$entry" ] || continue
+    local file="$HOME/.claude/$entry"
+    if [ -f "$file" ]; then
+      rm "$file"
+      removed=$((removed + 1))
+    fi
+  done < "$manifest"
+  rm -f "$manifest"
+  rmdir "$HOME/.claude/agents" 2>/dev/null || true
+  rmdir "$HOME/.claude/commands" 2>/dev/null || true
+  if [ "$removed" -gt 0 ]; then
+    echo "    Removed $removed files from previous install"
+  fi
+}
+
+# ---------------------------------------------------------------------------
+# Installation: plugin (global) vs file-copy (project)
+# ---------------------------------------------------------------------------
+PLUGIN_INSTALL=false
+
+if [ "$choice" = "2" ] && [ -n "$PLUGIN_SRC" ] && command -v python3 &>/dev/null; then
+  # Global install: register as a Claude Code plugin
+  register_plugin "$PLUGIN_SRC"
+  cleanup_old_install
+  PLUGIN_INSTALL=true
+else
+  # Project install (or global without plugin support): copy agents/commands directly
+
 # Create directories
 mkdir -p "$TARGET_DIR/agents"
+if [ ${#COMMANDS[@]} -gt 0 ]; then
+  mkdir -p "$TARGET_DIR/commands"
+fi
 
 # Manifest: track which files we install so updates never touch user-created files
 MANIFEST_FILE="$TARGET_DIR/.a11y-agent-manifest"
@@ -178,6 +353,58 @@ for agent in "${AGENTS[@]}"; do
 done
 if [ "$SKIPPED_AGENTS" -gt 0 ]; then
   echo "      $SKIPPED_AGENTS agent(s) skipped. Delete them first to reinstall."
+fi
+
+# Copy commands — skip any file that already exists (preserves user customisations)
+if [ ${#COMMANDS[@]} -gt 0 ]; then
+  echo ""
+  echo "  Copying commands..."
+  SKIPPED_COMMANDS=0
+  for cmd in "${COMMANDS[@]}"; do
+    if [ ! -f "$COMMANDS_SRC/$cmd" ]; then
+      echo "    ! Missing: $cmd (skipped)"
+      continue
+    fi
+    dst_cmd="$TARGET_DIR/commands/$cmd"
+    name="${cmd%.md}"
+    if [ -f "$dst_cmd" ]; then
+      echo "    ~ /$name (skipped - already exists)"
+      SKIPPED_COMMANDS=$((SKIPPED_COMMANDS + 1))
+    else
+      cp "$COMMANDS_SRC/$cmd" "$dst_cmd"
+      grep -qxF "commands/$cmd" "$MANIFEST_FILE" 2>/dev/null || echo "commands/$cmd" >> "$MANIFEST_FILE"
+      echo "    + /$name"
+    fi
+  done
+  if [ "$SKIPPED_COMMANDS" -gt 0 ]; then
+    echo "      $SKIPPED_COMMANDS command(s) skipped. Delete them first to reinstall."
+  fi
+fi
+
+fi  # end of project/fallback install path
+
+# Merge CLAUDE.md snippet (optional)
+if [ -n "$PLUGIN_CLAUDE_MD" ]; then
+  echo ""
+  MERGE_CLAUDE=false
+  if { true < /dev/tty; } 2>/dev/null; then
+    echo "  Would you like to merge accessibility rules into your project CLAUDE.md?"
+    echo "  This adds the decision matrix and non-negotiable standards."
+    echo ""
+    printf "  Merge CLAUDE.md rules? [y/N]: "
+    read -r claude_choice < /dev/tty
+    if [ "$claude_choice" = "y" ] || [ "$claude_choice" = "Y" ]; then
+      MERGE_CLAUDE=true
+    fi
+  fi
+  if [ "$MERGE_CLAUDE" = true ]; then
+    if [ "$choice" = "1" ]; then
+      CLAUDE_DST="$(pwd)/CLAUDE.md"
+    else
+      CLAUDE_DST="$HOME/CLAUDE.md"
+    fi
+    merge_config_file "$PLUGIN_CLAUDE_MD" "$CLAUDE_DST" "CLAUDE.md (accessibility rules)"
+  fi
 fi
 
 # Copilot agents
@@ -562,16 +789,64 @@ fi
 echo ""
 echo "  ========================="
 echo "  Installation complete!"
-echo ""
-echo "  Claude Code agents installed:"
-for agent in "${AGENTS[@]}"; do
-  name="${agent%.md}"
-  if [ -f "$TARGET_DIR/agents/$agent" ]; then
-    echo "    [x] $name"
-  else
-    echo "    [ ] $name (missing)"
+
+if [ "$PLUGIN_INSTALL" = true ]; then
+  # Plugin-based verification
+  CACHE_CHECK="$HOME/.claude/plugins/cache"
+  PLUGIN_DIR=""
+  # Find the actual cache dir (could be community-access or taylor-plugins etc)
+  for ns_dir in "$CACHE_CHECK"/*/a11y-agent-team; do
+    [ -d "$ns_dir" ] && PLUGIN_DIR="$ns_dir/$PLUGIN_VERSION" && break
+  done
+
+  if [ -n "$PLUGIN_DIR" ] && [ -d "$PLUGIN_DIR" ]; then
+    echo ""
+    echo "  Claude Code plugin installed:"
+    echo ""
+    echo "  Agents:"
+    for agent in "$PLUGIN_DIR/agents/"*.md; do
+      [ -f "$agent" ] || continue
+      name="$(basename "${agent%.md}")"
+      echo "    [x] $name"
+    done
+    echo ""
+    echo "  Slash commands:"
+    for cmd in "$PLUGIN_DIR/commands/"*.md; do
+      [ -f "$cmd" ] || continue
+      name="$(basename "${cmd%.md}")"
+      echo "    [x] /$name"
+    done
+    echo ""
+    echo "  Enforcement hooks:"
+    echo "    [x] UserPromptSubmit  - Injects accessibility-lead instruction"
+    echo "    [x] PreToolUse        - Blocks UI file edits without a11y review"
+    echo "    [x] SubagentStart     - Creates session marker"
+    echo "    [x] SubagentStop      - Logs agent activity"
   fi
-done
+else
+  echo ""
+  echo "  Claude Code agents installed:"
+  for agent in "${AGENTS[@]}"; do
+    name="${agent%.md}"
+    if [ -f "$TARGET_DIR/agents/$agent" ]; then
+      echo "    [x] $name"
+    else
+      echo "    [ ] $name (missing)"
+    fi
+  done
+  if [ ${#COMMANDS[@]} -gt 0 ]; then
+    echo ""
+    echo "  Slash commands installed:"
+    for cmd in "${COMMANDS[@]}"; do
+      name="${cmd%.md}"
+      if [ -f "$TARGET_DIR/commands/$cmd" ]; then
+        echo "    [x] /$name"
+      else
+        echo "    [ ] /$name (missing)"
+      fi
+    done
+  fi
+fi
 if [ "$COPILOT_INSTALLED" = true ]; then
   echo ""
   echo "  Copilot agents installed to:"
@@ -593,7 +868,12 @@ if [ "$CODEX_INSTALLED" = true ]; then
 fi
 # Save current version hash
 if command -v git &>/dev/null && [ -d "$SCRIPT_DIR/.git" ]; then
-  git -C "$SCRIPT_DIR" rev-parse --short HEAD 2>/dev/null > "$TARGET_DIR/.a11y-agent-team-version"
+  if [ "$PLUGIN_INSTALL" = true ]; then
+    mkdir -p "$HOME/.claude"
+    git -C "$SCRIPT_DIR" rev-parse --short HEAD 2>/dev/null > "$HOME/.claude/.a11y-agent-team-version"
+  else
+    git -C "$SCRIPT_DIR" rev-parse --short HEAD 2>/dev/null > "$TARGET_DIR/.a11y-agent-team-version"
+  fi
 fi
 
 # Auto-update setup (global install only, interactive only)
@@ -637,28 +917,80 @@ cd "$CACHE_DIR" || exit 1
 HASH=$(git rev-parse --short HEAD 2>/dev/null)
 UPDATED=0
 
-for agent in .claude/agents/*.md; do
-  NAME=$(basename "$agent")
-  SRC="$CACHE_DIR/$agent"
-  DST="$INSTALL_DIR/agents/$NAME"
-  [ -f "$SRC" ] || continue
-  if ! cmp -s "$SRC" "$DST" 2>/dev/null; then
-    cp "$SRC" "$DST"
-    log "Updated: ${NAME%.md}"
-    UPDATED=$((UPDATED + 1))
-  fi
+# Update plugin cache if installed as plugin
+PLUGIN_CACHE=""
+for ns_dir in "$HOME/.claude/plugins/cache"/*/a11y-agent-team; do
+  [ -d "$ns_dir" ] || continue
+  for ver_dir in "$ns_dir"/*/; do
+    [ -d "$ver_dir" ] && PLUGIN_CACHE="$ver_dir" && break
+  done
+  [ -n "$PLUGIN_CACHE" ] && break
 done
 
-# Remove agents no longer in repo
-for DST in "$INSTALL_DIR"/agents/*.md; do
-  [ -f "$DST" ] || continue
-  NAME=$(basename "$DST")
-  [ ! -f "$CACHE_DIR/.claude/agents/$NAME" ] && {
-    rm "$DST"
-    log "Removed: ${NAME%.md}"
-    UPDATED=$((UPDATED + 1))
-  }
-done
+if [ -n "$PLUGIN_CACHE" ] && [ -d "$CACHE_DIR/claude-code-plugin" ]; then
+  # Update plugin cache from repo
+  PLUGIN_SRC="$CACHE_DIR/claude-code-plugin"
+  for subdir in agents commands scripts hooks .claude-plugin; do
+    [ -d "$PLUGIN_SRC/$subdir" ] || continue
+    mkdir -p "$PLUGIN_CACHE/$subdir"
+    for SRC in "$PLUGIN_SRC/$subdir"/*; do
+      [ -f "$SRC" ] || continue
+      NAME=$(basename "$SRC")
+      DST="$PLUGIN_CACHE/$subdir/$NAME"
+      if ! cmp -s "$SRC" "$DST" 2>/dev/null; then
+        cp "$SRC" "$DST"
+        log "Updated plugin: $subdir/$NAME"
+        UPDATED=$((UPDATED + 1))
+      fi
+    done
+  done
+  # Update CLAUDE.md and README.md at plugin root
+  for rootfile in CLAUDE.md README.md; do
+    SRC="$PLUGIN_SRC/$rootfile"
+    DST="$PLUGIN_CACHE/$rootfile"
+    [ -f "$SRC" ] && ! cmp -s "$SRC" "$DST" 2>/dev/null && {
+      cp "$SRC" "$DST"
+      log "Updated plugin: $rootfile"
+      UPDATED=$((UPDATED + 1))
+    }
+  done
+  chmod +x "$PLUGIN_CACHE/scripts/"*.sh 2>/dev/null || true
+  log "Plugin cache updated."
+else
+  # Legacy: update agents/commands in ~/.claude/ directly
+  if [ -d "$CACHE_DIR/claude-code-plugin/agents" ]; then
+    AGENT_SRC_DIR="$CACHE_DIR/claude-code-plugin/agents"
+  else
+    AGENT_SRC_DIR="$CACHE_DIR/.claude/agents"
+  fi
+
+  if [ -d "$INSTALL_DIR/agents" ]; then
+    for agent in "$AGENT_SRC_DIR"/*.md; do
+      [ -f "$agent" ] || continue
+      NAME=$(basename "$agent")
+      DST="$INSTALL_DIR/agents/$NAME"
+      if ! cmp -s "$agent" "$DST" 2>/dev/null; then
+        cp "$agent" "$DST"
+        log "Updated: ${NAME%.md}"
+        UPDATED=$((UPDATED + 1))
+      fi
+    done
+  fi
+
+  if [ -d "$CACHE_DIR/claude-code-plugin/commands" ] && [ -d "$INSTALL_DIR/commands" ]; then
+    CMD_SRC_DIR="$CACHE_DIR/claude-code-plugin/commands"
+    for cmd in "$CMD_SRC_DIR"/*.md; do
+      [ -f "$cmd" ] || continue
+      NAME=$(basename "$cmd")
+      DST="$INSTALL_DIR/commands/$NAME"
+      if ! cmp -s "$cmd" "$DST" 2>/dev/null; then
+        cp "$cmd" "$DST"
+        log "Updated command: ${NAME%.md}"
+        UPDATED=$((UPDATED + 1))
+      fi
+    done
+  fi
+fi
 
 # Update Copilot agents in central store and VS Code profile folders
 CENTRAL="$HOME/.a11y-agent-team/copilot-agents"
@@ -690,7 +1022,6 @@ case "$(uname -s)" in
 esac
 for PROFILE in "${PROFILES[@]}"; do
   PROMPTS_DIR="$PROFILE/prompts"
-  # Only update if agents were previously installed there
   [ -d "$PROMPTS_DIR" ] && [ -n "$(ls "$PROMPTS_DIR"/*.agent.md 2>/dev/null)" ] || continue
   for SRC in "$CENTRAL"/*.agent.md; do
     [ -f "$SRC" ] || continue
@@ -757,8 +1088,17 @@ fi
 [ "$DOWNLOADED" = true ] && rm -rf "$TMPDIR_DL"
 
 echo ""
-echo "  If agents do not load, increase the character budget:"
-echo "    export SLASH_COMMAND_TOOL_CHAR_BUDGET=30000"
+if [ "$PLUGIN_INSTALL" = true ]; then
+  echo "  Restart Claude Code for the plugin to take effect."
+  echo ""
+  echo "  The plugin will:"
+  echo "    - Inject accessibility instructions into every prompt"
+  echo "    - Block UI file edits until accessibility-lead reviews"
+  echo "    - Log all agent activity"
+else
+  echo "  If agents do not load, increase the character budget:"
+  echo "    export SLASH_COMMAND_TOOL_CHAR_BUDGET=30000"
+fi
 echo ""
 echo "  Start Claude Code and try: \"Build a login form\""
 echo "  The accessibility-lead should activate automatically."

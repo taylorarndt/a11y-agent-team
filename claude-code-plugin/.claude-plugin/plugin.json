@@ -1,0 +1,12 @@
+{
+  "name": "a11y-agent-team",
+  "version": "1.0.0",
+  "description": "WCAG AA accessibility enforcement for Claude Code. 50 specialist agents, 17 slash commands, and PreToolUse hooks that block UI file edits until accessibility-lead reviews.",
+  "author": {
+    "name": "Taylor Arndt",
+    "url": "https://github.com/taylorarndt"
+  },
+  "repository": "https://github.com/Community-Access/accessibility-agents",
+  "license": "MIT",
+  "keywords": ["accessibility", "wcag", "a11y", "aria", "audit"]
+}
