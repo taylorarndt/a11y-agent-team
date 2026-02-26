@@ -9,7 +9,7 @@ All content below is ready to insert into `.claude/agents/web-accessibility-wiza
 **INSERT AFTER:** The `## How You Work` section (after the paragraph ending "Never assume - always ask.")
 **INSERT BEFORE:** `## Parallel Specialist Scanning`
 
-```markdown
+````markdown
 ## Sub-Agent Delegation Model
 
 You are the orchestrator. You do NOT apply accessibility rules yourself - you delegate to specialist sub-agents and compile their results.
@@ -58,8 +58,8 @@ When invoking a sub-agent, provide this context block:
 - **Part of Multi-Page Audit:** [yes/no - if yes, indicate page X of Y]
 - **Previous Audit Baseline:** [path to previous report or "none"]
 
-```text
-```
+````
+
 
 ---
 
@@ -68,7 +68,7 @@ When invoking a sub-agent, provide this context block:
 **INSERT AFTER:** Phase 0, Step 5 (Audit Preferences)
 **INSERT BEFORE:** The framework-specific intelligence section or `## Framework-Specific Intelligence`
 
-```markdown
+````markdown
 ### Step 6: Reporting Preferences
 
 Ask using AskUserQuestion:
@@ -86,7 +86,7 @@ Ask using AskUserQuestion:
    - **Findings only** - just the issue description, severity, and location (no remediation guidance)
 
 Store these preferences for use in Phase 10 report generation.
-```
+````
 
 ---
 
@@ -96,7 +96,7 @@ Store these preferences for use in Phase 10 report generation.
 
 **REPLACE:** The Phase 0, Step 1 section. The new Step 1 adds two new options to the existing list.
 
-```markdown
+````markdown
 ### Step 1: App State
 
 Ask: **"What state is your application in?"**
@@ -105,14 +105,14 @@ Options:
 - **Production** - Live and accessible via a public URL
 - **Re-scan with comparison** - Re-audit pages and compare results against a previous audit report
 - **Changed pages only** - Audit only pages/components modified since the last audit
-```
+````
 
 ### E3b: Step 7 for delta configuration
 
 **INSERT AFTER:** Step 6 (Reporting Preferences, from E2 above)
 **INSERT BEFORE:** `## Framework-Specific Intelligence`
 
-```markdown
+````markdown
 ### Step 7: Delta Scan Configuration
 
 If the user selected **Re-scan with comparison** or **Changed pages only** in Step 1, configure the delta detection method.
@@ -141,7 +141,7 @@ Let the user provide the path to a previous `ACCESSIBILITY-AUDIT.md` file.
 4. Report: "Based on git changes, these N pages are affected: [list]"
 
 Store the delta configuration for use in scanning phases and in the report's Remediation Tracking section.
-```
+````
 
 ---
 
@@ -150,7 +150,7 @@ Store the delta configuration for use in scanning phases and in the report's Rem
 **INSERT AFTER:** The `### Crawl Depth Rules` section (after the bullet for "Full site crawl")
 **INSERT BEFORE:** The `### Thoroughness Rules` section
 
-```markdown
+````markdown
 ### Large Crawl Handling
 
 If a full site crawl discovers more than **50 pages**:
@@ -193,7 +193,7 @@ If a full site crawl discovers more than **50 pages**:
    ```
 
 <!-- markdownlint-disable-next-line MD040 -->
-```
+````
 
 ---
 
@@ -202,7 +202,7 @@ If a full site crawl discovers more than **50 pages**:
 **INSERT AFTER:** The `#### Confidence Summary` section inside Phase 10 report
 **INSERT BEFORE:** `#### Framework-Specific Notes`
 
-```markdown
+````markdown
 #### Page Metadata Dashboard
 
 Collect and summarize web page metadata across all audited pages:
@@ -248,7 +248,7 @@ Metadata flags that affect accessibility:
 - **Missing `<main>` landmark** -> Screen reader users can't jump to main content
 - **Duplicate page titles across pages** -> Users can't distinguish between pages in AT
 
-```text
+````
 
 ---
 
@@ -257,7 +257,7 @@ Metadata flags that affect accessibility:
 **INSERT AFTER:** The `#### Page Metadata Dashboard` section (E5 above)
 **INSERT BEFORE:** `#### Framework-Specific Notes`
 
-```markdown
+````markdown
 #### Shared Component Analysis
 
 Detect reused components and templates to identify high-ROI fixes - fixing a shared component remediates every page that uses it.
@@ -301,7 +301,7 @@ If shared layouts or component libraries are causing widespread issues:
 - Consider adding accessibility tests to the component's unit tests to prevent regressions
 ```
 
-```text
+````
 
 ---
 
@@ -310,7 +310,7 @@ If shared layouts or component libraries are causing widespread issues:
 **INSERT AFTER:** The entirety of Phase 10 (after the last section of Phase 10's report structure)
 **INSERT BEFORE:** `## Additional Agents to Consider` (or at the end if that section doesn't exist yet - adjust as needed)
 
-```markdown
+````markdown
 ## Phase 11: Follow-Up Actions
 
 After the report is written, offer structured next steps.
@@ -363,7 +363,7 @@ issue_number, page_url, severity, confidence, wcag_criterion, category, descript
 ```text
 
 Write to: `ACCESSIBILITY-AUDIT-FINDINGS.csv` and/or `ACCESSIBILITY-AUDIT-FINDINGS.json`
-```
+````
 
 ---
 
@@ -371,7 +371,7 @@ Write to: `ACCESSIBILITY-AUDIT-FINDINGS.csv` and/or `ACCESSIBILITY-AUDIT-FINDING
 
 **INSERT INSIDE:** Phase 11, after the `### Export as CSV/JSON` block
 
-```markdown
+````markdown
 ### Compliance Format Export (VPAT/ACR)
 
 If the user selects **Export in compliance format (VPAT/ACR)**, ask which edition using AskUserQuestion:
@@ -435,7 +435,7 @@ Conformance levels:
 - **Not Evaluated** - Criterion was not tested in this audit scope
 
 Write the VPAT/ACR to: `ACCESSIBILITY-VPAT.md` (or the user's chosen path).
-```
+````
 
 ---
 
@@ -443,7 +443,7 @@ Write the VPAT/ACR to: `ACCESSIBILITY-VPAT.md` (or the user's chosen path).
 
 **INSERT INSIDE:** Phase 11, after the `### Compliance Format Export (VPAT/ACR)` block (E8 above)
 
-```markdown
+````markdown
 ### Batch Remediation Scripts
 
 If the user selects **Generate remediation scripts**, ask which format using AskUserQuestion:
@@ -533,7 +533,7 @@ echo "Next: Re-run the accessibility audit to verify fixes."
 
 Write the script to: `scripts/a11y-remediate.sh` and/or `scripts/a11y-remediate.ps1`
 
-```text
+````
 
 ---
 
@@ -542,7 +542,7 @@ Write the script to: `scripts/a11y-remediate.sh` and/or `scripts/a11y-remediate.
 **INSERT AFTER:** Phase 11 (the entirety of E7, E8, E9)
 **INSERT BEFORE:** `## Additional Agents to Consider`
 
-```markdown
+````markdown
 ## Phase 12: CI/CD Integration Guide
 
 When the user requests CI/CD integration, or after any audit where no `.a11y-web-config.json` exists, proactively offer to generate a CI/CD integration guide.
@@ -781,7 +781,7 @@ echo "Scan complete. Results: $OUTPUT"
 
 Offer to create `.a11y-web-config.json` (see E13) for the CI pipeline to use as its configuration source.
 
-```text
+````
 
 ---
 
@@ -790,7 +790,7 @@ Offer to create `.a11y-web-config.json` (see E13) for the CI pipeline to use as 
 **INSERT AFTER:** `## Behavioral Rules` section (at the end of the behavioral rules list)
 **INSERT BEFORE:** End of file (or before any final closing section)
 
-```markdown
+````markdown
 ## Edge Cases
 
 ### Single-Page Applications (SPAs)
@@ -857,7 +857,7 @@ Offer to create `.a11y-web-config.json` (see E13) for the CI pipeline to use as 
 - If possible, scan in a clean browser context (incognito/private mode) for consistent results
 - Document if different cookie states affect accessibility (e.g., a consent banner that traps focus only appears for new visitors)
 - If using Playwright for screenshots, launch in a clean context: `--browser-context new`
-```
+````
 
 ---
 
@@ -870,7 +870,7 @@ These blocks enhance the Phase 10 report structure.
 **INSERT AFTER:** Phase 10's report structure section (after the base `ACCESSIBILITY-AUDIT.md` structure)
 **INSERT BEFORE:** `### Consolidation Rules`
 
-```markdown
+````markdown
 ### Organization Modes
 
 If the user selected a different organization mode in Phase 0 Step 6 (Reporting Preferences):
@@ -917,13 +917,13 @@ If the user selected a different organization mode in Phase 0 Step 6 (Reporting 
 
 **By page (default):** Group all findings under each audited URL, as shown in the base report structure.
 
-```text
+````
 
 ### E12b: Findings by Rule Cross-Reference Table
 
 **INSERT INSIDE:** The Phase 10 report markdown template, after the severity-grouped findings sections
 
-```markdown
+````markdown
 ## Findings by Rule Cross-Reference
 
 | axe-core Rule / Agent Finding | Severity | WCAG | Pages Affected | Total Instances |
@@ -936,13 +936,13 @@ If the user selected a different organization mode in Phase 0 Step 6 (Reporting 
 | ... | | | | |
 
 This cross-reference helps identify systemic issues. Rules affecting the most pages should be prioritized - they often stem from shared components or templates.
-```
+````
 
 ### E12c: Configuration Recommendations
 
 **INSERT INSIDE:** The Phase 10 report markdown template, after `## Recommended Testing Setup`
 
-```markdown
+````markdown
 ## Configuration Recommendations
 
 Based on this audit's findings, here are recommended scan configurations for ongoing monitoring:
@@ -980,13 +980,13 @@ Based on this audit, these rules had the highest violation rates and should be a
 2. [rule] - [count] violations across [pages]
 3. ...
 
-```text
+````
 
 ### E12d: Expanded What Passed
 
 **INSERT:** Replace the existing `## What Passed` section in the report template
 
-```markdown
+````markdown
 ## What Passed
 
 Acknowledge what the project does well. A complete audit reports both failures AND successes.
@@ -1011,7 +1011,7 @@ Highlight specific accessibility patterns the project implements correctly:
 - [e.g., "Focus management on SPA route changes properly moves focus to main heading"]
 - [e.g., "Form validation uses `aria-invalid`, `aria-describedby`, and moves focus to first error"]
 - [e.g., "Dark mode maintains adequate contrast ratios across all tested elements"]
-```
+````
 
 ---
 
@@ -1020,7 +1020,7 @@ Highlight specific accessibility patterns the project implements correctly:
 **INSERT AFTER:** `## Edge Cases` section (E11 above)
 **INSERT BEFORE:** End of file
 
-```markdown
+````markdown
 ## Web Scan Configuration
 
 ### `.a11y-web-config.json` Schema
@@ -1167,7 +1167,7 @@ The wizard checks for `.a11y-web-config.json` at startup. If found, it reports:
 
 If not found, the wizard proceeds with defaults and offers to create the config file in Phase 11.
 
-```text
+````
 
 ---
 
