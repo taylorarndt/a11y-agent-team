@@ -1,0 +1,119 @@
+{
+  "name": "a11y-agent-team",
+  "displayName": "A11y Agent Team",
+  "description": "WCAG AA accessibility specialists for GitHub Copilot Chat — invoke @a11y with slash commands for ARIA, contrast, keyboard, forms, and more.",
+  "version": "0.1.0",
+  "publisher": "community-access",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Community-Access/accessibility-agents"
+  },
+  "engines": {
+    "vscode": "^1.99.0"
+  },
+  "categories": [
+    "Chat"
+  ],
+  "keywords": [
+    "accessibility",
+    "wcag",
+    "a11y",
+    "chat-participant",
+    "aria"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "chatParticipants": [
+      {
+        "id": "a11y-agent-team.a11y",
+        "fullName": "A11y Agent Team",
+        "name": "a11y",
+        "description": "WCAG AA accessibility specialist team — use slash commands to route to a specialist",
+        "isSticky": true,
+        "commands": [
+          {
+            "name": "aria",
+            "description": "ARIA patterns — roles, states, properties for custom widgets"
+          },
+          {
+            "name": "contrast",
+            "description": "Color contrast — check ratios, fix failures, theme review"
+          },
+          {
+            "name": "keyboard",
+            "description": "Keyboard navigation — tab order, focus management, shortcuts"
+          },
+          {
+            "name": "forms",
+            "description": "Form accessibility — labels, validation, error handling"
+          },
+          {
+            "name": "alt-text",
+            "description": "Images and headings — alt text, heading hierarchy, landmarks"
+          },
+          {
+            "name": "tables",
+            "description": "Data tables — headers, scope, caption, sortable columns"
+          },
+          {
+            "name": "links",
+            "description": "Link text — detect ambiguous or missing link purpose"
+          },
+          {
+            "name": "modal",
+            "description": "Modals and dialogs — focus trap, return, escape, announcements"
+          },
+          {
+            "name": "live-region",
+            "description": "Live regions — dynamic content announcements, status updates"
+          },
+          {
+            "name": "audit",
+            "description": "Full web accessibility audit — all specialists, prioritized report"
+          },
+          {
+            "name": "document",
+            "description": "Document audit — Word, Excel, PowerPoint, PDF accessibility"
+          },
+          {
+            "name": "markdown",
+            "description": "Markdown audit — links, alt text, headings, tables, emoji"
+          },
+          {
+            "name": "test",
+            "description": "Testing guidance — screen reader, keyboard, automated testing"
+          },
+          {
+            "name": "wcag",
+            "description": "WCAG reference — success criteria explanations and conformance"
+          },
+          {
+            "name": "cognitive",
+            "description": "Cognitive accessibility — plain language, COGA, auth patterns"
+          },
+          {
+            "name": "mobile",
+            "description": "Mobile accessibility — React Native, touch targets, screen readers"
+          },
+          {
+            "name": "design-system",
+            "description": "Design tokens — contrast, focus rings, spacing, motion"
+          }
+        ]
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "npx @vscode/vsce package"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.99.0",
+    "@vscode/vsce": "^3.5.0",
+    "typescript": "^5.8.0"
+  }
+}
