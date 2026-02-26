@@ -3,6 +3,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 import { execFile } from "node:child_process";
 import { readFile as fsReadFile, writeFile as fsWriteFile, unlink, stat } from "node:fs/promises";
+import { realpathSync, existsSync } from "node:fs";
 import { tmpdir, homedir } from "node:os";
 import { join, dirname, extname, basename, resolve, sep } from "node:path";
 import { randomUUID } from "node:crypto";
@@ -21,6 +22,8 @@ const MAX_BATCH_FILES = 50;
  * Resolve a path and verify it stays within allowed boundaries.
  * Reads: allowed under home directory or cwd.
  * Writes: restricted to cwd only (prevents accidental writes elsewhere).
+ * For writes, symlinks are resolved via realpathSync so a symlink inside
+ * cwd pointing outside the boundary cannot bypass the check (CWE-59).
  * Applied to both reads and writes to prevent path traversal attacks
  * (OWASP A01 / CWE-22).
  */
@@ -28,16 +31,21 @@ function validateFilePath(inputPath, { write = false } = {}) {
   const resolved = resolve(inputPath);
   const home = homedir();
   const cwd = process.cwd();
-  const underHome = resolved === home || resolved.startsWith(home + sep);
-  const underCwd  = resolved === cwd  || resolved.startsWith(cwd  + sep);
   if (write) {
+    // Resolve symlinks for writes so a symlink inside cwd pointing
+    // outside the boundary is caught (CWE-59 Symlink Following).
+    const real = existsSync(resolved) ? realpathSync(resolved) : resolved;
+    const underCwd = real === cwd || real.startsWith(cwd + sep);
     if (!underCwd) {
       throw new Error(
         `Write operations must target the current working directory. ` +
-        `Resolved: ${resolved}`
+        `Resolved: ${real}`
       );
     }
+    return real;
   } else {
+    const underHome = resolved === home || resolved.startsWith(home + sep);
+    const underCwd  = resolved === cwd  || resolved.startsWith(cwd  + sep);
     if (!underHome && !underCwd) {
       throw new Error(
         `Path must be within your home directory or current working directory. ` +
