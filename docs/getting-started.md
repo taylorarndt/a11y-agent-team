@@ -1,6 +1,6 @@
 # Getting Started
 
-This guide covers installation and setup for all four platforms: Claude Code, GitHub Copilot, Claude Desktop, and Codex CLI.
+This guide covers installation and setup for all supported platforms: Claude Code, GitHub Copilot (VS Code and CLI), Gemini CLI, Claude Desktop, and Codex CLI.
 
 ---
 
@@ -396,4 +396,86 @@ Codex will apply the accessibility rules from AGENTS.md to all UI code it genera
 bash uninstall.sh          # Interactive — detects and removes Codex support
 bash uninstall.sh --project  # Non-interactive project uninstall
 bash uninstall.sh --global   # Non-interactive global uninstall
+```
+
+---
+
+## Gemini CLI Setup
+
+This is for **Google Gemini CLI** (the terminal coding agent).
+
+### How It Works
+
+Gemini CLI uses an extension system with skills. Each accessibility agent is packaged as a skill (`SKILL.md` with YAML frontmatter) inside the `a11y-agents` extension. The `GEMINI.md` context file provides always-on WCAG AA enforcement rules that load into every conversation, similar to how `CLAUDE.md` works for Claude Code.
+
+The extension includes 49 agent skills covering all accessibility domains plus 14 knowledge domain skills for reference data (WCAG mappings, severity scoring, help URLs).
+
+### Prerequisites
+
+- [Gemini CLI](https://github.com/google-gemini/gemini-cli) installed and working
+- A Gemini API key configured
+
+### Installation
+
+#### Via the Installer (Recommended)
+
+```bash
+# Project install with Gemini support
+bash install.sh --project --gemini
+
+# Global install with Gemini support
+bash install.sh --global --gemini
+```
+
+**Windows (PowerShell):**
+
+The interactive installer also prompts for Gemini support.
+
+#### One-Liner
+
+```bash
+# Install globally with Gemini support
+curl -fsSL https://raw.githubusercontent.com/Community-Access/accessibility-agents/main/install.sh | bash -s -- --global --gemini
+```
+
+#### Manual Setup
+
+```bash
+# For project install
+cp -r .gemini/extensions/a11y-agents/ /path/to/project/.gemini/extensions/a11y-agents/
+
+# For global install
+cp -r .gemini/extensions/a11y-agents/ ~/.gemini/extensions/a11y-agents/
+```
+
+For project installs, commit `.gemini/extensions/a11y-agents/` to your repo so the rules travel with the project.
+
+### Using Gemini with Accessibility Skills
+
+Once installed, skills are available automatically. Just use Gemini normally:
+
+```bash
+gemini "Build a login form"
+gemini "Add a modal dialog to the settings page"
+gemini "Create a data table for the analytics dashboard"
+```
+
+Gemini will load the `GEMINI.md` context file and apply WCAG AA rules to all UI code. Individual skills provide deeper domain-specific knowledge when triggered by relevant prompts.
+
+### What's Included
+
+- **gemini-extension.json** -- Extension manifest
+- **GEMINI.md** -- Always-on accessibility context with decision matrix and non-negotiable standards
+- **skills/** -- 63 skills total (49 agent skills + 14 knowledge domains)
+
+### Removing
+
+Delete the extension directory:
+
+```bash
+# Project install
+rm -rf .gemini/extensions/a11y-agents/
+
+# Global install
+rm -rf ~/.gemini/extensions/a11y-agents/
 ```

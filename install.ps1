@@ -384,6 +384,64 @@ Write-Host "  Your existing files were preserved. Only new content was added."
     }
 }
 
+# ---------------------------------------------------------------------------
+# Gemini CLI extension
+# ---------------------------------------------------------------------------
+$GeminiSrc = Join-Path $ScriptDir ".gemini\extensions\a11y-agents"
+$GeminiInstalled = $false
+$GeminiDst = ""
+
+if (Test-Path $GeminiSrc) {
+    Write-Host ""
+    Write-Host "  Would you also like to install Gemini CLI support?"
+    Write-Host "  This installs accessibility skills as a Gemini CLI extension"
+    Write-Host "  so Gemini automatically applies WCAG AA rules to all UI code."
+    Write-Host ""
+    $GeminiChoice = Read-Host "  Install Gemini CLI support? [y/N]"
+
+    if ($GeminiChoice -eq "y" -or $GeminiChoice -eq "Y") {
+        Write-Host ""
+        Write-Host "  Installing Gemini CLI extension..."
+
+        if ($Choice -eq "1") {
+            $GeminiDst = Join-Path (Get-Location) ".gemini\extensions\a11y-agents"
+        } else {
+            $GeminiDst = Join-Path $env:USERPROFILE ".gemini\extensions\a11y-agents"
+        }
+
+        New-Item -ItemType Directory -Force -Path $GeminiDst | Out-Null
+
+        # Copy extension manifest and context file
+        foreach ($f in @("gemini-extension.json", "GEMINI.md")) {
+            $Src = Join-Path $GeminiSrc $f
+            if (Test-Path $Src) {
+                Copy-Item -Path $Src -Destination (Join-Path $GeminiDst $f) -Force
+                Write-Host "    + $f"
+            }
+        }
+
+        # Copy skills — directory by directory, skip existing
+        $SkillsSrc = Join-Path $GeminiSrc "skills"
+        if (Test-Path $SkillsSrc) {
+            $Added = 0; $Skipped = 0
+            Get-ChildItem -Path $SkillsSrc -Directory | ForEach-Object {
+                $DstSkill = Join-Path $GeminiDst "skills\$($_.Name)"
+                New-Item -ItemType Directory -Force -Path $DstSkill | Out-Null
+                Get-ChildItem -Path $_.FullName -File | ForEach-Object {
+                    $DstFile = Join-Path $DstSkill $_.Name
+                    if (Test-Path $DstFile) { $Skipped++ } else { Copy-Item $_.FullName $DstFile; $Added++ }
+                }
+            }
+            Write-Host "    + skills\ ($Added new, $Skipped skipped)"
+        }
+
+        $GeminiInstalled = $true
+        Write-Host ""
+        Write-Host "  Gemini CLI will now enforce WCAG AA rules on all UI code."
+        Write-Host "  Run: gemini `"Build a login form`" -- accessibility skills apply automatically."
+    }
+}
+
 # Done\nWrite-Host \"\"\nWrite-Host \"  =========================\"\nWrite-Host \"  Installation complete!\"
 Write-Host ""
 Write-Host "  Claude Code agents installed:"
@@ -409,6 +467,11 @@ if ($CopilotInstalled) {
         $Name = $File.BaseName -replace '\.agent$', ''
         Write-Host "    [x] $Name"
     }
+}
+if ($GeminiInstalled) {
+    Write-Host ""
+    Write-Host "  Gemini CLI extension installed to:"
+    Write-Host "    -> $GeminiDst"
 }
 
 # Auto-update setup (global install only)

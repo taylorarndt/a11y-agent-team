@@ -7,9 +7,11 @@
 #   bash install.sh --global           Install globally to ~/.claude/
 #   bash install.sh --global --copilot Also install Copilot agents to VS Code
 #   bash install.sh --global --codex   Also install Codex CLI support to ~/.codex/
+#   bash install.sh --global --gemini  Also install Gemini CLI extension
 #   bash install.sh --project          Install to .claude/ in the current directory
 #   bash install.sh --project --copilot Also install Copilot agents to project
 #   bash install.sh --project --codex  Also install Codex CLI support to .codex/
+#   bash install.sh --project --gemini Also install Gemini CLI extension
 #
 # One-liner:
 #   curl -fsSL https://raw.githubusercontent.com/Community-Access/accessibility-agents/main/install.sh | bash
@@ -67,12 +69,14 @@ fi
 choice=""
 COPILOT_FLAG=false
 CODEX_FLAG=false
+GEMINI_FLAG=false
 for arg in "$@"; do
   case "$arg" in
     --global) choice="2" ;;
     --project) choice="1" ;;
     --copilot) COPILOT_FLAG=true ;;
     --codex) CODEX_FLAG=true ;;
+    --gemini) GEMINI_FLAG=true ;;
   esac
 done
 
@@ -558,6 +562,80 @@ if [ "$install_codex" = true ] && [ -f "$CODEX_SRC" ]; then
   echo "  Run: codex \"Build a login form\" — accessibility rules apply automatically."
 fi
 
+# ---------------------------------------------------------------------------
+# Gemini CLI extension
+# ---------------------------------------------------------------------------
+GEMINI_SRC="$SCRIPT_DIR/.gemini/extensions/a11y-agents"
+GEMINI_INSTALLED=false
+
+install_gemini=false
+if [ "$GEMINI_FLAG" = true ]; then
+  install_gemini=true
+elif [ -d "$GEMINI_SRC" ] && { true < /dev/tty; } 2>/dev/null; then
+  echo ""
+  echo "  Would you also like to install Gemini CLI support?"
+  echo "  This installs accessibility skills as a Gemini CLI extension"
+  echo "  so Gemini automatically applies WCAG AA rules to all UI code."
+  echo ""
+  printf "  Install Gemini CLI support? [y/N]: "
+  read -r gemini_choice < /dev/tty
+  if [ "$gemini_choice" = "y" ] || [ "$gemini_choice" = "Y" ]; then
+    install_gemini=true
+  fi
+fi
+
+if [ "$install_gemini" = true ] && [ -d "$GEMINI_SRC" ]; then
+  echo ""
+  echo "  Installing Gemini CLI extension..."
+
+  if [ "$choice" = "1" ]; then
+    # Project install: copy to .gemini/extensions/a11y-agents/ in the current project
+    GEMINI_TARGET="$(pwd)/.gemini/extensions/a11y-agents"
+  else
+    # Global install: copy to ~/.gemini/extensions/a11y-agents/
+    GEMINI_TARGET="$HOME/.gemini/extensions/a11y-agents"
+  fi
+
+  mkdir -p "$GEMINI_TARGET"
+
+  # Copy extension manifest and context file
+  for f in gemini-extension.json GEMINI.md; do
+    if [ -f "$GEMINI_SRC/$f" ]; then
+      cp "$GEMINI_SRC/$f" "$GEMINI_TARGET/$f"
+      echo "    + $f"
+    fi
+  done
+
+  # Copy skills — directory by directory, skip existing
+  if [ -d "$GEMINI_SRC/skills" ]; then
+    ADDED=0; SKIPPED=0
+    for skill_dir in "$GEMINI_SRC/skills"/*/; do
+      [ -d "$skill_dir" ] || continue
+      skill_name="$(basename "$skill_dir")"
+      dst_skill="$GEMINI_TARGET/skills/$skill_name"
+      mkdir -p "$dst_skill"
+      for src_file in "$skill_dir"*; do
+        [ -f "$src_file" ] || continue
+        dst_file="$dst_skill/$(basename "$src_file")"
+        if [ -f "$dst_file" ]; then
+          SKIPPED=$((SKIPPED + 1))
+        else
+          cp "$src_file" "$dst_file"
+          ADDED=$((ADDED + 1))
+        fi
+      done
+    done
+    echo "    + skills/ ($ADDED new, $SKIPPED skipped)"
+  fi
+
+  GEMINI_INSTALLED=true
+  GEMINI_DST="$GEMINI_TARGET"
+
+  echo ""
+  echo "  Gemini CLI will now enforce WCAG AA rules on all UI code."
+  echo "  Run: gemini \"Build a login form\" — accessibility skills apply automatically."
+fi
+
 # Verify installation
 echo ""
 echo "  ========================="
@@ -590,6 +668,11 @@ if [ "$CODEX_INSTALLED" = true ]; then
   echo ""
   echo "  Codex CLI support installed to:"
   echo "    -> $CODEX_DST"
+fi
+if [ "$GEMINI_INSTALLED" = true ]; then
+  echo ""
+  echo "  Gemini CLI extension installed to:"
+  echo "    -> $GEMINI_DST"
 fi
 # Save current version hash
 if command -v git &>/dev/null && [ -d "$SCRIPT_DIR/.git" ]; then
