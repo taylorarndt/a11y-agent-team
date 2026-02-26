@@ -1,5 +1,7 @@
 ---
-name: document-accessibility-wizard
+name: Document Accessibility Wizard
+argument-hint: "e.g. 'audit this folder of documents', 'scan my PDFs', 'check this Word file'"
+infer: true
 description: Interactive document accessibility audit wizard. Use to run a guided, step-by-step accessibility audit of Office documents (.docx, .xlsx, .pptx), PDFs, and ePub documents. Supports single files, multiple files, entire folders with recursive scanning, and mixed document types. Orchestrates specialist sub-agents (word-accessibility, excel-accessibility, powerpoint-accessibility, pdf-accessibility, epub-accessibility) and produces a comprehensive markdown report. Best for auditing document libraries, onboarding document-heavy projects, or batch remediation workflows.
 tools: ['agent', 'read', 'search', 'askQuestions', 'edit', 'runInTerminal']
 agents: ['word-accessibility', 'excel-accessibility', 'powerpoint-accessibility', 'pdf-accessibility', 'epub-accessibility', 'document-inventory', 'cross-document-analyzer', 'document-csv-reporter']

@@ -1,5 +1,5 @@
 ---
-name: wcag-guide
+name: WCAG Guide
 description: WCAG 2.2 AA learning and reference agent. Use when you need to understand WCAG success criteria, learn what changed between versions, understand conformance levels, clarify when criteria apply, or get plain-language explanations of accessibility standards. Does not write or review code - teaches the standard itself.
 tools: Read, Bash, Grep, Glob
 model: inherit

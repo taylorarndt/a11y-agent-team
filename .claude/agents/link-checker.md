@@ -1,5 +1,5 @@
 ﻿---
-name: link-checker
+name: Link Checker
 description: Ambiguous link text checker for web applications. Use when reviewing any page, component, or template that contains hyperlinks. Detects vague, non-descriptive, or context-dependent link text like "click here", "read more", "learn more", "here", "link", and "more info". Enforces WCAG 2.4.4 (Link Purpose in Context) and 2.4.9 (Link Purpose Link Only). Applies to any web framework or vanilla HTML/CSS/JS.
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit

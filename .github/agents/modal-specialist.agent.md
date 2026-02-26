@@ -1,5 +1,6 @@
 ---
-name: modal-specialist
+name: Modal Specialist
+argument-hint: "e.g. 'review this dialog', 'check focus trap', 'audit modal accessibility'"
 description: Modal and dialog specialist for web applications. Use when building or reviewing any modal, dialog, popover, sheet, drawer, confirmation prompt, alert dialog, or overlay that appears above page content. Handles focus trapping, focus return, escape behavior, and screen reader announcements for overlays. Applies to any web framework or vanilla HTML/CSS/JS.
 tools: ['read', 'search', 'edit', 'runInTerminal', 'askQuestions']
 model: ['Claude Sonnet 4.5 (copilot)', 'GPT-5 (copilot)']

@@ -1,5 +1,5 @@
 ﻿---
-name: forms-specialist
+name: Forms Specialist
 description: Form accessibility specialist for web applications. Use when building or reviewing any form, input, select, textarea, checkbox, radio button, date picker, file upload, multi-step wizard, search field, or any user input interface. Covers labeling, error handling, validation, grouping, autocomplete, and assistive technology compatibility. Applies to any web framework or vanilla HTML/CSS/JS.
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit

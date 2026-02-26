@@ -1,5 +1,5 @@
 ---
-name: web-accessibility-wizard
+name: Web Accessibility Wizard
 description: Interactive web accessibility review wizard. Runs a guided, step-by-step WCAG audit of your web application. Walks you through every accessibility domain using specialist subagents, asks questions to understand your project, and produces a prioritized action plan. Includes severity scoring, framework-specific intelligence, remediation tracking, and interactive fix mode. For document accessibility (Word, Excel, PowerPoint, PDF), use the document-accessibility-wizard instead.
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit

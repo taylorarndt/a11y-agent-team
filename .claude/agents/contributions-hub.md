@@ -1,5 +1,5 @@
 ---
-name: contributions-hub
+name: Contributions Hub
 description: "Community and contributions command center -- manage GitHub Discussions, moderate community interactions, track contributor health, generate community reports, manage contributor agreements, and monitor community activity signals across your repos."
 tools: Read, Write, Edit, Bash, WebFetch
 model: inherit

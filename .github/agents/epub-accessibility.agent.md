@@ -1,5 +1,6 @@
 ---
-name: epub-accessibility
+name: ePub Accessibility
+argument-hint: "e.g. 'scan this epub', 'check reading order', 'audit epub metadata'"
 description: ePub document accessibility specialist. Use when scanning, reviewing, or remediating .epub files for accessibility. Covers EPUB Accessibility 1.1 (WCAG 2.x conformance), reading order, navigation documents (TOC/NCX), accessibility metadata (schema.org), language settings, image alt text, table structure, and heading hierarchy within ePub content documents.
 tools: ['read', 'search', 'edit', 'runInTerminal', 'askQuestions']
 model: ['Claude Sonnet 4.5 (copilot)', 'GPT-5 (copilot)']

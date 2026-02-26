@@ -1,6 +1,8 @@
 ---
-name: alt-text-headings
+name: Alt Text & Headings
 description: Alternative text and heading structure specialist for web applications. Use when building or reviewing any page with images, icons, SVGs, videos, figures, charts, or heading hierarchies. Covers meaningful vs decorative images, complex image descriptions, heading levels, document outline, and landmark structure. Can analyze images visually, compare existing alt text against image content, and interactively suggest appropriate alternatives. Applies to any web framework or vanilla HTML/CSS/JS.
+argument-hint: "e.g. 'check image alt text', 'review heading structure', 'audit page landmarks'"
+infer: true
 tools: ['read', 'search', 'edit', 'runInTerminal', 'askQuestions']
 model: ['Claude Sonnet 4.5 (copilot)', 'GPT-5 (copilot)']
 handoffs:

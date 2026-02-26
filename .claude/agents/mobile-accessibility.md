@@ -1,5 +1,5 @@
 ---
-name: mobile-accessibility
+name: Mobile Accessibility
 description: Mobile accessibility specialist for React Native, Expo, iOS (SwiftUI/UIKit), and Android (Jetpack Compose/Views). Audits accessibilityLabel, accessibilityRole, accessibilityHint, touch target sizes, screen reader compatibility, and platform-specific semantics. Use for any React Native or native mobile code review - approximately 60% of web traffic is mobile and most UI accessibility tooling ignores mobile-specific patterns.
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit

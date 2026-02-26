@@ -1,5 +1,5 @@
 ---
-name: excel-accessibility
+name: Excel Accessibility
 description: Excel workbook accessibility specialist. Use when scanning, reviewing, or remediating .xlsx files for accessibility. Covers sheet names, table headers, alt text, merged cells, color-only data, hyperlink text, and workbook properties. Enforces Microsoft Accessibility Checker rules mapped to WCAG 2.1 AA.
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit

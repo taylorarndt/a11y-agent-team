@@ -1,5 +1,6 @@
 ---
-name: design-system-auditor
+name: Design System Auditor
+argument-hint: "e.g. 'audit color tokens', 'check focus ring tokens', 'validate Tailwind config'"
 description: Design system accessibility auditor. Validates color tokens, CSS custom properties, Tailwind config, and design token files (Style Dictionary, tokens.json) for WCAG AA/AAA contrast compliance. Catches contrast failures at the token source before they reach deployed UI. Also validates focus ring tokens (WCAG 2.4.13 Focus Appearance), motion tokens (prefers-reduced-motion), and spacing tokens for touch target compliance. Supports MUI, Chakra UI, Radix, shadcn/ui, and Style Dictionary.
 model: ['Claude Sonnet 4.5 (copilot)', 'GPT-5 (copilot)']
 handoffs:

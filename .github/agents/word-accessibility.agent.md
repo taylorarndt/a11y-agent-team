@@ -1,5 +1,6 @@
 ---
-name: word-accessibility
+name: Word Accessibility
+argument-hint: "e.g. 'scan this document', 'check heading structure', 'audit alt text'"
 description: Word document accessibility specialist. Use when scanning, reviewing, or remediating .docx files for accessibility. Covers document title, heading structure, alt text, table headers, hyperlink text, merged cells, language settings, and reading order. Enforces Microsoft Accessibility Checker rules mapped to WCAG 2.1 AA.
 tools: ['read', 'search', 'edit', 'runInTerminal', 'askQuestions']
 model: ['Claude Sonnet 4.5 (copilot)', 'GPT-5 (copilot)']

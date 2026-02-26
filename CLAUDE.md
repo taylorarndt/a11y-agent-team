@@ -18,23 +18,23 @@ Invoke these agents from the Claude Code agent picker (type `/` to browse):
 
 | Agent | When to Use |
 |-------|------------|
-| accessibility-lead | Any UI task - coordinates all specialists and runs final review |
-| aria-specialist | Interactive components, custom widgets, ARIA usage |
-| modal-specialist | Dialogs, drawers, popovers, overlays |
-| contrast-master | Colors, themes, CSS styling, visual design |
-| keyboard-navigator | Tab order, focus management, keyboard interaction |
-| live-region-controller | Dynamic content updates, toasts, loading states |
-| forms-specialist | Forms, inputs, validation, error handling, multi-step wizards |
-| alt-text-headings | Images, alt text, SVGs, heading structure, page titles, landmarks |
-| tables-data-specialist | Data tables, sortable tables, grids, comparison tables, pricing tables |
-| link-checker | Ambiguous link text, "click here"/"read more" detection, link purpose |
-| cognitive-accessibility | WCAG 2.2 cognitive SC, COGA guidance, plain language, authentication UX |
-| mobile-accessibility | React Native, Expo, iOS, Android - touch targets, screen reader compatibility |
-| design-system-auditor | Color token contrast, focus ring tokens, spacing tokens, Tailwind/MUI/Chakra/shadcn |
-| web-accessibility-wizard | Full guided web accessibility audit with step-by-step walkthrough |
-| document-accessibility-wizard | Document accessibility audit for .docx, .xlsx, .pptx, .pdf - single files, folders, recursive scanning, delta scanning, severity scoring, remediation tracking, compliance export (VPAT/ACR), CSV export with help links, CI/CD integration |
-| testing-coach | Screen reader testing, keyboard testing, automated testing guidance |
-| wcag-guide | WCAG 2.2 criteria explanations, conformance levels, what changed |
+| Accessibility Lead | Any UI task - coordinates all specialists and runs final review |
+| ARIA Specialist | Interactive components, custom widgets, ARIA usage |
+| Modal Specialist | Dialogs, drawers, popovers, overlays |
+| Contrast Master | Colors, themes, CSS styling, visual design |
+| Keyboard Navigator | Tab order, focus management, keyboard interaction |
+| Live Region Controller | Dynamic content updates, toasts, loading states |
+| Forms Specialist | Forms, inputs, validation, error handling, multi-step wizards |
+| Alt Text & Headings | Images, alt text, SVGs, heading structure, page titles, landmarks |
+| Tables Specialist | Data tables, sortable tables, grids, comparison tables, pricing tables |
+| Link Checker | Ambiguous link text, "click here"/"read more" detection, link purpose |
+| Cognitive Accessibility | WCAG 2.2 cognitive SC, COGA guidance, plain language, authentication UX |
+| Mobile Accessibility | React Native, Expo, iOS, Android - touch targets, screen reader compatibility |
+| Design System Auditor | Color token contrast, focus ring tokens, spacing tokens, Tailwind/MUI/Chakra/shadcn |
+| Web Accessibility Wizard | Full guided web accessibility audit with step-by-step walkthrough |
+| Document Accessibility Wizard | Document accessibility audit for .docx, .xlsx, .pptx, .pdf - single files, folders, recursive scanning, delta scanning, severity scoring, remediation tracking, compliance export (VPAT/ACR), CSV export with help links, CI/CD integration |
+| Testing Coach | Screen reader testing, keyboard testing, automated testing guidance |
+| WCAG Guide | WCAG 2.2 criteria explanations, conformance levels, what changed |
 
 ## Hidden Helper Sub-Agents
 

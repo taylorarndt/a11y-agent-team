@@ -1,5 +1,6 @@
 ---
-name: live-region-controller
+name: Live Region Controller
+argument-hint: "e.g. 'review toast notifications', 'check loading states', 'audit dynamic updates'"
 description: Live region and dynamic content announcement specialist. Use when building or reviewing any feature that updates content without a full page reload including search results, filters, notifications, toasts, loading states, AJAX responses, form submission feedback, counters, timers, chat messages, progress indicators, or any content that changes after initial page load. Applies to any web framework or vanilla HTML/CSS/JS.
 tools: ['read', 'search', 'edit', 'runInTerminal', 'askQuestions']
 model: ['Claude Sonnet 4.5 (copilot)', 'GPT-5 (copilot)']

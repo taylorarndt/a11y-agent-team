@@ -1,6 +1,7 @@
 ---
-name: contrast-master
+name: Contrast Master
 description: Color contrast and visual accessibility specialist. Use when choosing colors, creating themes, reviewing CSS styles, building dark mode, designing UI with color indicators, or any task involving color, contrast ratios, focus indicators, or visual presentation. Ensures WCAG AA compliance for all color and visual decisions. Applies to any web framework or vanilla HTML/CSS/JS.
+argument-hint: "e.g. 'check these colors', 'review dark mode contrast', 'validate focus indicators'"
 tools: ['read', 'search', 'edit', 'runInTerminal', 'askQuestions']
 model: ['Claude Sonnet 4.5 (copilot)', 'GPT-5 (copilot)']
 handoffs:

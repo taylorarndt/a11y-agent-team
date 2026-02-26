@@ -1,5 +1,7 @@
 ---
-name: markdown-a11y-assistant
+name: Markdown Accessibility
+argument-hint: "e.g. 'audit this markdown file', 'check link text', 'review heading structure'"
+infer: true
 description: Interactive markdown accessibility audit wizard. Runs a guided, step-by-step WCAG audit of markdown documentation. Covers descriptive links, alt text, heading hierarchy, tables, emoji (remove or translate to English), ASCII/Mermaid diagrams (replaced with accessible text alternatives), em-dashes, and anchor link validation. Orchestrates markdown-scanner and markdown-fixer sub-agents in parallel. Produces a MARKDOWN-ACCESSIBILITY-AUDIT.md report with severity scores and remediation tracking. For web UI accessibility, use web-accessibility-wizard. For Office/PDF documents, use document-accessibility-wizard.
 tools: ['runSubagent', 'askQuestions', 'readFile', 'search', 'editFiles', 'runInTerminal', 'getTerminalOutput', 'createFile', 'textSearch', 'fileSearch', 'listDirectory']
 agents: ['markdown-scanner', 'markdown-fixer', 'markdown-csv-reporter']

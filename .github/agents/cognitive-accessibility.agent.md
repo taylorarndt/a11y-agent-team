@@ -1,5 +1,6 @@
 ---
-name: cognitive-accessibility
+name: Cognitive Accessibility
+argument-hint: "e.g. 'check reading level', 'review auth flow', 'audit for cognitive load'"
 description: >
   Cognitive accessibility specialist. Reviews web content and UI for reading level, plain language clarity,
   WCAG 2.2 new success criteria (3.3.7 Redundant Entry, 3.3.8 Accessible Authentication Minimum,

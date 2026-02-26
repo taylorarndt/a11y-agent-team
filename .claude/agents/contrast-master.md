@@ -1,5 +1,5 @@
 ﻿---
-name: contrast-master
+name: Contrast Master
 description: Color contrast and visual accessibility specialist. Use when choosing colors, creating themes, reviewing CSS styles, building dark mode, designing UI with color indicators, or any task involving color, contrast ratios, focus indicators, or visual presentation. Ensures WCAG AA compliance for all color and visual decisions. Applies to any web framework or vanilla HTML/CSS/JS.
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit

@@ -1,5 +1,7 @@
 ---
-name: keyboard-navigator
+name: Keyboard Navigator
+argument-hint: "e.g. 'check tab order', 'review focus management', 'audit keyboard shortcuts'"
+infer: true
 description: Keyboard navigation and focus management specialist. Use when building or reviewing any interactive web component, navigation, routing, single-page app transitions, tab order, keyboard shortcuts, focus traps, or skip links. Ensures full keyboard operability for users who cannot use a mouse. Applies to any web framework or vanilla HTML/CSS/JS.
 tools: ['read', 'search', 'edit', 'runInTerminal', 'askQuestions']
 model: ['Claude Sonnet 4.5 (copilot)', 'GPT-5 (copilot)']

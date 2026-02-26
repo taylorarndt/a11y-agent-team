@@ -1,5 +1,5 @@
 ---
-name: word-accessibility
+name: Word Accessibility
 description: Word document accessibility specialist. Use when scanning, reviewing, or remediating .docx files for accessibility. Covers document title, heading structure, alt text, table headers, hyperlink text, merged cells, language settings, and reading order. Enforces Microsoft Accessibility Checker rules mapped to WCAG 2.1 AA.
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit

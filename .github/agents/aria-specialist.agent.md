@@ -1,6 +1,8 @@
 ---
-name: aria-specialist
+name: ARIA Specialist
 description: ARIA implementation specialist for web applications. Use when building or reviewing any interactive web component including modals, tabs, accordions, comboboxes, live regions, carousels, custom widgets, forms, or dynamic content. Also use when reviewing ARIA usage for correctness. Applies to any web framework or vanilla HTML/CSS/JS.
+argument-hint: "e.g. 'check this modal ARIA', 'review tab panel', 'audit combobox pattern'"
+infer: true
 tools: ['read', 'search', 'edit', 'runInTerminal', 'askQuestions']
 model: ['Claude Sonnet 4.5 (copilot)', 'GPT-5 (copilot)']
 handoffs:

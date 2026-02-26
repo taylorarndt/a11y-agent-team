@@ -1,5 +1,5 @@
 ---
-name: pdf-accessibility
+name: PDF Accessibility
 description: PDF document accessibility specialist. Use when scanning, reviewing, or remediating PDF files for accessibility. Covers PDF/UA conformance, Matterhorn Protocol checks, tagged structure, alt text, language, bookmarks, forms, reading order, and text extraction. Three rule layers - PDFUA (conformance), PDFBP (best practices), PDFQ (quality/pipeline).
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit

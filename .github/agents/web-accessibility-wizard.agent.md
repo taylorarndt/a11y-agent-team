@@ -1,5 +1,7 @@
 ---
-name: web-accessibility-wizard
+name: Web Accessibility Wizard
+argument-hint: "e.g. 'full audit of my web app', 'scan this page', 'generate accessibility report'"
+infer: true
 description: Interactive web accessibility review wizard. Runs a guided, step-by-step WCAG audit of your web application. Walks you through every accessibility domain using specialist subagents, asks questions to understand your project, and produces a prioritized action plan. Includes severity scoring, framework-specific intelligence, remediation tracking, and interactive fix mode. For document accessibility (Word, Excel, PowerPoint, PDF), use the document-accessibility-wizard instead.
 tools: ['runSubagent', 'askQuestions', 'readFile', 'search', 'editFiles', 'runInTerminal', 'getTerminalOutput', 'createFile', 'fetch', 'textSearch', 'fileSearch', 'listDirectory']
 agents: ['alt-text-headings', 'aria-specialist', 'keyboard-navigator', 'modal-specialist', 'forms-specialist', 'contrast-master', 'live-region-controller', 'tables-data-specialist', 'link-checker', 'testing-coach', 'wcag-guide', 'cross-page-analyzer', 'web-issue-fixer', 'web-csv-reporter', 'scanner-bridge', 'lighthouse-bridge']

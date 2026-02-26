@@ -1,5 +1,5 @@
 ---
-name: nexus
+name: Nexus
 description: "Your intelligent GitHub command center -- start here. Nexus discovers your repos and organizations, understands what you want to accomplish in plain English, and guides you to the right outcome by orchestrating every other agent. No commands to memorize. Just talk."
 tools: Read, Write, Edit, Bash, WebFetch
 model: inherit
