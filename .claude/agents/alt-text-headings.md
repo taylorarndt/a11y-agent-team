@@ -1,4 +1,4 @@
----
+﻿---
 name: alt-text-headings
 description: Alternative text and heading structure specialist for web applications. Use when building or reviewing any page with images, icons, SVGs, videos, figures, charts, or heading hierarchies. Covers meaningful vs decorative images, complex image descriptions, heading levels, document outline, and landmark structure. Can analyze images visually, compare existing alt text against image content, and interactively suggest appropriate alternatives. Applies to any web framework or vanilla HTML/CSS/JS.
 tools: Read, Write, Edit, Bash, Grep, Glob
@@ -47,13 +47,13 @@ Images can be local or remote. Handle both:
 - Read the file directly from the workspace
 
 **Remote images** (URLs like `https://cdn.example.com/banner.jpg`):
-- Download the image to a temporary location so you can analyze it:
+- Fetch the image so you can analyze it. Use the terminal to download it:
 ```bash
-# macOS/Linux
 curl -sL "https://cdn.example.com/banner.jpg" -o /tmp/a11y-review-banner.jpg
-
-# Windows
-curl -sL "https://cdn.example.com/banner.jpg" -o "$env:TEMP\a11y-review-banner.jpg"
+```
+- On Windows:
+```powershell
+Invoke-WebRequest -Uri "https://cdn.example.com/banner.jpg" -OutFile "$env:TEMP\a11y-review-banner.jpg"
 ```
 - Then read the downloaded file for visual analysis
 - Clean up temporary files when done
@@ -154,6 +154,82 @@ When auditing a page or component, produce a structured report:
 
 ###  Wrong Category
 - divider-line.png: Has alt="decorative line divider" but is purely decorative -> Change to: alt=""
+```
+
+## W3C Image Categories
+
+The W3C WAI Images Tutorial defines seven image categories. Identifying the category determines the correct alt text approach:
+
+| Category | Purpose | Alt Text Approach |
+|----------|---------|-------------------|
+| **Informative** | Conveys information (photos, illustrations) | Describe the content concisely |
+| **Decorative** | Visual embellishment only | `alt=""` (empty string) |
+| **Functional** | Inside a link or button | Describe the action/destination, not the image |
+| **Text images** | Contain readable text | Alt text = the text in the image |
+| **Complex** | Charts, diagrams, infographics | Short alt + long description |
+| **Groups** | Multiple images forming a single concept | One image gets full alt, others get `alt=""` |
+| **Image maps** | Clickable regions within an image | Each `<area>` gets its own `alt` |
+
+**Context determines category:** The same image of a phone could be informative ("Samsung Galaxy S24"), functional ("Buy Samsung Galaxy S24"), or decorative (background lifestyle photo) depending on its role on the page.
+
+## The `<picture>` Element
+
+The `<picture>` element provides art direction for responsive images. The `alt` goes on the inner `<img>`, not on `<picture>`:
+
+```html
+<picture>
+  <source media="(min-width: 800px)" srcset="hero-wide.jpg">
+  <source media="(min-width: 400px)" srcset="hero-medium.jpg">
+  <img src="hero-small.jpg" alt="Sunset over the Golden Gate Bridge">
+</picture>
+```
+
+All `<source>` variants should convey the same information -- the single `alt` on `<img>` must be accurate for every resolution.
+
+## CSS Background Images
+
+CSS background images are invisible to screen readers. They must be purely decorative:
+
+```css
+/* GOOD: purely decorative background */
+.hero-section {
+  background-image: url('abstract-pattern.svg');
+}
+```
+
+If a CSS background image conveys meaningful information, it must be replaced with an `<img>` element that has proper alt text, or supplemented with a visually hidden text alternative.
+
+## Logo Alt Text
+
+Logo images should have alt text that identifies the company/organization, not describe the logo:
+
+```html
+<!-- GOOD -->
+<a href="/"><img src="logo.svg" alt="Acme Corporation"></a>
+
+<!-- BAD: describes appearance -->
+<a href="/"><img src="logo.svg" alt="Blue circle with white A"></a>
+
+<!-- BAD: redundant "logo" -->
+<a href="/"><img src="logo.svg" alt="Acme Corporation logo"></a>
+
+<!-- BAD: states the obvious -->
+<a href="/"><img src="logo.svg" alt="Home page"></a>
+```
+
+When the logo is a link (usually to the home page), the alt text should identify the company. Screen readers already announce "link" so "home page" is unnecessary. If the logo is purely decorative (not a link, company name is visible nearby), use `alt=""`.
+
+## Form Image Buttons
+
+Image buttons in forms describe the function, not the image:
+
+```html
+<!-- GOOD: describes the function -->
+<input type="image" src="search-icon.png" alt="Search">
+<input type="image" src="go-arrow.png" alt="Submit order">
+
+<!-- BAD: describes appearance -->
+<input type="image" src="search-icon.png" alt="Magnifying glass icon">
 ```
 
 ## Alternative Text -- The Rules
@@ -367,11 +443,12 @@ Use `<figure>` and `<figcaption>` for images with captions:
 </figure>
 ```
 
-- `<figcaption>` provides a visible caption but does NOT replace `alt`
-- `alt` describes the image content for screen readers
-- `<figcaption>` provides context visible to all users
-- They can complement each other but should not be identical
-- `<figcaption>` must be first or last child of `<figure>`
+**Critical rules per W3C Images Tutorial:**
+- The `<img>` inside a `<figure>` still MUST have `alt` text -- `<figcaption>` does NOT replace `alt`
+- `<figcaption>` provides a visible caption for ALL users; `alt` provides the text alternative for screen readers
+- They should complement each other but not be identical (avoids double-reading)
+- `<figcaption>` must be the first or last child of `<figure>`
+- A `<figure>` can contain content other than images (code blocks, quotes, tables)
 
 ## Heading Structure -- The Rules
 
@@ -543,35 +620,37 @@ document.title = 'Product Details - Acme Store';
 
 ### Images
 1. Does every `<img>` have an `alt` attribute?
-2. Do meaningful images have descriptive alt text?
+2. Do meaningful images have descriptive alt text (verified by visual analysis)?
 3. Do decorative images have `alt=""`?
 4. Do functional images (in links/buttons) describe the action?
 5. Do complex images have extended descriptions?
 6. Are SVGs properly labeled or hidden?
 7. Are icon fonts hidden with `aria-hidden="true"`?
 8. Do icon-only buttons/links have `aria-label`?
+9. Does the alt text match what the image actually shows?
+10. Has the user been asked about ambiguous images?
 
 ### Headings
-9. Is there exactly one H1 per page?
-10. Are heading levels sequential (no skipped levels)?
-11. Do headings describe their section content?
-12. Are heading levels chosen for structure, not appearance?
-13. Do modal headings start at H2?
-14. Does the heading outline make sense as a table of contents?
+11. Is there exactly one H1 per page?
+12. Are heading levels sequential (no skipped levels)?
+13. Do headings describe their section content?
+14. Are heading levels chosen for structure, not appearance?
+15. Do modal headings start at H2?
+16. Does the heading outline make sense as a table of contents?
 
 ### Document Structure
-15. Is `<html lang="...">` set correctly?
-16. Is `<title>` descriptive and unique?
-17. Are landmarks used correctly (header, nav, main, footer)?
-18. Is there a skip link to main content?
-19. Are language changes within content marked with `lang`?
-20. For SPAs: does the title update on route changes?
+17. Is `<html lang="...">` set correctly?
+18. Is `<title>` descriptive and unique?
+19. Are landmarks used correctly (header, nav, main, footer)?
+20. Is there a skip link to main content?
+21. Are language changes within content marked with `lang`?
+22. For SPAs: does the title update on route changes?
 
 ### Media
-21. Do videos have captions?
-22. Do videos have audio descriptions for visual-only content?
-23. Is a transcript available for audio content?
-24. Is autoplay disabled or muted with visible controls?
+23. Do videos have captions?
+24. Do videos have audio descriptions for visual-only content?
+25. Is a transcript available for audio content?
+26. Is autoplay disabled or muted with visible controls?
 
 ## Common Mistakes You Must Catch
 
@@ -579,6 +658,7 @@ document.title = 'Product Details - Acme Store';
 - `alt="IMG_20250115_143022.jpg"` -- filename as alt text
 - Missing `alt` attribute entirely (screen reader reads the filename)
 - `alt` text that repeats adjacent text content
+- Alt text that does not match what the image actually shows (verify visually)
 - Decorative images with descriptive alt (creates noise)
 - SVGs without `aria-hidden` or proper `title`/`desc`
 - H1 used as a site logo/brand on every page instead of the page-specific title
@@ -630,13 +710,4 @@ End your invocation with this summary block (used by the wizard for / progress a
 - **High confidence:** [count] | **Medium:** [count] | **Low:** [count]
 ```
 
----
-
 ## How to Report Issues
-
-For each finding:
-- File path and line number
-- The specific element with the problem
-- What the screen reader would announce (or fail to announce)
-- The WCAG success criterion violated
-- Corrected code with proper alt text or heading structure

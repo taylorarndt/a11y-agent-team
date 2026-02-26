@@ -47,10 +47,33 @@ Always use the native `<dialog>` element. Never build modals from `<div>` elemen
 ## Non-Negotiable Rules
 
 ### Focus Landing
-- Focus MUST land on the Close button when the modal opens
-- The Close button MUST be the first interactive element in the modal
-- No Tab key should be needed to reach the first element
-- Use `closeBtn.focus()` after `modal.showModal()`
+
+Per the W3C APG Dialog Pattern, focus placement depends on the dialog's content and purpose:
+
+| Scenario | Focus Target | Reason |
+|----------|-------------|--------|
+| Simple confirmation (delete, discard) | The least destructive action (Cancel) | Prevents accidental destructive action via Enter |
+| Complex content (settings, forms, long text) | A static element (`tabindex="-1"` on the dialog title or first paragraph) | Lets the user read before acting; avoids skipping content |
+| Simple continuation (save, proceed) | The most frequently used action (Save/Continue) | Streamlines the common path |
+| Default / general purpose | The first focusable element in the dialog | W3C APG default recommendation |
+
+```javascript
+// Complex dialog: focus the heading so screen reader reads it first
+const heading = modal.querySelector('h2');
+heading.setAttribute('tabindex', '-1');
+modal.showModal();
+heading.focus();
+
+// Destructive confirmation: focus Cancel
+modal.showModal();
+modal.querySelector('#cancel-btn').focus();
+```
+
+**Do NOT always focus the Close button.** The Close button is often a last resort, not the primary action. Follow the scenario-based rules above.
+
+### Visible Close Button
+
+Per W3C APG, every dialog SHOULD have a visible close button. An icon-only close button needs `aria-label="Close"`. Place the close button in a consistent, discoverable location (typically top-right). Ensure it is reachable by keyboard without scrolling.
 
 ### Focus Trapping
 - `<dialog>` with `showModal()` handles focus trapping natively
@@ -70,6 +93,23 @@ Always use the native `<dialog>` element. Never build modals from `<div>` elemen
 - After Escape, focus returns to trigger (see above)
 - For confirmation dialogs where Escape could cause data loss, intercept and confirm first
 
+### `aria-modal` and Background Inertness
+
+`aria-modal="true"` tells assistive technology that content outside the dialog is inert. This is the modern replacement for the legacy pattern of manually applying `aria-hidden="true"` to every sibling of the dialog.
+
+```html
+<!-- Modern: aria-modal handles background hiding -->
+<dialog role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  ...
+</dialog>
+
+<!-- Legacy (avoid): manual aria-hidden on siblings -->
+<div aria-hidden="true"><!-- page content --></div>
+<div role="dialog">...</div>
+```
+
+Prefer `aria-modal="true"` on the `<dialog>` element. For even stronger protection, apply the HTML `inert` attribute to the page content behind the modal (see keyboard-navigator for details).
+
 ### Heading Structure
 - Modal heading starts at H2 (H1 is the page title behind the modal)
 - Never use H1 inside a modal
@@ -77,8 +117,10 @@ Always use the native `<dialog>` element. Never build modals from `<div>` elemen
 
 ### Labeling
 - `aria-labelledby` pointing to the heading ID
+- Omit `aria-describedby` when the dialog body contains semantic structures (lists, tables, form fields) -- `aria-describedby` flattens all referenced content into a single string, which destroys structure
+- Use `aria-describedby` only when the description is a short plain-text paragraph (as in alert dialogs)
 - Trigger button has `aria-haspopup="dialog"`
-- Close button has visible text "Close" or `aria-label="Close"` for icon-only
+- Only mark as modal when BOTH conditions are met: (1) code prevents interaction with outside content, and (2) visual styling obscures the page behind
 
 ## Alert Dialogs
 
@@ -142,20 +184,60 @@ Requirements specific to filters:
 - Applied filters displayed on the page after closing
 - Focus returns to Filters button on close
 
+## Non-Modal Dialogs
+
+Non-modal dialogs allow interaction with content behind them. They close when the user clicks outside or presses Escape.
+
+```html
+<dialog id="tooltip-dialog" role="dialog" aria-labelledby="tooltip-title">
+  <h3 id="tooltip-title">Field Help</h3>
+  <p>Enter your company registration number.</p>
+</dialog>
+```
+
+Requirements:
+- Do NOT use `aria-modal="true"` -- content behind must remain accessible
+- Open with `dialog.show()` (not `showModal()`)
+- Close when the dialog loses focus (click outside or Tab away)
+- Escape closes the dialog
+- No focus trapping -- Tab can move out of the dialog
+- Focus returns to trigger on close
+
+## Popover API
+
+The HTML Popover API (`popover` attribute) provides lightweight overlay behavior with built-in dismiss-on-click-outside and Escape handling. Use for tooltips, menus, and non-modal overlays.
+
+```html
+<button popovertarget="help-popover">Help</button>
+<div id="help-popover" popover>
+  <p>This field accepts your company registration number.</p>
+</div>
+```
+
+- Popovers are non-modal by default -- no focus trapping
+- Browser handles Escape to dismiss and light-dismiss (click outside)
+- Use `popover="manual"` to disable light-dismiss when needed
+- Popovers are promoted to the top layer, avoiding z-index issues
+- Prefer popover for simple overlays; prefer `<dialog>` with `showModal()` for true modal dialogs
+
 ## Validation Checklist
 
 When reviewing any modal:
 
 1. Does it use `<dialog>` with `showModal()`?
-2. Does focus land on Close button without needing Tab?
-3. Is focus trapped inside?
+2. Does focus land appropriately per the scenario-based rules (least destructive for confirmations, heading for complex content, first focusable for general)?
+3. Is focus trapped inside (for modal dialogs)?
 4. Does Escape close it?
 5. Does focus return to the trigger on close?
 6. Is there a heading at H2 or lower?
 7. Does `aria-labelledby` point to a valid heading ID?
 8. Does the trigger have `aria-haspopup="dialog"`?
-9. Are icons inside the modal hidden with `aria-hidden="true"`?
-10. For filter modals: is there a live region for result counts?
+9. Is `aria-modal="true"` present on modal dialogs?
+10. Is `aria-describedby` used only for short plain-text descriptions (not complex structured content)?
+11. Is there a visible close button?
+12. For alert dialogs: does focus land on the least destructive action?
+13. Are icons inside the modal hidden with `aria-hidden="true"`?
+14. For filter modals: is there a live region for result counts?
 
 ## Common Mistakes You Must Catch
 

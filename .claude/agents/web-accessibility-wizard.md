@@ -130,6 +130,20 @@ This gives the user visibility into what is happening during what can otherwise 
 
 Start with the most important question first. Use AskUserQuestion:
 
+### Step 0: CI Scanner Auto-Detection
+
+Before asking the user anything, silently check the workspace for CI-based accessibility scanners:
+
+1. **GitHub Accessibility Scanner:** Search for `.github/workflows/*.yml` files containing `github/accessibility-scanner@v`. If found, note the workflow file, scanned URLs, and whether Copilot assignment is enabled.
+2. **Lighthouse CI:** Search for `.github/workflows/*.yml` files containing `treosh/lighthouse-ci-action` or `lhci`, and check for `lighthouserc.js`, `lighthouserc.json`, or `.lighthouserc.yml` config files. If found, note the workflow file and configured URLs.
+
+If either scanner is detected, dispatch the appropriate bridge agent (`scanner-bridge` for GitHub Scanner, `lighthouse-bridge` for Lighthouse) via the Task tool to fetch existing findings. Store these findings for correlation in Phase 9.
+
+Announce detection results before proceeding:
+- If found: `GitHub Accessibility Scanner detected in .github/workflows/a11y-scan.yml -- 12 open issues fetched for correlation.`
+- If found: `Lighthouse CI detected in .github/workflows/lighthouse.yml -- latest accessibility score: 87/100.`
+- If neither found: proceed silently to Step 1.
+
 ### Step 1: App State
 
 Ask: **"What state is your application in?"**
@@ -614,6 +628,23 @@ A code review alone is NOT sufficient. axe-core tests the actual rendered DOM in
 
 **If you complete Phase 9 without having run an axe-core Bash command and a URL was available, you have failed this phase. Go back and run it.**
 
+### CI Scanner Correlation
+
+If Step 0 detected any CI scanners, merge their findings with the local scan results:
+
+1. **GitHub Accessibility Scanner:** Use scanner-bridge results fetched in Step 0. For each finding:
+   - If the same axe-core rule ID was found on the same URL by both the local scan and the scanner, mark as **high confidence** (both sources agree).
+   - If the scanner found an issue not in the local scan, include it as **scanner-only** with medium confidence.
+   - If the local scan found an issue not in the scanner, include it as **local-only** with medium confidence.
+   - For scanner issues with Copilot fix PRs, note the PR status (pending, open, merged, rejected).
+
+2. **Lighthouse CI:** Use lighthouse-bridge results fetched in Step 0. For each finding:
+   - Cross-reference Lighthouse accessibility audit violations with local axe-core results by rule ID.
+   - Include the Lighthouse accessibility score as a benchmark metric in the report.
+   - Note any Lighthouse-only findings not caught by axe-core (Lighthouse uses a subset of axe-core rules plus its own checks).
+
+3. **Triple-source findings:** Issues found by all three sources (agent review, local axe-core, CI scanner) are marked as **highest confidence** and should be prioritized as top remediation targets.
+
 If no URL was provided at all, skip the scan and note in the report: "No runtime scan was performed because no URL was provided."
 
 **MANDATORY: Screenshots for axe violations.** If the user opted for screenshots and a URL is available, you MUST run Bash commands to capture a screenshot of each page that has axe violations. DO NOT skip this.
@@ -871,6 +902,39 @@ Issues found by both methods are marked as high-confidence findings.
 ## What Passed
 
 Acknowledge what the project does well. List areas that met WCAG requirements with no issues found.
+
+## CI Scanner Integration
+
+[Include this section only if Step 0 detected a CI scanner. Omit entirely if no scanner was found.]
+
+### GitHub Accessibility Scanner
+
+| Metric | Value |
+|--------|-------|
+| Workflow file | [path] |
+| Open scanner issues | [count] |
+| Recently closed (30d) | [count] |
+| Copilot fixes pending | [count] |
+| Copilot fixes merged | [count] |
+
+#### Scanner Issue Correlation
+
+| Finding | Scanner Issue | Local Scan | Confidence | Copilot Status |
+|---------|-------------|------------|------------|---------------|
+| [description] | [#N](url) | Confirmed / Not found | High / Medium | [status] |
+
+### Lighthouse CI
+
+| Metric | Value |
+|--------|-------|
+| Lighthouse a11y score | [0-100] |
+| Violations | [count] |
+| Passing audits | [count] |
+| Manual checks needed | [count] |
+
+#### Lighthouse-Only Findings
+
+[Issues found by Lighthouse but not by axe-core local scan]
 
 ## Recommended Testing Setup
 

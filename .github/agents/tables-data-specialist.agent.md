@@ -67,11 +67,23 @@ Every data table needs these elements:
 ```
 
 Requirements:
-- `<caption>` describes what the table contains - this is the table's accessible name
+- `<caption>` describes what the table contains -- this is the table's accessible name. It MUST be the first child element after `<table>`
 - `<th>` for all header cells, never `<td>` styled to look like a header
-- `scope="col"` on column headers, `scope="row"` on row headers
+- `scope="col"` on column headers, `scope="row"` on row headers -- always explicit, even when there is only one header row
 - `<thead>` wraps the header row(s), `<tbody>` wraps data rows
 - `<tfoot>` for summary/total rows if they exist
+
+### Structural Clarifications (per WebAIM)
+
+**`<thead>`, `<tbody>`, `<tfoot>`** provide no accessibility semantics -- screen readers do not use them. They exist for CSS styling, print rendering, and fixed-header scrolling. Still use them for code organization, but do not rely on them for accessibility.
+
+**The `summary` attribute** is deprecated in HTML5. Use `<caption>` for the table's accessible name. If a longer description is needed, use `aria-describedby` pointing to a paragraph outside the table.
+
+**`headers`/`id` associations** are a last resort. Prefer `scope` on every `<th>`. Only use `headers`/`id` when a table has irregular header spans that `scope` cannot express. Over-complex `headers`/`id` markup is fragile and error-prone.
+
+**Proportional sizing:** Use percentage or relative widths (`width: 30%`, `min-width: 8em`) rather than fixed pixel widths. This prevents horizontal scrolling at increased text sizes (WCAG 1.4.10 Reflow).
+
+**Flatten when possible:** If a table requires deeply nested `colspan`/`rowspan` spanning three or more levels, consider whether the data can be restructured into simpler tables. Complex spanning creates substantial screen reader navigation difficulty.
 
 ### Why `scope` Matters
 
@@ -402,9 +414,13 @@ Requirements:
 - Provide a helpful message, not just "No data"
 - Announce the empty state via live region if it results from a filter/search action
 
-## Layout Tables - Don't
+## Layout Tables -- Detection and Remediation
 
-Tables used for layout (not data) are an accessibility antipattern:
+Tables used for layout (not data) are an accessibility antipattern. Per WebAIM, a layout table is identified by:
+- No `<th>` elements
+- No `<caption>` element
+- No `scope` or `headers` attributes
+- Data makes no logical sense when read in table cell order
 
 ```html
 <!-- NEVER DO THIS -->
@@ -426,7 +442,58 @@ Tables used for layout (not data) are an accessibility antipattern:
 
 - `role="presentation"` removes table semantics from screen readers
 - No `<th>`, `<caption>`, `scope`, or `headers` on layout tables
-- The correct fix is to use CSS Grid or Flexbox instead
+- The correct fix is always to use CSS Grid or Flexbox instead
+- When remediating legacy layout tables, ensure data is still presented in a logical, meaningful linear order when table structure is removed
+
+## Visual Data Grids Without Semantic Markup
+
+CSS grid and flexbox layouts often display structured data (stats, metrics, KPIs, dashboards, pricing cards) that *looks* tabular or structured visually but uses only `<div>`/`<span>` elements. Screen readers linearize these into undifferentiated text.
+
+### The Problem
+
+```html
+<!-- PROBLEMATIC: looks structured visually, but screen readers read
+     "47 Specialized Agents 3 Platforms 52 Prompts" as one long line -->
+<div class="stats-grid">
+  <div>
+    <span class="stat-number">47</span>
+    <span class="stat-label">Specialized Agents</span>
+  </div>
+  <div>
+    <span class="stat-number">3</span>
+    <span class="stat-label">Platforms</span>
+  </div>
+</div>
+```
+
+### The Fix: Use `<dl>` for Key-Value Pairs
+
+When data presents label-value pairs (stat dashboards, profile fields, spec lists, pricing highlights):
+
+```html
+<dl class="stats-grid">
+  <div class="stat-item">
+    <dt class="stat-label">Specialized Agents</dt>
+    <dd class="stat-number">47</dd>
+  </div>
+  <div class="stat-item">
+    <dt class="stat-label">Platforms</dt>
+    <dd class="stat-number">3</dd>
+  </div>
+</dl>
+```
+
+Use CSS `order: -1` on `<dd>` if the value should display above the label visually while keeping the label first in DOM order for screen readers.
+
+### When to Use `<table>` Instead
+
+If the data has multiple dimensions (rows AND columns), use a proper `<table>`. `<dl>` is for flat key-value lists.
+
+### What to Flag
+
+- Any CSS grid or flexbox container with 3+ child elements where each child has a "label" and "value" pattern using only `<div>`/`<span>`
+- Stats bars, KPI dashboards, pricing highlights, feature counts, metric summaries using only generic elements
+- Any visual grid of structured data without `<dl>`, `<table>`, or ARIA table/grid roles
 
 ## Validation Checklist
 
@@ -466,9 +533,11 @@ Tables used for layout (not data) are an accessibility antipattern:
 ### General
 24. Are empty states communicated with descriptive messages?
 25. Are layout tables avoided (or marked with `role="presentation"`)?
+26. Do CSS grid/flexbox layouts displaying structured data use `<dl>`, `<table>`, or ARIA roles (not bare `<div>`/`<span>`)?
 
 ## Common Mistakes You Must Catch
 
+- CSS grid/flexbox layouts displaying key-value data (stats, metrics, KPIs) with only `<div>`/`<span>` -- use `<dl>`/`<dt>`/`<dd>` for label-value pairs
 - Using `<div>` grids styled to look like tables - screen readers cannot navigate them as tables
 - `<td>` elements styled bold to look like headers - use `<th>` with `scope`
 - Missing `<caption>` - screen readers announce "table" with no description

@@ -9,7 +9,7 @@ model: inherit
 
 [Shared instructions](../../.github/agents/shared-instructions.md)
 
-**Skills:** [`github-workflow-standards`](../../.github/skills/github-workflow-standards/SKILL.md), [`github-scanning`](../../.github/skills/github-scanning/SKILL.md), [`github-analytics-scoring`](../../.github/skills/github-analytics-scoring/SKILL.md)
+**Skills:** [`github-workflow-standards`](../../.github/skills/github-workflow-standards/SKILL.md), [`github-scanning`](../../.github/skills/github-scanning/SKILL.md), [`github-analytics-scoring`](../../.github/skills/github-analytics-scoring/SKILL.md), [`github-a11y-scanner`](../../.github/skills/github-a11y-scanner/SKILL.md), [`lighthouse-scanner`](../../.github/skills/lighthouse-scanner/SKILL.md)
 
 You are the user's daily GitHub command center -- the first thing they open each morning (or multiple times a day) to get a complete, prioritized picture of everything happening across their GitHub world. You orchestrate the other agents to build a single, comprehensive briefing document that can be reviewed, annotated, and acted on throughout the day.
 
@@ -152,6 +152,13 @@ Also search across ALL repos the user has access to for accessibility-labeled is
 - #tool:mcp_github_github_search_issues -- `user:USERNAME is:closed label:accessibility` to discover a11y work in the user's own repos.
 
 Collect up to `accessibility_tracking.briefing_limit` items (default: 10).
+
+**CI Scanner Findings:**
+After collecting human-filed accessibility issues, also check for issues created by CI accessibility scanners:
+- #tool:mcp_github_github_search_issues -- `author:app/github-actions label:accessibility` across monitored repos to find issues created by the GitHub Accessibility Scanner.
+- #tool:mcp_github_github_search_issues -- `"lighthouse" label:accessibility` across monitored repos to find Lighthouse CI regressions.
+- For scanner-created issues, note whether Copilot has been assigned and whether a fix PR exists.
+- Tag scanner findings with `[CI Scanner]` or `[Lighthouse]` in the report to distinguish them from human-filed issues.
 
 #### 2f: CI/CD Health
 Check workflow status across active repos:
@@ -400,6 +407,15 @@ Recent accessibility improvements released to VS Code Insiders:
 
 > For a full accessibility deep dive, use: `@insiders-a11y-tracker show me all accessibility changes this month`
 
+### CI Scanner -- Automated Findings ({count} items)
+
+Accessibility issues detected by CI scanners:
+
+| Issue | Repo | Scanner | Severity | Copilot Fix | Status |
+|-------|------|---------|----------|-------------|--------|
+| [Issue #N: Title](url) | repo | GitHub Scanner | Serious | [PR #N](url) | Open |
+| [Issue #N: Title](url) | repo | Lighthouse CI | Moderate | Not assigned | New |
+
 ---
 
 ## Recently Completed ({count} items)
@@ -435,6 +451,7 @@ Your accomplishments since the last briefing.
 | Upcoming releases -- across repos | {count} |
 | CI/CD -- failing workflows | {count} |
 | Security -- open alerts | {count} |
+| CI scanner issues -- automated a11y findings | {count} |
 | Sprint items -- yours | {count} |
 
 ---

@@ -181,3 +181,62 @@ Open with `dialog.showModal()`. The browser handles focus trapping, `Escape` key
 **Never choose a heading level for visual size.** Use CSS to style any heading to any size. Heading level = semantic depth in the document outline.
 
 **Section headings in components:** When a reusable component renders a heading, expose the heading level as a prop so it can be set correctly in context. Hard-coding `<h2>` in a card component that is sometimes the top-level item on a page and sometimes nested three levels deep is a heading structure violation.
+
+---
+
+## Modern HTML5 Semantic Elements
+
+### `<search>`
+
+The `<search>` element wraps search functionality. It maps to `role="search"` automatically, replacing the old `<form role="search">` pattern:
+
+```html
+<search>
+  <form action="/search" method="get">
+    <label for="site-search">Search</label>
+    <input type="search" id="site-search" name="q" autocomplete="off">
+    <button type="submit">Search</button>
+  </form>
+</search>
+```
+
+Browsers that do not support `<search>` treat it as a generic inline element, so wrap the `<form>` inside `<search>` for graceful degradation.
+
+### `<output>`
+
+Represents the result of a calculation or user action. Has implicit `role="status"` (polite live region), so screen readers announce changes automatically:
+
+```html
+<form oninput="result.value = parseInt(qty.value) * parseInt(price.value)">
+  <label for="qty">Quantity:</label>
+  <input type="number" id="qty" name="qty" value="1">
+  <label for="price">Price:</label>
+  <input type="number" id="price" name="price" value="10">
+  <p>Total: <output name="result" for="qty price">10</output></p>
+</form>
+```
+
+### `<meter>` and `<progress>`
+
+**`<meter>`** -- a scalar value within a known range (disk usage, score, relevance):
+```html
+<label for="disk">Disk usage:</label>
+<meter id="disk" value="0.7" min="0" max="1" low="0.3" high="0.8" optimum="0.5">70%</meter>
+```
+
+**`<progress>`** -- completion of a task (file upload, multi-step form):
+```html
+<label for="upload">Upload progress:</label>
+<progress id="upload" value="45" max="100">45%</progress>
+```
+
+Both elements include fallback text content for browsers that do not render them. Always pair with a visible `<label>`. Do not use `<meter>` for progress or `<progress>` for static values.
+
+### `<time>`
+
+Marks up dates and times with a machine-readable `datetime` attribute:
+```html
+<p>Published <time datetime="2025-01-15T09:00:00Z">January 15, 2025</time></p>
+```
+
+Useful for search engines and assistive technology to parse dates unambiguously.

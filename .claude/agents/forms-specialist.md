@@ -1,4 +1,4 @@
----
+﻿---
 name: forms-specialist
 description: Form accessibility specialist for web applications. Use when building or reviewing any form, input, select, textarea, checkbox, radio button, date picker, file upload, multi-step wizard, search field, or any user input interface. Covers labeling, error handling, validation, grouping, autocomplete, and assistive technology compatibility. Applies to any web framework or vanilla HTML/CSS/JS.
 tools: Read, Write, Edit, Bash, Grep, Glob
@@ -39,6 +39,8 @@ Requirements:
 - Never use `placeholder` as the only label -- it disappears on input and has poor contrast
 - Never use `aria-label` when a visible label is possible -- sighted users benefit from visible labels too
 - Label text must be descriptive. "Email address" not "Input 1"
+- Clicking a `<label>` activates its associated control (ARIA labeling via `aria-label`/`aria-labelledby` does NOT provide this click behavior -- this is why `<label>` is always preferred)
+- Implicit labels (wrapping input inside `<label>`) work but are less well-supported than explicit `for`/`id` association
 
 ### When `aria-label` Is Acceptable
 
@@ -364,17 +366,19 @@ Requirements:
 ## Search Forms
 
 ```html
-<form role="search" aria-label="Site search">
-  <label for="search" class="visually-hidden">Search</label>
-  <input id="search" type="search" aria-describedby="search-help" autocomplete="off">
-  <button type="submit">Search</button>
-  <p id="search-help" class="visually-hidden">Search by product name, category, or keyword</p>
-</form>
+<search>
+  <form aria-label="Site search">
+    <label for="search" class="visually-hidden">Search</label>
+    <input id="search" type="search" aria-describedby="search-help" autocomplete="off">
+    <button type="submit">Search</button>
+    <p id="search-help" class="visually-hidden">Search by product name, category, or keyword</p>
+  </form>
+</search>
 <div aria-live="polite" id="search-results-count" class="visually-hidden"></div>
 ```
 
 Requirements:
-- `role="search"` on the form (or use `<search>` element)
+- Use the `<search>` element (HTML5 semantic element, maps to `role="search"` automatically). Falls back gracefully in older browsers. If `<search>` is unavailable, use `<form role="search">`
 - Label the search input (visually hidden is acceptable for search)
 - Live region announces result count
 - Debounce announcements for live search (500ms minimum)
@@ -396,6 +400,83 @@ If using a custom date picker:
 - Selected date announced by screen reader
 - Manual text input as fallback (some users cannot use pickers)
 - Follow the ARIA date picker pattern or use a tested library
+
+## Combobox / Autocomplete Pattern
+
+Per the W3C APG Combobox Pattern, a combobox is an input with an associated popup (listbox, grid, tree, or dialog) that helps the user set the value.
+
+### Two Types
+- **Editable combobox:** User can type any value; popup filters suggestions (e.g., address autocomplete)
+- **Select-only combobox:** User selects from a predefined list; typing filters options (custom styled `<select>` replacement)
+
+### Required Structure
+
+```html
+<label for="city">City</label>
+<input id="city" role="combobox" type="text"
+  aria-expanded="false"
+  aria-controls="city-listbox"
+  aria-autocomplete="list"
+  autocomplete="off">
+<ul id="city-listbox" role="listbox" hidden>
+  <li role="option" id="city-1">Austin</li>
+  <li role="option" id="city-2">Boston</li>
+  <li role="option" id="city-3">Chicago</li>
+</ul>
+<div aria-live="polite" class="visually-hidden" id="city-status"></div>
+```
+
+### Autocomplete Behaviors
+| `aria-autocomplete` | Behavior |
+|---------------------|----------|
+| `none` | Popup shows all options regardless of input |
+| `list` | Popup filters to match input text |
+| `both` | Popup filters AND inline completion appears in the input |
+| `inline` | Only inline completion, no popup |
+
+### Key Requirements (W3C APG)
+- Use `aria-controls` (NOT `aria-owns`) to link the input to the popup
+- `aria-expanded` toggles `true`/`false` as popup opens/closes
+- DOM focus stays on the input; use `aria-activedescendant` to track the highlighted option
+- Arrow Down opens the popup and moves to the first option
+- Escape closes the popup without changing the value
+- Enter accepts the highlighted option
+- Live region announces result count: "3 cities match. Use arrow keys to navigate"
+- Set `autocomplete="off"` on the input to prevent browser autocomplete from conflicting
+
+## Accessible Authentication (WCAG 3.3.8) {#accessible-auth}
+
+Authentication must not require cognitive function tests (memorizing passwords, transcribing codes, solving puzzles) unless an alternative method is available.
+
+### Requirements
+- **Never block paste** in password fields. Users depend on password managers
+- **Support password managers:** use correct `autocomplete` attributes (`current-password`, `new-password`, `username`)
+- **Provide show/hide password toggle** so users can verify what they typed
+- **Support alternative auth:** passkeys/WebAuthn, biometrics, OAuth/social login, email/SMS magic links
+- **Two-factor/verification codes:** the input field must support paste so users can paste from authenticator apps or SMS
+- **CAPTCHAs** are a cognitive function test. If used, provide an alternative (audio CAPTCHA, email verification, or invisible reCAPTCHA)
+
+```html
+<!-- Password field that supports password managers -->
+<label for="password">Password</label>
+<input id="password" type="password" autocomplete="current-password">
+<button type="button" aria-label="Show password" aria-pressed="false">Show</button>
+
+<!-- Verification code that supports paste -->
+<label for="code">Verification code</label>
+<input id="code" type="text" inputmode="numeric" autocomplete="one-time-code"
+  aria-describedby="code-help">
+<p id="code-help">Enter the 6-digit code sent to your phone</p>
+```
+
+## Redundant Entry (WCAG 3.3.7) {#redundant-entry}
+
+In multi-step processes, information previously entered by the user must be auto-populated or available for selection. Do not force re-entry.
+
+- If Step 1 collects a shipping address, Step 3 (billing) should offer "Same as shipping" or pre-populate
+- If the user entered their email on a previous page, do not ask for it again
+- Data should persist when navigating back and forth between steps
+- Auto-populate where safely possible; offer selection for the rest
 
 ## Custom Controls
 
@@ -524,8 +605,6 @@ End your invocation with this summary block (used by the wizard for / progress a
 - **Critical:** [count] | **Serious:** [count] | **Moderate:** [count] | **Minor:** [count]
 - **High confidence:** [count] | **Medium:** [count] | **Low:** [count]
 ```
-
----
 
 ## How to Report Issues
 

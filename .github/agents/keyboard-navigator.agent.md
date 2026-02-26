@@ -124,7 +124,7 @@ Required on web applications and websites.
 
 ## Arrow Key Patterns
 
-Certain components require arrow key navigation per WAI-ARIA authoring practices:
+Certain components require arrow key navigation per WAI-ARIA Authoring Practices Guide:
 
 | Component | Arrow Behavior |
 |-----------|---------------|
@@ -134,11 +134,135 @@ Certain components require arrow key navigation per WAI-ARIA authoring practices
 | Radio group | Up/Down or Left/Right moves selection |
 | Tree view | Up/Down moves, Left collapses, Right expands |
 | Grid/Table | All four arrows navigate cells |
+| Toolbar | Left/Right moves between tools |
+| Listbox | Up/Down moves between options |
 
 For all of these:
 - Arrow keys move focus between related items
 - Tab moves focus OUT of the component to the next component
 - Home/End jump to first/last item in the group
+
+### Roving Tabindex
+
+The standard technique for arrow-key navigation within composite widgets. One item has `tabindex="0"` (in tab order), all others have `tabindex="-1"` (not in tab order). Arrow keys swap the `tabindex` values and call `focus()`.
+
+```html
+<!-- Roving tabindex on a tab list -->
+<div role="tablist">
+  <button role="tab" tabindex="0" aria-selected="true">Tab 1</button>
+  <button role="tab" tabindex="-1" aria-selected="false">Tab 2</button>
+  <button role="tab" tabindex="-1" aria-selected="false">Tab 3</button>
+</div>
+```
+
+```javascript
+function moveFocus(current, next) {
+  current.setAttribute('tabindex', '-1');
+  next.setAttribute('tabindex', '0');
+  next.focus(); // Browser scrolls into view automatically
+}
+```
+
+Key rules per W3C APG:
+- Tab enters the composite widget on the item with `tabindex="0"`
+- Arrow keys move `tabindex="0"` to the new item and call `focus()`
+- Tab exits the widget entirely -- never cycles within it
+- The last focused item retains `tabindex="0"` so returning via Shift+Tab lands on the same item
+
+### `aria-activedescendant` Alternative
+
+An alternative to roving tabindex where DOM focus stays on the container and a visual indicator tracks the "active" descendant. Useful when the container must retain focus (e.g., combobox input, grid with editable cells).
+
+```html
+<input role="combobox" aria-activedescendant="option-2" aria-controls="listbox-1">
+<ul id="listbox-1" role="listbox">
+  <li role="option" id="option-1">Apple</li>
+  <li role="option" id="option-2" class="visually-focused">Banana</li>
+  <li role="option" id="option-3">Cherry</li>
+</ul>
+```
+
+Requirements per W3C APG:
+- The container element (the one with DOM focus) has `aria-activedescendant` set to the `id` of the visually focused item
+- The referenced element must be a DOM descendant of the container OR owned via `aria-owns`
+- The container must have `aria-controls` pointing to the popup
+- CSS must visually indicate the active descendant (since it does not have true DOM focus, `:focus` does not apply -- use a class)
+- Clear `aria-activedescendant` (set to `""`) when no item is highlighted
+
+### When to Use Which
+
+| Pattern | Use When |
+|---------|----------|
+| Roving tabindex | Tab list, menu, toolbar, radio group, tree -- any widget where each item can receive true DOM focus |
+| `aria-activedescendant` | Combobox (focus must stay on input), grid with editable cells, any composite where the container must retain focus for typing |
+
+## Disabled Element Focus Conventions
+
+Per W3C APG, the focusability of disabled elements depends on context:
+
+### Remove from Tab Sequence (standalone controls)
+Disabled standalone controls (buttons, links, inputs not inside a composite widget) should not be in the tab order. Use `disabled` attribute or `tabindex="-1"` with `aria-disabled="true"`.
+
+### Keep Focusable When Disabled (items inside composites)
+Disabled items inside composite widgets should remain focusable so arrow-key navigation is not broken. The user arrows to the item, hears it is disabled, and continues navigating. Applies to:
+- Listbox options
+- Menu items
+- Tabs
+- Tree items
+- Toolbar buttons (for discoverability -- users need to know the button exists even when unavailable)
+
+```html
+<!-- Disabled menu item: focusable via arrow keys, announced as disabled -->
+<li role="menuitem" aria-disabled="true">Paste</li>
+```
+
+## The `inert` Attribute
+
+The HTML `inert` attribute makes an entire subtree non-interactive and invisible to assistive technology. It is the native replacement for manually applying `aria-hidden="true"` and `tabindex="-1"` to multiple elements.
+
+```html
+<!-- Content behind a modal -->
+<div id="page-content" inert>
+  <header>...</header>
+  <main>...</main>
+</div>
+
+<dialog open>
+  <!-- Modal content -->
+</dialog>
+```
+
+- Supported in all modern browsers
+- Elements inside an `inert` subtree cannot receive focus, be clicked, or be read by screen readers
+- When the modal closes, remove the `inert` attribute to restore interactivity
+- Prefer `inert` over manual `aria-hidden` toggling on page content behind overlays
+
+## Keyboard Shortcut Conflicts
+
+Custom keyboard shortcuts must not conflict with operating system, assistive technology, or browser shortcuts. Per W3C APG:
+
+### Reserved Keys -- Do Not Override
+- **Operating system:** modifier keys + Tab, Enter, Space, Escape; Meta + single key (Win/Cmd shortcuts); Alt + function keys
+- **Assistive technology:** CapsLock/Insert/ScrollLock + any key (screen reader commands); all single keys in screen reader virtual mode (H, K, T, etc.)
+- **Browser:** Ctrl+L (address bar), Ctrl+T (new tab), Ctrl+W (close tab), F5 (refresh), F6 (focus address bar), F11 (fullscreen)
+
+### Safe Patterns
+- Single-key shortcuts (like Gmail "j/k") must be disablable or remappable per WCAG 2.1.4 (Character Key Shortcuts)
+- Prefer Ctrl+Shift or application-specific modifier combos for custom shortcuts
+- Always document keyboard shortcuts and provide a discoverable help panel
+
+## Scroll Containers
+
+Scrollable regions that are not natively focusable (e.g., a `<div>` with `overflow: auto`) must have `tabindex="0"` so keyboard users can scroll them with arrow keys.
+
+```html
+<div class="code-block" tabindex="0" role="region" aria-label="Code example">
+  <pre><code>/* scrollable code */</code></pre>
+</div>
+```
+
+- Without `tabindex="0"`, keyboard users cannot scroll the container at all
+- Add `role="region"` and `aria-label` only if the scroll container represents a significant navigable section; otherwise `tabindex="0"` alone is sufficient
 
 ## Common Mistakes You Must Catch
 

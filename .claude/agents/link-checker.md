@@ -1,4 +1,4 @@
----
+﻿---
 name: link-checker
 description: Ambiguous link text checker for web applications. Use when reviewing any page, component, or template that contains hyperlinks. Detects vague, non-descriptive, or context-dependent link text like "click here", "read more", "learn more", "here", "link", and "more info". Enforces WCAG 2.4.4 (Link Purpose in Context) and 2.4.9 (Link Purpose Link Only). Applies to any web framework or vanilla HTML/CSS/JS.
 tools: Read, Write, Edit, Bash, Grep, Glob
@@ -302,6 +302,48 @@ CSS for visually hidden:
 <Link href="/about">About our company</Link>
 ```
 
+## Links vs Buttons
+
+Use the correct element:
+- `<a href="...">` -- Navigates to a URL, page, or section. Screen readers announce "link".
+- `<button>` -- Performs an action (submit, toggle, open modal). Screen readers announce "button".
+
+**An `<a>` without `href` is not keyboard focusable** and will not appear in the screen reader's link list. If you see `<a>` without `href`, it should be a `<button>` or given `role="button"` with `tabindex="0"` and keydown handlers for Enter and Space.
+
+## Label in Name (WCAG 2.5.3)
+
+When `aria-label` overrides visible link text, the `aria-label` **must contain the visible text** as a substring. Speech-input users say what they see -- if the visible text says "Read more" but `aria-label` says "Continue to the article about forms", the command "click Read more" will fail.
+
+```html
+<!-- GOOD: aria-label includes visible text "Read more" -->
+<a href="/forms" aria-label="Read more about accessible forms">Read more</a>
+
+<!-- BAD: aria-label does not include visible text -->
+<a href="/forms" aria-label="Continue to forms article">Read more</a>
+```
+
+## Do Not Include "Link" in Link Text
+
+Screen readers already announce the element role ("link"). Adding "link" to the text creates redundant speech: "link, link to pricing page."
+
+```html
+<!-- BAD: Redundant role in text -->
+<a href="/pricing">Link to pricing page</a>
+
+<!-- GOOD -->
+<a href="/pricing">Pricing</a>
+```
+
+## Download Links
+
+Use the `download` attribute for file downloads and always indicate file type and size:
+
+```html
+<a href="/report.pdf" download aria-label="Download Annual Report 2025 (PDF, 2.4 MB)">
+  Download Annual Report 2025 (PDF, 2.4 MB)
+</a>
+```
+
 ## Validation Checklist
 
 ### Link Text Quality
@@ -383,14 +425,4 @@ End your invocation with this summary block (used by the wizard for / progress a
 - **High confidence:** [count] | **Medium:** [count] | **Low:** [count]
 ```
 
----
-
 ## How to Report Issues
-
-For each finding:
-- Severity: **Critical** (ambiguous text with no programmatic context), **Major** (ambiguous text with partial context), or **Minor** (could be more descriptive)
-- File path and line number
-- The link element and its current text
-- What a screen reader user would hear in a links list
-- The WCAG success criterion violated (2.4.4 or 2.4.9)
-- Suggested replacement text or fix approach

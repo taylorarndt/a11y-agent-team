@@ -381,6 +381,93 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e)
 });
 ```
 
+## WCAG 2.2 Visual Requirements
+
+### Focus Appearance (2.4.13 -- Level AAA, recommended)
+
+This criterion defines what a *sufficient* focus indicator looks like. While AAA, it is the authoritative specification for focus indicator quality and should guide all implementations.
+
+**Requirements per W3C Understanding doc:**
+- The focus indicator has a minimum area of a **2px thick perimeter** of the focused component
+- The indicator has **3:1 contrast** between its focused and unfocused states (the change-of-contrast test)
+- The indicator is not entirely obscured by author-created content
+
+**Relationship to Non-Text Contrast (1.4.11):** Focus Appearance measures the *change between* focused and unfocused states. Non-Text Contrast measures the indicator contrast *against adjacent colors within* a single state. Both must be satisfied.
+
+**C40 Two-Color Focus Technique:**
+```css
+/* Two concentric outlines ensure visibility on any background */
+:focus-visible {
+  outline: 2px solid #000000;      /* Dark inner ring */
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px #ffffff;   /* Light outer ring */
+}
+```
+
+**Rules for inset focus indicators:** An inset (inner) outline must be thicker than 2px because it reduces the component's visible area instead of adding to it. Use 3px+ for inset indicators.
+
+### Target Size (2.5.8 -- Level AA)
+
+Interactive targets must be at least **24x24 CSS pixels**, or have sufficient spacing from adjacent targets so that a 24px diameter circle centered on each target does not overlap another target.
+
+```css
+/* Ensure small targets like icon buttons meet minimum size */
+.icon-button {
+  min-width: 24px;
+  min-height: 24px;
+}
+
+/* Better: use 44x44px for comfortable touch targets (per WCAG 2.5.5 Level AAA) */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+}
+```
+
+**Exceptions (per W3C Understanding doc):**
+- **Spacing exception:** Targets smaller than 24px pass if there is sufficient spacing around them (the 24px circle test passes)
+- **Inline:** Targets within a sentence or paragraph of text (underlined links in body copy)
+- **User agent default:** Unmodified browser-default controls
+- **Essential:** A specific presentation is legally or functionally essential
+
+**What to flag:**
+- Icon-only buttons under 24x24px without spacing compensation
+- Dense button groups or toolbars where targets overlap the 24px circle
+- Mobile nav items or filter chips under 24x24px
+
+### Text Spacing (1.4.12 -- Level AA)
+
+Content must not be clipped or lost when users override text spacing to these minimums:
+- Line height: 1.5x font size
+- Letter spacing: 0.12x font size
+- Word spacing: 0.16x font size
+- Paragraph spacing: 2x font size
+
+```css
+/* Test text spacing overrides -- content must remain readable */
+p {
+  line-height: 1.5 !important;
+  letter-spacing: 0.12em !important;
+  word-spacing: 0.16em !important;
+  margin-bottom: 2em !important;
+}
+```
+
+**What to flag:**
+- Fixed-height containers with `overflow: hidden` that would clip expanded text
+- CSS that overrides `line-height` with absolute values (`line-height: 16px` instead of `line-height: 1.5`)
+- Layouts that break when paragraph margins increase
+
+### Content Reflow (1.4.10 -- Level AA)
+
+Content must reflow to a single column at 320 CSS pixels width (equivalent to 400% zoom on a 1280px viewport) without requiring horizontal scrolling.
+
+**What to flag:**
+- `min-width` or fixed `width` values that prevent reflow below 320px
+- Horizontal scroll appearing at 400% zoom
+- Two-dimensional scrolling for content (tables and complex data visualizations are exempt)
+- `overflow: hidden` on the viewport or main containers
+
 ## Tailwind-Specific Guidance
 
 Common Tailwind classes that fail contrast on white backgrounds:
@@ -400,18 +487,22 @@ Always verify. Do not assume Tailwind color names indicate accessibility complia
 1. Every text element has 4.5:1 contrast (or 3:1 for large text)?
 2. UI components have 3:1 contrast against adjacent colors?
 3. No information conveyed by color alone?
-4. Focus indicators visible with 3:1 contrast?
-5. Links distinguishable from surrounding text without color?
-6. `prefers-reduced-motion` handled?
-7. Dark mode colors re-checked (not just inverted)?
-8. Placeholder text meets contrast requirements?
-9. Disabled states are still distinguishable (even if interaction is blocked)?
-10. Error states use text and/or icons, not just red?
-11. `prefers-contrast: more` - subtle colors upgraded, transparency removed?
-12. `prefers-color-scheme: dark` - all ratios verified in dark mode?
-13. `forced-colors: active` - custom controls still visible? SVGs use `currentColor`?
-14. `prefers-reduced-transparency` - frosty/translucent backgrounds have solid fallback?
-15. Combined preferences tested (e.g., dark + high contrast)?
+4. Focus indicators visible with 3:1 contrast against adjacent colors (1.4.11)?
+5. Focus indicators meet 2.4.13 Focus Appearance: 2px perimeter minimum, 3:1 change-of-contrast between focused and unfocused states?
+6. Links distinguishable from surrounding text without color?
+7. `prefers-reduced-motion` handled?
+8. Dark mode colors re-checked (not just inverted)?
+9. Placeholder text meets contrast requirements?
+10. Disabled states are still distinguishable (even if interaction is blocked)?
+11. Error states use text and/or icons, not just red?
+12. `prefers-contrast: more` -- subtle colors upgraded, transparency removed?
+13. `prefers-color-scheme: dark` -- all ratios verified in dark mode?
+14. `forced-colors: active` -- custom controls still visible? SVGs use `currentColor`?
+15. `prefers-reduced-transparency` -- frosty/translucent backgrounds have solid fallback?
+16. Combined preferences tested (e.g., dark + high contrast)?
+17. Interactive targets meet 24x24 CSS pixel minimum (or have sufficient spacing)?
+18. Content not clipped or lost with text spacing overrides (1.4.12)?
+19. Content reflows at 320px width without horizontal scrolling (1.4.10)?
 
 ## Structured Output for Sub-Agent Use
 

@@ -264,6 +264,69 @@ If a `<section>` has `aria-label` but the content is not a major navigable secti
 
 Remove `aria-label` and change to `<div>`, or keep `<section>` without `aria-label` if the grouping still makes semantic sense.
 
+## Accessible Names and Descriptions
+
+Per the W3C APG "Providing Accessible Names and Descriptions" guide, these are the cardinal rules for naming interactive elements.
+
+### Five Cardinal Rules
+
+1. **Heed warnings:** Never use a naming technique the ARIA specification warns against for that role
+2. **Prefer visible text:** Use techniques that source the name from visible text (native HTML labels, `aria-labelledby`) over invisible text (`aria-label`) whenever possible
+3. **Prefer native techniques:** Use native HTML labeling (`<label>`, `<caption>`, `<legend>`, `<figcaption>`) before ARIA naming
+4. **Avoid browser fallback:** Do not rely on `title` or `placeholder` as the accessible name -- browsers use these as fallbacks but they are unreliable and often invisible
+5. **Compose brief useful names:** Names should be concise (1-3 words ideally), describe function not form, start with the distinguishing word, and never include the role name
+
+### Name Calculation Precedence
+
+Browsers compute the accessible name in this order (first match wins):
+
+1. `aria-labelledby` (references other visible elements -- highest priority)
+2. `aria-label` (hidden string attribute)
+3. Native HTML mechanisms (`<label>`, `<caption>`, `<legend>`, `alt`, `<title>` inside SVG)
+4. Child text content (for roles that allow naming from contents: button, link, tab, menuitem)
+5. `title` attribute (fallback -- avoid relying on this)
+6. `placeholder` (last resort fallback -- never rely on this)
+
+### WARNING: `aria-label` Hides Descendant Content
+
+When `aria-label` is applied to an element whose role supports "naming from contents" (like `heading`, `button`, `link`), the `aria-label` **replaces** all descendant text content for screen readers. The descendants become invisible to AT.
+
+```html
+<!-- BAD: screen reader says "Widget usage" only, descendant content is hidden -->
+<h2 aria-label="Widget usage">
+  <span>37</span>
+  <span>widgets deployed this month</span>
+</h2>
+
+<!-- GOOD: screen reader reads the actual content -->
+<h2>37 widgets deployed this month</h2>
+```
+
+Do not use `aria-label` on headings, paragraphs, or other content containers -- use it only on interactive elements that need a name different from their visible text.
+
+### Composing Effective Names
+
+- **Function, not form:** "Submit" not "Green button at bottom". "Close" not "X icon"
+- **Distinguishing word first:** "Delete account" not "Account deletion action"
+- **Brief:** 1-3 words when possible. "Save" or "Save draft" -- not "Click this button to save your draft document to the server"
+- **No role name:** "Close" not "Close button" (screen reader already announces "button")
+- **Unique:** Multiple elements with the same name but different functions confuse screen reader users. "Edit profile" and "Edit preferences" not two "Edit" buttons
+- **Capital letter:** Start with a capital letter for screen reader pronunciation consistency
+
+### Description Techniques
+
+Descriptions provide supplementary information beyond the name:
+- `aria-describedby` -- references visible elements providing additional context
+- `aria-description` -- inline description string (newer, less supported)
+- `title` attribute -- tooltip text, used as description if name comes from another source
+
+```html
+<button aria-label="Delete" aria-describedby="delete-warning">
+  <svg aria-hidden="true">...</svg>
+</button>
+<p id="delete-warning" class="visually-hidden">This action cannot be undone</p>
+```
+
 ## Validation Checklist
 
 When reviewing any component, check:

@@ -1,4 +1,4 @@
----
+﻿---
 name: aria-specialist
 description: ARIA implementation specialist for web applications. Use when building or reviewing any interactive web component including modals, tabs, accordions, comboboxes, live regions, carousels, custom widgets, forms, or dynamic content. Also use when reviewing ARIA usage for correctness. Applies to any web framework or vanilla HTML/CSS/JS.
 tools: Read, Write, Edit, Grep, Glob
@@ -182,6 +182,9 @@ This means:
 
 ```html
 <!-- BAD: aria-label says "Upcoming workshop" but heading says "GIT Going with GitHub" -->
+<!-- Screen reader landmark nav: "Upcoming workshop region" -->
+<!-- Screen reader heading nav: "GIT Going with GitHub, heading level 2" -->
+<!-- User thinks these are two different sections -->
 <section aria-label="Upcoming workshop">
   <h2>GIT Going with GitHub</h2>
 </section>
@@ -207,7 +210,7 @@ This means:
 - Pages exceeding the canonical landmark count. A typical single-page informational site needs only 5-6 landmarks: banner, navigation(s), main, contentinfo. Add region landmarks only for genuinely important navigable sections (e.g., a search results panel or a user dashboard sidebar)
 - `<div>` given `role="region"` for non-navigable content
 - Fixes that change `<div>` to `<section>` just to satisfy "aria-label requires a role" when the real fix is to remove the `aria-label`
-- Nested `<section aria-label>` inside a parent section that already has a heading covering the same content
+- Nested `<section aria-label>` inside a parent section that already has a heading covering the same content -- the inner section rarely needs its own landmark
 
 ### `role="region"` Antipatterns
 
@@ -238,6 +241,8 @@ The following are common misuses. Content inside `<main>` is already in a landma
 
 ### The Fix for Unnecessary Regions
 
+If a `<section>` has `aria-label` but the content is not a major navigable section:
+
 ```html
 <!-- BEFORE: unnecessary region landmark -->
 <section class="stats-bar" aria-label="Project statistics">
@@ -252,6 +257,69 @@ The following are common misuses. Content inside `<main>` is already in a landma
 
 Remove `aria-label` and change to `<div>`, or keep `<section>` without `aria-label` if the grouping still makes semantic sense.
 
+## Accessible Names and Descriptions
+
+Per the W3C APG "Providing Accessible Names and Descriptions" guide, these are the cardinal rules for naming interactive elements.
+
+### Five Cardinal Rules
+
+1. **Heed warnings:** Never use a naming technique the ARIA specification warns against for that role
+2. **Prefer visible text:** Use techniques that source the name from visible text (native HTML labels, `aria-labelledby`) over invisible text (`aria-label`) whenever possible
+3. **Prefer native techniques:** Use native HTML labeling (`<label>`, `<caption>`, `<legend>`, `<figcaption>`) before ARIA naming
+4. **Avoid browser fallback:** Do not rely on `title` or `placeholder` as the accessible name -- browsers use these as fallbacks but they are unreliable and often invisible
+5. **Compose brief useful names:** Names should be concise (1-3 words ideally), describe function not form, start with the distinguishing word, and never include the role name
+
+### Name Calculation Precedence
+
+Browsers compute the accessible name in this order (first match wins):
+
+1. `aria-labelledby` (references other visible elements -- highest priority)
+2. `aria-label` (hidden string attribute)
+3. Native HTML mechanisms (`<label>`, `<caption>`, `<legend>`, `alt`, `<title>` inside SVG)
+4. Child text content (for roles that allow naming from contents: button, link, tab, menuitem)
+5. `title` attribute (fallback -- avoid relying on this)
+6. `placeholder` (last resort fallback -- never rely on this)
+
+### WARNING: `aria-label` Hides Descendant Content
+
+When `aria-label` is applied to an element whose role supports "naming from contents" (like `heading`, `button`, `link`), the `aria-label` **replaces** all descendant text content for screen readers. The descendants become invisible to AT.
+
+```html
+<!-- BAD: screen reader says "Widget usage" only, descendant content is hidden -->
+<h2 aria-label="Widget usage">
+  <span>37</span>
+  <span>widgets deployed this month</span>
+</h2>
+
+<!-- GOOD: screen reader reads the actual content -->
+<h2>37 widgets deployed this month</h2>
+```
+
+Do not use `aria-label` on headings, paragraphs, or other content containers -- use it only on interactive elements that need a name different from their visible text.
+
+### Composing Effective Names
+
+- **Function, not form:** "Submit" not "Green button at bottom". "Close" not "X icon"
+- **Distinguishing word first:** "Delete account" not "Account deletion action"
+- **Brief:** 1-3 words when possible. "Save" or "Save draft" -- not "Click this button to save your draft document to the server"
+- **No role name:** "Close" not "Close button" (screen reader already announces "button")
+- **Unique:** Multiple elements with the same name but different functions confuse screen reader users. "Edit profile" and "Edit preferences" not two "Edit" buttons
+- **Capital letter:** Start with a capital letter for screen reader pronunciation consistency
+
+### Description Techniques
+
+Descriptions provide supplementary information beyond the name:
+- `aria-describedby` -- references visible elements providing additional context
+- `aria-description` -- inline description string (newer, less supported)
+- `title` attribute -- tooltip text, used as description if name comes from another source
+
+```html
+<button aria-label="Delete" aria-describedby="delete-warning">
+  <svg aria-hidden="true">...</svg>
+</button>
+<p id="delete-warning" class="visually-hidden">This action cannot be undone</p>
+```
+
 ## Validation Checklist
 
 When reviewing any component, check:
@@ -265,8 +333,8 @@ When reviewing any component, check:
 7. Are decorative elements hidden from assistive technology?
 8. Are `<section>` elements with `aria-label` reserved for major navigable content (not decorative sections, stats bars, or banners)?
 9. Does the page have a reasonable number of landmarks? Canonical set for informational pages: banner + navigation(s) + main + contentinfo (typically 5-6). Region landmarks should be rare additions.
-10. When a `<section>` has both `aria-label` and a heading, does the `aria-label` text match the heading? (If yes, switch to `aria-labelledby`. If no, the mismatch is a bug.)
-11. Are there nested `<section aria-label>` elements inside parent sections that already provide heading-based navigation?
+10. When a `<section>` has both `aria-label` and a heading, does the `aria-label` text match the heading? (If yes, switch to `aria-labelledby` pointing to the heading. If no, the mismatch is a bug.)
+11. Are there `<section aria-label>` elements nested inside parent sections that already provide heading-based navigation for the same content?
 12. Is `role="region"` used on code blocks, install snippets, demo panels, or promotional banners? If so, remove it -- these are not navigable destinations.
 13. Will a screen reader announce this component in a way that makes sense?
 
@@ -309,15 +377,5 @@ End your invocation with this summary block (used by the wizard for / progress a
 - **Critical:** [count] | **Serious:** [count] | **Moderate:** [count] | **Minor:** [count]
 - **High confidence:** [count] | **Medium:** [count] | **Low:** [count]
 ```
-
----
-
-## How to Report Issues
-
-When you find ARIA problems, report each one with:
-- File path and line number
-- What is wrong
-- What the screen reader experience would be
-- The fix with corrected code
 
 Always explain your reasoning. Developers need to understand why, not just what.

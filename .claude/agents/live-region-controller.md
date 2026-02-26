@@ -1,4 +1,4 @@
----
+﻿---
 name: live-region-controller
 description: Live region and dynamic content announcement specialist. Use when building or reviewing any feature that updates content without a full page reload including search results, filters, notifications, toasts, loading states, AJAX responses, form submission feedback, counters, timers, chat messages, progress indicators, or any content that changes after initial page load. Applies to any web framework or vanilla HTML/CSS/JS.
 tools: Read, Write, Edit, Bash, Grep, Glob
@@ -59,9 +59,66 @@ Implicit `aria-live="polite"`. Use for status indicators that update frequently.
 ### `role="alert"`
 Implicit `aria-live="assertive"`. Use for error conditions.
 
+**Per W3C APG Alert Pattern:**
+- Alerts must not affect keyboard focus -- never move focus to an alert
+- Alerts that are present in the DOM when the page loads are NOT announced -- the screen reader's own page load announcement takes precedence
+- Avoid alerts that automatically disappear: users may not have time to read them (WCAG 2.2.3 No Timing, 2.2.4 Interruptions)
+- Avoid firing alerts too frequently -- each one interrupts the user's current task
+
 ```html
 <div role="alert">Payment failed. Please try again.</div>
 ```
+
+### `role="log"`
+Implicit `aria-live="polite"`. Use for sequential content where new entries are added (chat, activity feeds, console output).
+
+```html
+<div role="log" aria-label="Chat messages">
+  <!-- new messages append here -->
+</div>
+```
+
+### `role="timer"`
+Use for elements displaying elapsed or remaining time. Does NOT imply `aria-live` -- add it explicitly if you want announcements.
+
+```html
+<div role="timer" aria-live="off" aria-label="Session timeout">4:59 remaining</div>
+```
+
+Typically keep `aria-live="off"` to prevent constant interruption, and announce milestones separately via a polite live region.
+
+### The `<output>` Element
+The HTML `<output>` element has an implicit `role="status"` (polite live region). Use it for calculation results or form output:
+
+```html
+<output for="qty price" aria-label="Total cost">$24.00</output>
+```
+
+### Live Region Attribute Reference
+
+**`aria-atomic`** -- Controls whether the screen reader announces the entire region or just the changed portion:
+- `aria-atomic="true"` -- announce the ENTIRE region content on any change (use for status messages where context matters: "3 of 10 items")
+- `aria-atomic="false"` (default) -- announce only the changed nodes (use for chat logs where only the new message matters)
+
+**`aria-relevant`** -- Controls which types of changes trigger announcements:
+- `additions` (default for most roles) -- new nodes added
+- `removals` -- nodes removed (rare; use for "user left the chat" scenarios)
+- `text` -- text content changed
+- `all` -- shorthand for `additions removals text`
+- `additions text` (default) -- most common; new nodes and text changes
+
+**`aria-busy`** -- Suppress announcements during batch updates:
+```javascript
+// Start batch update
+regionEl.setAttribute('aria-busy', 'true');
+
+// Apply multiple DOM changes...
+items.forEach(item => regionEl.appendChild(createItemEl(item)));
+
+// End batch update -- screen reader now announces the final state
+regionEl.setAttribute('aria-busy', 'false');
+```
+Without `aria-busy`, the screen reader may announce intermediate states during rapid multi-step updates.
 
 ## Implementation Rules
 
@@ -278,6 +335,10 @@ The conditional render creates and fills the element simultaneously. The screen 
 8. Is `textContent` used to update (not innerHTML or element replacement)?
 9. For React: are live regions unconditionally rendered?
 10. Are toasts announced without stealing focus?
+11. Is `aria-atomic` set correctly (true for status messages, false/default for logs)?
+12. Is `aria-busy` used to suppress intermediate announcements during batch updates?
+13. Do alerts avoid auto-disappearing without user control?
+14. Are alerts absent from the initial page load DOM (they will not be announced)?
 
 ## Common Mistakes You Must Catch
 
