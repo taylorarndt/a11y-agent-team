@@ -160,6 +160,98 @@ Never leave an icon-only button without an accessible name. Never let an SVG be 
 - Never rely on color alone to indicate errors
 - Required fields use the `required` attribute, not just `aria-required`
 
+## Landmark and Region Overuse
+
+Landmarks help screen reader users navigate between major sections of a page. Too many landmarks create noise and reduce their usefulness. Per the W3C ARIA Authoring Practices Guide: a `region` landmark is for content "sufficiently important for users to be able to navigate to the section." Most `<section>` elements on a typical long page should NOT be region landmarks -- heading navigation (H key) already provides section discovery.
+
+### When `<section>` Creates a Region Landmark
+
+`<section>` with an `aria-label` or `aria-labelledby` creates a `region` landmark. Without a label, it is just a generic grouping element with no landmark role. Only label sections that represent genuinely important navigable destinations beyond what heading navigation provides.
+
+### `aria-labelledby` vs `aria-label` on Sections with Headings
+
+The APG states: "If an area begins with a heading element (e.g. h1-h6) it can be used as the label for the area using the `aria-labelledby` attribute. If an area requires a label and does not have a heading element, provide a label using the `aria-label` attribute."
+
+This means:
+
+1. **When a section has a heading, prefer `aria-labelledby` pointing to the heading over `aria-label`.** This links the landmark name to the visible heading text, creating one consistent identity rather than two separate announcements.
+
+2. **Never use `aria-label` with text that is different from the section's heading.** Screen reader users navigating by landmarks hear the `aria-label` text; navigating by headings they hear the heading text. If these differ, the section appears to be two different things.
+
+3. **If `aria-label` would duplicate the heading text exactly, the `aria-label` is redundant -- use `aria-labelledby` instead.** Duplicating the same string in two places creates a maintenance burden and risks drift.
+
+```html
+<!-- BAD: aria-label says "Upcoming workshop" but heading says "GIT Going with GitHub" -->
+<section aria-label="Upcoming workshop">
+  <h2>GIT Going with GitHub</h2>
+</section>
+
+<!-- GOOD: aria-labelledby links to the heading, one consistent name -->
+<section aria-labelledby="workshop-heading">
+  <h2 id="workshop-heading">GIT Going with GitHub</h2>
+</section>
+
+<!-- ALSO GOOD: no landmark at all if heading navigation is sufficient -->
+<section>
+  <h2>GIT Going with GitHub</h2>
+</section>
+```
+
+### What to Flag
+
+- `<section aria-label="X">` where the section also has a heading -- should use `aria-labelledby` pointing to the heading instead
+- `<section aria-label="X">` where "X" says something different from the section's heading -- creates confusion between landmark and heading navigation
+- `<section aria-label="...">` wrapping decorative content, stats bars, banners, or content that does not warrant landmark navigation
+- `role="region"` on code snippets, install command blocks, demo panels, or other non-navigable content already inside `<main>` -- these are not navigable destinations and heading navigation (H key) already provides access
+- Promotional or ephemeral content (event banners, announcements, CTAs) wrapped in a region landmark -- these are not page structure; they are transient content that should not pollute the landmark list
+- Pages exceeding the canonical landmark count. A typical single-page informational site needs only 5-6 landmarks: banner, navigation(s), main, contentinfo. Add region landmarks only for genuinely important navigable sections (e.g., a search results panel or a user dashboard sidebar)
+- `<div>` given `role="region"` for non-navigable content
+- Fixes that change `<div>` to `<section>` just to satisfy "aria-label requires a role" when the real fix is to remove the `aria-label`
+- Nested `<section aria-label>` inside a parent section that already has a heading covering the same content
+
+### `role="region"` Antipatterns
+
+The following are common misuses. Content inside `<main>` is already in a landmark -- adding `role="region"` to subdivisions creates unnecessary clutter:
+
+```html
+<!-- BAD: install commands are not navigable destinations -->
+<div class="install-block" role="region" aria-label="macOS install command">
+  <pre><code>curl -sSL ... | bash</code></pre>
+</div>
+
+<!-- BAD: code demo panels are not navigable destinations -->
+<div class="demo-panel" role="region" aria-label="Inaccessible code example">
+  <h3>Before</h3>
+  <pre><code>...</code></pre>
+</div>
+
+<!-- GOOD: remove role and aria-label, let heading navigation handle discovery -->
+<div class="install-block">
+  <pre><code>curl -sSL ... | bash</code></pre>
+</div>
+
+<div class="demo-panel">
+  <h3>Before</h3>
+  <pre><code>...</code></pre>
+</div>
+```
+
+### The Fix for Unnecessary Regions
+
+```html
+<!-- BEFORE: unnecessary region landmark -->
+<section class="stats-bar" aria-label="Project statistics">
+  ...
+</section>
+
+<!-- AFTER: no landmark clutter -->
+<div class="stats-bar">
+  ...
+</div>
+```
+
+Remove `aria-label` and change to `<div>`, or keep `<section>` without `aria-label` if the grouping still makes semantic sense.
+
 ## Validation Checklist
 
 When reviewing any component, check:
@@ -171,7 +263,12 @@ When reviewing any component, check:
 5. Are live regions present and using the correct politeness level?
 6. Is focus managed correctly (modals trap focus, dialogs return focus)?
 7. Are decorative elements hidden from assistive technology?
-8. Will a screen reader announce this component in a way that makes sense?
+8. Are `<section>` elements with `aria-label` reserved for major navigable content (not decorative sections, stats bars, or banners)?
+9. Does the page have a reasonable number of landmarks? Canonical set for informational pages: banner + navigation(s) + main + contentinfo (typically 5-6). Region landmarks should be rare additions.
+10. When a `<section>` has both `aria-label` and a heading, does the `aria-label` text match the heading? (If yes, switch to `aria-labelledby`. If no, the mismatch is a bug.)
+11. Are there nested `<section aria-label>` elements inside parent sections that already provide heading-based navigation?
+12. Is `role="region"` used on code blocks, install snippets, demo panels, or promotional banners? If so, remove it -- these are not navigable destinations.
+13. Will a screen reader announce this component in a way that makes sense?
 
 ## Structured Output for Sub-Agent Use
 

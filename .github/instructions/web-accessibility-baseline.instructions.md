@@ -53,6 +53,15 @@ These rules apply automatically to every HTML and component file. They represent
 - Every page must have a `<main>` landmark element wrapping the primary content.
 - The first focusable element on every page template must be a skip navigation link targeting `#main-content` (or equivalent).
 
+### Landmarks and Regions
+
+- `<section>` only becomes a `region` landmark when it has an accessible name (`aria-label` or `aria-labelledby`). Without one, it is just a grouping element. Do not add `aria-label` to every `<section>` -- most sections should NOT be landmarks.
+- When a `<section>` already has a heading, prefer `aria-labelledby` pointing to the heading over `aria-label`. This links the landmark name to the visible heading text and avoids duplicate or conflicting names.
+- Never use `aria-label` with text that differs from the section's heading. Landmark navigation and heading navigation should present the same name for the same section.
+- Keep the total number of named landmarks minimal. The canonical set for a typical informational page is: banner, navigation(s), main, contentinfo -- typically 5-6 total. Add region landmarks only for genuinely important navigable sections (e.g., a search results panel, a dashboard sidebar). If everything is a landmark, nothing is.
+- Never use `role="region"` on code snippets, install command blocks, demo panels, or promotional/ephemeral banners. Content inside `<main>` is already in a landmark -- subdivisions need region status only when they represent major navigable destinations that heading navigation alone cannot serve.
+- CSS grid/flexbox layouts displaying structured key-value data (stats, metrics, KPIs) need semantic backing -- `<dl>`/`<dt>`/`<dd>` for label-value pairs, `<table>` for multi-dimensional data. Bare `<div>`/`<span>` elements linearize into undifferentiated text for screen readers.
+
 ---
 
 ## Color and Contrast
