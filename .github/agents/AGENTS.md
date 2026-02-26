@@ -97,10 +97,13 @@ This file defines coordinated multi-agent workflows for enterprise accessibility
 - `cross-page-analyzer` - Cross-page pattern detection, severity scoring, remediation tracking
 - `web-issue-fixer` - Automated and guided accessibility fix application
 - `web-csv-reporter` - Exports web audit findings to CSV with Deque University help links
+- `scanner-bridge` - Bridges GitHub Accessibility Scanner CI data into the agent ecosystem
+- `lighthouse-bridge` - Bridges Lighthouse CI accessibility audit data into the agent ecosystem
 
 **Workflow:**
 1. `web-accessibility-wizard` receives the user request and runs Phase 0 (discovery)
-2. Parallel specialist scanning groups execute based on content:
+2. Phase 0 Step 0: Auto-detects CI scanners (GitHub Scanner, Lighthouse) and dispatches `scanner-bridge` and `lighthouse-bridge` to fetch findings
+3. Parallel specialist scanning groups execute based on content:
    - **Group 1:** `aria-specialist` + `keyboard-navigator` + `forms-specialist`
    - **Group 2:** `contrast-master` + `alt-text-headings` + `link-checker`
    - **Group 3:** `modal-specialist` + `live-region-controller` + `tables-data-specialist`

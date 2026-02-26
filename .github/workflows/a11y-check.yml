@@ -102,3 +102,36 @@ jobs:
 
       - name: Run markdown accessibility lint
         run: node .github/scripts/markdown-a11y-lint.mjs .
+
+  # Optional: GitHub Accessibility Scanner for deployed pages
+  # Uncomment and configure URLs to enable automated scanning on PR.
+  # See docs/tools/github-a11y-scanner-integration.md for details.
+  #
+  # accessibility-scanner:
+  #   name: GitHub Accessibility Scanner
+  #   runs-on: ubuntu-latest
+  #   if: github.event_name == 'pull_request'
+  #   steps:
+  #     - name: Scan deployed pages
+  #       uses: github/accessibility-scanner@v2
+  #       with:
+  #         urls: |
+  #           https://your-site.com
+  #         token: ${{ secrets.GITHUB_TOKEN }}
+
+  # Optional: Lighthouse CI for performance and accessibility scoring
+  # Uncomment and configure URLs to enable Lighthouse audits on PR.
+  # See docs/tools/lighthouse-scanner-integration.md for details.
+  #
+  # lighthouse-ci:
+  #   name: Lighthouse CI
+  #   runs-on: ubuntu-latest
+  #   if: github.event_name == 'pull_request'
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Run Lighthouse CI
+  #       uses: treosh/lighthouse-ci-action@v12
+  #       with:
+  #         urls: |
+  #           https://your-site.com
+  #         uploadArtifacts: true

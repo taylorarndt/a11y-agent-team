@@ -53,6 +53,8 @@ These agents are not meant to be invoked directly by users. They are used intern
 | markdown-csv-reporter | Exports markdown audit findings to CSV with WCAG help links and markdownlint rule references - invoked by markdown-a11y-assistant |
 | web-csv-reporter | Exports web audit findings to CSV with Deque University help links - invoked by web-accessibility-wizard |
 | document-csv-reporter | Exports document audit findings to CSV with Microsoft Office and Adobe PDF help links - invoked by document-accessibility-wizard |
+| scanner-bridge | Bridges GitHub Accessibility Scanner CI data into the agent ecosystem - invoked by web-accessibility-wizard Phase 0 |
+| lighthouse-bridge | Bridges Lighthouse CI accessibility audit data into the agent ecosystem - invoked by web-accessibility-wizard Phase 0 |
 
 ## Knowledge Domains
 
@@ -71,6 +73,8 @@ The following knowledge domains are available across agent files. On Copilot the
 | Design System | Color token contrast computation, framework token paths (Tailwind/MUI/Chakra/shadcn), focus ring validation, WCAG 2.4.13 Focus Appearance (AAA) |
 | Markdown Accessibility | Ambiguous link/anchor patterns, emoji handling modes (remove/translate), Mermaid and ASCII diagram replacement templates, heading structure, severity scoring |
 | Help URL Reference | Deque University help topic URLs, Microsoft Office help URLs, Adobe PDF help URLs, WCAG understanding document URLs, application-specific fix steps |
+| GitHub A11y Scanner | GitHub Accessibility Scanner detection, issue parsing, severity mapping, axe-core correlation, Copilot fix tracking |
+| Lighthouse Scanner | Lighthouse CI accessibility audit detection, score interpretation, weight-to-severity mapping, score regression tracking |
 
 ## Agent Teams
 
