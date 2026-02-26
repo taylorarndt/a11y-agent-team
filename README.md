@@ -67,6 +67,10 @@ curl -fsSL https://raw.githubusercontent.com/Community-Access/accessibility-agen
 irm https://raw.githubusercontent.com/Community-Access/accessibility-agents/main/uninstall.ps1 | iex
 ```
 
+The uninstaller removes all agents, config sections, assets, extensions, and auto-update tasks across every platform (Claude Code, Copilot, Codex, Gemini). If no manifest file is found, it downloads the repo to build a fallback file list so nothing is missed.
+
+For step-by-step manual removal instructions, see [UNINSTALL.md](UNINSTALL.md).
+
 ### Safe installation — your files are never overwritten
 
 The installer is designed to be additive and non-destructive:

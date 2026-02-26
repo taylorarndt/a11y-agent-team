@@ -160,6 +160,11 @@ mkdir -p "$TARGET_DIR/agents"
 MANIFEST_FILE="$TARGET_DIR/.a11y-agent-manifest"
 touch "$MANIFEST_FILE"
 
+add_manifest_entry() {
+  local entry="$1"
+  grep -qxF "$entry" "$MANIFEST_FILE" 2>/dev/null || echo "$entry" >> "$MANIFEST_FILE"
+}
+
 # Copy agents — skip any file that already exists (preserves user customisations)
 echo ""
 echo "  Copying agents..."
@@ -176,7 +181,7 @@ for agent in "${AGENTS[@]}"; do
     SKIPPED_AGENTS=$((SKIPPED_AGENTS + 1))
   else
     cp "$AGENTS_SRC/$agent" "$dst_agent"
-    grep -qxF "agents/$agent" "$MANIFEST_FILE" 2>/dev/null || echo "agents/$agent" >> "$MANIFEST_FILE"
+    add_manifest_entry "agents/$agent"
     echo "    + $name"
   fi
 done
@@ -223,6 +228,7 @@ if [ "$install_copilot" = true ]; then
             echo "    ~ $(basename "$f") (skipped - already exists)"
           else
             cp "$f" "$COPILOT_DST/"
+            add_manifest_entry "copilot-agents/$(basename "$f")"
             echo "    + $(basename "$f")"
           fi
         done
@@ -236,6 +242,7 @@ if [ "$install_copilot" = true ]; then
         DST="$PROJECT_DIR/.github/$config"
         if [ -f "$SRC" ]; then
           merge_config_file "$SRC" "$DST" "$config"
+          add_manifest_entry "copilot-config/$config"
         fi
       done
 
@@ -254,6 +261,7 @@ if [ "$install_copilot" = true ]; then
               skipped=$((skipped + 1))
             else
               cp "$src_file" "$dst_file"
+              add_manifest_entry "copilot-$subdir/$rel"
               added=$((added + 1))
             fi
           done < <(find "$SRC_DIR" -type f -print0)
@@ -512,6 +520,7 @@ INITSCRIPT
       fi
 
       COPILOT_INSTALLED=true
+      add_manifest_entry "copilot-global/central-store"
       COPILOT_DESTINATIONS+=("$COPILOT_CENTRAL")
     fi
 fi
@@ -556,6 +565,12 @@ if [ "$install_codex" = true ] && [ -f "$CODEX_SRC" ]; then
 
   merge_config_file "$CODEX_SRC" "$CODEX_DST" "AGENTS.md (Codex)"
   CODEX_INSTALLED=true
+  if [ "$choice" = "1" ]; then
+    add_manifest_entry "codex/project"
+  else
+    add_manifest_entry "codex/global"
+  fi
+  add_manifest_entry "codex/path:$CODEX_DST"
 
   echo ""
   echo "  Codex will now enforce WCAG AA rules on all UI code in this project."
@@ -630,6 +645,12 @@ if [ "$install_gemini" = true ] && [ -d "$GEMINI_SRC" ]; then
 
   GEMINI_INSTALLED=true
   GEMINI_DST="$GEMINI_TARGET"
+  if [ "$choice" = "1" ]; then
+    add_manifest_entry "gemini/project"
+  else
+    add_manifest_entry "gemini/global"
+  fi
+  add_manifest_entry "gemini/path:$GEMINI_DST"
 
   echo ""
   echo "  Gemini CLI will now enforce WCAG AA rules on all UI code."
@@ -668,11 +689,6 @@ if [ "$CODEX_INSTALLED" = true ]; then
   echo ""
   echo "  Codex CLI support installed to:"
   echo "    -> $CODEX_DST"
-fi
-if [ "$GEMINI_INSTALLED" = true ]; then
-  echo ""
-  echo "  Gemini CLI extension installed to:"
-  echo "    -> $GEMINI_DST"
 fi
 # Save current version hash
 if command -v git &>/dev/null && [ -d "$SCRIPT_DIR/.git" ]; then
@@ -836,12 +852,24 @@ PLIST
   fi
 fi
 
+# Record install scope for uninstaller
+if [ "$choice" = "1" ]; then
+  add_manifest_entry "scope:project"
+else
+  add_manifest_entry "scope:global"
+fi
+
 # Clean up temp download
 [ "$DOWNLOADED" = true ] && rm -rf "$TMPDIR_DL"
 
 echo ""
 echo "  If agents do not load, increase the character budget:"
 echo "    export SLASH_COMMAND_TOOL_CHAR_BUDGET=30000"
+echo ""
+echo "  To uninstall, run:"
+echo "    curl -fsSL https://raw.githubusercontent.com/Community-Access/accessibility-agents/main/uninstall.sh | bash"
+echo ""
+echo "  For manual uninstall instructions, see: UNINSTALL.md"
 echo ""
 echo "  Start Claude Code and try: \"Build a login form\""
 echo "  The accessibility-lead should activate automatically."

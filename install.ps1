@@ -115,11 +115,18 @@ function Merge-ConfigFile {
 # Create directories
 New-Item -ItemType Directory -Force -Path (Join-Path $TargetDir "agents") | Out-Null
 
-# Track which files we install so updates never touch user-created files
+# Track which files we install so the uninstaller can cleanly remove everything.
+# The manifest is the single source of truth for what belongs to us vs. user files.
 $ManifestPath = Join-Path $TargetDir ".a11y-agent-manifest"
 $Manifest = [System.Collections.Generic.List[string]]::new()
 if (Test-Path $ManifestPath) {
-    [IO.File]::ReadAllLines($ManifestPath, [Text.Encoding]::UTF8) | ForEach-Object { $Manifest.Add($_) }
+    [IO.File]::ReadAllLines($ManifestPath, [Text.Encoding]::UTF8) | Where-Object { $_.Trim() -ne "" } | ForEach-Object { $Manifest.Add($_) }
+}
+function Add-ManifestEntry([string]$Entry) {
+    if (-not $Manifest.Contains($Entry)) { $Manifest.Add($Entry) }
+}
+function Save-Manifest {
+    [IO.File]::WriteAllLines($ManifestPath, $Manifest.ToArray(), [Text.Encoding]::UTF8)
 }
 
 # Copy agents — skip any file that already exists (preserves user customisations)
@@ -135,7 +142,7 @@ foreach ($Agent in $Agents) {
         $SkippedAgents++
     } else {
         Copy-Item -Path $Src -Destination $Dst
-        if (-not $Manifest.Contains("agents/$Agent")) { $Manifest.Add("agents/$Agent") }
+        Add-ManifestEntry "agents/$Agent"
         Write-Host "    + $Name"
     }
 }
@@ -143,8 +150,8 @@ if ($SkippedAgents -gt 0) {
     Write-Host "      $SkippedAgents agent(s) skipped. Use -Force flag or delete them first to reinstall."
 }
 
-# Save manifest
-[IO.File]::WriteAllLines($ManifestPath, $Manifest.ToArray(), [Text.Encoding]::UTF8)
+# Save manifest (will be updated again as more platforms are installed)
+Save-Manifest
 
 # Copilot agents
 $CopilotInstalled = $false
@@ -187,6 +194,7 @@ if ($CopilotChoice -eq "y" -or $CopilotChoice -eq "Y") {
                     Write-Host "    ~ $DisplayName (skipped - already exists)"
                 } else {
                     Copy-Item -Path $File.FullName -Destination $DstPath
+                    Add-ManifestEntry "copilot-agents/$($File.Name)"
                     Write-Host "    + $DisplayName"
                 }
             }
@@ -205,13 +213,22 @@ if ($CopilotChoice -eq "y" -or $CopilotChoice -eq "Y") {
                     $Rel  = $File.FullName.Substring($SrcSubDir.Length).TrimStart('\')
                     $Dst  = Join-Path $DstSubDir $Rel
                     New-Item -ItemType Directory -Force -Path (Split-Path $Dst) | Out-Null
-                    if (Test-Path $Dst) { $Skipped++ } else { Copy-Item $File.FullName $Dst; $Added++ }
+                    if (Test-Path $Dst) { $Skipped++ } else {
+                        Copy-Item $File.FullName $Dst
+                        $RelEntry = $Rel.Replace('\','/')
+                        Add-ManifestEntry "copilot-$SubDir/$RelEntry"
+                        $Added++
+                    }
                 }
                 $msg = "    + .github\$SubDir\ ($Added new"
                 if ($Skipped -gt 0) { $msg += ", $Skipped skipped" }
                 Write-Host "$msg)"
             }
         }
+        Add-ManifestEntry "copilot-config/copilot-instructions.md"
+        Add-ManifestEntry "copilot-config/copilot-review-instructions.md"
+        Add-ManifestEntry "copilot-config/copilot-commit-message-instructions.md"
+        Save-Manifest
         $CopilotInstalled = $true
     } else {
         # Global install: store Copilot agents centrally and configure VS Code
@@ -379,6 +396,8 @@ Write-Host "  Your existing files were preserved. Only new content was added."
         Write-Host "    powershell -File `"$InitScript`""
         Write-Host ""
 
+        Add-ManifestEntry "copilot-global/central-store"
+        Save-Manifest
         $CopilotInstalled = $true
         $CopilotDestinations += $CopilotCentral
     }
@@ -436,6 +455,13 @@ if (Test-Path $GeminiSrc) {
         }
 
         $GeminiInstalled = $true
+        if ($Choice -eq "1") {
+            Add-ManifestEntry "gemini/project"
+        } else {
+            Add-ManifestEntry "gemini/global"
+        }
+        Add-ManifestEntry "gemini/path:$GeminiDst"
+        Save-Manifest
         Write-Host ""
         Write-Host "  Gemini CLI will now enforce WCAG AA rules on all UI code."
         Write-Host "  Run: gemini `"Build a login form`" -- accessibility skills apply automatically."
@@ -512,12 +538,25 @@ if ($Choice -eq "2") {
     }
 }
 
+# Final manifest save — captures everything installed across all platforms
+Save-Manifest
+
+# Record install scope for uninstaller
+$ScopeMarker = if ($Choice -eq "1") { "scope:project" } else { "scope:global" }
+if (-not $Manifest.Contains($ScopeMarker)) { Add-ManifestEntry $ScopeMarker }
+Save-Manifest
+
 # Clean up temp download
 if ($Downloaded) { Remove-Item -Recurse -Force $TmpDir -ErrorAction SilentlyContinue }
 
 Write-Host ""
 Write-Host "  If agents stop loading, increase the character budget:"
 Write-Host "    `$env:SLASH_COMMAND_TOOL_CHAR_BUDGET = '30000'"
+Write-Host ""
+Write-Host "  To uninstall, run:"
+Write-Host "    irm https://raw.githubusercontent.com/Community-Access/accessibility-agents/main/uninstall.ps1 | iex"
+Write-Host ""
+Write-Host "  For manual uninstall instructions, see: UNINSTALL.md"
 Write-Host ""
 Write-Host "  Start Claude Code and try: `"Build a login form`""
 Write-Host "  The accessibility-lead should activate automatically."
