@@ -98,6 +98,27 @@ Copy only the Claude Code files into an existing project:
 cp -r .claude/agents/ /path/to/project/.claude/agents/
 ```
 
+### 5. Per-Project Install (Gemini CLI)
+
+Copy the Gemini CLI extension into an existing project:
+
+```bash
+# Copy extension (includes manifest, context file, and all skills)
+cp -r .gemini/extensions/a11y-agents/ /path/to/project/.gemini/extensions/a11y-agents/
+```
+
+**Global install (available in all projects):**
+
+```bash
+cp -r .gemini/extensions/a11y-agents/ ~/.gemini/extensions/a11y-agents/
+```
+
+**What's included:**
+
+- `gemini-extension.json` -- extension manifest
+- `GEMINI.md` -- always-on accessibility context loaded into every conversation
+- `skills/` -- 49 agent skills + 14 knowledge domain skills, each as `SKILL.md` with YAML frontmatter
+
 ## Creating Custom Agent Packages
 
 ### Subset Packages

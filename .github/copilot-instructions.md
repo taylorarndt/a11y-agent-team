@@ -33,6 +33,12 @@ Select these agents from the agents dropdown in Copilot Chat, or type `/agents` 
 | Document Accessibility Wizard | Document accessibility audit for .docx, .xlsx, .pptx, .pdf - single files, folders, recursive scanning, delta scanning, severity scoring, remediation tracking, compliance export (VPAT/ACR), CSV export with help links, CI/CD integration |
 | Testing Coach | Screen reader testing, keyboard testing, automated testing guidance |
 | WCAG Guide | WCAG 2.2 criteria explanations, conformance levels, what changed |
+| Developer Hub | Python, wxPython, desktop app development - routes to specialist agents, scaffolds, debugs, reviews, builds |
+| Python Specialist | Python debugging, packaging (PyInstaller/Nuitka/cx_Freeze), testing, type checking, async, optimization |
+| wxPython Specialist | wxPython GUI - sizer layouts, event handling, AUI, custom controls, threading, desktop accessibility |
+| Desktop Accessibility Specialist | Desktop application accessibility - platform APIs (UI Automation, MSAA/IAccessible2, ATK/AT-SPI, NSAccessibility), accessible control patterns, screen reader Name/Role/Value/State, focus management, high contrast, and custom widget accessibility for Windows, macOS, and Linux desktop applications |
+| Desktop A11y Testing Coach | Desktop accessibility testing - testing with NVDA, JAWS, Narrator, VoiceOver, and Orca screen readers, Accessibility Insights for Windows, automated UIA testing, keyboard-only testing flows, high contrast verification, and creating desktop accessibility test plans |
+| Accessibility Tool Builder | Building accessibility scanning tools, rule engines, document parsers, report generators, and audit automation. WCAG criterion mapping, severity scoring algorithms, CLI/GUI scanner architecture, and CI/CD integration for accessibility tooling |
 
 ### Hidden Helper Sub-Agents
 
@@ -76,6 +82,7 @@ Reusable knowledge modules in `.github/skills/` that agents reference automatica
 | help-url-reference | Deque University help topic URLs, Microsoft Office help URLs, Adobe PDF help URLs, WCAG understanding document URLs, application-specific fix steps |
 | github-a11y-scanner | GitHub Accessibility Scanner detection, issue parsing, severity mapping, axe-core correlation, Copilot fix tracking |
 | lighthouse-scanner | Lighthouse CI accessibility audit detection, score interpretation, weight-to-severity mapping, score regression tracking |
+| python-development | Python and wxPython development patterns, packaging, testing, wxPython sizers/events/threading, cross-platform paths |
 
 ### Agent Teams
 
@@ -85,6 +92,7 @@ Team coordination is defined in `.github/agents/AGENTS.md`. Four defined teams:
 - **Web Accessibility Audit** - led by accessibility-lead with all web specialist agents
 - **Full Audit** - combined web + document audit workflow
 - **GitHub Workflow** - led by github-hub; routes to daily-briefing, pr-review, issue-tracker, analytics, repo-admin, team-manager, contributions-hub, insiders-a11y-tracker, template-builder
+- **Developer Tools** - led by developer-hub; routes to python-specialist, wxpython-specialist, desktop-a11y-specialist, desktop-a11y-testing-coach, a11y-tool-builder for Python, wxPython, desktop accessibility, and tool building. Cross-team handoffs to web-accessibility-wizard and document-accessibility-wizard.
 
 ### Decision Matrix
 
@@ -102,6 +110,10 @@ Team coordination is defined in `.github/agents/AGENTS.md`. Four defined teams:
 - **Images or media:** Always apply alt-text-headings. The agent can visually analyze images and compare them against their alt text.
 - **Testing guidance:** Use testing-coach for screen reader testing, keyboard testing, and automated testing setup.
 - **WCAG questions:** Use wcag-guide to understand specific WCAG success criteria and conformance requirements.
+- **Python development:** Use developer-hub for any Python, wxPython, or desktop app task. Routes to python-specialist for language work and wxpython-specialist for GUI work.
+- **Desktop app packaging:** Use python-specialist for PyInstaller, Nuitka, cx_Freeze builds and troubleshooting.
+- **Desktop accessibility:** Use desktop-a11y-specialist for platform API implementation (UIA, MSAA, ATK, NSAccessibility), screen reader interaction, focus management, and high contrast support. Use desktop-a11y-testing-coach for screen reader testing walkthroughs and automated UIA tests.
+- **Building accessibility tools:** Use a11y-tool-builder for designing rule engines, document parsers, report generators, severity scoring, and scanner architecture.
 
 ### Custom Prompts for Document Accessibility
 

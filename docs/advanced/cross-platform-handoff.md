@@ -4,16 +4,16 @@ Guide for seamless handoff between Claude Code and GitHub Copilot agent environm
 
 ## Platform Comparison
 
-| Capability | Claude Code | GitHub Copilot |
-|-----------|------------|----------------|
-| Agent format | `.claude/agents/*.md` | `.github/agents/*.agent.md` |
-| Frontmatter | `maxTurns`, `memory` | `tools`, `agents`, `model`, `handoffs` |
-| Sub-agents | Parallel via `Task` tool | Via `agent` tool + `agents` frontmatter |
-| Hidden helpers | N/A (all agents user-invokable) | `user-invokable: false` in frontmatter |
-| Skills | N/A | `.github/skills/*/SKILL.md` |
-| Memory | `memory: project` in frontmatter | Via Agent Skills (SKILL.md files) |
-| MCP tools | Direct via `mcp_*` prefix | Via `.vscode/mcp.json` config |
-| Interactive UI | Terminal prompts | `askQuestions` tool |
+| Capability | Claude Code | GitHub Copilot | Gemini CLI | Codex CLI |
+|-----------|------------|----------------|------------|-----------|
+| Agent format | `.claude/agents/*.md` | `.github/agents/*.agent.md` | `.gemini/extensions/*/skills/*/SKILL.md` | `.codex/AGENTS.md` |
+| Frontmatter | `maxTurns`, `memory` | `tools`, `agents`, `model`, `handoffs` | `name`, `description` | N/A (inline) |
+| Sub-agents | Parallel via `Task` tool | Via `agent` tool + `agents` frontmatter | Via skill references | N/A |
+| Hidden helpers | N/A (all agents user-invokable) | `user-invokable: false` in frontmatter | N/A | N/A |
+| Skills | N/A | `.github/skills/*/SKILL.md` | Extension skills | N/A |
+| Context file | `CLAUDE.md` | `copilot-instructions.md` | `GEMINI.md` | `AGENTS.md` |
+| MCP tools | Direct via `mcp_*` prefix | Via `.vscode/mcp.json` config | Via extension manifest | N/A |
+| Interactive UI | Terminal prompts | `askQuestions` tool | Terminal prompts | Terminal prompts |
 
 ## Handoff Scenarios
 

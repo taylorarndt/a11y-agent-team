@@ -7,9 +7,11 @@
 #   bash install.sh --global           Install globally to ~/.claude/
 #   bash install.sh --global --copilot Also install Copilot agents to VS Code
 #   bash install.sh --global --codex   Also install Codex CLI support to ~/.codex/
+#   bash install.sh --global --gemini  Also install Gemini CLI extension
 #   bash install.sh --project          Install to .claude/ in the current directory
 #   bash install.sh --project --copilot Also install Copilot agents to project
 #   bash install.sh --project --codex  Also install Codex CLI support to .codex/
+#   bash install.sh --project --gemini Also install Gemini CLI extension
 #
 # One-liner:
 #   curl -fsSL https://raw.githubusercontent.com/Community-Access/accessibility-agents/main/install.sh | bash
@@ -105,12 +107,14 @@ fi
 choice=""
 COPILOT_FLAG=false
 CODEX_FLAG=false
+GEMINI_FLAG=false
 for arg in "$@"; do
   case "$arg" in
     --global) choice="2" ;;
     --project) choice="1" ;;
     --copilot) COPILOT_FLAG=true ;;
     --codex) CODEX_FLAG=true ;;
+    --gemini) GEMINI_FLAG=true ;;
   esac
 done
 
@@ -671,6 +675,11 @@ fi
 MANIFEST_FILE="$TARGET_DIR/.a11y-agent-manifest"
 touch "$MANIFEST_FILE"
 
+add_manifest_entry() {
+  local entry="$1"
+  grep -qxF "$entry" "$MANIFEST_FILE" 2>/dev/null || echo "$entry" >> "$MANIFEST_FILE"
+}
+
 # Copy agents — skip any file that already exists (preserves user customisations)
 echo ""
 echo "  Copying agents..."
@@ -687,7 +696,7 @@ for agent in "${AGENTS[@]}"; do
     SKIPPED_AGENTS=$((SKIPPED_AGENTS + 1))
   else
     cp "$AGENTS_SRC/$agent" "$dst_agent"
-    grep -qxF "agents/$agent" "$MANIFEST_FILE" 2>/dev/null || echo "agents/$agent" >> "$MANIFEST_FILE"
+    add_manifest_entry "agents/$agent"
     echo "    + $name"
   fi
 done
@@ -791,6 +800,7 @@ if [ "$install_copilot" = true ]; then
             echo "    ~ $(basename "$f") (skipped - already exists)"
           else
             cp "$f" "$COPILOT_DST/"
+            add_manifest_entry "copilot-agents/$(basename "$f")"
             echo "    + $(basename "$f")"
           fi
         done
@@ -804,6 +814,7 @@ if [ "$install_copilot" = true ]; then
         DST="$PROJECT_DIR/.github/$config"
         if [ -f "$SRC" ]; then
           merge_config_file "$SRC" "$DST" "$config"
+          add_manifest_entry "copilot-config/$config"
         fi
       done
 
@@ -822,6 +833,7 @@ if [ "$install_copilot" = true ]; then
               skipped=$((skipped + 1))
             else
               cp "$src_file" "$dst_file"
+              add_manifest_entry "copilot-$subdir/$rel"
               added=$((added + 1))
             fi
           done < <(find "$SRC_DIR" -type f -print0)
@@ -1080,6 +1092,7 @@ INITSCRIPT
       fi
 
       COPILOT_INSTALLED=true
+      add_manifest_entry "copilot-global/central-store"
       COPILOT_DESTINATIONS+=("$COPILOT_CENTRAL")
     fi
 fi
@@ -1124,10 +1137,96 @@ if [ "$install_codex" = true ] && [ -f "$CODEX_SRC" ]; then
 
   merge_config_file "$CODEX_SRC" "$CODEX_DST" "AGENTS.md (Codex)"
   CODEX_INSTALLED=true
+  if [ "$choice" = "1" ]; then
+    add_manifest_entry "codex/project"
+  else
+    add_manifest_entry "codex/global"
+  fi
+  add_manifest_entry "codex/path:$CODEX_DST"
 
   echo ""
   echo "  Codex will now enforce WCAG AA rules on all UI code in this project."
   echo "  Run: codex \"Build a login form\" — accessibility rules apply automatically."
+fi
+
+# ---------------------------------------------------------------------------
+# Gemini CLI extension
+# ---------------------------------------------------------------------------
+GEMINI_SRC="$SCRIPT_DIR/.gemini/extensions/a11y-agents"
+GEMINI_INSTALLED=false
+
+install_gemini=false
+if [ "$GEMINI_FLAG" = true ]; then
+  install_gemini=true
+elif [ -d "$GEMINI_SRC" ] && { true < /dev/tty; } 2>/dev/null; then
+  echo ""
+  echo "  Would you also like to install Gemini CLI support?"
+  echo "  This installs accessibility skills as a Gemini CLI extension"
+  echo "  so Gemini automatically applies WCAG AA rules to all UI code."
+  echo ""
+  printf "  Install Gemini CLI support? [y/N]: "
+  read -r gemini_choice < /dev/tty
+  if [ "$gemini_choice" = "y" ] || [ "$gemini_choice" = "Y" ]; then
+    install_gemini=true
+  fi
+fi
+
+if [ "$install_gemini" = true ] && [ -d "$GEMINI_SRC" ]; then
+  echo ""
+  echo "  Installing Gemini CLI extension..."
+
+  if [ "$choice" = "1" ]; then
+    # Project install: copy to .gemini/extensions/a11y-agents/ in the current project
+    GEMINI_TARGET="$(pwd)/.gemini/extensions/a11y-agents"
+  else
+    # Global install: copy to ~/.gemini/extensions/a11y-agents/
+    GEMINI_TARGET="$HOME/.gemini/extensions/a11y-agents"
+  fi
+
+  mkdir -p "$GEMINI_TARGET"
+
+  # Copy extension manifest and context file
+  for f in gemini-extension.json GEMINI.md; do
+    if [ -f "$GEMINI_SRC/$f" ]; then
+      cp "$GEMINI_SRC/$f" "$GEMINI_TARGET/$f"
+      echo "    + $f"
+    fi
+  done
+
+  # Copy skills — directory by directory, skip existing
+  if [ -d "$GEMINI_SRC/skills" ]; then
+    ADDED=0; SKIPPED=0
+    for skill_dir in "$GEMINI_SRC/skills"/*/; do
+      [ -d "$skill_dir" ] || continue
+      skill_name="$(basename "$skill_dir")"
+      dst_skill="$GEMINI_TARGET/skills/$skill_name"
+      mkdir -p "$dst_skill"
+      for src_file in "$skill_dir"*; do
+        [ -f "$src_file" ] || continue
+        dst_file="$dst_skill/$(basename "$src_file")"
+        if [ -f "$dst_file" ]; then
+          SKIPPED=$((SKIPPED + 1))
+        else
+          cp "$src_file" "$dst_file"
+          ADDED=$((ADDED + 1))
+        fi
+      done
+    done
+    echo "    + skills/ ($ADDED new, $SKIPPED skipped)"
+  fi
+
+  GEMINI_INSTALLED=true
+  GEMINI_DST="$GEMINI_TARGET"
+  if [ "$choice" = "1" ]; then
+    add_manifest_entry "gemini/project"
+  else
+    add_manifest_entry "gemini/global"
+  fi
+  add_manifest_entry "gemini/path:$GEMINI_DST"
+
+  echo ""
+  echo "  Gemini CLI will now enforce WCAG AA rules on all UI code."
+  echo "  Run: gemini \"Build a login form\" — accessibility skills apply automatically."
 fi
 
 # Verify installation
@@ -1449,6 +1548,13 @@ PLIST
   fi
 fi
 
+# Record install scope for uninstaller
+if [ "$choice" = "1" ]; then
+  add_manifest_entry "scope:project"
+else
+  add_manifest_entry "scope:global"
+fi
+
 # Clean up temp download
 [ "$DOWNLOADED" = true ] && rm -rf "$TMPDIR_DL"
 
@@ -1464,6 +1570,11 @@ else
   echo "  If agents do not load, increase the character budget:"
   echo "    export SLASH_COMMAND_TOOL_CHAR_BUDGET=30000"
 fi
+echo ""
+echo "  To uninstall, run:"
+echo "    curl -fsSL https://raw.githubusercontent.com/Community-Access/accessibility-agents/main/uninstall.sh | bash"
+echo ""
+echo "  For manual uninstall instructions, see: UNINSTALL.md"
 echo ""
 echo "  Start Claude Code and try: \"Build a login form\""
 echo "  The accessibility-lead should activate automatically."

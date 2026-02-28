@@ -14,7 +14,7 @@ $ScriptDir = if ($MyInvocation.MyCommand.Path) {
     $null
 }
 
-if (-not $ScriptDir -or (-not (Test-Path (Join-Path $ScriptDir "claude-code-plugin\agents")) -and -not (Test-Path (Join-Path $ScriptDir ".claude\agents")))) {
+if (-not $ScriptDir -or -not (Test-Path (Join-Path $ScriptDir ".claude\agents"))) {
     # Running from irm pipe or without repo — download first
     $Downloaded = $true
     $TmpDir = Join-Path $env:TEMP "a11y-agent-team-install-$(Get-Random)"
@@ -35,38 +35,7 @@ if (-not $ScriptDir -or (-not (Test-Path (Join-Path $ScriptDir "claude-code-plug
     Write-Host "  Downloaded."
 }
 
-# Prefer claude-code-plugin/ as distribution source, fall back to .claude/agents/
-$PluginAgentsDir = Join-Path $ScriptDir "claude-code-plugin\agents"
-if (Test-Path $PluginAgentsDir) {
-    $AgentsSrc = $PluginAgentsDir
-} else {
-    $AgentsSrc = Join-Path $ScriptDir ".claude\agents"
-}
-
-$CommandsSrc = $null
-$PluginCommandsDir = Join-Path $ScriptDir "claude-code-plugin\commands"
-if (Test-Path $PluginCommandsDir) {
-    $CommandsSrc = $PluginCommandsDir
-}
-
-$PluginClaudeMd = $null
-$PluginClaudeMdPath = Join-Path $ScriptDir "claude-code-plugin\CLAUDE.md"
-if (Test-Path $PluginClaudeMdPath) {
-    $PluginClaudeMd = $PluginClaudeMdPath
-}
-
-# Plugin source for global installs
-$PluginSrc = $null
-$PluginVersion = "1.0.0"
-$PluginSrcDir = Join-Path $ScriptDir "claude-code-plugin\.claude-plugin"
-if (Test-Path $PluginSrcDir) {
-    $PluginSrc = Join-Path $ScriptDir "claude-code-plugin"
-    $PluginJsonPath = Join-Path $PluginSrcDir "plugin.json"
-    if (Test-Path $PluginJsonPath) {
-        try { $PluginVersion = (Get-Content $PluginJsonPath | ConvertFrom-Json).version } catch {}
-    }
-}
-
+$AgentsSrc = Join-Path $ScriptDir ".claude\agents"
 $CopilotAgentsSrc = Join-Path $ScriptDir ".github\agents"
 $CopilotConfigSrc = Join-Path $ScriptDir ".github"
 
@@ -74,12 +43,6 @@ $CopilotConfigSrc = Join-Path $ScriptDir ".github"
 $Agents = @()
 if (Test-Path $AgentsSrc) {
     $Agents = Get-ChildItem -Path $AgentsSrc -Filter "*.md" | Select-Object -ExpandProperty Name
-}
-
-# Auto-detect commands from source directory
-$Commands = @()
-if ($CommandsSrc -and (Test-Path $CommandsSrc)) {
-    $Commands = Get-ChildItem -Path $CommandsSrc -Filter "*.md" | Select-Object -ExpandProperty Name
 }
 
 if ($Agents.Count -eq 0) {
@@ -150,190 +113,100 @@ function Merge-ConfigFile {
 }
 
 # ---------------------------------------------------------------------------
-# Register-A11yPlugin: Registers a11y-agent-team as a Claude Code plugin.
-# ---------------------------------------------------------------------------
-function Register-A11yPlugin {
-    param([string]$SrcDir)
-    $Namespace = "community-access"
-    $PluginName = "a11y-agent-team"
-    $DefaultKey = "$PluginName@$Namespace"
-    $PluginsJson = Join-Path $env:USERPROFILE ".claude\plugins\installed_plugins.json"
-    $SettingsJson = Join-Path $env:USERPROFILE ".claude\settings.json"
-
-    Write-Host ""
-    Write-Host "  Registering Claude Code plugin..."
-
-    # Ensure plugins directory exists
-    New-Item -ItemType Directory -Force -Path (Join-Path $env:USERPROFILE ".claude\plugins") | Out-Null
-
-    # Detect existing registration
-    $ActualKey = $DefaultKey
-    if (Test-Path $PluginsJson) {
-        try {
-            $data = Get-Content $PluginsJson | ConvertFrom-Json
-            foreach ($prop in $data.plugins.PSObject.Properties) {
-                if ($prop.Name -match "^a11y-agent-team@") {
-                    $ActualKey = $prop.Name
-                    $Namespace = $ActualKey -replace '^a11y-agent-team@', ''
-                    break
-                }
-            }
-        } catch {}
-    }
-
-    $CacheDir = Join-Path $env:USERPROFILE ".claude\plugins\cache\$Namespace\$PluginName\$PluginVersion"
-
-    # Copy plugin to cache
-    New-Item -ItemType Directory -Force -Path $CacheDir | Out-Null
-    Copy-Item -Path "$SrcDir\*" -Destination $CacheDir -Recurse -Force
-    Write-Host "    + Plugin cached"
-
-    # Update installed_plugins.json
-    if (-not (Test-Path $PluginsJson)) {
-        @{ version = 2; plugins = @{} } | ConvertTo-Json -Depth 10 | Out-File -FilePath $PluginsJson -Encoding utf8
-    }
-    $data = Get-Content $PluginsJson | ConvertFrom-Json
-    $now = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.000Z")
-    $entry = @{ scope = "user"; installPath = $CacheDir; version = $PluginVersion; installedAt = $now; lastUpdated = $now }
-    if (-not $data.plugins) { $data | Add-Member -NotePropertyName plugins -NotePropertyValue @{} }
-    $data.plugins | Add-Member -NotePropertyName $ActualKey -NotePropertyValue @($entry) -Force
-    $data | ConvertTo-Json -Depth 10 | Out-File -FilePath $PluginsJson -Encoding utf8
-    Write-Host "    + Registered in installed_plugins.json ($ActualKey)"
-
-    # Update settings.json enabledPlugins
-    if (-not (Test-Path $SettingsJson)) {
-        @{} | ConvertTo-Json | Out-File -FilePath $SettingsJson -Encoding utf8
-    }
-    $settings = Get-Content $SettingsJson | ConvertFrom-Json
-    if (-not $settings.enabledPlugins) { $settings | Add-Member -NotePropertyName enabledPlugins -NotePropertyValue @{} }
-    $settings.enabledPlugins | Add-Member -NotePropertyName $ActualKey -NotePropertyValue $true -Force
-    $settings | ConvertTo-Json -Depth 10 | Out-File -FilePath $SettingsJson -Encoding utf8
-    Write-Host "    + Enabled in settings.json"
-
-    $agentCount = (Get-ChildItem -Path "$CacheDir\agents" -Filter "*.md" -ErrorAction SilentlyContinue).Count
-    $cmdCount = (Get-ChildItem -Path "$CacheDir\commands" -Filter "*.md" -ErrorAction SilentlyContinue).Count
-    Write-Host ""
-    Write-Host "  Plugin registered: $ActualKey (v$PluginVersion)"
-    Write-Host "    $agentCount agents"
-    Write-Host "    $cmdCount slash commands"
-    Write-Host "    3 enforcement hooks (UserPromptSubmit, PreToolUse, PostToolUse)"
-    return $CacheDir
-}
-
-# ---------------------------------------------------------------------------
-# Install-GlobalHooks: Installs the three-hook enforcement gate.
-# Hook 1 (UserPromptSubmit): Proactive web project detection
-# Hook 2 (PreToolUse): Blocks Edit/Write to UI files until a11y review
-# Hook 3 (PostToolUse): Creates session marker when accessibility-lead completes
+# Install-GlobalHooks: installs three enforcement hooks for Claude Code.
+#   1. a11y-team-eval.sh     (UserPromptSubmit) — Proactive web project detection
+#   2. a11y-enforce-edit.sh  (PreToolUse)       — Blocks UI file edits without review
+#   3. a11y-mark-reviewed.sh (PostToolUse)      — Creates session marker after review
 # ---------------------------------------------------------------------------
 function Install-GlobalHooks {
     $HooksDir = Join-Path $env:USERPROFILE ".claude\hooks"
+    $SettingsJson = Join-Path $env:USERPROFILE ".claude\settings.json"
+    $HookSrc = Join-Path $ScriptDir "claude-code-plugin\scripts"
+
+    if (-not (Test-Path $HookSrc)) {
+        $HookSrc = Join-Path $ScriptDir ".claude\hooks"
+    }
+    if (-not (Test-Path $HookSrc)) {
+        Write-Host "    (hook scripts not found — skipping)"
+        return
+    }
+
     New-Item -ItemType Directory -Force -Path $HooksDir | Out-Null
 
-    $ScriptsSrc = Join-Path $ScriptDir "claude-code-plugin\scripts"
-
-    Write-Host ""
-    Write-Host "  Installing enforcement hooks..."
-
-    # Copy hook scripts
     foreach ($Hook in @("a11y-team-eval.sh", "a11y-enforce-edit.sh", "a11y-mark-reviewed.sh")) {
-        $Src = Join-Path $ScriptsSrc $Hook
+        $Src = Join-Path $HookSrc $Hook
         $Dst = Join-Path $HooksDir $Hook
         if (Test-Path $Src) {
             Copy-Item -Path $Src -Destination $Dst -Force
-            Write-Host "    + $Hook"
-        } else {
-            Write-Host "    ! $Hook (source not found)"
         }
     }
 
     # Register hooks in settings.json
-    $SettingsJson = Join-Path $env:USERPROFILE ".claude\settings.json"
     if (-not (Test-Path $SettingsJson)) {
-        @{} | ConvertTo-Json | Out-File -FilePath $SettingsJson -Encoding utf8
+        [IO.File]::WriteAllText($SettingsJson, "{}", [Text.Encoding]::UTF8)
     }
 
-    $EvalPath = (Join-Path $HooksDir "a11y-team-eval.sh") -replace '\\', '/'
-    $EnforcePath = (Join-Path $HooksDir "a11y-enforce-edit.sh") -replace '\\', '/'
-    $MarkerPath = (Join-Path $HooksDir "a11y-mark-reviewed.sh") -replace '\\', '/'
-
-    $settings = Get-Content $SettingsJson -Raw | ConvertFrom-Json
-    if (-not $settings.hooks) {
-        $settings | Add-Member -NotePropertyName hooks -NotePropertyValue @{} -Force
-    }
-
-    # Build hook entries
-    $UserPromptHook = @{ hooks = @(@{ type = "command"; command = "bash `"$EvalPath`"" }) }
-    $PreToolHook = @{ matcher = "Edit|Write"; hooks = @(@{ type = "command"; command = "bash `"$EnforcePath`"" }) }
-    $PostToolHook = @{ matcher = "Agent"; hooks = @(@{ type = "command"; command = "bash `"$MarkerPath`"" }) }
-
-    # Helper: upsert a hook entry into an event array
+    # Helper: upsert a hook entry by matching a substring in the command
     function Set-HookEntry {
-        param([string]$Event, [object]$Entry, [string]$Match)
-        $existing = @()
-        if ($settings.hooks.PSObject.Properties[$Event]) {
-            $existing = @($settings.hooks.$Event)
+        param([string]$EventName, [string]$MatchSubstr, [hashtable]$NewEntry)
+        $Settings = Get-Content $SettingsJson -Raw | ConvertFrom-Json
+        if (-not $Settings.PSObject.Properties.Name.Contains("hooks")) {
+            $Settings | Add-Member -NotePropertyName "hooks" -NotePropertyValue ([PSCustomObject]@{})
         }
-        # Remove any existing a11y hook for this event
-        $filtered = @($existing | Where-Object {
-            $dominated = $false
-            foreach ($h in $_.hooks) {
-                if ($h.command -and $h.command -match "a11y-") { $dominated = $true }
+        $Hooks = $Settings.hooks
+        if (-not $Hooks.PSObject.Properties.Name.Contains($EventName)) {
+            $Hooks | Add-Member -NotePropertyName $EventName -NotePropertyValue @()
+        }
+        $Entries = @($Hooks.$EventName)
+        $Replaced = $false
+        for ($i = 0; $i -lt $Entries.Count; $i++) {
+            foreach ($h in $Entries[$i].hooks) {
+                if ($h.command -and $h.command.Contains($MatchSubstr)) {
+                    $Entries[$i] = $NewEntry
+                    $Replaced = $true
+                    break
+                }
             }
-            -not $dominated
-        })
-        $filtered += $Entry
-        $settings.hooks | Add-Member -NotePropertyName $Event -NotePropertyValue $filtered -Force
-    }
-
-    Set-HookEntry -Event "UserPromptSubmit" -Entry $UserPromptHook
-    Set-HookEntry -Event "PreToolUse" -Entry $PreToolHook
-    Set-HookEntry -Event "PostToolUse" -Entry $PostToolHook
-
-    $settings | ConvertTo-Json -Depth 10 | Out-File -FilePath $SettingsJson -Encoding utf8
-    Write-Host "    + Hooks registered in settings.json"
-}
-
-# ---------------------------------------------------------------------------
-# Installation: plugin (global) vs file-copy (project)
-# ---------------------------------------------------------------------------
-$PluginInstall = $false
-
-if ($Choice -eq "2" -and $PluginSrc) {
-    # Global install: register as Claude Code plugin
-    $PluginCacheDir = Register-A11yPlugin -SrcDir $PluginSrc
-    $PluginInstall = $true
-
-    # Install the three-hook enforcement gate
-    Install-GlobalHooks
-
-    # Clean up previous non-plugin install
-    $OldManifest = Join-Path $TargetDir ".a11y-agent-manifest"
-    if (Test-Path $OldManifest) {
-        Write-Host ""
-        Write-Host "  Cleaning up previous non-plugin install..."
-        $removed = 0
-        Get-Content $OldManifest | ForEach-Object {
-            $file = Join-Path $TargetDir $_
-            if (Test-Path $file) { Remove-Item $file; $removed++ }
+            if ($Replaced) { break }
         }
-        Remove-Item $OldManifest -ErrorAction SilentlyContinue
-        if ($removed -gt 0) { Write-Host "    Removed $removed files" }
+        if (-not $Replaced) { $Entries += $NewEntry }
+        $Hooks.$EventName = $Entries
+        $Settings | ConvertTo-Json -Depth 10 | Set-Content $SettingsJson -Encoding UTF8
     }
-} else {
-    # Project install (or global without plugin support): copy agents/commands directly
+
+    Set-HookEntry -EventName "UserPromptSubmit" -MatchSubstr "a11y-team-eval" -NewEntry @{
+        hooks = @(@{ type = "command"; command = "$HooksDir/a11y-team-eval.sh" })
+    }
+    Set-HookEntry -EventName "PreToolUse" -MatchSubstr "a11y-enforce-edit" -NewEntry @{
+        matcher = "Edit|Write"
+        hooks = @(@{ type = "command"; command = "$HooksDir/a11y-enforce-edit.sh" })
+    }
+    Set-HookEntry -EventName "PostToolUse" -MatchSubstr "a11y-mark-reviewed" -NewEntry @{
+        matcher = "Agent"
+        hooks = @(@{ type = "command"; command = "$HooksDir/a11y-mark-reviewed.sh" })
+    }
+
+    Write-Host "    + Hook 1: a11y-team-eval.sh (UserPromptSubmit — proactive web detection)"
+    Write-Host "    + Hook 2: a11y-enforce-edit.sh (PreToolUse — blocks UI edits without review)"
+    Write-Host "    + Hook 3: a11y-mark-reviewed.sh (PostToolUse — unlocks after review)"
+    Write-Host "    + All 3 hooks registered in settings.json"
+}
 
 # Create directories
 New-Item -ItemType Directory -Force -Path (Join-Path $TargetDir "agents") | Out-Null
-if ($Commands.Count -gt 0) {
-    New-Item -ItemType Directory -Force -Path (Join-Path $TargetDir "commands") | Out-Null
-}
 
-# Track which files we install so updates never touch user-created files
+# Track which files we install so the uninstaller can cleanly remove everything.
+# The manifest is the single source of truth for what belongs to us vs. user files.
 $ManifestPath = Join-Path $TargetDir ".a11y-agent-manifest"
 $Manifest = [System.Collections.Generic.List[string]]::new()
 if (Test-Path $ManifestPath) {
-    [IO.File]::ReadAllLines($ManifestPath, [Text.Encoding]::UTF8) | ForEach-Object { $Manifest.Add($_) }
+    [IO.File]::ReadAllLines($ManifestPath, [Text.Encoding]::UTF8) | Where-Object { $_.Trim() -ne "" } | ForEach-Object { $Manifest.Add($_) }
+}
+function Add-ManifestEntry([string]$Entry) {
+    if (-not $Manifest.Contains($Entry)) { $Manifest.Add($Entry) }
+}
+function Save-Manifest {
+    [IO.File]::WriteAllLines($ManifestPath, $Manifest.ToArray(), [Text.Encoding]::UTF8)
 }
 
 # Copy agents — skip any file that already exists (preserves user customisations)
@@ -349,7 +222,7 @@ foreach ($Agent in $Agents) {
         $SkippedAgents++
     } else {
         Copy-Item -Path $Src -Destination $Dst
-        if (-not $Manifest.Contains("agents/$Agent")) { $Manifest.Add("agents/$Agent") }
+        Add-ManifestEntry "agents/$Agent"
         Write-Host "    + $Name"
     }
 }
@@ -357,50 +230,8 @@ if ($SkippedAgents -gt 0) {
     Write-Host "      $SkippedAgents agent(s) skipped. Use -Force flag or delete them first to reinstall."
 }
 
-# Copy commands — skip any file that already exists (preserves user customisations)
-if ($Commands.Count -gt 0) {
-    Write-Host ""
-    Write-Host "  Copying commands..."
-    $SkippedCommands = 0
-    foreach ($Cmd in $Commands) {
-        $Src = Join-Path $CommandsSrc $Cmd
-        $Dst = Join-Path $TargetDir "commands\$Cmd"
-        $Name = $Cmd -replace '\.md$', ''
-        if (Test-Path $Dst) {
-            Write-Host "    ~ /$Name (skipped - already exists)"
-            $SkippedCommands++
-        } else {
-            Copy-Item -Path $Src -Destination $Dst
-            if (-not $Manifest.Contains("commands/$Cmd")) { $Manifest.Add("commands/$Cmd") }
-            Write-Host "    + /$Name"
-        }
-    }
-    if ($SkippedCommands -gt 0) {
-        Write-Host "      $SkippedCommands command(s) skipped. Delete them first to reinstall."
-    }
-}
-
-}  # end of project/fallback install path
-
-# Merge CLAUDE.md snippet (optional)
-if ($PluginClaudeMd) {
-    Write-Host ""
-    Write-Host "  Would you like to merge accessibility rules into your project CLAUDE.md?"
-    Write-Host "  This adds the decision matrix and non-negotiable standards."
-    Write-Host ""
-    $ClaudeChoice = Read-Host "  Merge CLAUDE.md rules? [y/N]"
-    if ($ClaudeChoice -eq "y" -or $ClaudeChoice -eq "Y") {
-        if ($Choice -eq "1") {
-            $ClaudeDst = Join-Path (Get-Location) "CLAUDE.md"
-        } else {
-            $ClaudeDst = Join-Path $env:USERPROFILE "CLAUDE.md"
-        }
-        Merge-ConfigFile -SrcFile $PluginClaudeMd -DstFile $ClaudeDst -Label "CLAUDE.md (accessibility rules)"
-    }
-}
-
-# Save manifest
-[IO.File]::WriteAllLines($ManifestPath, $Manifest.ToArray(), [Text.Encoding]::UTF8)
+# Save manifest (will be updated again as more platforms are installed)
+Save-Manifest
 
 # Copilot agents
 $CopilotInstalled = $false
@@ -443,6 +274,7 @@ if ($CopilotChoice -eq "y" -or $CopilotChoice -eq "Y") {
                     Write-Host "    ~ $DisplayName (skipped - already exists)"
                 } else {
                     Copy-Item -Path $File.FullName -Destination $DstPath
+                    Add-ManifestEntry "copilot-agents/$($File.Name)"
                     Write-Host "    + $DisplayName"
                 }
             }
@@ -461,13 +293,22 @@ if ($CopilotChoice -eq "y" -or $CopilotChoice -eq "Y") {
                     $Rel  = $File.FullName.Substring($SrcSubDir.Length).TrimStart('\')
                     $Dst  = Join-Path $DstSubDir $Rel
                     New-Item -ItemType Directory -Force -Path (Split-Path $Dst) | Out-Null
-                    if (Test-Path $Dst) { $Skipped++ } else { Copy-Item $File.FullName $Dst; $Added++ }
+                    if (Test-Path $Dst) { $Skipped++ } else {
+                        Copy-Item $File.FullName $Dst
+                        $RelEntry = $Rel.Replace('\','/')
+                        Add-ManifestEntry "copilot-$SubDir/$RelEntry"
+                        $Added++
+                    }
                 }
                 $msg = "    + .github\$SubDir\ ($Added new"
                 if ($Skipped -gt 0) { $msg += ", $Skipped skipped" }
                 Write-Host "$msg)"
             }
         }
+        Add-ManifestEntry "copilot-config/copilot-instructions.md"
+        Add-ManifestEntry "copilot-config/copilot-review-instructions.md"
+        Add-ManifestEntry "copilot-config/copilot-commit-message-instructions.md"
+        Save-Manifest
         $CopilotInstalled = $true
     } else {
         # Global install: store Copilot agents centrally and configure VS Code
@@ -635,69 +476,100 @@ Write-Host "  Your existing files were preserved. Only new content was added."
         Write-Host "    powershell -File `"$InitScript`""
         Write-Host ""
 
+        Add-ManifestEntry "copilot-global/central-store"
+        Save-Manifest
         $CopilotInstalled = $true
         $CopilotDestinations += $CopilotCentral
     }
 }
 
-# Verify installation
+# ---------------------------------------------------------------------------
+# Gemini CLI extension
+# ---------------------------------------------------------------------------
+$GeminiSrc = Join-Path $ScriptDir ".gemini\extensions\a11y-agents"
+$GeminiInstalled = $false
+$GeminiDst = ""
+
+if (Test-Path $GeminiSrc) {
+    Write-Host ""
+    Write-Host "  Would you also like to install Gemini CLI support?"
+    Write-Host "  This installs accessibility skills as a Gemini CLI extension"
+    Write-Host "  so Gemini automatically applies WCAG AA rules to all UI code."
+    Write-Host ""
+    $GeminiChoice = Read-Host "  Install Gemini CLI support? [y/N]"
+
+    if ($GeminiChoice -eq "y" -or $GeminiChoice -eq "Y") {
+        Write-Host ""
+        Write-Host "  Installing Gemini CLI extension..."
+
+        if ($Choice -eq "1") {
+            $GeminiDst = Join-Path (Get-Location) ".gemini\extensions\a11y-agents"
+        } else {
+            $GeminiDst = Join-Path $env:USERPROFILE ".gemini\extensions\a11y-agents"
+        }
+
+        New-Item -ItemType Directory -Force -Path $GeminiDst | Out-Null
+
+        # Copy extension manifest and context file
+        foreach ($f in @("gemini-extension.json", "GEMINI.md")) {
+            $Src = Join-Path $GeminiSrc $f
+            if (Test-Path $Src) {
+                Copy-Item -Path $Src -Destination (Join-Path $GeminiDst $f) -Force
+                Write-Host "    + $f"
+            }
+        }
+
+        # Copy skills — directory by directory, skip existing
+        $SkillsSrc = Join-Path $GeminiSrc "skills"
+        if (Test-Path $SkillsSrc) {
+            $Added = 0; $Skipped = 0
+            Get-ChildItem -Path $SkillsSrc -Directory | ForEach-Object {
+                $DstSkill = Join-Path $GeminiDst "skills\$($_.Name)"
+                New-Item -ItemType Directory -Force -Path $DstSkill | Out-Null
+                Get-ChildItem -Path $_.FullName -File | ForEach-Object {
+                    $DstFile = Join-Path $DstSkill $_.Name
+                    if (Test-Path $DstFile) { $Skipped++ } else { Copy-Item $_.FullName $DstFile; $Added++ }
+                }
+            }
+            Write-Host "    + skills\ ($Added new, $Skipped skipped)"
+        }
+
+        $GeminiInstalled = $true
+        if ($Choice -eq "1") {
+            Add-ManifestEntry "gemini/project"
+        } else {
+            Add-ManifestEntry "gemini/global"
+        }
+        Add-ManifestEntry "gemini/path:$GeminiDst"
+        Save-Manifest
+        Write-Host ""
+        Write-Host "  Gemini CLI will now enforce WCAG AA rules on all UI code."
+        Write-Host "  Run: gemini `"Build a login form`" -- accessibility skills apply automatically."
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Install enforcement hooks (global only)
+# ---------------------------------------------------------------------------
+if ($Choice -eq "2") {
+    Write-Host ""
+    Write-Host "  Installing enforcement hooks..."
+    Install-GlobalHooks
+}
+
+# Done
 Write-Host ""
 Write-Host "  ========================="
 Write-Host "  Installation complete!"
-
-if ($PluginInstall) {
-    Write-Host ""
-    Write-Host "  Claude Code plugin installed:"
-    Write-Host ""
-    Write-Host "  Agents:"
-    foreach ($f in Get-ChildItem -Path "$PluginCacheDir\agents" -Filter "*.md" -ErrorAction SilentlyContinue) {
-        Write-Host "    [x] $($f.BaseName)"
-    }
-    Write-Host ""
-    Write-Host "  Slash commands:"
-    foreach ($f in Get-ChildItem -Path "$PluginCacheDir\commands" -Filter "*.md" -ErrorAction SilentlyContinue) {
-        Write-Host "    [x] /$($f.BaseName)"
-    }
-    Write-Host ""
-    Write-Host "  Enforcement hooks (three-hook gate):"
-    $HooksDir = Join-Path $env:USERPROFILE ".claude\hooks"
-    $HookChecks = @(
-        @{ File = "a11y-team-eval.sh";    Label = "UserPromptSubmit  - Proactive web project detection" },
-        @{ File = "a11y-enforce-edit.sh";  Label = "PreToolUse        - Blocks UI file edits until accessibility-lead reviewed" },
-        @{ File = "a11y-mark-reviewed.sh"; Label = "PostToolUse       - Unlocks edit gate after accessibility-lead completes" }
-    )
-    foreach ($Check in $HookChecks) {
-        $HookPath = Join-Path $HooksDir $Check.File
-        if (Test-Path $HookPath) {
-            Write-Host "    [x] $($Check.Label)"
-        } else {
-            Write-Host "    [ ] $($Check.Label) (not installed)"
-        }
-    }
-} else {
-    Write-Host ""
-    Write-Host "  Claude Code agents installed:"
-    foreach ($Agent in $Agents) {
-        $Name = $Agent -replace '\.md$', ''
-        $AgentPath = Join-Path $TargetDir "agents\$Agent"
-        if (Test-Path $AgentPath) {
-            Write-Host "    [x] $Name"
-        } else {
-            Write-Host "    [ ] $Name (missing)"
-        }
-    }
-    if ($Commands.Count -gt 0) {
-        Write-Host ""
-        Write-Host "  Slash commands installed:"
-        foreach ($Cmd in $Commands) {
-            $Name = $Cmd -replace '\.md$', ''
-            $CmdPath = Join-Path $TargetDir "commands\$Cmd"
-            if (Test-Path $CmdPath) {
-                Write-Host "    [x] /$Name"
-            } else {
-                Write-Host "    [ ] /$Name (missing)"
-            }
-        }
+Write-Host ""
+Write-Host "  Claude Code agents installed:"
+foreach ($Agent in $Agents) {
+    $Name = $Agent -replace '\.md$', ''
+    $AgentPath = Join-Path $TargetDir "agents\$Agent"
+    if (Test-Path $AgentPath) {
+        Write-Host "    [x] $Name"
+    } else {
+        Write-Host "    [ ] $Name (missing)"
     }
 }
 if ($CopilotInstalled) {
@@ -713,6 +585,11 @@ if ($CopilotInstalled) {
         $Name = $File.BaseName -replace '\.agent$', ''
         Write-Host "    [x] $Name"
     }
+}
+if ($GeminiInstalled) {
+    Write-Host ""
+    Write-Host "  Gemini CLI extension installed to:"
+    Write-Host "    -> $GeminiDst"
 }
 
 # Auto-update setup (global install only)
@@ -753,21 +630,25 @@ if ($Choice -eq "2") {
     }
 }
 
+# Final manifest save — captures everything installed across all platforms
+Save-Manifest
+
+# Record install scope for uninstaller
+$ScopeMarker = if ($Choice -eq "1") { "scope:project" } else { "scope:global" }
+if (-not $Manifest.Contains($ScopeMarker)) { Add-ManifestEntry $ScopeMarker }
+Save-Manifest
+
 # Clean up temp download
 if ($Downloaded) { Remove-Item -Recurse -Force $TmpDir -ErrorAction SilentlyContinue }
 
 Write-Host ""
-if ($PluginInstall) {
-    Write-Host "  Restart Claude Code for the plugin to take effect."
-    Write-Host ""
-    Write-Host "  The three-hook enforcement gate will:"
-    Write-Host "    - Detect web projects and inject accessibility instructions on every prompt"
-    Write-Host "    - Block Edit/Write to UI files until accessibility-lead has reviewed"
-    Write-Host "    - Unlock the edit gate after accessibility-lead completes"
-} else {
-    Write-Host "  If agents stop loading, increase the character budget:"
-    Write-Host "    `$env:SLASH_COMMAND_TOOL_CHAR_BUDGET = '30000'"
-}
+Write-Host "  If agents stop loading, increase the character budget:"
+Write-Host "    `$env:SLASH_COMMAND_TOOL_CHAR_BUDGET = '30000'"
+Write-Host ""
+Write-Host "  To uninstall, run:"
+Write-Host "    irm https://raw.githubusercontent.com/Community-Access/accessibility-agents/main/uninstall.ps1 | iex"
+Write-Host ""
+Write-Host "  For manual uninstall instructions, see: UNINSTALL.md"
 Write-Host ""
 Write-Host "  Start Claude Code and try: `"Build a login form`""
 Write-Host "  The accessibility-lead should activate automatically."

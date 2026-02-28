@@ -22,7 +22,7 @@ AI coding tools generate inaccessible code by default. They forget ARIA rules, s
 
 ## The Solution
 
-**Accessibility Agents** provides thirty-five specialized agents across two teams and four platforms:
+**Accessibility Agents** provides thirty-five specialized agents across two teams and six platforms:
 
 - **Accessibility team** - twenty-five agents that enforce WCAG AA standards for web code, Office/PDF documents, and Markdown documentation
 - **GitHub Workflow team** - ten agents that manage repositories, triage issues, review PRs, and keep your team informed
@@ -30,9 +30,10 @@ AI coding tools generate inaccessible code by default. They forget ARIA rules, s
 All agents run on:
 
 - **Claude Code** - Agents with hook-based enforcement that blocks UI file edits until accessibility review is complete
-- **GitHub Copilot** - Agents + workspace instructions that ensure accessibility guidance in every conversation
+- **GitHub Copilot** (VS Code and CLI) - Agents + workspace instructions that ensure accessibility guidance in every conversation
+- **Gemini CLI** - Skills-based extension with always-on WCAG AA context via GEMINI.md
 - **Claude Desktop** - An MCP extension (.mcpb) with tools and prompts for accessibility review
-- **Codex CLI** - Condensed WCAG AA rules loaded via `.codex/AGENTS.md` — accessibility enforced automatically on every UI task
+- **Codex CLI** - Condensed WCAG AA rules loaded via `.codex/AGENTS.md` -- accessibility enforced automatically on every UI task
 
 ### Hook-Based Enforcement (Claude Code)
 
@@ -75,6 +76,10 @@ curl -fsSL https://raw.githubusercontent.com/Community-Access/accessibility-agen
 ```powershell
 irm https://raw.githubusercontent.com/Community-Access/accessibility-agents/main/uninstall.ps1 | iex
 ```
+
+The uninstaller removes all agents, config sections, assets, extensions, and auto-update tasks across every platform (Claude Code, Copilot, Codex, Gemini). If no manifest file is found, it downloads the repo to build a fallback file list so nothing is missed.
+
+For step-by-step manual removal instructions, see [UNINSTALL.md](UNINSTALL.md).
 
 ### Safe installation — your files are never overwritten
 
@@ -145,7 +150,7 @@ The following guides cover web and document accessibility features.
 
 | Guide | What It Covers |
 |-------|---------------|
-| [Getting Started](docs/getting-started.md) | Installation for Claude Code, Copilot, Claude Desktop, and Codex CLI |
+| [Getting Started](docs/getting-started.md) | Installation for Claude Code, Copilot (VS Code and CLI), Gemini CLI, Claude Desktop, and Codex CLI |
 | [Agent Reference](docs/agents/README.md) | All 22 agents with invocation syntax, examples, and deep dives |
 | [MCP Tools](docs/tools/mcp-tools.md) | Static analysis tools: heading structure, link text, form labels |
 | [axe-core Integration](docs/tools/axe-core-integration.md) | Runtime scanning, agent workflow, CI/CD setup |
