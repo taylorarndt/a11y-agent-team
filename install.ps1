@@ -112,14 +112,101 @@ function Merge-ConfigFile {
     }
 }
 
+# ---------------------------------------------------------------------------
+# Install-GlobalHooks: installs three enforcement hooks for Claude Code.
+#   1. a11y-team-eval.sh     (UserPromptSubmit) — Proactive web project detection
+#   2. a11y-enforce-edit.sh  (PreToolUse)       — Blocks UI file edits without review
+#   3. a11y-mark-reviewed.sh (PostToolUse)      — Creates session marker after review
+# ---------------------------------------------------------------------------
+function Install-GlobalHooks {
+    $HooksDir = Join-Path $env:USERPROFILE ".claude\hooks"
+    $SettingsJson = Join-Path $env:USERPROFILE ".claude\settings.json"
+    $HookSrc = Join-Path $ScriptDir "claude-code-plugin\scripts"
+
+    if (-not (Test-Path $HookSrc)) {
+        $HookSrc = Join-Path $ScriptDir ".claude\hooks"
+    }
+    if (-not (Test-Path $HookSrc)) {
+        Write-Host "    (hook scripts not found — skipping)"
+        return
+    }
+
+    New-Item -ItemType Directory -Force -Path $HooksDir | Out-Null
+
+    foreach ($Hook in @("a11y-team-eval.sh", "a11y-enforce-edit.sh", "a11y-mark-reviewed.sh")) {
+        $Src = Join-Path $HookSrc $Hook
+        $Dst = Join-Path $HooksDir $Hook
+        if (Test-Path $Src) {
+            Copy-Item -Path $Src -Destination $Dst -Force
+        }
+    }
+
+    # Register hooks in settings.json
+    if (-not (Test-Path $SettingsJson)) {
+        [IO.File]::WriteAllText($SettingsJson, "{}", [Text.Encoding]::UTF8)
+    }
+
+    # Helper: upsert a hook entry by matching a substring in the command
+    function Set-HookEntry {
+        param([string]$EventName, [string]$MatchSubstr, [hashtable]$NewEntry)
+        $Settings = Get-Content $SettingsJson -Raw | ConvertFrom-Json
+        if (-not $Settings.PSObject.Properties.Name.Contains("hooks")) {
+            $Settings | Add-Member -NotePropertyName "hooks" -NotePropertyValue ([PSCustomObject]@{})
+        }
+        $Hooks = $Settings.hooks
+        if (-not $Hooks.PSObject.Properties.Name.Contains($EventName)) {
+            $Hooks | Add-Member -NotePropertyName $EventName -NotePropertyValue @()
+        }
+        $Entries = @($Hooks.$EventName)
+        $Replaced = $false
+        for ($i = 0; $i -lt $Entries.Count; $i++) {
+            foreach ($h in $Entries[$i].hooks) {
+                if ($h.command -and $h.command.Contains($MatchSubstr)) {
+                    $Entries[$i] = $NewEntry
+                    $Replaced = $true
+                    break
+                }
+            }
+            if ($Replaced) { break }
+        }
+        if (-not $Replaced) { $Entries += $NewEntry }
+        $Hooks.$EventName = $Entries
+        $Settings | ConvertTo-Json -Depth 10 | Set-Content $SettingsJson -Encoding UTF8
+    }
+
+    Set-HookEntry -EventName "UserPromptSubmit" -MatchSubstr "a11y-team-eval" -NewEntry @{
+        hooks = @(@{ type = "command"; command = "$HooksDir/a11y-team-eval.sh" })
+    }
+    Set-HookEntry -EventName "PreToolUse" -MatchSubstr "a11y-enforce-edit" -NewEntry @{
+        matcher = "Edit|Write"
+        hooks = @(@{ type = "command"; command = "$HooksDir/a11y-enforce-edit.sh" })
+    }
+    Set-HookEntry -EventName "PostToolUse" -MatchSubstr "a11y-mark-reviewed" -NewEntry @{
+        matcher = "Agent"
+        hooks = @(@{ type = "command"; command = "$HooksDir/a11y-mark-reviewed.sh" })
+    }
+
+    Write-Host "    + Hook 1: a11y-team-eval.sh (UserPromptSubmit — proactive web detection)"
+    Write-Host "    + Hook 2: a11y-enforce-edit.sh (PreToolUse — blocks UI edits without review)"
+    Write-Host "    + Hook 3: a11y-mark-reviewed.sh (PostToolUse — unlocks after review)"
+    Write-Host "    + All 3 hooks registered in settings.json"
+}
+
 # Create directories
 New-Item -ItemType Directory -Force -Path (Join-Path $TargetDir "agents") | Out-Null
 
-# Track which files we install so updates never touch user-created files
+# Track which files we install so the uninstaller can cleanly remove everything.
+# The manifest is the single source of truth for what belongs to us vs. user files.
 $ManifestPath = Join-Path $TargetDir ".a11y-agent-manifest"
 $Manifest = [System.Collections.Generic.List[string]]::new()
 if (Test-Path $ManifestPath) {
-    [IO.File]::ReadAllLines($ManifestPath, [Text.Encoding]::UTF8) | ForEach-Object { $Manifest.Add($_) }
+    [IO.File]::ReadAllLines($ManifestPath, [Text.Encoding]::UTF8) | Where-Object { $_.Trim() -ne "" } | ForEach-Object { $Manifest.Add($_) }
+}
+function Add-ManifestEntry([string]$Entry) {
+    if (-not $Manifest.Contains($Entry)) { $Manifest.Add($Entry) }
+}
+function Save-Manifest {
+    [IO.File]::WriteAllLines($ManifestPath, $Manifest.ToArray(), [Text.Encoding]::UTF8)
 }
 
 # Copy agents — skip any file that already exists (preserves user customisations)
@@ -135,7 +222,7 @@ foreach ($Agent in $Agents) {
         $SkippedAgents++
     } else {
         Copy-Item -Path $Src -Destination $Dst
-        if (-not $Manifest.Contains("agents/$Agent")) { $Manifest.Add("agents/$Agent") }
+        Add-ManifestEntry "agents/$Agent"
         Write-Host "    + $Name"
     }
 }
@@ -143,8 +230,8 @@ if ($SkippedAgents -gt 0) {
     Write-Host "      $SkippedAgents agent(s) skipped. Use -Force flag or delete them first to reinstall."
 }
 
-# Save manifest
-[IO.File]::WriteAllLines($ManifestPath, $Manifest.ToArray(), [Text.Encoding]::UTF8)
+# Save manifest (will be updated again as more platforms are installed)
+Save-Manifest
 
 # Copilot agents
 $CopilotInstalled = $false
@@ -187,6 +274,7 @@ if ($CopilotChoice -eq "y" -or $CopilotChoice -eq "Y") {
                     Write-Host "    ~ $DisplayName (skipped - already exists)"
                 } else {
                     Copy-Item -Path $File.FullName -Destination $DstPath
+                    Add-ManifestEntry "copilot-agents/$($File.Name)"
                     Write-Host "    + $DisplayName"
                 }
             }
@@ -205,13 +293,22 @@ if ($CopilotChoice -eq "y" -or $CopilotChoice -eq "Y") {
                     $Rel  = $File.FullName.Substring($SrcSubDir.Length).TrimStart('\')
                     $Dst  = Join-Path $DstSubDir $Rel
                     New-Item -ItemType Directory -Force -Path (Split-Path $Dst) | Out-Null
-                    if (Test-Path $Dst) { $Skipped++ } else { Copy-Item $File.FullName $Dst; $Added++ }
+                    if (Test-Path $Dst) { $Skipped++ } else {
+                        Copy-Item $File.FullName $Dst
+                        $RelEntry = $Rel.Replace('\','/')
+                        Add-ManifestEntry "copilot-$SubDir/$RelEntry"
+                        $Added++
+                    }
                 }
                 $msg = "    + .github\$SubDir\ ($Added new"
                 if ($Skipped -gt 0) { $msg += ", $Skipped skipped" }
                 Write-Host "$msg)"
             }
         }
+        Add-ManifestEntry "copilot-config/copilot-instructions.md"
+        Add-ManifestEntry "copilot-config/copilot-review-instructions.md"
+        Add-ManifestEntry "copilot-config/copilot-commit-message-instructions.md"
+        Save-Manifest
         $CopilotInstalled = $true
     } else {
         # Global install: store Copilot agents centrally and configure VS Code
@@ -379,12 +476,91 @@ Write-Host "  Your existing files were preserved. Only new content was added."
         Write-Host "    powershell -File `"$InitScript`""
         Write-Host ""
 
+        Add-ManifestEntry "copilot-global/central-store"
+        Save-Manifest
         $CopilotInstalled = $true
         $CopilotDestinations += $CopilotCentral
     }
 }
 
-# Done\nWrite-Host \"\"\nWrite-Host \"  =========================\"\nWrite-Host \"  Installation complete!\"
+# ---------------------------------------------------------------------------
+# Gemini CLI extension
+# ---------------------------------------------------------------------------
+$GeminiSrc = Join-Path $ScriptDir ".gemini\extensions\a11y-agents"
+$GeminiInstalled = $false
+$GeminiDst = ""
+
+if (Test-Path $GeminiSrc) {
+    Write-Host ""
+    Write-Host "  Would you also like to install Gemini CLI support?"
+    Write-Host "  This installs accessibility skills as a Gemini CLI extension"
+    Write-Host "  so Gemini automatically applies WCAG AA rules to all UI code."
+    Write-Host ""
+    $GeminiChoice = Read-Host "  Install Gemini CLI support? [y/N]"
+
+    if ($GeminiChoice -eq "y" -or $GeminiChoice -eq "Y") {
+        Write-Host ""
+        Write-Host "  Installing Gemini CLI extension..."
+
+        if ($Choice -eq "1") {
+            $GeminiDst = Join-Path (Get-Location) ".gemini\extensions\a11y-agents"
+        } else {
+            $GeminiDst = Join-Path $env:USERPROFILE ".gemini\extensions\a11y-agents"
+        }
+
+        New-Item -ItemType Directory -Force -Path $GeminiDst | Out-Null
+
+        # Copy extension manifest and context file
+        foreach ($f in @("gemini-extension.json", "GEMINI.md")) {
+            $Src = Join-Path $GeminiSrc $f
+            if (Test-Path $Src) {
+                Copy-Item -Path $Src -Destination (Join-Path $GeminiDst $f) -Force
+                Write-Host "    + $f"
+            }
+        }
+
+        # Copy skills — directory by directory, skip existing
+        $SkillsSrc = Join-Path $GeminiSrc "skills"
+        if (Test-Path $SkillsSrc) {
+            $Added = 0; $Skipped = 0
+            Get-ChildItem -Path $SkillsSrc -Directory | ForEach-Object {
+                $DstSkill = Join-Path $GeminiDst "skills\$($_.Name)"
+                New-Item -ItemType Directory -Force -Path $DstSkill | Out-Null
+                Get-ChildItem -Path $_.FullName -File | ForEach-Object {
+                    $DstFile = Join-Path $DstSkill $_.Name
+                    if (Test-Path $DstFile) { $Skipped++ } else { Copy-Item $_.FullName $DstFile; $Added++ }
+                }
+            }
+            Write-Host "    + skills\ ($Added new, $Skipped skipped)"
+        }
+
+        $GeminiInstalled = $true
+        if ($Choice -eq "1") {
+            Add-ManifestEntry "gemini/project"
+        } else {
+            Add-ManifestEntry "gemini/global"
+        }
+        Add-ManifestEntry "gemini/path:$GeminiDst"
+        Save-Manifest
+        Write-Host ""
+        Write-Host "  Gemini CLI will now enforce WCAG AA rules on all UI code."
+        Write-Host "  Run: gemini `"Build a login form`" -- accessibility skills apply automatically."
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Install enforcement hooks (global only)
+# ---------------------------------------------------------------------------
+if ($Choice -eq "2") {
+    Write-Host ""
+    Write-Host "  Installing enforcement hooks..."
+    Install-GlobalHooks
+}
+
+# Done
+Write-Host ""
+Write-Host "  ========================="
+Write-Host "  Installation complete!"
 Write-Host ""
 Write-Host "  Claude Code agents installed:"
 foreach ($Agent in $Agents) {
@@ -409,6 +585,11 @@ if ($CopilotInstalled) {
         $Name = $File.BaseName -replace '\.agent$', ''
         Write-Host "    [x] $Name"
     }
+}
+if ($GeminiInstalled) {
+    Write-Host ""
+    Write-Host "  Gemini CLI extension installed to:"
+    Write-Host "    -> $GeminiDst"
 }
 
 # Auto-update setup (global install only)
@@ -449,12 +630,25 @@ if ($Choice -eq "2") {
     }
 }
 
+# Final manifest save — captures everything installed across all platforms
+Save-Manifest
+
+# Record install scope for uninstaller
+$ScopeMarker = if ($Choice -eq "1") { "scope:project" } else { "scope:global" }
+if (-not $Manifest.Contains($ScopeMarker)) { Add-ManifestEntry $ScopeMarker }
+Save-Manifest
+
 # Clean up temp download
 if ($Downloaded) { Remove-Item -Recurse -Force $TmpDir -ErrorAction SilentlyContinue }
 
 Write-Host ""
 Write-Host "  If agents stop loading, increase the character budget:"
 Write-Host "    `$env:SLASH_COMMAND_TOOL_CHAR_BUDGET = '30000'"
+Write-Host ""
+Write-Host "  To uninstall, run:"
+Write-Host "    irm https://raw.githubusercontent.com/Community-Access/accessibility-agents/main/uninstall.ps1 | iex"
+Write-Host ""
+Write-Host "  For manual uninstall instructions, see: UNINSTALL.md"
 Write-Host ""
 Write-Host "  Start Claude Code and try: `"Build a login form`""
 Write-Host "  The accessibility-lead should activate automatically."

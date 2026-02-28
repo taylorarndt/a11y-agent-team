@@ -10,15 +10,31 @@
 
 The Desktop Extension uses MCP because Claude Desktop does not have an agent system. The MCP server packs the same specialist knowledge into tools and prompts.
 
+## Why Hooks Instead of Instructions
+
+Agents solve the expertise problem but not the activation problem. Even with CLAUDE.md instructions saying "always delegate to accessibility-lead," LLMs treat text instructions as suggestions. In real-world testing, Claude would read the instruction, understand it, and still write UI code itself without delegating. The user had to manually ask "did you do accessibility review?" every time.
+
+**Instructions are suggestions. Hooks are enforcement.**
+
+The project uses a three-hook enforcement gate that makes it physically impossible for Claude to skip accessibility review:
+
+1. **UserPromptSubmit** (`a11y-team-eval.sh`) — Proactively detects web projects and injects the delegation instruction before Claude starts working.
+2. **PreToolUse** (`a11y-enforce-edit.sh`) — Hard blocks any Edit/Write to UI files (`.jsx`, `.tsx`, `.vue`, `.css`, `.html`, etc.) until the accessibility-lead agent has been consulted. Uses the `permissionDecision: "deny"` mechanism to reject the tool call entirely.
+3. **PostToolUse** (`a11y-mark-reviewed.sh`) — Creates a session marker when the accessibility-lead agent completes. This marker unlocks the PreToolUse block for the rest of the session.
+
+The result: Claude cannot write to a `.tsx` file without first running the accessibility-lead review. Not because it was told not to. Because the tool call is denied at the hook level.
+
+See the [Hooks Guide](hooks-guide.md) for implementation details.
+
 ## Project Structure
 
 ```text
-a11y-agent-team/
+accessibility-agents/
   .claude/
-    agents/              # Claude Code agents (22 .md files)
+    agents/              # Claude Code agents (50 .md files)
     settings.json        # Claude Code settings
   .github/
-    agents/              # GitHub Copilot agents (22 .agent.md files + AGENTS.md)
+    agents/              # GitHub Copilot agents (.agent.md files + AGENTS.md)
     copilot-instructions.md         # Workspace-level instructions
     copilot-review-instructions.md  # PR review rules
     copilot-commit-message-instructions.md # Commit message guidance
@@ -33,6 +49,17 @@ a11y-agent-team/
     mcp.json             # MCP server config for Copilot
     settings.json        # VS Code settings
     tasks.json           # Accessibility check tasks
+  claude-code-plugin/
+    .claude-plugin/
+      plugin.json        # Plugin manifest (name, version, author)
+    agents/              # 50 agent .md files (plugin distribution)
+    commands/            # 17 skill commands (/aria, /audit, etc.)
+    hooks/
+      hooks.json         # Plugin-level hooks (empty — enforcement is global)
+    scripts/             # Helper scripts for hook infrastructure
+    CLAUDE.md            # Plugin context (decision matrix, standards)
+    AGENTS.md            # Agent team definitions
+    README.md            # Plugin documentation
   desktop-extension/
     manifest.json        # Claude Desktop extension manifest
     package.json         # Node.js config
@@ -42,8 +69,20 @@ a11y-agent-team/
     tools/               # MCP tools and integrations
     scanning/            # Document scanning guides
     advanced/            # Advanced topics
+    hooks-guide.md       # Hook enforcement system documentation
   example/               # Deliberately broken page for practice
   templates/             # Scan config preset profiles
+  install.sh             # Installer (global, project, copilot, codex)
+```
+
+### Global hooks (installed to `~/.claude/hooks/`)
+
+```text
+~/.claude/hooks/
+  a11y-team-eval.sh       # UserPromptSubmit — proactive web project detection
+  a11y-enforce-edit.sh     # PreToolUse — blocks UI file edits without review
+  a11y-mark-reviewed.sh    # PostToolUse — creates session marker after review
+  swift-team-eval.sh       # UserPromptSubmit — Swift/Apple platform detection
 ```
 
 ## Agent Teams

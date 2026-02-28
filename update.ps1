@@ -259,6 +259,33 @@ if (-not $Project) {
     }
 }
 
+# Update enforcement hooks (global install only)
+if (-not $Project) {
+    $HooksDir = Join-Path $env:USERPROFILE ".claude\hooks"
+    $HookSrcDir = Join-Path $CacheDir "claude-code-plugin\scripts"
+    if ((Test-Path $HooksDir) -and (Test-Path $HookSrcDir)) {
+        foreach ($Hook in @("a11y-team-eval.sh", "a11y-enforce-edit.sh", "a11y-mark-reviewed.sh")) {
+            $Src = Join-Path $HookSrcDir $Hook
+            $Dst = Join-Path $HooksDir $Hook
+            if (Test-Path $Src) {
+                if (-not (Test-Path $Dst)) {
+                    Copy-Item -Path $Src -Destination $Dst -Force
+                    Write-Log "Added hook (new): $Hook"
+                    $Updated++
+                } else {
+                    $SrcContent = Get-Content $Src -Raw -ErrorAction SilentlyContinue
+                    $DstContent = Get-Content $Dst -Raw -ErrorAction SilentlyContinue
+                    if ($SrcContent -ne $DstContent) {
+                        Copy-Item -Path $Src -Destination $Dst -Force
+                        Write-Log "Updated hook: $Hook"
+                        $Updated++
+                    }
+                }
+            }
+        }
+    }
+}
+
 # Save version
 $NewHash | Out-File -FilePath $VersionFile -Encoding utf8 -NoNewline
 

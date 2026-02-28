@@ -1,6 +1,6 @@
 # Getting Started
 
-This guide covers installation and setup for all four platforms: Claude Code, GitHub Copilot, Claude Desktop, and Codex CLI.
+This guide covers installation and setup for all supported platforms: Claude Code, GitHub Copilot (VS Code and CLI), Gemini CLI, Claude Desktop, and Codex CLI.
 
 ---
 
@@ -10,11 +10,17 @@ This is for the **Claude Code CLI** (the terminal tool). If you want the Claude 
 
 ### How It Works
 
-The accessibility agents are installed as Claude Code agents that you invoke directly. When a task involves web UI code, invoke the **accessibility-lead** to coordinate the team. The lead evaluates the task and invokes the relevant specialists. The specialists apply their focused expertise and report findings.
+The accessibility agents are installed as Claude Code agents with a three-hook enforcement gate. You do not need to invoke them manually. The hooks automatically detect web projects and block UI file edits until accessibility-lead has been consulted.
+
+The enforcement flow:
+
+1. **Proactive detection** — A `UserPromptSubmit` hook checks your project directory for web framework indicators (`package.json` with React/Next/Vue, config files, `.tsx`/`.jsx` files). In a web project, the delegation instruction fires on every prompt — even "fix the bug."
+2. **Edit gate** — A `PreToolUse` hook blocks any Edit/Write to UI files (`.jsx`, `.tsx`, `.vue`, `.css`, `.html`, etc.) until the accessibility-lead agent has completed a review. The tool call is denied at the system level using `permissionDecision: "deny"`.
+3. **Session marker** — A `PostToolUse` hook creates a session marker when accessibility-lead completes. This unlocks the edit gate for the rest of the session.
 
 The team includes twenty-five agents: nine web code specialists that write and review code, six document accessibility specialists that scan Office and PDF files, one document accessibility wizard that runs guided document audits (with two hidden helper sub-agents for parallel scanning), one markdown documentation accessibility orchestrator (markdown-a11y-assistant) that audits .md files across nine accessibility domains (with two hidden helper sub-agents for parallel scanning and fix application), one orchestrator that coordinates them, one interactive wizard that runs guided web audits (with two hidden helper sub-agents for page crawling and parallel scanning), one testing coach that teaches you how to verify accessibility, and one WCAG guide that explains the standards themselves. Three reusable agent skills provide domain knowledge.
 
-For tasks that do not involve UI code (backend logic, scripts, database work), the agents are not needed.
+For tasks that do not involve UI code (backend logic, scripts, database work), the hooks stay silent and the agents are not invoked.
 
 ### Prerequisites
 
@@ -39,7 +45,7 @@ curl -fsSL https://raw.githubusercontent.com/Community-Access/accessibility-agen
 irm https://raw.githubusercontent.com/Community-Access/accessibility-agents/main/install.ps1 | iex
 ```
 
-The installer downloads the repo, copies agents, and optionally sets up daily auto-updates and GitHub Copilot agents. It will prompt you to choose project-level or global install.
+The installer downloads the repo, copies agents, installs the three enforcement hooks to `~/.claude/hooks/`, registers them in `~/.claude/settings.json`, and optionally sets up daily auto-updates and GitHub Copilot agents. It will prompt you to choose project-level or global install.
 
 **Non-interactive one-liners:**
 
@@ -106,9 +112,25 @@ mkdir -p ~/.claude/agents
 cp -r path/to/a11y-agent-team/.claude/agents/*.md ~/.claude/agents/
 ```
 
-##### 2. Verify
+##### 2. Copy enforcement hooks (global install only)
 
-Start Claude Code and type `/agents`. You should see all agents listed. If they all show up, you are good to go.
+```bash
+mkdir -p ~/.claude/hooks
+cp path/to/accessibility-agents/claude-code-plugin/scripts/a11y-team-eval.sh ~/.claude/hooks/
+cp path/to/accessibility-agents/claude-code-plugin/scripts/a11y-enforce-edit.sh ~/.claude/hooks/
+cp path/to/accessibility-agents/claude-code-plugin/scripts/a11y-mark-reviewed.sh ~/.claude/hooks/
+chmod +x ~/.claude/hooks/a11y-*.sh
+```
+
+Then register the hooks in `~/.claude/settings.json` (see the [Hooks Guide](hooks-guide.md) for the full JSON).
+
+##### 3. Verify
+
+Start Claude Code and type `/agents`. You should see all agents listed. Then verify enforcement:
+
+1. Open a web project (anything with `package.json` containing React/Next/Vue/etc.)
+2. Type any prompt — you should see `DETECTED: This is a web project` in the system reminder
+3. If Claude tries to edit a `.tsx` file without consulting accessibility-lead, it should be blocked with `BLOCKED: Cannot edit UI file...`
 
 ### Using the Agents in Claude Code
 
@@ -396,4 +418,86 @@ Codex will apply the accessibility rules from AGENTS.md to all UI code it genera
 bash uninstall.sh          # Interactive — detects and removes Codex support
 bash uninstall.sh --project  # Non-interactive project uninstall
 bash uninstall.sh --global   # Non-interactive global uninstall
+```
+
+---
+
+## Gemini CLI Setup
+
+This is for **Google Gemini CLI** (the terminal coding agent).
+
+### How It Works
+
+Gemini CLI uses an extension system with skills. Each accessibility agent is packaged as a skill (`SKILL.md` with YAML frontmatter) inside the `a11y-agents` extension. The `GEMINI.md` context file provides always-on WCAG AA enforcement rules that load into every conversation, similar to how `CLAUDE.md` works for Claude Code.
+
+The extension includes 49 agent skills covering all accessibility domains plus 14 knowledge domain skills for reference data (WCAG mappings, severity scoring, help URLs).
+
+### Prerequisites
+
+- [Gemini CLI](https://github.com/google-gemini/gemini-cli) installed and working
+- A Gemini API key configured
+
+### Installation
+
+#### Via the Installer (Recommended)
+
+```bash
+# Project install with Gemini support
+bash install.sh --project --gemini
+
+# Global install with Gemini support
+bash install.sh --global --gemini
+```
+
+**Windows (PowerShell):**
+
+The interactive installer also prompts for Gemini support.
+
+#### One-Liner
+
+```bash
+# Install globally with Gemini support
+curl -fsSL https://raw.githubusercontent.com/Community-Access/accessibility-agents/main/install.sh | bash -s -- --global --gemini
+```
+
+#### Manual Setup
+
+```bash
+# For project install
+cp -r .gemini/extensions/a11y-agents/ /path/to/project/.gemini/extensions/a11y-agents/
+
+# For global install
+cp -r .gemini/extensions/a11y-agents/ ~/.gemini/extensions/a11y-agents/
+```
+
+For project installs, commit `.gemini/extensions/a11y-agents/` to your repo so the rules travel with the project.
+
+### Using Gemini with Accessibility Skills
+
+Once installed, skills are available automatically. Just use Gemini normally:
+
+```bash
+gemini "Build a login form"
+gemini "Add a modal dialog to the settings page"
+gemini "Create a data table for the analytics dashboard"
+```
+
+Gemini will load the `GEMINI.md` context file and apply WCAG AA rules to all UI code. Individual skills provide deeper domain-specific knowledge when triggered by relevant prompts.
+
+### What's Included
+
+- **gemini-extension.json** -- Extension manifest
+- **GEMINI.md** -- Always-on accessibility context with decision matrix and non-negotiable standards
+- **skills/** -- 63 skills total (49 agent skills + 14 knowledge domains)
+
+### Removing
+
+Delete the extension directory:
+
+```bash
+# Project install
+rm -rf .gemini/extensions/a11y-agents/
+
+# Global install
+rm -rf ~/.gemini/extensions/a11y-agents/
 ```

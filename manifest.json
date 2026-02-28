@@ -1,0 +1,294 @@
+{ "generated": "2026-02-26T21:16:52Z", "sections": [
+{"name":"Getting Started","id":"getting-started","items":[
+{"path":"docs/getting-started.md","title":"Getting Started"}
+,
+{"path":"docs/configuration.md","title":"Configuration"}
+,
+{"path":"docs/architecture.md","title":"Architecture"}
+]},
+{"name":"Agents","id":"agents","items":[
+{"path":"docs/agents/README.md","title":"Agent Reference"}
+,
+{"path":"docs/agents/accessibility-lead.md","title":"accessibility-lead - The Orchestrator"}
+,
+{"path":"docs/agents/alt-text-headings.md","title":"alt-text-headings - Alt Text, SVGs, Headings, and Landmarks"}
+,
+{"path":"docs/agents/analytics.md","title":"analytics - Team Velocity and Repository Health"}
+,
+{"path":"docs/agents/aria-specialist.md","title":"aria-specialist - ARIA Roles, States, and Properties"}
+,
+{"path":"docs/agents/cognitive-accessibility.md","title":"Cognitive Accessibility Agent"}
+,
+{"path":"docs/agents/contrast-master.md","title":"contrast-master - Color Contrast and Visual Accessibility"}
+,
+{"path":"docs/agents/contributions-hub.md","title":"contributions-hub - Community and Contributions Command Center"}
+,
+{"path":"docs/agents/cross-document-analyzer.md","title":"cross-document-analyzer"}
+,
+{"path":"docs/agents/cross-page-analyzer.md","title":"cross-page-analyzer"}
+,
+{"path":"docs/agents/daily-briefing.md","title":"daily-briefing - Your Morning GitHub Command Center"}
+,
+{"path":"docs/agents/design-system-auditor.md","title":"Design System Auditor Agent"}
+,
+{"path":"docs/agents/document-accessibility-wizard.md","title":"document-accessibility-wizard - Guided Document Accessibility Audit"}
+,
+{"path":"docs/agents/document-csv-reporter.md","title":"document-csv-reporter"}
+,
+{"path":"docs/agents/document-inventory.md","title":"document-inventory"}
+,
+{"path":"docs/agents/epub-accessibility.md","title":"epub-accessibility - ePub Document Accessibility"}
+,
+{"path":"docs/agents/epub-scan-config.md","title":"epub-scan-config - ePub Scan Configuration"}
+,
+{"path":"docs/agents/excel-accessibility.md","title":"excel-accessibility - Microsoft Excel (XLSX) Accessibility"}
+,
+{"path":"docs/agents/forms-specialist.md","title":"forms-specialist - Forms, Labels, Validation, and Errors"}
+,
+{"path":"docs/agents/github-hub.md","title":"github-hub - The GitHub Workflow Orchestrator"}
+,
+{"path":"docs/agents/insiders-a11y-tracker.md","title":"insiders-a11y-tracker - VS Code Accessibility Progress Tracker"}
+,
+{"path":"docs/agents/issue-tracker.md","title":"issue-tracker - GitHub Issue Command Center"}
+,
+{"path":"docs/agents/keyboard-navigator.md","title":"keyboard-navigator - Tab Order and Focus Management"}
+,
+{"path":"docs/agents/lighthouse-bridge.md","title":"lighthouse-bridge - Lighthouse CI Data Bridge"}
+,
+{"path":"docs/agents/link-checker.md","title":"link-checker - Ambiguous Link Text Detection"}
+,
+{"path":"docs/agents/live-region-controller.md","title":"live-region-controller - Dynamic Content Announcements"}
+,
+{"path":"docs/agents/markdown-a11y-assistant.md","title":"markdown-a11y-assistant - Guided Markdown Accessibility Audit"}
+,
+{"path":"docs/agents/markdown-csv-reporter.md","title":"markdown-csv-reporter"}
+,
+{"path":"docs/agents/markdown-fixer.md","title":"markdown-fixer"}
+,
+{"path":"docs/agents/markdown-scanner.md","title":"markdown-scanner"}
+,
+{"path":"docs/agents/mobile-accessibility.md","title":"Mobile Accessibility Agent"}
+,
+{"path":"docs/agents/modal-specialist.md","title":"modal-specialist - Dialogs, Drawers, and Overlays"}
+,
+{"path":"docs/agents/office-scan-config.md","title":"office-scan-config - Office Scan Configuration"}
+,
+{"path":"docs/agents/pdf-accessibility.md","title":"pdf-accessibility - PDF Document Accessibility"}
+,
+{"path":"docs/agents/pdf-scan-config.md","title":"pdf-scan-config - PDF Scan Configuration"}
+,
+{"path":"docs/agents/powerpoint-accessibility.md","title":"powerpoint-accessibility - Microsoft PowerPoint (PPTX) Accessibility"}
+,
+{"path":"docs/agents/pr-review.md","title":"pr-review - Code Review Command Center"}
+,
+{"path":"docs/agents/repo-admin.md","title":"repo-admin - Repository Access and Configuration Manager"}
+,
+{"path":"docs/agents/repo-manager.md","title":"repo-manager - Repository Setup and Infrastructure Specialist"}
+,
+{"path":"docs/agents/scanner-bridge.md","title":"scanner-bridge - CI Scanner Data Bridge"}
+,
+{"path":"docs/agents/tables-data-specialist.md","title":"tables-data-specialist - Data Tables, Grids, and Sortable Columns"}
+,
+{"path":"docs/agents/team-manager.md","title":"team-manager - Organization Team and Membership Manager"}
+,
+{"path":"docs/agents/template-builder.md","title":"template-builder - Interactive GitHub Template Wizard"}
+,
+{"path":"docs/agents/testing-coach.md","title":"testing-coach - How to Test Accessibility"}
+,
+{"path":"docs/agents/wcag-guide.md","title":"wcag-guide - Understanding the Standard"}
+,
+{"path":"docs/agents/web-accessibility-wizard.md","title":"accessibility-wizard - Guided Accessibility Audit"}
+,
+{"path":"docs/agents/web-csv-reporter.md","title":"web-csv-reporter"}
+,
+{"path":"docs/agents/web-issue-fixer.md","title":"web-issue-fixer"}
+,
+{"path":"docs/agents/word-accessibility.md","title":"word-accessibility - Microsoft Word (DOCX) Accessibility"}
+,
+{"path":"docs/agents/developer-hub.md","title":"developer-hub - Developer Tools Command Center"}
+,
+{"path":"docs/agents/python-specialist.md","title":"python-specialist - Python Language Expert"}
+,
+{"path":"docs/agents/wxpython-specialist.md","title":"wxpython-specialist - wxPython GUI Expert"}
+,
+{"path":"docs/agents/desktop-a11y-specialist.md","title":"desktop-a11y-specialist - Desktop Application Accessibility"}
+,
+{"path":"docs/agents/desktop-a11y-testing-coach.md","title":"desktop-a11y-testing-coach - Desktop Accessibility Testing"}
+,
+{"path":"docs/agents/a11y-tool-builder.md","title":"a11y-tool-builder - Accessibility Tool Building"}
+]},
+{"name":"Skills","id":"skills","items":[
+{"path":"docs/skills/accessibility-rules.md","title":"accessibility-rules Skill"}
+,
+{"path":"docs/skills/cognitive-accessibility.md","title":"cognitive-accessibility Skill"}
+,
+{"path":"docs/skills/design-system.md","title":"design-system Skill"}
+,
+{"path":"docs/skills/document-scanning.md","title":"document-scanning Skill"}
+,
+{"path":"docs/skills/framework-accessibility.md","title":"framework-accessibility Skill"}
+,
+{"path":"docs/skills/github-a11y-scanner.md","title":"github-a11y-scanner Skill"}
+,
+{"path":"docs/skills/github-analytics-scoring.md","title":"github-analytics-scoring Skill"}
+,
+{"path":"docs/skills/github-scanning.md","title":"github-scanning Skill"}
+,
+{"path":"docs/skills/github-workflow-standards.md","title":"github-workflow-standards Skill"}
+,
+{"path":"docs/skills/help-url-reference.md","title":"help-url-reference Skill"}
+,
+{"path":"docs/skills/lighthouse-scanner.md","title":"lighthouse-scanner Skill"}
+,
+{"path":"docs/skills/markdown-accessibility.md","title":"markdown-accessibility Skill"}
+,
+{"path":"docs/skills/mobile-accessibility.md","title":"mobile-accessibility Skill"}
+,
+{"path":"docs/skills/report-generation.md","title":"report-generation Skill"}
+,
+{"path":"docs/skills/web-scanning.md","title":"web-scanning Skill"}
+,
+{"path":"docs/skills/web-severity-scoring.md","title":"web-severity-scoring Skill"}
+,
+{"path":"docs/skills/python-development.md","title":"python-development Skill"}
+]},
+{"name":"Tools","id":"tools","items":[
+{"path":"docs/tools/axe-core-integration.md","title":"axe-core Integration"}
+,
+{"path":"docs/tools/github-a11y-scanner-integration.md","title":"GitHub Accessibility Scanner Integration"}
+,
+{"path":"docs/tools/lighthouse-scanner-integration.md","title":"Lighthouse CI Scanner Integration"}
+,
+{"path":"docs/tools/mcp-tools.md","title":"MCP Tools Reference"}
+,
+{"path":"docs/tools/vpat-generation.md","title":"VPAT / ACR Template Generation"}
+]},
+{"name":"Scanning","id":"scanning","items":[
+{"path":"docs/scanning/custom-prompts.md","title":"Custom Prompts"}
+,
+{"path":"docs/scanning/office-scanning.md","title":"Office Document Scanning"}
+,
+{"path":"docs/scanning/pdf-scanning.md","title":"PDF Document Scanning"}
+,
+{"path":"docs/scanning/scan-configuration.md","title":"Scan Configuration"}
+]},
+{"name":"Prompts: Web","id":"prompts-web","items":[
+{"path":"docs/prompts/web/audit-web-multi-page.md","title":"audit-web-multi-page"}
+,
+{"path":"docs/prompts/web/audit-web-page.md","title":"audit-web-page"}
+,
+{"path":"docs/prompts/web/compare-web-audits.md","title":"compare-web-audits"}
+,
+{"path":"docs/prompts/web/export-markdown-csv.md","title":"export-markdown-csv"}
+,
+{"path":"docs/prompts/web/export-web-csv.md","title":"export-web-csv"}
+,
+{"path":"docs/prompts/web/fix-web-issues.md","title":"fix-web-issues"}
+,
+{"path":"docs/prompts/web/quick-web-check.md","title":"quick-web-check"}
+]},
+{"name":"Prompts: Documents","id":"prompts-docs","items":[
+{"path":"docs/prompts/documents/audit-changed-documents.md","title":"audit-changed-documents"}
+,
+{"path":"docs/prompts/documents/audit-document-folder.md","title":"audit-document-folder"}
+,
+{"path":"docs/prompts/documents/audit-single-document.md","title":"audit-single-document"}
+,
+{"path":"docs/prompts/documents/compare-audits.md","title":"compare-audits"}
+,
+{"path":"docs/prompts/documents/create-accessible-template.md","title":"create-accessible-template"}
+,
+{"path":"docs/prompts/documents/export-document-csv.md","title":"export-document-csv"}
+,
+{"path":"docs/prompts/documents/generate-remediation-scripts.md","title":"generate-remediation-scripts"}
+,
+{"path":"docs/prompts/documents/generate-vpat.md","title":"generate-vpat"}
+,
+{"path":"docs/prompts/documents/quick-document-check.md","title":"quick-document-check"}
+,
+{"path":"docs/prompts/documents/setup-document-cicd.md","title":"setup-document-cicd"}
+]},
+{"name":"Prompts: GitHub","id":"prompts-github","items":[
+{"path":"docs/prompts/github/a11y-update.md","title":"a11y-update"}
+,
+{"path":"docs/prompts/github/add-collaborator.md","title":"add-collaborator"}
+,
+{"path":"docs/prompts/github/address-comments.md","title":"address-comments"}
+,
+{"path":"docs/prompts/github/build-a11y-template.md","title":"build-a11y-template"}
+,
+{"path":"docs/prompts/github/build-template.md","title":"build-template"}
+,
+{"path":"docs/prompts/github/ci-status.md","title":"ci-status"}
+,
+{"path":"docs/prompts/github/create-issue.md","title":"create-issue"}
+,
+{"path":"docs/prompts/github/daily-briefing.md","title":"daily-briefing"}
+,
+{"path":"docs/prompts/github/draft-release.md","title":"draft-release"}
+,
+{"path":"docs/prompts/github/explain-code.md","title":"explain-code"}
+,
+{"path":"docs/prompts/github/issue-reply.md","title":"issue-reply"}
+,
+{"path":"docs/prompts/github/manage-branches.md","title":"manage-branches"}
+,
+{"path":"docs/prompts/github/manage-issue.md","title":"manage-issue"}
+,
+{"path":"docs/prompts/github/merge-pr.md","title":"merge-pr"}
+,
+{"path":"docs/prompts/github/my-issues.md","title":"my-issues"}
+,
+{"path":"docs/prompts/github/my-prs.md","title":"my-prs"}
+,
+{"path":"docs/prompts/github/my-stats.md","title":"my-stats"}
+,
+{"path":"docs/prompts/github/notifications.md","title":"notifications"}
+,
+{"path":"docs/prompts/github/onboard-repo.md","title":"onboard-repo"}
+,
+{"path":"docs/prompts/github/pr-author-checklist.md","title":"pr-author-checklist"}
+,
+{"path":"docs/prompts/github/pr-comment.md","title":"pr-comment"}
+,
+{"path":"docs/prompts/github/pr-report.md","title":"pr-report"}
+,
+{"path":"docs/prompts/github/project-status.md","title":"project-status"}
+,
+{"path":"docs/prompts/github/react.md","title":"react"}
+,
+{"path":"docs/prompts/github/refine-issue.md","title":"refine-issue"}
+,
+{"path":"docs/prompts/github/release-prep.md","title":"release-prep"}
+,
+{"path":"docs/prompts/github/review-pr.md","title":"review-pr"}
+,
+{"path":"docs/prompts/github/security-dashboard.md","title":"security-dashboard"}
+,
+{"path":"docs/prompts/github/sprint-review.md","title":"sprint-review"}
+,
+{"path":"docs/prompts/github/team-dashboard.md","title":"team-dashboard"}
+,
+{"path":"docs/prompts/github/triage.md","title":"triage"}
+]},
+{"name":"Advanced","id":"advanced","items":[
+{"path":"docs/advanced/advanced-scanning-patterns.md","title":"Advanced Scanning Patterns"}
+,
+{"path":"docs/advanced/cross-platform-handoff.md","title":"Cross-Platform Handoff Patterns"}
+,
+{"path":"docs/advanced/platform-references.md","title":"Platform Documentation References"}
+,
+{"path":"docs/advanced/plugin-packaging.md","title":"Plugin Packaging Guide"}
+]},
+{"name":"Project","id":"project","items":[
+{"path":"README.md","title":"Accessibility Agents"}
+,
+{"path":"CONTRIBUTING.md","title":"Contributing to Accessibility Agents"}
+,
+{"path":"CODE_OF_CONDUCT.md","title":"Code of Conduct"}
+,
+{"path":"ROADMAP.md","title":"Roadmap"}
+,
+{"path":"SECURITY.md","title":"Security Policy"}
+]}
+]}
