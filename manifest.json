@@ -1,4 +1,4 @@
-{ "generated": "2026-02-26T21:16:52Z", "sections": [
+{ "generated": "2026-02-28T23:27:23Z", "sections": [
 {"name":"Getting Started","id":"getting-started","items":[
 {"path":"docs/getting-started.md","title":"Getting Started"}
 ,
@@ -8,6 +8,8 @@
 ]},
 {"name":"Agents","id":"agents","items":[
 {"path":"docs/agents/README.md","title":"Agent Reference"}
+,
+{"path":"docs/agents/a11y-tool-builder.md","title":"a11y-tool-builder - Accessibility Tool Building"}
 ,
 {"path":"docs/agents/accessibility-lead.md","title":"accessibility-lead - The Orchestrator"}
 ,
@@ -30,6 +32,12 @@
 {"path":"docs/agents/daily-briefing.md","title":"daily-briefing - Your Morning GitHub Command Center"}
 ,
 {"path":"docs/agents/design-system-auditor.md","title":"Design System Auditor Agent"}
+,
+{"path":"docs/agents/desktop-a11y-specialist.md","title":"desktop-a11y-specialist - Desktop Application Accessibility"}
+,
+{"path":"docs/agents/desktop-a11y-testing-coach.md","title":"desktop-a11y-testing-coach - Desktop Accessibility Testing"}
+,
+{"path":"docs/agents/developer-hub.md","title":"developer-hub - Developer Tools Command Center"}
 ,
 {"path":"docs/agents/document-accessibility-wizard.md","title":"document-accessibility-wizard - Guided Document Accessibility Audit"}
 ,
@@ -81,6 +89,8 @@
 ,
 {"path":"docs/agents/pr-review.md","title":"pr-review - Code Review Command Center"}
 ,
+{"path":"docs/agents/python-specialist.md","title":"python-specialist - Python Language Expert"}
+,
 {"path":"docs/agents/repo-admin.md","title":"repo-admin - Repository Access and Configuration Manager"}
 ,
 {"path":"docs/agents/repo-manager.md","title":"repo-manager - Repository Setup and Infrastructure Specialist"}
@@ -105,17 +115,7 @@
 ,
 {"path":"docs/agents/word-accessibility.md","title":"word-accessibility - Microsoft Word (DOCX) Accessibility"}
 ,
-{"path":"docs/agents/developer-hub.md","title":"developer-hub - Developer Tools Command Center"}
-,
-{"path":"docs/agents/python-specialist.md","title":"python-specialist - Python Language Expert"}
-,
 {"path":"docs/agents/wxpython-specialist.md","title":"wxpython-specialist - wxPython GUI Expert"}
-,
-{"path":"docs/agents/desktop-a11y-specialist.md","title":"desktop-a11y-specialist - Desktop Application Accessibility"}
-,
-{"path":"docs/agents/desktop-a11y-testing-coach.md","title":"desktop-a11y-testing-coach - Desktop Accessibility Testing"}
-,
-{"path":"docs/agents/a11y-tool-builder.md","title":"a11y-tool-builder - Accessibility Tool Building"}
 ]},
 {"name":"Skills","id":"skills","items":[
 {"path":"docs/skills/accessibility-rules.md","title":"accessibility-rules Skill"}
@@ -144,13 +144,13 @@
 ,
 {"path":"docs/skills/mobile-accessibility.md","title":"mobile-accessibility Skill"}
 ,
+{"path":"docs/skills/python-development.md","title":"python-development Skill"}
+,
 {"path":"docs/skills/report-generation.md","title":"report-generation Skill"}
 ,
 {"path":"docs/skills/web-scanning.md","title":"web-scanning Skill"}
 ,
 {"path":"docs/skills/web-severity-scoring.md","title":"web-severity-scoring Skill"}
-,
-{"path":"docs/skills/python-development.md","title":"python-development Skill"}
 ]},
 {"name":"Tools","id":"tools","items":[
 {"path":"docs/tools/axe-core-integration.md","title":"axe-core Integration"}
