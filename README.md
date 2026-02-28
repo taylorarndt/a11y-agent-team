@@ -22,10 +22,11 @@ AI coding tools generate inaccessible code by default. They forget ARIA rules, s
 
 ## The Solution
 
-**Accessibility Agents** provides thirty-five specialized agents across two teams and six platforms:
+**Accessibility Agents** provides fifty-five specialized agents across three teams and five platforms:
 
-- **Accessibility team** - twenty-five agents that enforce WCAG AA standards for web code, Office/PDF documents, and Markdown documentation
-- **GitHub Workflow team** - ten agents that manage repositories, triage issues, review PRs, and keep your team informed
+- **Accessibility team** — twenty-six agents that enforce WCAG AA standards for web code, Office/PDF/ePub documents, and Markdown documentation
+- **GitHub Workflow team** — twelve agents that manage repositories, triage issues, review PRs, and keep your team informed
+- **Developer Tools team** — six agents for Python, wxPython, desktop accessibility, and accessibility tool building
 
 All agents run on:
 
@@ -120,7 +121,12 @@ The following agents make up the accessibility enforcement team, each owning one
 | **pdf-accessibility** | PDF conformance per PDF/UA and the Matterhorn Protocol. |
 | **pdf-scan-config** | PDF scan rule configuration and preset profiles. |
 | **document-accessibility-wizard** | Guided document audit with cross-document analysis, VPAT export, and CSV export with help links. |
+| **cognitive-accessibility** | WCAG 2.2 cognitive SC, COGA guidance, plain language, auth UX. |
+| **mobile-accessibility** | React Native, Expo, iOS, Android touch targets and screen readers. |
+| **design-system-auditor** | Color token contrast, focus ring tokens, spacing tokens, Tailwind/MUI/Chakra/shadcn. |
 | **markdown-a11y-assistant** | Markdown documentation audit — links, alt text, headings, tables, emoji, diagrams, em-dashes, anchors. |
+| **epub-accessibility** | ePub document accessibility scanning per EPUB Accessibility 1.1. |
+| **epub-scan-config** | ePub scan rule configuration and preset profiles. |
 
 ### GitHub Workflow Agents
 
@@ -139,6 +145,20 @@ The following agents handle GitHub repository management, triage, and workflow a
 | **contributions-hub** | Discussions, community health metrics, first-time contributor insights. |
 | **template-builder** | Guided wizard for issue/PR/discussion templates - no YAML knowledge required. |
 | **repo-manager** | Repository scaffolding - labels, CI, CONTRIBUTING, SECURITY, issue templates. |
+| **nexus** | Intelligent command center — discovers repos and orgs, routes tasks in plain English. |
+
+### Developer Tools Agents
+
+The following agents handle Python development, desktop application accessibility, and accessibility tool building.
+
+| Agent | Role |
+|-------|------|
+| **developer-hub** | Orchestrator. Routes developer tasks to the right specialist. |
+| **python-specialist** | Python debugging, packaging (PyInstaller/Nuitka/cx_Freeze), testing, async patterns. |
+| **wxpython-specialist** | wxPython UI framework — sizers, events, AUI, threading, desktop accessibility. |
+| **desktop-a11y-specialist** | Platform accessibility APIs (UIA, MSAA, ATK, NSAccessibility), screen reader compatibility. |
+| **desktop-a11y-testing-coach** | Desktop accessibility testing with NVDA, JAWS, Narrator, VoiceOver, Orca. |
+| **a11y-tool-builder** | Building accessibility scanning tools, rule engines, report generators, and audit automation. |
 
 See the [Agent Reference Guide](docs/agents/README.md) for deep dives on every agent, example prompts, behavioral constraints, and instructor-led walkthroughs.
 
@@ -151,7 +171,7 @@ The following guides cover web and document accessibility features.
 | Guide | What It Covers |
 |-------|---------------|
 | [Getting Started](docs/getting-started.md) | Installation for Claude Code, Copilot (VS Code and CLI), Gemini CLI, Claude Desktop, and Codex CLI |
-| [Agent Reference](docs/agents/README.md) | All 22 agents with invocation syntax, examples, and deep dives |
+| [Agent Reference](docs/agents/README.md) | All agents with invocation syntax, examples, and deep dives |
 | [MCP Tools](docs/tools/mcp-tools.md) | Static analysis tools: heading structure, link text, form labels |
 | [axe-core Integration](docs/tools/axe-core-integration.md) | Runtime scanning, agent workflow, CI/CD setup |
 | [VPAT Generation](docs/tools/vpat-generation.md) | VPAT 2.5 / ACR compliance report generation |
@@ -170,7 +190,7 @@ The following guide covers all GitHub workflow agents and their invocation synta
 
 | Guide | What It Covers |
 |-------|---------------|
-| [GitHub Workflow Agents](docs/agents/README.md#github-workflow-agents) | All 10 workflow agents with invocation syntax, examples, and instructor-led walkthroughs |
+| [GitHub Workflow Agents](docs/agents/README.md#github-workflow-agents) | All 12 workflow agents with invocation syntax, examples, and instructor-led walkthroughs |
 
 ### Advanced Guides
 
@@ -210,7 +230,6 @@ See [ROADMAP.md](ROADMAP.md) for what is planned, in progress, and shipped. Trac
 
 ## What This Does Not Cover
 
-- Mobile native accessibility (iOS/Android). A separate agent team for that is [planned](https://github.com/Community-Access/accessibility-agents/issues/8).
 - WCAG AAA compliance (agents target AA as the standard). An AAA agent is [planned](https://github.com/Community-Access/accessibility-agents/issues/12).
 
 ## Example Project
