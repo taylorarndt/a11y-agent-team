@@ -1,14 +1,18 @@
 # Accessibility Agents - Claude Code Plugin
 
-WCAG AA accessibility enforcement for Claude Code. 50 specialist agents + 17 slash commands that activate automatically when you work on web UI code.
+WCAG AA accessibility enforcement for Claude Code. 50 specialist agents + 17 skills that activate automatically when you work on web UI code.
 
 ## How It Works
 
-Three enforcement layers, zero hooks, zero fragile config:
+Five enforcement layers ensure accessibility-lead always activates for UI tasks:
 
-1. **Agent descriptions** - Claude reads all agent descriptions at startup. When you edit HTML/JSX/CSS or ask about UI, Claude matches to `accessibility-lead` automatically because its description says "Use on EVERY task that involves web UI code..."
-2. **CLAUDE.md** - Loads every session. Contains the decision matrix and non-negotiable standards. Cannot break.
-3. **Slash commands** - Type `/aria` or `/audit` for direct specialist access. Convenience layer on top of auto-delegation.
+1. **Proactive detection** (`UserPromptSubmit`) — Checks if the current directory is a web project by scanning for `package.json` with web dependencies, framework config files, and UI file extensions. In a web project, the delegation instruction fires on every prompt regardless of what you typed.
+2. **Edit gate** (`PreToolUse`) — Hard blocks any Edit/Write to UI files (`.jsx`, `.tsx`, `.vue`, `.css`, `.html`, etc.) until the accessibility-lead agent has been consulted. Uses `permissionDecision: "deny"` to reject the tool call entirely. Not a reminder. A block.
+3. **Session marker** (`PostToolUse`) — When the accessibility-lead agent completes, creates a session marker that unlocks the edit gate for the rest of the session.
+4. **Agent tools** — accessibility-lead has `Task, Read, Glob, Grep` only. It MUST delegate to specialists via the Task tool. It cannot write code itself.
+5. **CLAUDE.md + Skills** — Decision matrix and non-negotiable standards load every session. Skills (`/aria`, `/audit`, etc.) provide direct specialist access.
+
+See the [Hooks Guide](../docs/hooks-guide.md) for the full technical breakdown of why hooks were chosen over instructions, MCP, or plugin hooks alone.
 
 ## Installation
 
@@ -22,20 +26,20 @@ bash install.sh --project
 bash install.sh --global
 ```
 
-The installer copies agents and commands to your `.claude/` directory:
+The installer copies agents and skills to your `.claude/` directory:
 
 ```
 .claude/
   agents/       # 50 agent files (auto-delegation)
-  commands/     # 17 slash commands (manual shortcuts)
+  skills/       # 17 skills (manual shortcuts)
 ```
 
 Optionally merges a CLAUDE.md snippet into your project root for rules enforcement.
 
-## Slash Commands
+## Skills
 
-| Command | Agent | What It Does |
-|---------|-------|-------------|
+| Skill | Agent | What It Does |
+|-------|-------|-------------|
 | `/aria` | aria-specialist | ARIA patterns - roles, states, properties |
 | `/contrast` | contrast-master | Color contrast - ratios, themes, visual design |
 | `/keyboard` | keyboard-navigator | Keyboard nav - tab order, focus, shortcuts |
@@ -125,7 +129,39 @@ You do not need to invoke agents manually for most tasks. Claude reads agent des
 - **"Check the contrast on this page"** - contrast-master activates directly
 - **"Audit this PDF"** - document-accessibility-wizard activates
 
-Slash commands are available when you want to target a specific specialist directly.
+Skills are available when you want to target a specific specialist directly.
+
+## Verifying Enforcement
+
+After installing, verify the enforcement gate is working:
+
+### Check proactive detection
+
+1. Start Claude Code in any web project (has `package.json` with React/Next/Vue/etc.)
+2. Type any prompt — even something generic like "fix the bug"
+3. You should see the accessibility instruction in the system reminder: `DETECTED: This is a web project`
+
+### Check edit gate
+
+1. Ask Claude to create or edit a `.tsx` file without first running the accessibility-lead
+2. The Edit/Write should be **denied** with the message: `BLOCKED: Cannot edit UI file...`
+3. Claude should then delegate to accessibility-lead
+4. After the review completes, Claude should retry the edit successfully
+
+### Check agent tools
+
+Run `/agents` in Claude Code. The `accessibility-lead` agent should show tools: `Task, Read, Glob, Grep` (no Write, Edit, or Bash). This forces it to delegate via the Task tool.
+
+### Troubleshooting
+
+- **Agents not loading:** Restart Claude Code. Check `~/.claude/plugins/installed_plugins.json` for the `accessibility-agents` entry.
+- **Edit not blocked:** Check `~/.claude/settings.json` has the `a11y-enforce-edit.sh` hook registered under `PreToolUse`. Verify the script is executable: `chmod +x ~/.claude/hooks/a11y-enforce-edit.sh`.
+- **Edit blocked even after review:** Check the session marker: `ls /tmp/a11y-reviewed-*`. If missing, verify `a11y-mark-reviewed.sh` is registered under `PostToolUse` with matcher `Agent`.
+- **Hooks not firing at all:** Verify `~/.claude/settings.json` has all three hooks registered. Run `cat ~/.claude/hooks/a11y-team-eval.sh` to verify scripts exist.
+- **Wrong agent invoked:** All agents use kebab-case names (e.g., `accessibility-lead`, not `Accessibility Lead`). Internal helpers are prefixed with "Internal helper agent." in their descriptions to prevent accidental routing.
+- **accessibility-lead writes code directly:** Verify its tools are `Task, Read, Glob, Grep`. If it has `Write` or `Edit`, the plugin cache may be stale. Reinstall with `bash install.sh --global`.
+
+See the [Hooks Guide](../docs/hooks-guide.md) for detailed testing commands and manual debugging steps.
 
 ## Updating
 

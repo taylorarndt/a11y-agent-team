@@ -1,5 +1,5 @@
-﻿---
-name: ARIA Specialist
+---
+name: aria-specialist
 description: ARIA implementation specialist for web applications. Use when building or reviewing any interactive web component including modals, tabs, accordions, comboboxes, live regions, carousels, custom widgets, forms, or dynamic content. Also use when reviewing ARIA usage for correctness. Applies to any web framework or vanilla HTML/CSS/JS.
 tools: Read, Write, Edit, Grep, Glob
 model: inherit

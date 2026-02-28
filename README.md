@@ -29,10 +29,20 @@ AI coding tools generate inaccessible code by default. They forget ARIA rules, s
 
 All agents run on:
 
-- **Claude Code** - Agents you invoke directly for accessibility evaluation
+- **Claude Code** - Agents with hook-based enforcement that blocks UI file edits until accessibility review is complete
 - **GitHub Copilot** - Agents + workspace instructions that ensure accessibility guidance in every conversation
 - **Claude Desktop** - An MCP extension (.mcpb) with tools and prompts for accessibility review
 - **Codex CLI** - Condensed WCAG AA rules loaded via `.codex/AGENTS.md` — accessibility enforced automatically on every UI task
+
+### Hook-Based Enforcement (Claude Code)
+
+In Claude Code, accessibility review is not optional. A three-hook enforcement gate makes it impossible to skip:
+
+1. **Proactive detection** — Automatically detects web projects (React, Next.js, Vue, Svelte, etc.) and injects the delegation instruction on every prompt. No keywords required.
+2. **Edit gate** — Hard blocks any Edit/Write to UI files (`.jsx`, `.tsx`, `.vue`, `.css`, `.html`, etc.) until the accessibility-lead has been consulted. The tool call is denied at the system level.
+3. **Session marker** — When accessibility-lead completes, a session marker unlocks the edit gate for the rest of the session.
+
+This exists because text instructions do not work. LLMs read "MANDATORY" and "NON-OPTIONAL" and still skip the step. The hook gate removes the option to skip. See the [Hooks Guide](docs/hooks-guide.md) for the full technical breakdown.
 
 ## Quick Start
 
@@ -146,7 +156,8 @@ The following guides cover web and document accessibility features.
 | [Custom Prompts](docs/scanning/custom-prompts.md) | Nine pre-built prompts for one-click document workflows |
 | [Markdown Accessibility](docs/prompts/README.md#markdown-accessibility-prompts) | Four prompts for markdown auditing, quick checks, fix mode, and audit comparison |
 | [Configuration](docs/configuration.md) | Character budget, troubleshooting |
-| [Architecture](docs/architecture.md) | Project structure, why agents over skills/MCP, design philosophy |
+| [Hooks Guide](docs/hooks-guide.md) | Hook-based enforcement system, proactive detection, edit gate, session markers |
+| [Architecture](docs/architecture.md) | Project structure, why agents over skills/MCP, why hooks over instructions |
 
 ### GitHub Workflow Docs
 

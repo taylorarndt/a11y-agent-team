@@ -1,6 +1,6 @@
 ---
 name: document-csv-reporter
-description: Internal helper for exporting document accessibility audit findings to CSV format. Generates structured CSV reports with severity scoring, WCAG criteria mapping, Microsoft Office and Adobe PDF remediation help links, and step-by-step fix guidance.
+description: Internal helper agent. Invoked by orchestrator agents via Task tool. Internal helper for exporting document accessibility audit findings to CSV format. Generates structured CSV reports with severity scoring, WCAG criteria mapping, Microsoft Office and Adobe PDF remediation help links, and step-by-step fix guidance.
 tools: Read, Grep, Glob, Write
 model: inherit
 ---

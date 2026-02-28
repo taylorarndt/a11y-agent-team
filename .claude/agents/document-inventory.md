@@ -1,6 +1,6 @@
 ---
 name: document-inventory
-description: Internal helper for document file discovery, inventory building, and metadata extraction. Scans folders for Office documents (.docx, .xlsx, .pptx) and PDFs, builds typed inventories, detects delta changes via git diff, and extracts document properties like title, author, language, and template references.
+description: Internal helper agent. Invoked by orchestrator agents via Task tool. Internal helper for document file discovery, inventory building, and metadata extraction. Scans folders for Office documents (.docx, .xlsx, .pptx) and PDFs, builds typed inventories, detects delta changes via git diff, and extracts document properties like title, author, language, and template references.
 tools: Read, Bash, Grep, Glob
 model: inherit
 ---

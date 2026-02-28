@@ -282,6 +282,57 @@ if [ "$choice" = "2" ]; then
   fi
 fi
 
+# Remove enforcement hooks (global uninstall only)
+if [ "$choice" = "2" ]; then
+  echo ""
+  echo "  Removing enforcement hooks..."
+  for hook in a11y-team-eval.sh a11y-enforce-edit.sh a11y-mark-reviewed.sh; do
+    if [ -f "$HOME/.claude/hooks/$hook" ]; then
+      rm "$HOME/.claude/hooks/$hook"
+      echo "    - $hook"
+    fi
+  done
+  rmdir "$HOME/.claude/hooks" 2>/dev/null || true
+
+  # Remove hook registrations from settings.json
+  if [ -f "$HOME/.claude/settings.json" ] && command -v python3 &>/dev/null; then
+    python3 - "$HOME/.claude/settings.json" << 'PYEOF'
+import json, sys
+path = sys.argv[1]
+with open(path) as f:
+    data = json.load(f)
+hooks = data.get("hooks", {})
+changed = False
+for event in list(hooks.keys()):
+    entries = hooks[event]
+    if isinstance(entries, list):
+        original = len(entries)
+        entries = [e for e in entries if not any(
+            "a11y-" in h.get("command", "")
+            for h in e.get("hooks", [])
+        )]
+        if len(entries) < original:
+            changed = True
+        if entries:
+            hooks[event] = entries
+        else:
+            del hooks[event]
+            changed = True
+if changed:
+    if hooks:
+        data["hooks"] = hooks
+    else:
+        data.pop("hooks", None)
+    with open(path, "w") as f:
+        json.dump(data, f, indent=2)
+PYEOF
+    echo "    - Hook registrations removed from settings.json"
+  fi
+
+  # Clean up session markers
+  rm -f /tmp/a11y-reviewed-* 2>/dev/null || true
+fi
+
 # Remove auto-update (global uninstall only)
 if [ "$choice" = "2" ]; then
   echo ""

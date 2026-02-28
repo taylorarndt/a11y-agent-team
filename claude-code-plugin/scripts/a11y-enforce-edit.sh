@@ -1,52 +1,76 @@
 #!/bin/bash
-# A11y Agent Team - PreToolUse enforcement hook
-# Blocks Edit/Write on UI files unless accessibility-lead has been called.
+# Accessibility Agents - PreToolUse enforcement hook
+# ACTUALLY BLOCKS Edit/Write to UI files until accessibility-lead is consulted.
 #
 # How it works:
-# 1. Reads the file path from the tool input JSON on stdin
-# 2. Checks if it's a UI file (.html, .jsx, .tsx, .vue, .svelte, .astro, .css)
-# 3. Checks if accessibility-lead has already run this session (via marker file)
-# 4. If UI file + no agent yet → blocks the edit (exit 2)
-# 5. If not a UI file or agent already ran → allows (exit 0)
+# 1. Checks if the target file is a UI file (.jsx, .tsx, .vue, .css, etc.)
+# 2. If yes, checks for a session marker that proves accessibility-lead was used
+# 3. If no marker, DENIES the tool call — Claude cannot proceed
+# 4. The marker is created by a11y-mark-reviewed.sh (PostToolUse on Agent tool)
+#
+# Installed by: accessibility-agents install.sh
 
 INPUT=$(cat)
 
-# Extract file path from tool input
-FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // .tool_input.filePath // empty' 2>/dev/null)
+# Extract file path and session ID
+eval "$(echo "$INPUT" | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+ti = data.get('tool_input', {})
+print('FILE_PATH=' + repr(ti.get('file_path', '')))
+print('SESSION_ID=' + repr(data.get('session_id', '')))
+" 2>/dev/null || echo "FILE_PATH=''; SESSION_ID=''")"
 
-# If no file path found, allow
+# No file path = not a file operation, allow
 if [ -z "$FILE_PATH" ]; then
   exit 0
 fi
 
-# Check if it's a UI file
+# ── Check if this is a UI file ──
+IS_UI=false
 case "$FILE_PATH" in
-  *.html|*.htm|*.jsx|*.tsx|*.vue|*.svelte|*.astro)
+  *.jsx|*.tsx|*.vue|*.svelte|*.astro|*.html|*.ejs|*.hbs|*.leaf|*.erb|*.jinja|*.twig|*.blade.php)
     IS_UI=true
     ;;
-  *.css|*.scss|*.less)
+  *.css|*.scss|*.less|*.sass)
     IS_UI=true
-    ;;
-  *)
-    IS_UI=false
     ;;
 esac
 
-# Not a UI file — allow
+# Also catch .ts/.js files in UI directories
+if [ "$IS_UI" = false ]; then
+  case "$FILE_PATH" in
+    */components/*|*/pages/*|*/views/*|*/layouts/*|*/templates/*)
+      case "$FILE_PATH" in
+        *.ts|*.js) IS_UI=true ;;
+      esac
+      ;;
+  esac
+fi
+
+# Not a UI file — allow silently
 if [ "$IS_UI" = false ]; then
   exit 0
 fi
 
-# Check session marker — has accessibility-lead already been called?
-SESSION_ID=$(echo "$INPUT" | jq -r '.session_id // empty' 2>/dev/null)
-MARKER_DIR="/tmp/a11y-agent-sessions"
-MARKER_FILE="$MARKER_DIR/$SESSION_ID"
+# ── Check for session marker ──
+# Marker is created by a11y-mark-reviewed.sh when accessibility-lead completes
+MARKER="/tmp/a11y-reviewed-${SESSION_ID}"
 
-if [ -n "$SESSION_ID" ] && [ -f "$MARKER_FILE" ]; then
-  # Agent already ran this session — allow
+if [ -n "$SESSION_ID" ] && [ -f "$MARKER" ]; then
+  # Accessibility review was done this session — allow
   exit 0
 fi
 
-# Block the edit — force Claude to use accessibility-lead first
-echo "BLOCKED: You must delegate to the accessibility-lead agent before editing UI files ($FILE_PATH). Use the accessibility-lead agent to review accessibility requirements first, then retry this edit." >&2
-exit 2
+# ── DENY the edit ──
+BASENAME=$(basename "$FILE_PATH")
+cat <<EOF
+{
+  "hookSpecificOutput": {
+    "hookEventName": "PreToolUse",
+    "permissionDecision": "deny",
+    "permissionDecisionReason": "BLOCKED: Cannot edit UI file '${BASENAME}' without accessibility review. You MUST first delegate to accessibility-agents:accessibility-lead using the Agent tool (subagent_type: 'accessibility-agents:accessibility-lead'). After the accessibility review completes, this file will be unblocked automatically."
+  }
+}
+EOF
+exit 0

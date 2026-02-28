@@ -1,6 +1,6 @@
 ---
 name: epub-scan-config
-description: Manages .a11y-epub-config.json scan configuration for ePub accessibility audits. Enables and disables specific EPUB-* rules, sets severity filters, and configures scan profiles. Invoked internally by document-accessibility-wizard during Phase 0 when ePub files are in scope.
+description: Internal helper agent. Invoked by orchestrator agents via Task tool. Manages .a11y-epub-config.json scan configuration for ePub accessibility audits. Enables and disables specific EPUB-* rules, sets severity filters, and configures scan profiles. Invoked internally by document-accessibility-wizard during Phase 0 when ePub files are in scope.
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
 ---

@@ -1,6 +1,6 @@
 ---
 name: markdown-scanner
-description: Internal helper for scanning a single markdown file for accessibility issues across all 9 domains. Returns structured findings with severity, line numbers, suggested fixes, and auto-fix classification. Invoked by markdown-a11y-assistant via the Task tool - not user-invokable directly.
+description: Internal helper agent. Invoked by orchestrator agents via Task tool. Internal helper for scanning a single markdown file for accessibility issues across all 9 domains. Returns structured findings with severity, line numbers, suggested fixes, and auto-fix classification. Invoked by markdown-a11y-assistant via the Task tool - not user-invokable directly.
 tools: Read, Bash, Grep, Glob
 model: inherit
 maxTurns: 20

@@ -1,5 +1,5 @@
 ---
-name: Daily Briefing
+name: daily-briefing
 description: "Your daily GitHub command center -- generates a comprehensive briefing (markdown + HTML) of everything needing your attention: issues, PRs, reviews, releases, discussions, reactions, and accessibility updates."
 tools: Read, Write, Edit, Bash, WebFetch
 model: inherit

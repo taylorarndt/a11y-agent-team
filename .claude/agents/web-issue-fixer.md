@@ -1,6 +1,6 @@
 ---
 name: web-issue-fixer
-description: Internal helper for applying accessibility fixes to web source code. Handles auto-fixable issues (missing alt, lang, labels, tabindex) and presents human-judgment fixes for approval. Generates framework-specific code using the detected stack.
+description: Internal helper agent. Invoked by orchestrator agents via Task tool. Internal helper for applying accessibility fixes to web source code. Handles auto-fixable issues (missing alt, lang, labels, tabindex) and presents human-judgment fixes for approval. Generates framework-specific code using the detected stack.
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
 ---

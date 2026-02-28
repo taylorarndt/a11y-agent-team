@@ -350,6 +350,33 @@ if [ "$TARGET" = "global" ]; then
   done
 fi
 
+# Update enforcement hooks (global install only)
+if [ "$TARGET" = "global" ] && [ -d "$HOME/.claude/hooks" ]; then
+  HOOK_SRC_DIR=""
+  if [ -d "$CACHE_DIR/claude-code-plugin/scripts" ]; then
+    HOOK_SRC_DIR="$CACHE_DIR/claude-code-plugin/scripts"
+  fi
+  if [ -n "$HOOK_SRC_DIR" ]; then
+    for hook in a11y-team-eval.sh a11y-enforce-edit.sh a11y-mark-reviewed.sh; do
+      SRC="$HOOK_SRC_DIR/$hook"
+      DST="$HOME/.claude/hooks/$hook"
+      if [ -f "$SRC" ] && [ -f "$DST" ]; then
+        if ! cmp -s "$SRC" "$DST" 2>/dev/null; then
+          cp "$SRC" "$DST"
+          chmod +x "$DST"
+          log "Updated hook: $hook"
+          UPDATED=$((UPDATED + 1))
+        fi
+      elif [ -f "$SRC" ] && [ ! -f "$DST" ]; then
+        cp "$SRC" "$DST"
+        chmod +x "$DST"
+        log "Added hook (new): $hook"
+        UPDATED=$((UPDATED + 1))
+      fi
+    done
+  fi
+fi
+
 # Save version
 echo "$NEW_HASH" > "$VERSION_FILE"
 

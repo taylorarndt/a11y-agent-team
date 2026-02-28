@@ -1,5 +1,5 @@
 ---
-name: Repo Manager
+name: repo-manager
 description: "GitHub repository setup and management specialist - scaffolds issue templates, contributing guides, CI workflows, releases, labels, badges, licenses, and open source best practices for any repo."
 tools: Read, Write, Edit, Bash, WebFetch
 model: inherit

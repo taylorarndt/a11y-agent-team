@@ -1,5 +1,5 @@
 ---
-name: Template Builder
+name: template-builder
 description: "Interactive guided wizard for creating GitHub issue templates, PR templates, and discussion templates. Answer simple questions and get production-ready YAML templates -- no manual YAML writing required."
 tools: Read, Write, Edit, Bash, WebFetch
 model: inherit

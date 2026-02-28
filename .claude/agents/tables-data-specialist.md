@@ -1,5 +1,5 @@
-﻿---
-name: Tables Specialist
+---
+name: tables-data-specialist
 description: Data table accessibility specialist for web applications. Use when building or reviewing any data table, sortable table, grid, spreadsheet-like interface, comparison table, pricing table, or any tabular data display. Covers proper markup, scope, caption, headers, sortable columns, responsive patterns, and ARIA grid/treegrid roles. Applies to any web framework or vanilla HTML/CSS/JS.
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit

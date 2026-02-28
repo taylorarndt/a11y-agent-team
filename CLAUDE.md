@@ -2,6 +2,18 @@
 
 This workspace enforces WCAG AA accessibility standards for all web UI code.
 
+## Hook-Based Enforcement
+
+Accessibility review is enforced by three global hooks, not just instructions:
+
+1. **Proactive detection** (`UserPromptSubmit`) — Detects web projects automatically and injects the delegation instruction on every prompt.
+2. **Edit gate** (`PreToolUse`) — Blocks Edit/Write to UI files (`.jsx`, `.tsx`, `.vue`, `.css`, `.html`, etc.) until accessibility-lead has been consulted. Uses `permissionDecision: "deny"`.
+3. **Session marker** (`PostToolUse`) — Creates a marker when accessibility-lead completes, unlocking the edit gate.
+
+If the edit gate blocks you, delegate to `accessibility-agents:accessibility-lead` first. After the review completes, UI file edits are unlocked for the rest of the session.
+
+See `docs/hooks-guide.md` for the full technical breakdown.
+
 ## Mandatory Accessibility Check
 
 Before writing or modifying any web UI code - including HTML, JSX, CSS, React components, Tailwind classes, web pages, forms, modals, or any user-facing web content - you MUST:

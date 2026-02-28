@@ -1,5 +1,5 @@
 ---
-name: ePub Accessibility
+name: epub-accessibility
 description: ePub document accessibility specialist. Use when scanning, reviewing, or remediating .epub files for accessibility. Covers EPUB Accessibility 1.1 (WCAG 2.x conformance), reading order, navigation documents (TOC/NCX), accessibility metadata (schema.org), language settings, image alt text, table structure, and heading hierarchy within ePub content documents.
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit

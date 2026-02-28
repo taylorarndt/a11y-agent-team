@@ -1,6 +1,6 @@
 ---
 name: web-csv-reporter
-description: Internal helper for exporting web accessibility audit findings to CSV format. Generates structured CSV reports with severity scoring, WCAG criteria mapping, Deque University help topic links, and actionable remediation guidance for each finding.
+description: Internal helper agent. Invoked by orchestrator agents via Task tool. Internal helper for exporting web accessibility audit findings to CSV format. Generates structured CSV reports with severity scoring, WCAG criteria mapping, Deque University help topic links, and actionable remediation guidance for each finding.
 tools: Read, Grep, Glob, Write
 model: inherit
 ---

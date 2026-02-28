@@ -2,6 +2,16 @@
 
 This project enforces WCAG AA accessibility standards for all web UI code.
 
+## Hook-Based Enforcement
+
+Accessibility review is enforced by three global hooks:
+
+1. **Proactive detection** (`UserPromptSubmit`) — Detects web projects and injects the delegation instruction on every prompt.
+2. **Edit gate** (`PreToolUse`) — Blocks Edit/Write to UI files until accessibility-lead has been consulted. Uses `permissionDecision: "deny"`.
+3. **Session marker** (`PostToolUse`) — Unlocks the edit gate after accessibility-lead completes.
+
+If an edit is blocked, delegate to `accessibility-agents:accessibility-lead` first.
+
 ## Mandatory Accessibility Check
 
 Before writing or modifying any web UI code - including HTML, JSX, CSS, React components, Tailwind classes, web pages, forms, modals, or any user-facing web content - you MUST:
@@ -16,48 +26,48 @@ Before writing or modifying any web UI code - including HTML, JSX, CSS, React co
 
 | Agent | When to Use |
 |-------|------------|
-| Accessibility Lead | Any UI task - coordinates all specialists and runs final review |
-| ARIA Specialist | Interactive components, custom widgets, ARIA usage |
-| Modal Specialist | Dialogs, drawers, popovers, overlays |
-| Contrast Master | Colors, themes, CSS styling, visual design |
-| Keyboard Navigator | Tab order, focus management, keyboard interaction |
-| Live Region Controller | Dynamic content updates, toasts, loading states |
-| Forms Specialist | Forms, inputs, validation, error handling, multi-step wizards |
-| Alt Text & Headings | Images, alt text, SVGs, heading structure, page titles, landmarks |
-| Tables Specialist | Data tables, sortable tables, grids, comparison tables |
-| Link Checker | Ambiguous link text, "click here"/"read more" detection |
-| Cognitive Accessibility | WCAG 2.2 cognitive SC, COGA guidance, plain language |
-| Mobile Accessibility | React Native, Expo, iOS, Android - touch targets, screen readers |
-| Design System Auditor | Color token contrast, focus ring tokens, spacing tokens |
-| Web Accessibility Wizard | Full guided web accessibility audit |
-| Document Accessibility Wizard | Document audit for .docx, .xlsx, .pptx, .pdf |
-| Markdown Accessibility | Markdown audit - links, headings, emoji, tables |
-| Testing Coach | Screen reader testing, keyboard testing, automated testing |
-| WCAG Guide | WCAG 2.2 criteria explanations, conformance levels |
+| accessibility-lead | Any UI task - coordinates all specialists and runs final review |
+| aria-specialist | Interactive components, custom widgets, ARIA usage |
+| modal-specialist | Dialogs, drawers, popovers, overlays |
+| contrast-master | Colors, themes, CSS styling, visual design |
+| keyboard-navigator | Tab order, focus management, keyboard interaction |
+| live-region-controller | Dynamic content updates, toasts, loading states |
+| forms-specialist | Forms, inputs, validation, error handling, multi-step wizards |
+| alt-text-headings | Images, alt text, SVGs, heading structure, page titles, landmarks |
+| tables-data-specialist | Data tables, sortable tables, grids, comparison tables |
+| link-checker | Ambiguous link text, "click here"/"read more" detection |
+| cognitive-accessibility | WCAG 2.2 cognitive SC, COGA guidance, plain language |
+| mobile-accessibility | React Native, Expo, iOS, Android - touch targets, screen readers |
+| design-system-auditor | Color token contrast, focus ring tokens, spacing tokens |
+| web-accessibility-wizard | Full guided web accessibility audit |
+| document-accessibility-wizard | Document audit for .docx, .xlsx, .pptx, .pdf |
+| markdown-a11y-assistant | Markdown audit - links, headings, emoji, tables |
+| testing-coach | Screen reader testing, keyboard testing, automated testing |
+| wcag-guide | WCAG 2.2 criteria explanations, conformance levels |
 
-## Slash Commands
+## Commands
 
-Type `/` followed by any command name to invoke the corresponding specialist directly:
+Type `/` followed by a command name to invoke the corresponding specialist directly:
 
 | Command | Specialist | Purpose |
-|---------|-----------|---------|
-| `/aria` | ARIA Specialist | ARIA patterns - roles, states, properties |
-| `/contrast` | Contrast Master | Color contrast - ratios, themes, visual design |
-| `/keyboard` | Keyboard Navigator | Keyboard nav - tab order, focus, shortcuts |
-| `/forms` | Forms Specialist | Forms - labels, validation, error handling |
-| `/alt-text` | Alt Text & Headings | Images/headings - alt text, hierarchy, landmarks |
-| `/tables` | Tables Specialist | Tables - headers, scope, caption, sorting |
-| `/links` | Link Checker | Links - ambiguous text detection |
-| `/modal` | Modal Specialist | Modals - focus trap, return, escape |
-| `/live-region` | Live Region Controller | Live regions - dynamic announcements |
-| `/audit` | Web Accessibility Wizard | Full guided web accessibility audit |
-| `/document` | Document Accessibility Wizard | Document audit - Word, Excel, PPT, PDF |
-| `/markdown` | Markdown Accessibility | Markdown audit - links, headings, emoji |
-| `/test` | Testing Coach | Testing - screen reader, keyboard, automated |
-| `/wcag` | WCAG Guide | WCAG reference - criteria explanations |
-| `/cognitive` | Cognitive Accessibility | Cognitive a11y - COGA, plain language |
-| `/mobile` | Mobile Accessibility | Mobile - React Native, touch targets |
-| `/design-system` | Design System Auditor | Tokens - contrast, focus rings, spacing |
+|-------|-----------|---------|
+| `/aria` | aria-specialist | ARIA patterns - roles, states, properties |
+| `/contrast` | contrast-master | Color contrast - ratios, themes, visual design |
+| `/keyboard` | keyboard-navigator | Keyboard nav - tab order, focus, shortcuts |
+| `/forms` | forms-specialist | Forms - labels, validation, error handling |
+| `/alt-text` | alt-text-headings | Images/headings - alt text, hierarchy, landmarks |
+| `/tables` | tables-data-specialist | Tables - headers, scope, caption, sorting |
+| `/links` | link-checker | Links - ambiguous text detection |
+| `/modal` | modal-specialist | Modals - focus trap, return, escape |
+| `/live-region` | live-region-controller | Live regions - dynamic announcements |
+| `/audit` | web-accessibility-wizard | Full guided web accessibility audit |
+| `/document` | document-accessibility-wizard | Document audit - Word, Excel, PPT, PDF |
+| `/markdown` | markdown-a11y-assistant | Markdown audit - links, headings, emoji |
+| `/test` | testing-coach | Testing - screen reader, keyboard, automated |
+| `/wcag` | wcag-guide | WCAG reference - criteria explanations |
+| `/cognitive` | cognitive-accessibility | Cognitive a11y - COGA, plain language |
+| `/mobile` | mobile-accessibility | Mobile - React Native, touch targets |
+| `/design-system` | design-system-auditor | Tokens - contrast, focus rings, spacing |
 
 ## Decision Matrix
 

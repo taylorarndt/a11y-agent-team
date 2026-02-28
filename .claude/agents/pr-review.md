@@ -1,5 +1,5 @@
 ---
-name: PR Review
+name: pr-review
 description: "Your code review command center -- pull PR diffs, before/after snapshots, developer comments, reactions, release context, and generate full review documents (markdown + HTML) in your workspace."
 tools: Read, Write, Edit, Bash, WebFetch
 model: inherit

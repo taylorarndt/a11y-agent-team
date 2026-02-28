@@ -10,11 +10,17 @@ This is for the **Claude Code CLI** (the terminal tool). If you want the Claude 
 
 ### How It Works
 
-The accessibility agents are installed as Claude Code agents that you invoke directly. When a task involves web UI code, invoke the **accessibility-lead** to coordinate the team. The lead evaluates the task and invokes the relevant specialists. The specialists apply their focused expertise and report findings.
+The accessibility agents are installed as Claude Code agents with a three-hook enforcement gate. You do not need to invoke them manually. The hooks automatically detect web projects and block UI file edits until accessibility-lead has been consulted.
+
+The enforcement flow:
+
+1. **Proactive detection** — A `UserPromptSubmit` hook checks your project directory for web framework indicators (`package.json` with React/Next/Vue, config files, `.tsx`/`.jsx` files). In a web project, the delegation instruction fires on every prompt — even "fix the bug."
+2. **Edit gate** — A `PreToolUse` hook blocks any Edit/Write to UI files (`.jsx`, `.tsx`, `.vue`, `.css`, `.html`, etc.) until the accessibility-lead agent has completed a review. The tool call is denied at the system level using `permissionDecision: "deny"`.
+3. **Session marker** — A `PostToolUse` hook creates a session marker when accessibility-lead completes. This unlocks the edit gate for the rest of the session.
 
 The team includes twenty-five agents: nine web code specialists that write and review code, six document accessibility specialists that scan Office and PDF files, one document accessibility wizard that runs guided document audits (with two hidden helper sub-agents for parallel scanning), one markdown documentation accessibility orchestrator (markdown-a11y-assistant) that audits .md files across nine accessibility domains (with two hidden helper sub-agents for parallel scanning and fix application), one orchestrator that coordinates them, one interactive wizard that runs guided web audits (with two hidden helper sub-agents for page crawling and parallel scanning), one testing coach that teaches you how to verify accessibility, and one WCAG guide that explains the standards themselves. Three reusable agent skills provide domain knowledge.
 
-For tasks that do not involve UI code (backend logic, scripts, database work), the agents are not needed.
+For tasks that do not involve UI code (backend logic, scripts, database work), the hooks stay silent and the agents are not invoked.
 
 ### Prerequisites
 
@@ -39,7 +45,7 @@ curl -fsSL https://raw.githubusercontent.com/Community-Access/accessibility-agen
 irm https://raw.githubusercontent.com/Community-Access/accessibility-agents/main/install.ps1 | iex
 ```
 
-The installer downloads the repo, copies agents, and optionally sets up daily auto-updates and GitHub Copilot agents. It will prompt you to choose project-level or global install.
+The installer downloads the repo, copies agents, installs the three enforcement hooks to `~/.claude/hooks/`, registers them in `~/.claude/settings.json`, and optionally sets up daily auto-updates and GitHub Copilot agents. It will prompt you to choose project-level or global install.
 
 **Non-interactive one-liners:**
 
@@ -106,9 +112,25 @@ mkdir -p ~/.claude/agents
 cp -r path/to/a11y-agent-team/.claude/agents/*.md ~/.claude/agents/
 ```
 
-##### 2. Verify
+##### 2. Copy enforcement hooks (global install only)
 
-Start Claude Code and type `/agents`. You should see all agents listed. If they all show up, you are good to go.
+```bash
+mkdir -p ~/.claude/hooks
+cp path/to/accessibility-agents/claude-code-plugin/scripts/a11y-team-eval.sh ~/.claude/hooks/
+cp path/to/accessibility-agents/claude-code-plugin/scripts/a11y-enforce-edit.sh ~/.claude/hooks/
+cp path/to/accessibility-agents/claude-code-plugin/scripts/a11y-mark-reviewed.sh ~/.claude/hooks/
+chmod +x ~/.claude/hooks/a11y-*.sh
+```
+
+Then register the hooks in `~/.claude/settings.json` (see the [Hooks Guide](hooks-guide.md) for the full JSON).
+
+##### 3. Verify
+
+Start Claude Code and type `/agents`. You should see all agents listed. Then verify enforcement:
+
+1. Open a web project (anything with `package.json` containing React/Next/Vue/etc.)
+2. Type any prompt — you should see `DETECTED: This is a web project` in the system reminder
+3. If Claude tries to edit a `.tsx` file without consulting accessibility-lead, it should be blocked with `BLOCKED: Cannot edit UI file...`
 
 ### Using the Agents in Claude Code
 
