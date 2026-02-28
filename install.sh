@@ -247,7 +247,7 @@ if ns not in data:
             "plugins": [{
                 "name": "accessibility-agents",
                 "source": "./plugins/accessibility-agents",
-                "description": "WCAG AA accessibility enforcement with 49 agents and enforcement hooks.",
+                "description": "WCAG AA accessibility enforcement with 55 agents and enforcement hooks.",
                 "version": "1.0.0"
             }]
         }
