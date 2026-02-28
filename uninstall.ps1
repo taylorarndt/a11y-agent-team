@@ -130,6 +130,62 @@ if ($Choice -eq "2") {
     }
 }
 
+# Remove enforcement hooks (global uninstall only)
+if ($Choice -eq "2") {
+    Write-Host ""
+    Write-Host "  Removing enforcement hooks..."
+    $HooksDir = Join-Path $env:USERPROFILE ".claude\hooks"
+    foreach ($Hook in @("a11y-team-eval.sh", "a11y-enforce-edit.sh", "a11y-mark-reviewed.sh")) {
+        $HookPath = Join-Path $HooksDir $Hook
+        if (Test-Path $HookPath) {
+            Remove-Item -Path $HookPath -Force
+            Write-Host "    - $Hook"
+        }
+    }
+    if ((Test-Path $HooksDir) -and (Get-ChildItem -Path $HooksDir -ErrorAction SilentlyContinue | Measure-Object).Count -eq 0) {
+        Remove-Item -Path $HooksDir -Force -ErrorAction SilentlyContinue
+    }
+
+    # Remove hook registrations from settings.json
+    $SettingsJson = Join-Path $env:USERPROFILE ".claude\settings.json"
+    if (Test-Path $SettingsJson) {
+        try {
+            $settings = Get-Content $SettingsJson -Raw | ConvertFrom-Json
+            if ($settings.hooks) {
+                $changed = $false
+                foreach ($event in @($settings.hooks.PSObject.Properties.Name)) {
+                    $entries = @($settings.hooks.$event)
+                    $filtered = @($entries | Where-Object {
+                        $dominated = $false
+                        foreach ($h in $_.hooks) {
+                            if ($h.command -and $h.command -match "a11y-") { $dominated = $true }
+                        }
+                        -not $dominated
+                    })
+                    if ($filtered.Count -lt $entries.Count) { $changed = $true }
+                    if ($filtered.Count -eq 0) {
+                        $settings.hooks.PSObject.Properties.Remove($event)
+                    } else {
+                        $settings.hooks | Add-Member -NotePropertyName $event -NotePropertyValue $filtered -Force
+                    }
+                }
+                if ($changed) {
+                    if (($settings.hooks.PSObject.Properties | Measure-Object).Count -eq 0) {
+                        $settings.PSObject.Properties.Remove("hooks")
+                    }
+                    $settings | ConvertTo-Json -Depth 10 | Out-File -FilePath $SettingsJson -Encoding utf8
+                    Write-Host "    - Hook registrations removed from settings.json"
+                }
+            }
+        } catch {
+            Write-Host "    ! Could not update settings.json (edit manually)"
+        }
+    }
+
+    # Clean up session markers
+    Get-ChildItem -Path $env:TEMP -Filter "a11y-reviewed-*" -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
+}
+
 # Remove auto-update (global uninstall only)
 if ($Choice -eq "2") {
     Write-Host ""

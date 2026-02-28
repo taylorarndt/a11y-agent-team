@@ -216,8 +216,82 @@ function Register-A11yPlugin {
     Write-Host "  Plugin registered: $ActualKey (v$PluginVersion)"
     Write-Host "    $agentCount agents"
     Write-Host "    $cmdCount slash commands"
-    Write-Host "    4 enforcement hooks"
+    Write-Host "    3 enforcement hooks (UserPromptSubmit, PreToolUse, PostToolUse)"
     return $CacheDir
+}
+
+# ---------------------------------------------------------------------------
+# Install-GlobalHooks: Installs the three-hook enforcement gate.
+# Hook 1 (UserPromptSubmit): Proactive web project detection
+# Hook 2 (PreToolUse): Blocks Edit/Write to UI files until a11y review
+# Hook 3 (PostToolUse): Creates session marker when accessibility-lead completes
+# ---------------------------------------------------------------------------
+function Install-GlobalHooks {
+    $HooksDir = Join-Path $env:USERPROFILE ".claude\hooks"
+    New-Item -ItemType Directory -Force -Path $HooksDir | Out-Null
+
+    $ScriptsSrc = Join-Path $ScriptDir "claude-code-plugin\scripts"
+
+    Write-Host ""
+    Write-Host "  Installing enforcement hooks..."
+
+    # Copy hook scripts
+    foreach ($Hook in @("a11y-team-eval.sh", "a11y-enforce-edit.sh", "a11y-mark-reviewed.sh")) {
+        $Src = Join-Path $ScriptsSrc $Hook
+        $Dst = Join-Path $HooksDir $Hook
+        if (Test-Path $Src) {
+            Copy-Item -Path $Src -Destination $Dst -Force
+            Write-Host "    + $Hook"
+        } else {
+            Write-Host "    ! $Hook (source not found)"
+        }
+    }
+
+    # Register hooks in settings.json
+    $SettingsJson = Join-Path $env:USERPROFILE ".claude\settings.json"
+    if (-not (Test-Path $SettingsJson)) {
+        @{} | ConvertTo-Json | Out-File -FilePath $SettingsJson -Encoding utf8
+    }
+
+    $EvalPath = (Join-Path $HooksDir "a11y-team-eval.sh") -replace '\\', '/'
+    $EnforcePath = (Join-Path $HooksDir "a11y-enforce-edit.sh") -replace '\\', '/'
+    $MarkerPath = (Join-Path $HooksDir "a11y-mark-reviewed.sh") -replace '\\', '/'
+
+    $settings = Get-Content $SettingsJson -Raw | ConvertFrom-Json
+    if (-not $settings.hooks) {
+        $settings | Add-Member -NotePropertyName hooks -NotePropertyValue @{} -Force
+    }
+
+    # Build hook entries
+    $UserPromptHook = @{ hooks = @(@{ type = "command"; command = "bash `"$EvalPath`"" }) }
+    $PreToolHook = @{ matcher = "Edit|Write"; hooks = @(@{ type = "command"; command = "bash `"$EnforcePath`"" }) }
+    $PostToolHook = @{ matcher = "Agent"; hooks = @(@{ type = "command"; command = "bash `"$MarkerPath`"" }) }
+
+    # Helper: upsert a hook entry into an event array
+    function Set-HookEntry {
+        param([string]$Event, [object]$Entry, [string]$Match)
+        $existing = @()
+        if ($settings.hooks.PSObject.Properties[$Event]) {
+            $existing = @($settings.hooks.$Event)
+        }
+        # Remove any existing a11y hook for this event
+        $filtered = @($existing | Where-Object {
+            $dominated = $false
+            foreach ($h in $_.hooks) {
+                if ($h.command -and $h.command -match "a11y-") { $dominated = $true }
+            }
+            -not $dominated
+        })
+        $filtered += $Entry
+        $settings.hooks | Add-Member -NotePropertyName $Event -NotePropertyValue $filtered -Force
+    }
+
+    Set-HookEntry -Event "UserPromptSubmit" -Entry $UserPromptHook
+    Set-HookEntry -Event "PreToolUse" -Entry $PreToolHook
+    Set-HookEntry -Event "PostToolUse" -Entry $PostToolHook
+
+    $settings | ConvertTo-Json -Depth 10 | Out-File -FilePath $SettingsJson -Encoding utf8
+    Write-Host "    + Hooks registered in settings.json"
 }
 
 # ---------------------------------------------------------------------------
@@ -229,6 +303,9 @@ if ($Choice -eq "2" -and $PluginSrc) {
     # Global install: register as Claude Code plugin
     $PluginCacheDir = Register-A11yPlugin -SrcDir $PluginSrc
     $PluginInstall = $true
+
+    # Install the three-hook enforcement gate
+    Install-GlobalHooks
 
     # Clean up previous non-plugin install
     $OldManifest = Join-Path $TargetDir ".a11y-agent-manifest"
@@ -582,11 +659,21 @@ if ($PluginInstall) {
         Write-Host "    [x] /$($f.BaseName)"
     }
     Write-Host ""
-    Write-Host "  Enforcement hooks:"
-    Write-Host "    [x] UserPromptSubmit  - Injects accessibility-lead instruction"
-    Write-Host "    [x] PreToolUse        - Blocks UI file edits without a11y review"
-    Write-Host "    [x] SubagentStart     - Creates session marker"
-    Write-Host "    [x] SubagentStop      - Logs agent activity"
+    Write-Host "  Enforcement hooks (three-hook gate):"
+    $HooksDir = Join-Path $env:USERPROFILE ".claude\hooks"
+    $HookChecks = @(
+        @{ File = "a11y-team-eval.sh";    Label = "UserPromptSubmit  - Proactive web project detection" },
+        @{ File = "a11y-enforce-edit.sh";  Label = "PreToolUse        - Blocks UI file edits until accessibility-lead reviewed" },
+        @{ File = "a11y-mark-reviewed.sh"; Label = "PostToolUse       - Unlocks edit gate after accessibility-lead completes" }
+    )
+    foreach ($Check in $HookChecks) {
+        $HookPath = Join-Path $HooksDir $Check.File
+        if (Test-Path $HookPath) {
+            Write-Host "    [x] $($Check.Label)"
+        } else {
+            Write-Host "    [ ] $($Check.Label) (not installed)"
+        }
+    }
 } else {
     Write-Host ""
     Write-Host "  Claude Code agents installed:"
@@ -673,10 +760,10 @@ Write-Host ""
 if ($PluginInstall) {
     Write-Host "  Restart Claude Code for the plugin to take effect."
     Write-Host ""
-    Write-Host "  The plugin will:"
-    Write-Host "    - Inject accessibility instructions into every prompt"
-    Write-Host "    - Block UI file edits until accessibility-lead reviews"
-    Write-Host "    - Log all agent activity"
+    Write-Host "  The three-hook enforcement gate will:"
+    Write-Host "    - Detect web projects and inject accessibility instructions on every prompt"
+    Write-Host "    - Block Edit/Write to UI files until accessibility-lead has reviewed"
+    Write-Host "    - Unlock the edit gate after accessibility-lead completes"
 } else {
     Write-Host "  If agents stop loading, increase the character budget:"
     Write-Host "    `$env:SLASH_COMMAND_TOOL_CHAR_BUDGET = '30000'"
