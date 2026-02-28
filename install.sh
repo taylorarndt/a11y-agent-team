@@ -1548,11 +1548,13 @@ PLIST
   fi
 fi
 
-# Record install scope for uninstaller
-if [ "$choice" = "1" ]; then
-  add_manifest_entry "scope:project"
-else
-  add_manifest_entry "scope:global"
+# Record install scope for uninstaller (only for file-copy installs that have a manifest)
+if command -v add_manifest_entry &>/dev/null 2>&1 || type add_manifest_entry &>/dev/null 2>&1; then
+  if [ "$choice" = "1" ]; then
+    add_manifest_entry "scope:project"
+  else
+    add_manifest_entry "scope:global"
+  fi
 fi
 
 # Clean up temp download

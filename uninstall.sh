@@ -432,11 +432,11 @@ else
 fi
 
 GEMINI_REMOVED=false
-# Deduplicate paths
-declare -A seen_paths
+# Deduplicate paths (bash 3 compatible — no associative arrays)
+_seen_paths=""
 for gemini_dir in "${GEMINI_PATHS[@]}"; do
-  [ -n "${seen_paths[$gemini_dir]+x}" ] && continue
-  seen_paths[$gemini_dir]=1
+  case "$_seen_paths" in *"|$gemini_dir|"*) continue ;; esac
+  _seen_paths="${_seen_paths}|${gemini_dir}|"
   if [ -d "$gemini_dir" ]; then
     echo ""
     echo "  Removing Gemini CLI extension..."
@@ -466,7 +466,7 @@ with open(path) as f:
     data = json.load(f)
 removed = None
 for k in list(data.get('plugins', {})):
-    if k.startswith('a11y-agent-team@'):
+    if k.startswith('a11y-agent-team@') or k.startswith('accessibility-agents@'):
         removed = k
         del data['plugins'][k]
         break
@@ -492,9 +492,10 @@ with open(path, 'w') as f:
 PYEOF
         echo "    - Removed from settings.json enabledPlugins"
       fi
-      # Remove plugin cache
-      namespace="${removed_key#a11y-agent-team@}"
-      cache_dir="$HOME/.claude/plugins/cache/${namespace}/a11y-agent-team"
+      # Remove plugin cache — key format is "name@namespace"
+      plugin_name="${removed_key%%@*}"
+      namespace="${removed_key#*@}"
+      cache_dir="$HOME/.claude/plugins/cache/${namespace}/${plugin_name}"
       if [ -d "$cache_dir" ]; then
         rm -rf "$cache_dir"
         echo "    - Removed plugin cache"

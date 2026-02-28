@@ -374,7 +374,7 @@ if ($Choice -eq "2") {
             $PluginData = Get-Content $PluginsJson -Raw | ConvertFrom-Json
             $RemovedKey = $null
             foreach ($Key in @($PluginData.plugins.PSObject.Properties.Name)) {
-                if ($Key -like "a11y-agent-team@*") {
+                if ($Key -like "a11y-agent-team@*" -or $Key -like "accessibility-agents@*") {
                     $RemovedKey = $Key
                     $PluginData.plugins.PSObject.Properties.Remove($Key)
                     break
@@ -395,8 +395,9 @@ if ($Choice -eq "2") {
                     }
                 }
 
-                $Namespace = $RemovedKey -replace '^a11y-agent-team@', ''
-                $PluginCache = Join-Path $env:USERPROFILE ".claude\plugins\cache\$Namespace\a11y-agent-team"
+                $PluginName = ($RemovedKey -split '@')[0]
+                $Namespace = ($RemovedKey -split '@')[1]
+                $PluginCache = Join-Path $env:USERPROFILE ".claude\plugins\cache\$Namespace\$PluginName"
                 if (Test-Path $PluginCache) {
                     Remove-Item -Path $PluginCache -Recurse -Force
                     Write-Host "    - Removed plugin cache"
