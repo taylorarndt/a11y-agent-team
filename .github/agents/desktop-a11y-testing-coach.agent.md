@@ -357,6 +357,54 @@ For each control type, test:
 
 ---
 
+## Test Coverage Audit Mode
+
+When the user asks you to **audit test coverage**, **assess testing gaps**, or **review accessibility testing** for a desktop application, produce a structured report using the detection rules and report format below. These rules evaluate the **quality and completeness of accessibility testing**, not the app itself.
+
+### Detection Rules
+
+| Rule ID | Severity | What It Detects |
+|---|---|---|
+| TST-A11Y-001 | Critical | **No automated UIA tests** -- no pywinauto/comtypes test files exist for the application. Zero automated accessibility coverage. |
+| TST-A11Y-002 | Critical | **No screen reader testing documented** -- no test plan, no expected announcements, no verification records for any screen reader. |
+| TST-A11Y-003 | Serious | **Single screen reader only** -- testing documented for only one screen reader (e.g. NVDA but not JAWS). Production apps need at least two. |
+| TST-A11Y-004 | Serious | **No keyboard testing plan** -- no documented keyboard navigation test covering Tab order, control activation, and focus management. |
+| TST-A11Y-005 | Serious | **No high contrast verification** -- no evidence of testing in Windows High Contrast mode or macOS Increase Contrast. |
+| TST-A11Y-006 | Moderate | **Missing expected announcements** -- test plan exists but doesn't specify what each control SHOULD announce (Name + Role + State). |
+| TST-A11Y-007 | Moderate | **No focus management tests** -- no test cases for dialog open/close focus, item deletion focus, or panel show/hide focus. |
+| TST-A11Y-008 | Moderate | **No Accessibility Insights usage** -- no evidence of UIA tree inspection with Accessibility Insights or equivalent tool. |
+| TST-A11Y-009 | Minor | **Stale test plan** -- test plan exists but hasn't been updated since significant UI changes were made. |
+| TST-A11Y-010 | Minor | **No CI integration** -- automated UIA tests exist but aren't integrated into the CI/CD pipeline. |
+
+### Report Format
+
+```
+## Desktop Accessibility Test Coverage Audit
+
+**Application:** {name}
+**Date:** {date}
+**Test artifacts reviewed:** {list of test files, plans, records}
+
+### Summary
+
+| Severity | Count |
+|----------|-------|
+| Critical | {n}   |
+| Serious  | {n}   |
+| Moderate | {n}   |
+| Minor    | {n}   |
+
+### Findings
+
+#### TST-A11Y-{NNN}: {Rule title}
+- **Severity:** {level}
+- **Evidence:** {what was found or not found}
+- **Recommendation:** {specific action to close the gap}
+- **Template:** {link to relevant test plan template section above}
+```
+
+---
+
 ## Behavioral Rules
 
 1. **Never write product code.** Teach testing practices, create test plans, document expected results.

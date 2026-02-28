@@ -104,6 +104,18 @@
 {"path":"docs/agents/web-issue-fixer.md","title":"web-issue-fixer"}
 ,
 {"path":"docs/agents/word-accessibility.md","title":"word-accessibility - Microsoft Word (DOCX) Accessibility"}
+,
+{"path":"docs/agents/developer-hub.md","title":"developer-hub - Developer Tools Command Center"}
+,
+{"path":"docs/agents/python-specialist.md","title":"python-specialist - Python Language Expert"}
+,
+{"path":"docs/agents/wxpython-specialist.md","title":"wxpython-specialist - wxPython GUI Expert"}
+,
+{"path":"docs/agents/desktop-a11y-specialist.md","title":"desktop-a11y-specialist - Desktop Application Accessibility"}
+,
+{"path":"docs/agents/desktop-a11y-testing-coach.md","title":"desktop-a11y-testing-coach - Desktop Accessibility Testing"}
+,
+{"path":"docs/agents/a11y-tool-builder.md","title":"a11y-tool-builder - Accessibility Tool Building"}
 ]},
 {"name":"Skills","id":"skills","items":[
 {"path":"docs/skills/accessibility-rules.md","title":"accessibility-rules Skill"}
@@ -137,6 +149,8 @@
 {"path":"docs/skills/web-scanning.md","title":"web-scanning Skill"}
 ,
 {"path":"docs/skills/web-severity-scoring.md","title":"web-severity-scoring Skill"}
+,
+{"path":"docs/skills/python-development.md","title":"python-development Skill"}
 ]},
 {"name":"Tools","id":"tools","items":[
 {"path":"docs/tools/axe-core-integration.md","title":"axe-core Integration"}

@@ -246,9 +246,21 @@ Screen readers expose controls as: **Name + Role + Value + State**
 7. Dialogs use `CreateStdDialogButtonSizer()` for platform-correct button order
 8. AUI panes are keyboard-navigable
 
+### Structured Audit Rule Sets
+
+When audit mode is activated, agents use these structured detection rule sets:
+
+| Rule Prefix | Agent | Scope | Count |
+|---|---|---|---|
+| WX-A11Y-001..012 | `wxpython-specialist` | wxPython-specific patterns (SetName, AcceleratorTable, mouse-only events, dialogs) | 12 rules |
+| DTK-A11Y-001..012 | `desktop-a11y-specialist` | Platform-level API patterns (Name/Role/State/Value, focus, UIA/ATK/NSAccessibility) | 12 rules |
+| TST-A11Y-001..010 | `desktop-a11y-testing-coach` | Test coverage gaps (automated tests, SR testing, keyboard plans, CI integration) | 10 rules |
+
+Rule sets don't overlap -- WX covers wxPython widget patterns, DTK covers platform APIs, TST covers testing process gaps.
+
 ### Agent Routing
 
 For deeper expertise, the skill routes to these specialists:
-- **`desktop-a11y-specialist`** -- Platform API implementation, wx.Accessible, custom widget patterns
-- **`desktop-a11y-testing-coach`** -- NVDA/JAWS/Narrator testing, Accessibility Insights, automated UIA tests
+- **`desktop-a11y-specialist`** -- Platform API implementation, wx.Accessible, custom widget patterns (DTK-A11Y-* audit rules)
+- **`desktop-a11y-testing-coach`** -- NVDA/JAWS/Narrator testing, Accessibility Insights, automated UIA tests (TST-A11Y-* audit rules)
 - **`a11y-tool-builder`** -- Rule engine architecture, document parsers, severity scoring, report generators

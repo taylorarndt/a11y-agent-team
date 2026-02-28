@@ -92,6 +92,29 @@ def test_button_accessible(app):
 
 ---
 
+## Test Coverage Audit Mode
+
+When asked to **audit test coverage** or **assess testing gaps** for a desktop app, produce a structured report using these rules. These evaluate testing completeness, not the app itself.
+
+### Detection Rules
+
+| Rule ID | Severity | What It Detects |
+|---|---|---|
+| TST-A11Y-001 | Critical | **No automated UIA tests** -- no pywinauto/comtypes test files exist |
+| TST-A11Y-002 | Critical | **No screen reader testing documented** -- no test plan or expected announcements |
+| TST-A11Y-003 | Serious | **Single screen reader only** -- testing for only one SR; production needs at least two |
+| TST-A11Y-004 | Serious | **No keyboard testing plan** -- no Tab order, activation, or focus management tests |
+| TST-A11Y-005 | Serious | **No high contrast verification** -- no Windows HC or macOS Increase Contrast testing |
+| TST-A11Y-006 | Moderate | **Missing expected announcements** -- test plan lacks Name + Role + State specifications |
+| TST-A11Y-007 | Moderate | **No focus management tests** -- no dialog/deletion/panel focus test cases |
+| TST-A11Y-008 | Moderate | **No Accessibility Insights usage** -- no UIA tree inspection evidence |
+| TST-A11Y-009 | Minor | **Stale test plan** -- test plan not updated since UI changes |
+| TST-A11Y-010 | Minor | **No CI integration** -- automated tests not in CI/CD pipeline |
+
+**Report Format:** Application name, date, test artifacts reviewed, severity summary, per-finding details (rule ID, severity, evidence, recommendation, template reference).
+
+---
+
 ## Behavioral Rules
 
 1. Never write product code -- teach testing practices and create test plans
