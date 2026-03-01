@@ -1,6 +1,10 @@
 # A11y Agent Team Installer (Windows PowerShell)
 # Built by Taylor Arndt - https://github.com/taylorarndt
 #
+# NOTE: Keep this file ASCII-only. Windows PowerShell 5.1 reads .ps1 files
+# as Windows-1252 when no UTF-8 BOM is present, which corrupts non-ASCII
+# characters (e.g. em-dashes become right double-quotes, breaking strings).
+#
 # One-liner:
 #   irm https://raw.githubusercontent.com/Community-Access/accessibility-agents/main/install.ps1 | iex
 
@@ -133,6 +137,20 @@ function Install-GlobalHooks {
 
     New-Item -ItemType Directory -Force -Path $HooksDir | Out-Null
 
+    # Resolve bash path - Git for Windows may not add bash.exe to PATH
+    $BashCmd = "bash"
+    if (-not (Get-Command bash -ErrorAction SilentlyContinue)) {
+        $GitCmd = Get-Command git -ErrorAction SilentlyContinue
+        if ($GitCmd) {
+            $GitBin = Join-Path (Split-Path (Split-Path $GitCmd.Source)) "bin\bash.exe"
+            if (Test-Path $GitBin) {
+                $BashCmd = $GitBin.Replace('\', '/')
+            } else {
+                Write-Host "    Warning: bash not found in PATH or Git install. Hooks may not execute."
+            }
+        }
+    }
+
     # Forward-slash path for bash on Windows (Git Bash requires forward slashes)
     $HooksDirFwd = $HooksDir.Replace('\', '/')
 
@@ -178,15 +196,15 @@ function Install-GlobalHooks {
     }
 
     Set-HookEntry -EventName "UserPromptSubmit" -MatchSubstr "a11y-team-eval" -NewEntry @{
-        hooks = @(@{ type = "command"; command = "bash `"$HooksDirFwd/a11y-team-eval.sh`"" })
+        hooks = @(@{ type = "command"; command = "$BashCmd `"$HooksDirFwd/a11y-team-eval.sh`"" })
     }
     Set-HookEntry -EventName "PreToolUse" -MatchSubstr "a11y-enforce-edit" -NewEntry @{
         matcher = "Edit|Write"
-        hooks = @(@{ type = "command"; command = "bash `"$HooksDirFwd/a11y-enforce-edit.sh`"" })
+        hooks = @(@{ type = "command"; command = "$BashCmd `"$HooksDirFwd/a11y-enforce-edit.sh`"" })
     }
     Set-HookEntry -EventName "PostToolUse" -MatchSubstr "a11y-mark-reviewed" -NewEntry @{
         matcher = "Agent"
-        hooks = @(@{ type = "command"; command = "bash `"$HooksDirFwd/a11y-mark-reviewed.sh`"" })
+        hooks = @(@{ type = "command"; command = "$BashCmd `"$HooksDirFwd/a11y-mark-reviewed.sh`"" })
     }
 
     Write-Host "    + Hook 1: a11y-team-eval.sh (UserPromptSubmit - proactive web detection)"
@@ -293,12 +311,12 @@ if ($CopilotChoice -eq "y" -or $CopilotChoice -eq "Y") {
                 New-Item -ItemType Directory -Force -Path $DstSubDir | Out-Null
                 $Added = 0; $Skipped = 0
                 foreach ($File in Get-ChildItem -Recurse -File $SrcSubDir) {
-                    $Rel  = $File.FullName.Substring($SrcSubDir.Length).TrimStart('\')
+                    $Rel  = $File.FullName.Substring($SrcSubDir.Length).TrimStart('\\')
                     $Dst  = Join-Path $DstSubDir $Rel
                     New-Item -ItemType Directory -Force -Path (Split-Path $Dst) | Out-Null
                     if (Test-Path $Dst) { $Skipped++ } else {
                         Copy-Item $File.FullName $Dst
-                        $RelEntry = $Rel.Replace('\','/')
+                        $RelEntry = $Rel.Replace('\\','/')
                         Add-ManifestEntry "copilot-$SubDir/$RelEntry"
                         $Added++
                     }
@@ -460,7 +478,7 @@ foreach ($Pair in @(
         New-Item -ItemType Directory -Force -Path $Dst | Out-Null
         $Added = 0; $Skipped = 0
         Get-ChildItem -Recurse -File $Pair.Src | ForEach-Object {
-            $Rel  = $_.FullName.Substring($Pair.Src.Length).TrimStart('\')
+            $Rel  = $_.FullName.Substring($Pair.Src.Length).TrimStart('\\')
             $DstF = Join-Path $Dst $Rel
             New-Item -ItemType Directory -Force -Path (Split-Path $DstF) | Out-Null
             if (Test-Path $DstF) { $Skipped++ } else { Copy-Item $_.FullName $DstF; $Added++ }
@@ -650,9 +668,3 @@ Write-Host "    `$env:SLASH_COMMAND_TOOL_CHAR_BUDGET = '30000'"
 Write-Host ""
 Write-Host "  To uninstall, run:"
 Write-Host "    irm https://raw.githubusercontent.com/Community-Access/accessibility-agents/main/uninstall.ps1 | iex"
-Write-Host ""
-Write-Host "  For manual uninstall instructions, see: UNINSTALL.md"
-Write-Host ""
-Write-Host "  Start Claude Code and try: `"Build a login form`""
-Write-Host "  The accessibility-lead should activate automatically."
-Write-Host ""
