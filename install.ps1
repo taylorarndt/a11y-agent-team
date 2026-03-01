@@ -15,7 +15,7 @@ $ScriptDir = if ($MyInvocation.MyCommand.Path) {
 }
 
 if (-not $ScriptDir -or -not (Test-Path (Join-Path $ScriptDir ".claude\agents"))) {
-    # Running from irm pipe or without repo — download first
+    # Running from irm pipe or without repo - download first
     $Downloaded = $true
     $TmpDir = Join-Path $env:TEMP "a11y-agent-team-install-$(Get-Random)"
     Write-Host ""
@@ -114,9 +114,9 @@ function Merge-ConfigFile {
 
 # ---------------------------------------------------------------------------
 # Install-GlobalHooks: installs three enforcement hooks for Claude Code.
-#   1. a11y-team-eval.sh     (UserPromptSubmit) — Proactive web project detection
-#   2. a11y-enforce-edit.sh  (PreToolUse)       — Blocks UI file edits without review
-#   3. a11y-mark-reviewed.sh (PostToolUse)      — Creates session marker after review
+#   1. a11y-team-eval.sh     (UserPromptSubmit) - Proactive web project detection
+#   2. a11y-enforce-edit.sh  (PreToolUse)       - Blocks UI file edits without review
+#   3. a11y-mark-reviewed.sh (PostToolUse)      - Creates session marker after review
 # ---------------------------------------------------------------------------
 function Install-GlobalHooks {
     $HooksDir = Join-Path $env:USERPROFILE ".claude\hooks"
@@ -127,11 +127,14 @@ function Install-GlobalHooks {
         $HookSrc = Join-Path $ScriptDir ".claude\hooks"
     }
     if (-not (Test-Path $HookSrc)) {
-        Write-Host "    (hook scripts not found — skipping)"
+        Write-Host "    (hook scripts not found - skipping)"
         return
     }
 
     New-Item -ItemType Directory -Force -Path $HooksDir | Out-Null
+
+    # Forward-slash path for bash on Windows (Git Bash requires forward slashes)
+    $HooksDirFwd = $HooksDir.Replace('\', '/')
 
     foreach ($Hook in @("a11y-team-eval.sh", "a11y-enforce-edit.sh", "a11y-mark-reviewed.sh")) {
         $Src = Join-Path $HookSrc $Hook
@@ -150,11 +153,11 @@ function Install-GlobalHooks {
     function Set-HookEntry {
         param([string]$EventName, [string]$MatchSubstr, [hashtable]$NewEntry)
         $Settings = Get-Content $SettingsJson -Raw | ConvertFrom-Json
-        if (-not $Settings.PSObject.Properties.Name.Contains("hooks")) {
+        if (-not $Settings.PSObject.Properties["hooks"]) {
             $Settings | Add-Member -NotePropertyName "hooks" -NotePropertyValue ([PSCustomObject]@{})
         }
         $Hooks = $Settings.hooks
-        if (-not $Hooks.PSObject.Properties.Name.Contains($EventName)) {
+        if (-not $Hooks.PSObject.Properties[$EventName]) {
             $Hooks | Add-Member -NotePropertyName $EventName -NotePropertyValue @()
         }
         $Entries = @($Hooks.$EventName)
@@ -175,20 +178,20 @@ function Install-GlobalHooks {
     }
 
     Set-HookEntry -EventName "UserPromptSubmit" -MatchSubstr "a11y-team-eval" -NewEntry @{
-        hooks = @(@{ type = "command"; command = "$HooksDir/a11y-team-eval.sh" })
+        hooks = @(@{ type = "command"; command = "bash `"$HooksDirFwd/a11y-team-eval.sh`"" })
     }
     Set-HookEntry -EventName "PreToolUse" -MatchSubstr "a11y-enforce-edit" -NewEntry @{
         matcher = "Edit|Write"
-        hooks = @(@{ type = "command"; command = "$HooksDir/a11y-enforce-edit.sh" })
+        hooks = @(@{ type = "command"; command = "bash `"$HooksDirFwd/a11y-enforce-edit.sh`"" })
     }
     Set-HookEntry -EventName "PostToolUse" -MatchSubstr "a11y-mark-reviewed" -NewEntry @{
         matcher = "Agent"
-        hooks = @(@{ type = "command"; command = "$HooksDir/a11y-mark-reviewed.sh" })
+        hooks = @(@{ type = "command"; command = "bash `"$HooksDirFwd/a11y-mark-reviewed.sh`"" })
     }
 
-    Write-Host "    + Hook 1: a11y-team-eval.sh (UserPromptSubmit — proactive web detection)"
-    Write-Host "    + Hook 2: a11y-enforce-edit.sh (PreToolUse — blocks UI edits without review)"
-    Write-Host "    + Hook 3: a11y-mark-reviewed.sh (PostToolUse — unlocks after review)"
+    Write-Host "    + Hook 1: a11y-team-eval.sh (UserPromptSubmit - proactive web detection)"
+    Write-Host "    + Hook 2: a11y-enforce-edit.sh (PreToolUse - blocks UI edits without review)"
+    Write-Host "    + Hook 3: a11y-mark-reviewed.sh (PostToolUse - unlocks after review)"
     Write-Host "    + All 3 hooks registered in settings.json"
 }
 
@@ -209,7 +212,7 @@ function Save-Manifest {
     [IO.File]::WriteAllLines($ManifestPath, $Manifest.ToArray(), [Text.Encoding]::UTF8)
 }
 
-# Copy agents — skip any file that already exists (preserves user customisations)
+# Copy agents - skip any file that already exists (preserves user customisations)
 Write-Host ""
 Write-Host "  Copying agents..."
 $SkippedAgents = 0
@@ -252,7 +255,7 @@ if ($CopilotChoice -eq "y" -or $CopilotChoice -eq "Y") {
         New-Item -ItemType Directory -Force -Path $CopilotDst | Out-Null
         $CopilotDestinations += $CopilotDst
 
-        # Merge Copilot config files — appends our section rather than overwriting
+        # Merge Copilot config files - appends our section rather than overwriting
         Write-Host ""
         Write-Host "  Merging Copilot config..."
         foreach ($Config in @("copilot-instructions.md", "copilot-review-instructions.md", "copilot-commit-message-instructions.md")) {
@@ -263,7 +266,7 @@ if ($CopilotChoice -eq "y" -or $CopilotChoice -eq "Y") {
             }
         }
 
-        # Copy Copilot agents — skip files that already exist (preserves user agents)
+        # Copy Copilot agents - skip files that already exist (preserves user agents)
         Write-Host ""
         Write-Host "  Copying Copilot agents..."
         if (Test-Path $CopilotAgentsSrc) {
@@ -280,7 +283,7 @@ if ($CopilotChoice -eq "y" -or $CopilotChoice -eq "Y") {
             }
         }
 
-        # Copy Copilot asset subdirs — file-by-file, skipping files that already exist
+        # Copy Copilot asset subdirs - file-by-file, skipping files that already exist
         Write-Host ""
         Write-Host "  Copying Copilot assets..."
         foreach ($SubDir in @("skills", "instructions", "prompts")) {
@@ -404,7 +407,7 @@ if (-not (Test-Path $Central)) {
     exit 1
 }
 
-# Merge helper — appends/updates our section in config files; never overwrites user content
+# Merge helper - appends/updates our section in config files; never overwrites user content
 function Merge-ConfigFile {
     param([string]$SrcFile, [string]$DstFile, [string]$Label)
     $start  = "<!-- a11y-agent-team: start -->"
@@ -428,7 +431,7 @@ function Merge-ConfigFile {
     }
 }
 
-# Agents — skip files that already exist (preserves user customisations)
+# Agents - skip files that already exist (preserves user customisations)
 $AgentDst = Join-Path $GithubDir "agents"
 New-Item -ItemType Directory -Force -Path $AgentDst | Out-Null
 $AgentAdded = 0; $AgentSkipped = 0
@@ -438,7 +441,7 @@ Get-ChildItem -Path $Central | ForEach-Object {
 }
 Write-Host "  Copied agents to .github\agents\ ($AgentAdded new, $AgentSkipped skipped)"
 
-# Copilot config files — always merged, never overwritten
+# Copilot config files - always merged, never overwritten
 foreach ($Config in @("copilot-instructions.md", "copilot-review-instructions.md", "copilot-commit-message-instructions.md")) {
     $Src = Join-Path $CentralRoot $Config
     if (Test-Path $Src) {
@@ -446,7 +449,7 @@ foreach ($Config in @("copilot-instructions.md", "copilot-review-instructions.md
     }
 }
 
-# Asset stores: prompts, instructions, skills — file-by-file, skip existing
+# Asset stores: prompts, instructions, skills - file-by-file, skip existing
 foreach ($Pair in @(
     @{ Src = $CentralPrompts;      Sub = "prompts" },
     @{ Src = $CentralInstructions; Sub = "instructions" },
@@ -519,7 +522,7 @@ if (Test-Path $GeminiSrc) {
             }
         }
 
-        # Copy skills — directory by directory, skip existing
+        # Copy skills - directory by directory, skip existing
         $SkillsSrc = Join-Path $GeminiSrc "skills"
         if (Test-Path $SkillsSrc) {
             $Added = 0; $Skipped = 0
@@ -630,7 +633,7 @@ if ($Choice -eq "2") {
     }
 }
 
-# Final manifest save — captures everything installed across all platforms
+# Final manifest save - captures everything installed across all platforms
 Save-Manifest
 
 # Record install scope for uninstaller
