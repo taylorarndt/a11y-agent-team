@@ -22,7 +22,7 @@ print('SESSION_ID=' + repr(session_id))
 # If this was an accessibility-lead agent call, create the marker
 if [ -n "$SESSION_ID" ]; then
   case "$SUBAGENT" in
-    *accessibility-lead*|*accessibility-agents:accessibility-lead*)
+    accessibility-agents:accessibility-lead|accessibility-lead)
       touch "/tmp/a11y-reviewed-${SESSION_ID}"
       ;;
   esac
